@@ -395,7 +395,7 @@ footer{padding-block:22px 30px;font-size:13.5px}
 .plan ul{gap:7px}.plan li{font-size:14px;line-height:1.4}
 .plan{padding:22px}.plans{gap:14px}
 .cmp{display:grid;gap:16px;margin-top:16px;grid-template-columns:minmax(0,1fr)}
-@media(min-width:900px){.cmp{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);align-items:start}}
+@media(min-width:900px){.cmp{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);align-items:center}}
 .cmp table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;font-size:14px}
 .cmp caption{text-align:left;font:700 1.05rem var(--display);padding:0 0 8px}
 .cmp th,.cmp td{padding:9px 14px;border-top:1px solid var(--line);text-align:left}
@@ -428,3 +428,7 @@ footer{padding-block:22px 30px;font-size:13.5px}
 .domstrip .wrap{display:flex;flex-wrap:wrap;gap:6px 22px;align-items:center}
 .domstrip .dk{display:inline-flex;align-items:center;gap:8px}.domstrip .ic{width:18px;height:18px}
 .domstrip .dopt{opacity:.8}.domstrip b{font-weight:700}
+
+.notinc{text-align:center;align-self:center}.notinc li{text-align:center}
+.steps li{grid-template-columns:48px minmax(0,1fr)}
+.steps li::before{content:counter(s);font:800 1.9rem/1 var(--display);color:#000;padding-top:0;width:40px;height:40px;display:grid;place-items:center;border:2.5px solid #000;border-radius:50%;font-size:1.25rem}
