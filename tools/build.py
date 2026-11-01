@@ -87,7 +87,7 @@ NEW_SYMBOLS = """
 sprite = sprite.replace("</svg>", NEW_SYMBOLS + "</svg>", 1)
 
 # ------------------------------------------------------------------ gabarit
-NAV = [("Accueil", "/", "home"), ("Offre &amp; Prix", "/offre", "offre"),
+NAV = [("Accueil", "/", "home"), ("Exemples", "/#avant", None), ("Offre &amp; Prix", "/offre", "offre"),
        ("Comment ça marche", "/#etapes", None), ("FAQ", "/faq", "faq")]
 
 
