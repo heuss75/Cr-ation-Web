@@ -447,11 +447,24 @@
     return fetch(path, { method: method, credentials: 'same-origin', headers: body ? { 'content-type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined })
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { s: r.status, j: j }; }); });
   }
+  /* ----- bandeau « vous consultez le compte d'un client » (administrateur) ----- */
+  if (/(?:^|;\s*)sv_imp=1/.test(document.cookie)) {
+    api('/api/moi', 'GET').then(function (r) {
+      if (r.s === 200 && r.j.impersonation) {
+        document.body.classList.add('imp');
+        var bar = document.createElement('div'); bar.className = 'impbar'; bar.setAttribute('role', 'status');
+        var tx = document.createElement('span'); tx.textContent = 'Vous consultez le compte de ' + (r.j.nom || 'ce client') + ' en tant qu’administrateur (lecture seule).';
+        var bt = document.createElement('button'); bt.type = 'button'; bt.textContent = 'Revenir à l’admin';
+        bt.addEventListener('click', function () { api('/api/quitter-impersonation', 'POST').then(function () { document.cookie = 'sv_imp=; Path=/; Max-Age=0; Secure; SameSite=Lax'; location.href = '/admin'; }); });
+        bar.appendChild(tx); bar.appendChild(bt); document.body.appendChild(bar);
+      } else { document.cookie = 'sv_imp=; Path=/; Max-Age=0; Secure; SameSite=Lax'; }
+    }).catch(function () {});
+  }
   var NEXT = '/commander' + location.search;
   function bad(box, msg) { box.querySelector('span').textContent = msg; box.classList.add('on'); box.focus(); }
   var sf = $('#signup'), lf = $('#login');
   if (sf || lf) {
-    api('/api/moi', 'GET').then(function (r) { if (r.s === 200 && r.j.ok) location.replace(NEXT); }).catch(function () {});
+    api('/api/moi', 'GET').then(function (r) { if (r.s === 200 && r.j.ok) location.replace(r.j.admin ? '/admin' : NEXT); }).catch(function () {});
   }
   if (sf) {
     wire(sf);
@@ -483,7 +496,7 @@
       busy(lbtn, true);
       api('/api/connexion', 'POST', { email: lf.elements.email.value.trim(), password: lf.elements.password.value }).then(function (r) {
         busy(lbtn, false);
-        if (r.s === 200 && r.j.ok) location.href = NEXT;
+        if (r.s === 200 && r.j.ok) { api('/api/moi', 'GET').then(function (m) { location.href = (m.j && m.j.admin) ? '/admin' : NEXT; }).catch(function () { location.href = NEXT; }); }
         else if (r.s === 401) bad(lbad, 'E-mail ou mot de passe incorrect.');
         else if (r.s === 429) bad(lbad, 'Trop d’essais. Patientez quelques minutes puis réessayez.');
         else bad(lbad, 'Connexion impossible (erreur ' + r.s + '). Réessayez.');

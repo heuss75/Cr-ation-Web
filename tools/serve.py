@@ -2,7 +2,7 @@
 import http.server, os, sys, json
 ROOT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "site")
 ROUTES = {"/": "index.html", "/offre": "offre.html", "/faq": "faq.html", "/commander": "commander.html", "/connexion": "connexion.html",
-          "/mentions-legales": "mentions-legales.html", "/cgv": "cgv.html", "/confidentialite": "confidentialite.html", "/cookies": "cookies.html", "/reservation-demo": "reservation-demo.html", "/inscription": "inscription.html", "/exemples/bistro": "exemples/bistro.html", "/exemples/salon": "exemples/salon.html", "/exemples/artisan": "exemples/artisan.html"}
+          "/mentions-legales": "mentions-legales.html", "/cgv": "cgv.html", "/confidentialite": "confidentialite.html", "/cookies": "cookies.html", "/reservation-demo": "reservation-demo.html", "/inscription": "inscription.html", "/admin": "admin.html", "/exemples/bistro": "exemples/bistro.html", "/exemples/salon": "exemples/salon.html", "/exemples/artisan": "exemples/artisan.html"}
 TYPES = {".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".json": "application/json", ".txt": "text/plain"}
 class H(http.server.BaseHTTPRequestHandler):
     def log_message(self, *a): pass

@@ -186,7 +186,7 @@ THEME_INIT = "(function(){try{var t=localStorage.getItem('sv_theme');if(!t)t=mat
 
 # empreinte des fichiers pour vider le cache à chaque changement
 js_common = rd(os.path.join(SRC, "site.js"))
-VER = hashlib.sha1((css + js_common + demo_js + rd(os.path.join(SRC, "booking.js"))).encode("utf-8")).hexdigest()[:8]
+VER = hashlib.sha1((css + js_common + demo_js + rd(os.path.join(SRC, "booking.js")) + rd(os.path.join(SRC, "admin.js"))).encode("utf-8")).hexdigest()[:8]
 
 search_entries = []   # rempli après
 
@@ -498,6 +498,18 @@ login_body = phead("Connexion", "Connexion", "Suivez votre demande et accédez �
 """
 page("connexion", "Connexion", "Espace client : suivi de commande et éditeur de modifications.", login_body)
 
+
+# ------------------------------------------------------------------ administration (hors menu, hors plan du site)
+admin_body = """<div class="wrap adm" id="adm" style="padding-block:28px 72px">
+<header class="adm-head"><div><p class="eyebrow">Administration</p><h1 class="adm-h1">Tableau de bord</h1></div>
+<div class="adm-tools"><button type="button" class="btn ghost sm" id="adm-refresh">Actualiser</button><button type="button" class="btn ghost sm" id="adm-out">Se déconnecter</button></div></header>
+<p id="adm-gate" class="sub" role="status">Vérification de l’accès…</p>
+<div id="adm-app" hidden>
+<nav class="adm-nav" aria-label="Sections admin"><button type="button" id="t-stats" aria-pressed="true">Statistiques</button><button type="button" id="t-clients" aria-pressed="false">Clients</button><button type="button" id="t-mdp" aria-pressed="false">Mon mot de passe</button></nav>
+<div class="alert" id="adm-msg" role="status"><span></span></div>
+<div id="adm-view"></div></div></div>"""
+page("admin", "Administration", "Espace réservé à l’administrateur.", admin_body, page_js='<script src="/assets/admin.js?v=%s" defer></script>\n' % VER)
+
 # ------------------------------------------------------------------ pages légales
 LEGAL = legal_pages(EDITOR)
 LEG_TITLES = {"mentions-legales": "Mentions légales", "cgv": "CGV", "confidentialite": "Confidentialité", "cookies": "Cookies"}
@@ -619,6 +631,7 @@ wr("assets/site.css", css)
 wr("assets/site.js", js_common)
 wr("assets/demo.js", demo_js)
 wr("assets/booking.js", rd(os.path.join(SRC, "booking.js")))
+wr("assets/admin.js", rd(os.path.join(SRC, "admin.js")))
 wr("robots.txt", "User-agent: *\nAllow: /\nSitemap: %s/sitemap.xml\n" % BASE_URL if INDEXABLE else "User-agent: *\nDisallow: /\n")
 if INDEXABLE:
     urls = "".join("<url><loc>%s%s</loc><lastmod>%s</lastmod></url>" % (BASE_URL, "" if s == "index" else "/" + s, UPDATED_ISO) for s, _ in PAGES if s != "connexion")

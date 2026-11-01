@@ -3,7 +3,7 @@ const REPO = 'https://raw.githubusercontent.com/heuss75/Cr-ation-Web/main/site';
 const ROUTES = {
   '/': 'index.html', '/offre': 'offre.html', '/faq': 'faq.html', '/commander': 'commander.html', '/connexion': 'connexion.html',
   '/mentions-legales': 'mentions-legales.html', '/cgv': 'cgv.html', '/confidentialite': 'confidentialite.html', '/cookies': 'cookies.html',
-  '/reservation-demo': 'reservation-demo.html', '/inscription': 'inscription.html', '/exemples/bistro': 'exemples/bistro.html', '/exemples/salon': 'exemples/salon.html', '/exemples/artisan': 'exemples/artisan.html',
+  '/reservation-demo': 'reservation-demo.html', '/inscription': 'inscription.html', '/admin': 'admin.html', '/exemples/bistro': 'exemples/bistro.html', '/exemples/salon': 'exemples/salon.html', '/exemples/artisan': 'exemples/artisan.html',
 };
 const TYPES = {
   html: 'text/html; charset=utf-8', css: 'text/css; charset=utf-8', js: 'text/javascript; charset=utf-8', json: 'application/json; charset=utf-8',
@@ -69,6 +69,7 @@ async function demande(req, env, url) {
   let user = null;
   try { user = await currentUser(req, env); } catch (_) {}
   if (!user) return json({ ok: false, error: 'compte' }, 401);
+  if (user.par_admin) return json({ ok: false, error: 'lecture-seule' }, 403);
   const errors = validate(b);
   if (Object.keys(errors).length) return json({ ok: false, errors }, 422);
   const ip = req.headers.get('cf-connecting-ip') || 'inconnue';
@@ -115,12 +116,15 @@ function sessionCookie(token, maxAge) {
 async function currentUser(req, env) {
   const t = cookieOf(req, 'sv_session');
   if (!/^[0-9a-f]{64}$/.test(t)) return null;
-  const r = await env.DB.prepare("SELECT c.id, c.nom, c.email FROM sessions s JOIN comptes c ON c.id = s.compte_id WHERE s.token_hash = ? AND s.expires_at > datetime('now')").bind(await sha(t)).first();
+  const r = await env.DB.prepare("SELECT c.id, c.nom, c.email, c.role, s.par_admin FROM sessions s JOIN comptes c ON c.id = s.compte_id WHERE s.token_hash = ? AND s.expires_at > datetime('now')").bind(await sha(t)).first();
   return r || null;
 }
-async function newSession(env, compteId) {
+async function log(env, compteId, adminId, type, detail) {
+  try { await env.DB.prepare('INSERT INTO journal (compte_id, admin_id, type, detail) VALUES (?,?,?,?)').bind(compteId || null, adminId || null, type, (detail || '').slice(0, 300)).run(); } catch (_) {}
+}
+async function newSession(env, compteId, parAdmin) {
   const token = hex(crypto.getRandomValues(new Uint8Array(32)));
-  await env.DB.prepare("INSERT INTO sessions (token_hash, compte_id, expires_at) VALUES (?, ?, datetime('now','+30 days'))").bind(await sha(token), compteId).run();
+  await env.DB.prepare("INSERT INTO sessions (token_hash, compte_id, expires_at, par_admin) VALUES (?, ?, datetime('now', ?), ?)").bind(await sha(token), compteId, parAdmin ? '+2 hours' : '+30 days', parAdmin || null).run();
   return token;
 }
 async function readJson(req, url, max = 2000) {
@@ -159,6 +163,7 @@ async function inscription(req, env, url) {
       if (String(e && e.message).includes('UNIQUE')) return json({ ok: false, errors: { email: 'Un compte existe déjà avec cette adresse : connectez-vous.' } }, 409);
       throw e;
     }
+    await log(env, id, null, 'inscription', '');
     const token = await newSession(env, id);
     const res = json({ ok: true, nom });
     res.headers.append('set-cookie', sessionCookie(token, 2592000));
@@ -182,6 +187,8 @@ async function connexion(req, env, url) {
       await env.DB.prepare('INSERT INTO essais (ip_hash) VALUES (?)').bind(iph).run();
       return json({ ok: false, error: 'identifiants' }, 401);
     }
+    await env.DB.prepare("UPDATE comptes SET derniere_connexion = datetime('now') WHERE id = ?").bind(u.id).run();
+    await log(env, u.id, null, 'connexion', '');
     const token = await newSession(env, u.id);
     const res = json({ ok: true, nom: u.nom });
     res.headers.append('set-cookie', sessionCookie(token, 2592000));
@@ -197,9 +204,174 @@ async function deconnexion(req, env, url) {
   return res;
 }
 async function moi(req, env) {
-  try { const u = await currentUser(req, env); return u ? json({ ok: true, nom: u.nom, email: u.email }) : json({ ok: false }, 401); } catch (_) { return json({ ok: false }, 500); }
+  try {
+    const u = await currentUser(req, env);
+    if (!u) return json({ ok: false }, 401);
+    const o = { ok: true, nom: u.nom, email: u.email, admin: u.role === 'admin' && !u.par_admin };
+    if (u.par_admin) { const ad = await env.DB.prepare('SELECT nom FROM comptes WHERE id = ?').bind(u.par_admin).first(); o.impersonation = true; o.admin_nom = ad ? ad.nom : 'Admin'; }
+    return json(o);
+  } catch (_) { return json({ ok: false }, 500); }
+}
+async function quitterImpersonation(req, env, url) {
+  if (req.method !== 'POST') return json({ ok: false }, 405);
+  const t = cookieOf(req, 'sv_session');
+  try {
+    const u = await currentUser(req, env);
+    if (!u || !u.par_admin) return json({ ok: false }, 400);
+    await env.DB.prepare('DELETE FROM sessions WHERE token_hash = ?').bind(await sha(t)).run();
+    await log(env, u.id, u.par_admin, 'admin_fin_impersonation', '');
+    const token = await newSession(env, u.par_admin);
+    const res = json({ ok: true });
+    res.headers.append('set-cookie', sessionCookie(token, 2592000));
+    return res;
+  } catch (_) { return json({ ok: false }, 500); }
+}
+async function motDePasse(req, env, url) {
+  if (req.method !== 'POST') return json({ ok: false }, 405);
+  const { b, err } = await readJson(req, url); if (err) return err;
+  try {
+    const u = await currentUser(req, env);
+    if (!u) return json({ ok: false }, 401);
+    if (u.par_admin) return json({ ok: false, error: 'lecture-seule' }, 403);
+    const ancien = typeof b.actuel === 'string' ? b.actuel : '', nouveau = typeof b.nouveau === 'string' ? b.nouveau : '';
+    if (nouveau.length < 8 || nouveau.length > 100) return json({ ok: false, error: 'longueur' }, 422);
+    const iph = await ipHash(req, 'log');
+    const c = await env.DB.prepare("SELECT COUNT(*) AS n FROM essais WHERE ip_hash = ? AND at > datetime('now','-15 minutes')").bind(iph).first();
+    if (c && c.n >= 10) return json({ ok: false }, 429);
+    const row = await env.DB.prepare('SELECT salt, hash, iter FROM comptes WHERE id = ?').bind(u.id).first();
+    const h = await pbkdf2(ancien, unhex(row.salt), row.iter);
+    if (!same(h, unhex(row.hash))) { await env.DB.prepare('INSERT INTO essais (ip_hash) VALUES (?)').bind(iph).run(); return json({ ok: false, error: 'actuel' }, 401); }
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const nh = await pbkdf2(nouveau, salt);
+    await env.DB.prepare('UPDATE comptes SET salt = ?, hash = ?, iter = ? WHERE id = ?').bind(hex(salt), hex(nh), ITER, u.id).run();
+    await env.DB.prepare('DELETE FROM sessions WHERE compte_id = ? AND token_hash != ?').bind(u.id, await sha(cookieOf(req, 'sv_session'))).run();
+    await log(env, u.id, null, 'mot_de_passe', '');
+    return json({ ok: true });
+  } catch (_) { return json({ ok: false }, 500); }
 }
 
+// ---------- Administration (réservée au rôle admin, jamais pendant une impersonation) ----------
+const STATUTS_DEMANDE = ['nouvelle', 'en_creation', 'apercu', 'en_ligne', 'abandonnee'];
+const STATUTS_ABO = ['actif', 'impaye', 'suspendu', 'resilie'];
+const STATUTS_PLAINTE = ['ouverte', 'en_cours', 'resolue'];
+const PRIX = { essentiel: 60, pro: 100 };
+const PRIX_MAIL = 4;
+async function adminApi(req, env, url, p) {
+  let me;
+  try { me = await currentUser(req, env); } catch (_) { return json({ ok: false }, 500); }
+  if (!me || me.role !== 'admin' || me.par_admin) return json({ ok: false }, 403);
+  const one = async (sql, ...a) => env.DB.prepare(sql).bind(...a).first();
+  const all = async (sql, ...a) => (await env.DB.prepare(sql).bind(...a).all()).results || [];
+  const NOADM = "role != 'admin'";
+  try {
+    if (p === '/api/admin/stats' && req.method === 'GET') {
+      const c = await one(`SELECT COUNT(*) total,
+        SUM(created_at >= datetime('now','-1 day')) j1, SUM(created_at >= datetime('now','-7 days')) j7, SUM(created_at >= datetime('now','-30 days')) j30,
+        SUM(derniere_connexion >= datetime('now','-7 days')) actifs7 FROM comptes WHERE ${NOADM}`);
+      const jours = await all(`SELECT date(created_at) d, COUNT(*) n FROM comptes WHERE ${NOADM} AND created_at >= datetime('now','-30 days') GROUP BY d ORDER BY d`);
+      const sessions = await one(`SELECT COUNT(DISTINCT s.compte_id) n FROM sessions s JOIN comptes c ON c.id = s.compte_id WHERE c.${NOADM} AND s.expires_at > datetime('now')`);
+      const sansDemande = await one(`SELECT COUNT(*) n FROM comptes c WHERE c.${NOADM} AND NOT EXISTS (SELECT 1 FROM demandes d WHERE d.compte_id = c.id)`);
+      const dem = await one(`SELECT COUNT(*) total, SUM(created_at >= datetime('now','-7 days')) j7, SUM(created_at >= datetime('now','-30 days')) j30 FROM demandes`);
+      const dStatut = await all('SELECT statut, COUNT(*) n FROM demandes GROUP BY statut');
+      const dFormule = await all('SELECT formule, COUNT(*) n FROM demandes GROUP BY formule');
+      const dAct = await all("SELECT activite, COUNT(*) n FROM demandes GROUP BY activite ORDER BY n DESC LIMIT 8");
+      const dVille = await all("SELECT ville, COUNT(*) n FROM demandes WHERE ville != '' GROUP BY lower(ville) ORDER BY n DESC LIMIT 8");
+      const dMail = await one('SELECT COALESCE(SUM(mails),0) n FROM demandes');
+      const src = await all("SELECT COALESCE(NULLIF(json_extract(utm,'$.utm_source'),''), NULLIF(json_extract(utm,'$.ref'),''), 'direct') s, COUNT(*) n FROM demandes WHERE json_valid(utm) GROUP BY s ORDER BY n DESC LIMIT 8").catch(() => []);
+      const ab = await all("SELECT formule, statut, COUNT(*) n, COALESCE(SUM(mails_sup),0) m FROM abonnements GROUP BY formule, statut");
+      const abNew = await one("SELECT COUNT(*) n FROM abonnements WHERE debut >= date('now','-30 days')");
+      const abRec = await one("SELECT COUNT(*) n FROM abonnements WHERE statut = 'actif' AND debut < date('now','-30 days')");
+      const abRes30 = await one("SELECT COUNT(*) n FROM abonnements WHERE statut = 'resilie' AND fin >= date('now','-30 days')");
+      const abResTot = await one("SELECT COUNT(*) n FROM abonnements WHERE statut = 'resilie'");
+      const motifs = await all("SELECT COALESCE(NULLIF(motif,''),'non précisé') motif, COUNT(*) n FROM abonnements WHERE statut = 'resilie' GROUP BY 1 ORDER BY n DESC LIMIT 6");
+      const pl = await one("SELECT COUNT(*) total, SUM(statut='ouverte') ouvertes, SUM(statut='en_cours') en_cours, SUM(statut='resolue') resolues, SUM(created_at >= datetime('now','-30 days')) j30, AVG(CASE WHEN resolved_at IS NOT NULL THEN (julianday(resolved_at) - julianday(created_at)) * 24 END) delai_h FROM plaintes");
+      const resa = await one('SELECT COUNT(*) n FROM reservations');
+      const j = await all("SELECT type, COUNT(*) n FROM journal WHERE created_at >= datetime('now','-30 days') GROUP BY type");
+      let actifs = 0, mrr = 0, mailsSup = 0; const parFormule = { essentiel: 0, pro: 0 };
+      for (const r of ab) if (r.statut === 'actif' || r.statut === 'impaye') { actifs += r.n; mailsSup += r.m; mrr += (PRIX[r.formule] || 0) * r.n + PRIX_MAIL * r.m; parFormule[r.formule] = (parFormule[r.formule] || 0) + r.n; }
+      const base = actifs + abRes30.n;
+      return json({ ok: true,
+        comptes: { total: c.total || 0, j1: c.j1 || 0, j7: c.j7 || 0, j30: c.j30 || 0, actifs7: c.actifs7 || 0, connectes: sessions.n, sansDemande: sansDemande.n, jours },
+        demandes: { total: dem.total || 0, j7: dem.j7 || 0, j30: dem.j30 || 0, statut: dStatut, formule: dFormule, activite: dAct, ville: dVille, mailsDemandes: dMail.n, sources: src },
+        abonnements: { actifs, parFormule, nouveaux30: abNew.n, recurrents: abRec.n, resilies30: abRes30.n, resiliesTotal: abResTot.n, impayes: ab.filter((r) => r.statut === 'impaye').reduce((x, r) => x + r.n, 0), suspendus: ab.filter((r) => r.statut === 'suspendu').reduce((x, r) => x + r.n, 0), mailsSup, mrr, arr: mrr * 12, panier: actifs ? Math.round((mrr / actifs) * 10) / 10 : 0, churn: base ? Math.round((abRes30.n / base) * 1000) / 10 : 0, motifs, detail: ab },
+        plaintes: { total: pl.total || 0, ouvertes: pl.ouvertes || 0, en_cours: pl.en_cours || 0, resolues: pl.resolues || 0, j30: pl.j30 || 0, delai_h: pl.delai_h == null ? null : Math.round(pl.delai_h * 10) / 10 },
+        conversion: { inscritDemande: c.total ? Math.round(((c.total - sansDemande.n) / c.total) * 1000) / 10 : 0, demandeAbonne: dem.total ? Math.round(((actifs + abResTot.n) / dem.total) * 1000) / 10 : 0 },
+        divers: { reservationsDemo: resa.n, evenements30: j } });
+    }
+    if (p === '/api/admin/comptes' && req.method === 'GET') {
+      const q = (url.searchParams.get('q') || '').trim().slice(0, 60).replace(/[%_\\]/g, '');
+      const like = '%' + q + '%';
+      const rows = await all(`SELECT c.id, c.nom, c.email, c.created_at, c.derniere_connexion,
+        (SELECT COUNT(*) FROM demandes d WHERE d.compte_id = c.id) demandes,
+        (SELECT statut FROM demandes d WHERE d.compte_id = c.id ORDER BY d.id DESC LIMIT 1) statut_site,
+        a.formule, a.statut abo, (SELECT COUNT(*) FROM plaintes x WHERE x.compte_id = c.id AND x.statut != 'resolue') plaintes_ouvertes
+        FROM comptes c LEFT JOIN abonnements a ON a.compte_id = c.id WHERE c.${NOADM} AND (c.nom LIKE ?1 OR c.email LIKE ?1) ORDER BY c.id DESC LIMIT 200`, like);
+      return json({ ok: true, comptes: rows });
+    }
+    if (p === '/api/admin/compte' && req.method === 'GET') {
+      const id = parseInt(url.searchParams.get('id'), 10);
+      const cpt = await one('SELECT id, nom, email, created_at, derniere_connexion, role FROM comptes WHERE id = ?', id);
+      if (!cpt) return json({ ok: false }, 404);
+      return json({ ok: true, compte: cpt,
+        demandes: await all('SELECT id, ref, created_at, commerce, activite, ville, domaine, mails, tel, message, formule, statut FROM demandes WHERE compte_id = ? ORDER BY id DESC', id),
+        abonnement: await one('SELECT * FROM abonnements WHERE compte_id = ?', id),
+        plaintes: await all('SELECT * FROM plaintes WHERE compte_id = ? ORDER BY id DESC', id),
+        journal: await all('SELECT type, detail, created_at, admin_id FROM journal WHERE compte_id = ? ORDER BY id DESC LIMIT 30', id) });
+    }
+    if (req.method !== 'POST') return json({ ok: false }, 405);
+    const { b, err } = await readJson(req, url, 4000); if (err) return err;
+    const num = (v) => { const n = parseInt(v, 10); return Number.isFinite(n) ? n : 0; };
+    const txt = (v, n) => (typeof v === 'string' ? v.trim().slice(0, n) : '');
+    if (p === '/api/admin/demande') {
+      if (!STATUTS_DEMANDE.includes(b.statut)) return json({ ok: false }, 422);
+      const d = await one('SELECT compte_id FROM demandes WHERE id = ?', num(b.id)); if (!d) return json({ ok: false }, 404);
+      await env.DB.prepare('UPDATE demandes SET statut = ? WHERE id = ?').bind(b.statut, num(b.id)).run();
+      await log(env, d.compte_id, me.id, 'site_statut', b.statut);
+      return json({ ok: true });
+    }
+    if (p === '/api/admin/abonnement') {
+      const cid = num(b.compte_id); if (!(await one("SELECT id FROM comptes WHERE id = ? AND role != 'admin'", cid))) return json({ ok: false }, 404);
+      if (!FORMULES.includes(b.formule) || !STATUTS_ABO.includes(b.statut)) return json({ ok: false }, 422);
+      const mails = Math.min(Math.max(num(b.mails_sup), 0), 50), motif = txt(b.motif, 200);
+      const ex = await one('SELECT * FROM abonnements WHERE compte_id = ?', cid);
+      if (!ex) {
+        await env.DB.prepare("INSERT INTO abonnements (compte_id, formule, statut, mails_sup, debut, fin, motif) VALUES (?,?,?,?,date('now'),?,?)").bind(cid, b.formule, b.statut, mails, b.statut === 'resilie' ? new Date().toISOString().slice(0, 10) : null, motif).run();
+        await log(env, cid, me.id, 'abonnement_cree', b.formule + ' / ' + b.statut);
+      } else {
+        const fin = b.statut === 'resilie' ? (ex.fin || new Date().toISOString().slice(0, 10)) : null;
+        const debut = ex.statut === 'resilie' && b.statut !== 'resilie' ? new Date().toISOString().slice(0, 10) : ex.debut;
+        await env.DB.prepare("UPDATE abonnements SET formule = ?, statut = ?, mails_sup = ?, debut = ?, fin = ?, motif = ?, updated_at = datetime('now') WHERE compte_id = ?").bind(b.formule, b.statut, mails, debut, fin, b.statut === 'resilie' ? motif : '', cid).run();
+        if (ex.statut !== b.statut) await log(env, cid, me.id, b.statut === 'resilie' ? 'resiliation' : 'abonnement_statut', b.statut + (motif ? ' : ' + motif : ''));
+        if (ex.formule !== b.formule) await log(env, cid, me.id, 'changement_formule', ex.formule + ' → ' + b.formule);
+      }
+      return json({ ok: true });
+    }
+    if (p === '/api/admin/plainte') {
+      const cid = num(b.compte_id), sujet = txt(b.sujet, 120);
+      if (!sujet || !(await one('SELECT id FROM comptes WHERE id = ?', cid))) return json({ ok: false }, 422);
+      await env.DB.prepare('INSERT INTO plaintes (compte_id, sujet, message) VALUES (?,?,?)').bind(cid, sujet, txt(b.message, 1500)).run();
+      await log(env, cid, me.id, 'plainte', sujet);
+      return json({ ok: true });
+    }
+    if (p === '/api/admin/plainte-statut') {
+      if (!STATUTS_PLAINTE.includes(b.statut)) return json({ ok: false }, 422);
+      const x = await one('SELECT compte_id FROM plaintes WHERE id = ?', num(b.id)); if (!x) return json({ ok: false }, 404);
+      await env.DB.prepare("UPDATE plaintes SET statut = ?, resolved_at = CASE WHEN ? = 'resolue' THEN datetime('now') ELSE NULL END WHERE id = ?").bind(b.statut, b.statut, num(b.id)).run();
+      await log(env, x.compte_id, me.id, 'plainte_statut', b.statut);
+      return json({ ok: true });
+    }
+    if (p === '/api/admin/impersonate') {
+      const t = await one("SELECT id, nom FROM comptes WHERE id = ? AND role != 'admin'", num(b.compte_id));
+      if (!t) return json({ ok: false }, 404);
+      await log(env, t.id, me.id, 'admin_impersonation', 'début');
+      const token = await newSession(env, t.id, me.id);
+      const res = json({ ok: true, nom: t.nom });
+      res.headers.append('set-cookie', sessionCookie(token, 7200));
+      return res;
+    }
+    return json({ ok: false }, 404);
+  } catch (e) { return json({ ok: false, error: 'serveur' }, 500); }
+}
 function parisToday() {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Paris' }).format(new Date());
 }
@@ -271,6 +443,9 @@ export default {
     if (p === '/api/connexion') return connexion(req, env, url);
     if (p === '/api/deconnexion') return deconnexion(req, env, url);
     if (p === '/api/moi' && req.method === 'GET') return moi(req, env);
+    if (p === '/api/quitter-impersonation') return quitterImpersonation(req, env, url);
+    if (p === '/api/mot-de-passe') return motDePasse(req, env, url);
+    if (p.startsWith('/api/admin/')) return adminApi(req, env, url, p);
     if (p === '/api/creneaux' && req.method === 'GET') return creneaux(req, env, url);
     if (req.method !== 'GET' && req.method !== 'HEAD') return new Response('Méthode non autorisée', { status: 405 });
     if (p === '/index.html' || (p.endsWith('.html') && p !== '/404.html')) {
