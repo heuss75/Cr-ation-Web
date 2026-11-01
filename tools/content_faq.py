@@ -17,8 +17,8 @@ FAQ = [
      "<p>Deux formules, avec un engagement de 12 mois. <strong>Essentiel : 60 € HT par mois</strong> (720 € HT sur l’année). <strong>Pro : 100 € HT par mois</strong> (1 200 € HT sur l’année), avec la réservation en ligne et une adresse mail pro incluse. Il n’y a pas de frais de création à part : le site, le nom de domaine, l’hébergement, l’espace client et le guide pub sont compris dans les deux.</p>"
      "<p>Chaque adresse mail professionnelle supplémentaire coûte <strong>4 € HT par mois</strong>. Vous pouvez simuler votre total sur la page <a href=\"/offre\">Offre et prix</a>.</p>"),
     ("offre", "essentiel-pro", "Quelle différence entre Essentiel et Pro ?",
-     "<p>L’<strong>Essentiel</strong> est le site vitrine complet : site de 5 pages, nom de domaine, hébergement, espace client, 1 modification par semaine et guide pub.</p>"
-     "<p>Le <strong>Pro</strong> ajoute la <strong>réservation en ligne</strong> avec un agenda, et inclut <strong>1 adresse mail professionnelle</strong>. Il convient aux activités qui prennent des rendez-vous : coiffeur, esthétique, bien-être, coach, garage, restaurant.</p>"
+     "<p>L’<strong>Essentiel</strong> est le site vitrine complet : site sur mesure, nom de domaine, hébergement, espace client, 1 modification par semaine et guide pub.</p>"
+     "<p>Le <strong>Pro</strong> ajoute un <strong>outil de réservation en ligne</strong> avec un agenda, <strong>3 modifications par semaine</strong> au lieu d’une, et inclut <strong>1 adresse mail professionnelle</strong>. Il convient aux activités qui prennent des rendez-vous : coiffeur, esthétique, bien-être, coach, garage, restaurant.</p>"
      "<p>Vous pouvez tester la réservation sur la <a href=\"/reservation-demo\">page de démonstration</a>.</p>"),
     ("offre", "reservation", "Comment fonctionne la réservation en ligne ?",
      "<p>Sur votre site, un client choisit une prestation, un jour et un créneau libre, puis laisse son nom et son téléphone. Le créneau n’est alors plus proposé aux autres : pas de double réservation. Les réservations apparaissent dans l’agenda de votre espace client.</p>"
@@ -26,7 +26,7 @@ FAQ = [
     ("offre", "changer-formule", "Puis-je passer de l’Essentiel au Pro ?",
      "<p>Oui, à tout moment : le Pro s’applique au début du mois suivant, et une nouvelle période de 12 mois commence à ce moment-là. Le passage du Pro à l’Essentiel se fait à l’échéance de la période en cours.</p>"),
     ("offre", "inclus", "Qu’est-ce qui est inclus dans l’abonnement ?",
-     "<ul><li>Un site vitrine sur mesure, jusqu’à 5 pages, adapté au téléphone</li><li>Le nom de domaine, réservé et renouvelé chaque année pendant l’engagement</li><li>L’hébergement, avec certificat HTTPS</li><li>Un espace client pour suivre votre commande et modifier votre site</li><li>1 modification par semaine, que vous faites vous-même</li><li>Le guide pub, pas à pas, pour vous faire connaître</li></ul>"),
+     "<ul><li>Un site vitrine sur mesure, adapté au téléphone</li><li>Le nom de domaine, réservé et renouvelé chaque année pendant l’engagement</li><li>L’hébergement, avec certificat HTTPS</li><li>Un espace client pour suivre votre commande et modifier votre site</li><li>1 modification par semaine, que vous faites vous-même</li><li>Le guide pub, pas à pas, pour vous faire connaître</li></ul>"),
     ("offre", "non-inclus", "Qu’est-ce qui n’est pas inclus ?",
      "<p>Ne sont pas compris : la publicité faite pour vous, le référencement payant, une boutique en ligne, un système de réservation en ligne (compris dans la formule Pro), une refonte complète du design, et les séances photo. Si vous avez besoin d’un de ces points, nous en parlons et nous faisons un devis séparé.</p>"),
     ("offre", "engagement-12", "Pourquoi un engagement de 12 mois ?",
@@ -48,13 +48,13 @@ FAQ = [
     ("commande", "apercu", "Puis-je voir mon site avant sa mise en ligne ?",
      "<p>Oui. Vous recevez un aperçu et vous demandez vos ajustements avant de valider. Le site n’est mis en ligne qu’après votre accord.</p>"),
     ("commande", "pages", "Combien de pages comprend mon site ?",
-     "<p>Jusqu’à 5 pages (par exemple : accueil, services ou carte, à propos, tarifs, contact). Une page supplémentaire fait l’objet d’un devis.</p>"),
+     "<p>Nous définissons avec vous les pages utiles à votre activité (par exemple : accueil, services ou carte, à propos, tarifs, contact). Pour un besoin plus important, nous faisons un devis.</p>"),
 
     # ---------- Modifications ----------
     ("modif", "modifier", "Comment je modifie mon site ?",
      "<p>Depuis votre espace client, avec l’éditeur : vous remplacez un texte ou une photo, vous ajoutez ou supprimez un bloc. Vous ne changez pas la mise en page, ce qui évite de casser le site. Vous pouvez tester le principe sur la <a href=\"/#modifier\">démonstration de l’accueil</a>.</p>"),
     ("modif", "une-par-semaine", "Que veut dire « 1 modification par semaine » ?",
-     "<p>Chaque semaine, vous pouvez faire une modification : remplacer un texte, remplacer une photo, ajouter un bloc ou en supprimer un. Le compteur est visible dans votre espace client. Une modification non utilisée ne se cumule pas avec la semaine suivante.</p>"),
+     "<p>Chaque semaine, vous pouvez faire une modification (trois avec la formule Pro) : remplacer un texte, remplacer une photo, ajouter un bloc ou en supprimer un. Le compteur est visible dans votre espace client. Une modification non utilisée ne se cumule pas avec la semaine suivante.</p>"),
     ("modif", "annuler", "Puis-je annuler une modification ?",
      "<p>Oui. L’éditeur garde un historique de vos changements et vous permet de revenir en arrière.</p>"),
     ("modif", "plus", "Et si j’ai besoin de faire plus de changements ?",
