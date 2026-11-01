@@ -1,0 +1,157 @@
+
+(function(){
+  var DAYS=['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+  function S(map){var a=[null,null,null,null,null,null,null];map.forEach(function(m){m[0].forEach(function(d){a[d]=m[1]})});return a}
+  var M={
+    coiffeur:{label:'Coiffeur',def:'Maison Olive',
+      sched:S([[[2,3,4,5],[[9,19]]],[[6],[[9,17]]]]),
+      rows:[['Mardi au vendredi','9 h – 19 h'],['Samedi','9 h – 17 h'],['Dimanche, lundi','Fermé']],
+      addr:'14 rue des Tanneurs, 69003 Lyon · 04 78 00 12 34',
+      items:[['Coupe femme','45 min','38 €'],['Coupe homme','30 min','24 €'],['Brushing','30 min','26 €'],['Couleur racines','1 h 15','55 €'],['Balayage','2 h 30','dès 90 €']]},
+    restaurant:{label:'Restaurant',def:'La Table d’Alix',
+      sched:S([[[2,3,4,5,6],[[12,14.5],[19,22]]],[[0],[[12,15]]]]),
+      rows:[['Mardi au samedi','12 h – 14 h 30 · 19 h – 22 h'],['Dimanche','12 h – 15 h'],['Lundi','Fermé']],
+      addr:'3 place du Marché, 69001 Lyon · 04 78 00 45 67',
+      items:[['Entrée','Velouté de potimarron, éclats de noisette','8 €'],['Plat','Joue de bœuf braisée, purée maison','19 €'],['Plat du jour','Demandez l’ardoise','14 €'],['Dessert','Tarte fine aux pommes tièdes','7 €']]},
+    artisan:{label:'Artisan du bâtiment',def:'Durand Plomberie',
+      sched:S([[[1,2,3,4,5],[[8,18]]],[[6],[[8,12]]]]),
+      rows:[['Lundi au vendredi','8 h – 18 h'],['Samedi','8 h – 12 h'],['Urgences','24 h / 24']],
+      addr:'Zone des Chênes, 69120 Vaulx-en-Velin · 06 00 00 12 34',
+      stats:[['48 h','devis gratuit'],['2 h','dépannage urgent'],['10 ans','garantie décennale']],
+      items:[['Déplacement dépannage','49 €'],['Remplacement mitigeur','dès 120 €'],['Débouchage canalisation','dès 89 €'],['Salle de bains complète','sur devis']]},
+    therapeute:{label:'Thérapeute · bien-être',def:'Espace Aurore',
+      sched:S([[[1,2,3,4],[[9,19]]],[[5],[[9,13]]]]),
+      rows:[['Lundi au jeudi','9 h – 19 h'],['Vendredi','9 h – 13 h'],['Week-end','Fermé']],
+      addr:'8 rue des Lilas, 69006 Lyon · 04 78 00 78 90',
+      items:[['Première séance','45 min','50 €'],['Séance individuelle','1 h','60 €'],['Séance de couple','1 h 30','80 €']]},
+    coach:{label:'Coach sportif',def:'Atelier Rythme',
+      sched:S([[[1,2,3,4,5],[[7,20]]],[[6],[[9,13]]]]),
+      rows:[['Lundi au vendredi','7 h – 20 h'],['Samedi','9 h – 13 h'],['Dimanche','Fermé']],
+      addr:'22 quai Saint-Vincent, 69001 Lyon · 06 00 00 56 78',
+      items:[['Séance solo','1 h','45 €'],['Cours collectif','1 h','12 €'],['Carte 10 séances','solo','400 €'],['Bilan de départ','45 min','offert']]},
+    boutique:{label:'Boutique de quartier',def:'Lucie & Cie',
+      sched:S([[[2,3,4,5,6],[[10,12.5],[14,19]]]]),
+      rows:[['Mardi au samedi','10 h – 12 h 30 · 14 h – 19 h'],['Dimanche, lundi','Fermé']],
+      addr:'5 rue Mercière, 69002 Lyon · 04 78 00 90 12',
+      items:[['Carnet en lin','14 €','#E5C3D3'],['Bougie cire de colza','22 €','#D9B8C9'],['Tote bag brodé','18 €','#EBD3DD'],['Set de 3 crayons','9 €','#CFA9BE']]}
+  };
+  var KEYS=['coiffeur','restaurant','artisan','therapeute','coach','boutique'];
+
+  function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  function fh(h){var hh=Math.floor(h),m=Math.round((h-hh)*60);return hh+' h'+(m?' '+(m<10?'0':'')+m:'')}
+  function status(k){
+    var s=M[k].sched,n=new Date(),d=n.getDay(),t=n.getHours()+n.getMinutes()/60,i,j,r,dd,lab;
+    var today=s[d]||[];
+    for(j=0;j<today.length;j++){r=today[j];if(t>=r[0]&&t<r[1])return {open:true,text:'Ouvert maintenant · jusqu’à '+fh(r[1])}}
+    for(i=0;i<8;i++){
+      dd=(d+i)%7;var list=s[dd]||[];
+      for(j=0;j<list.length;j++){r=list[j];if(i===0&&r[0]<=t)continue;
+        lab=i===0?'aujourd’hui':(i===1?'demain':DAYS[dd]);
+        return {open:false,text:'Fermé · ouvre '+lab+' à '+fh(r[0])}}
+    }
+    return {open:false,text:'Fermé'};
+  }
+  function open(k){var s=status(k);return '<span class="t-open'+(s.open?' on':'')+'"><i></i>'+s.text+'</span>'}
+  function hours(k){return '<dl class="t-hours">'+M[k].rows.map(function(r){return '<div><dt>'+r[0]+'</dt><dd>'+r[1]+'</dd></div>'}).join('')+'</dl>'}
+  function acts(a,b){return '<div class="t-actions"><button type="button">'+a+'</button><button type="button" class="alt">'+b+'</button></div>'}
+
+  var R={
+    coiffeur:function(n,k){return '<div class="tpl tpl-coiffeur"><div class="t-hero">'+open(k)+'<p class="k">Salon de coiffure</p><h3>'+n+'</h3><p class="t-lead">Coupes, couleurs et soins. Avec ou sans rendez-vous.</p>'+acts('Appeler','Itinéraire')+'</div><div class="t-cols"><section class="t-sec"><h4>Tarifs</h4><ul class="t-menu">'+
+      M[k].items.map(function(i){return '<li><span>'+i[0]+'<small>'+i[1]+'</small></span><i class="lead"></i><b>'+i[2]+'</b></li>'}).join('')+'</ul></section><section class="t-sec"><h4>Horaires</h4>'+hours(k)+'<p class="t-addr">'+M[k].addr+'</p></section></div></div>'},
+    restaurant:function(n,k){return '<div class="tpl tpl-restaurant"><div class="gingham"></div><div class="t-hero">'+open(k)+'<h3>'+n+'</h3><p class="t-lead">Cuisine de saison, produits de producteurs voisins.</p>'+acts('Réserver par téléphone','Itinéraire')+'<br><span class="formule">Formule midi 17 €</span></div><div class="t-cols"><section class="t-sec"><h4>La carte</h4><ul class="t-cards">'+
+      M[k].items.map(function(i){return '<li class="t-card"><em>'+i[0]+'</em><span class="dish">'+i[1]+'</span><b>'+i[2]+'</b></li>'}).join('')+'</ul></section><section class="t-sec"><h4>Horaires</h4>'+hours(k)+'<p class="t-addr">'+M[k].addr+'</p></section></div></div>'},
+    artisan:function(n,k){return '<div class="tpl tpl-artisan"><div class="stripe"></div><div class="t-hero">'+open(k)+'<h3>'+n+'</h3><p class="t-lead">Plomberie, chauffage, salle de bains.</p><div class="t-stats">'+
+      M[k].stats.map(function(s){return '<div><b>'+s[0]+'</b><span>'+s[1]+'</span></div>'}).join('')+'</div>'+acts('Demander un devis','Appeler')+'</div><div class="t-cols"><section class="t-sec"><h4>Tarifs indicatifs</h4><ul class="t-rows">'+
+      M[k].items.map(function(i){return '<li><span>'+i[0]+'</span><b>'+i[1]+'</b></li>'}).join('')+'</ul><p class="urgent"><b>URGENCE</b> · intervention 24 h / 24, 7 j / 7</p></section><section class="t-sec"><h4>Horaires</h4>'+hours(k)+'<p class="t-addr">'+M[k].addr+'</p></section></div></div>'},
+    therapeute:function(n,k){return '<div class="tpl tpl-therapeute"><div class="t-hero"><div class="arch"></div>'+open(k)+'<h3 style="margin-top:14px">'+n+'</h3><p class="t-lead">Accompagnement individuel et de couple, dans un cabinet calme.</p>'+acts('Prendre rendez-vous','Itinéraire')+'</div><div class="t-cols"><section class="t-sec"><h4>Séances</h4><ul class="t-menu">'+
+      M[k].items.map(function(i){return '<li><span>'+i[0]+'<small>'+i[1]+'</small></span><b>'+i[2]+'</b></li>'}).join('')+'</ul></section><section class="t-sec"><h4>Horaires</h4>'+hours(k)+'<p class="t-addr">'+M[k].addr+'</p></section></div></div>'},
+    coach:function(n,k){return '<div class="tpl tpl-coach"><div class="t-hero">'+open(k)+'<h3>'+n+'</h3><p class="t-lead">Séances en solo ou en petit groupe. On commence par un bilan.</p>'+acts('Réserver une séance','Appeler')+'</div><div class="t-cols"><section class="t-sec"><h4>Formules</h4><ul class="t-grid">'+
+      M[k].items.map(function(i){return '<li>'+i[0]+'<small>'+i[1]+'</small><b>'+i[2]+'</b></li>'}).join('')+'</ul></section><section class="t-sec"><h4>Horaires</h4>'+hours(k)+'<p class="t-addr">'+M[k].addr+'</p></section></div></div>'},
+    boutique:function(n,k){return '<div class="tpl tpl-boutique"><div class="t-hero">'+open(k)+'<h3 style="margin-top:14px">'+n+'</h3><p class="t-lead">Papeterie, déco et idées de cadeaux, choisies une à une.</p>'+acts('Appeler','Itinéraire')+'</div><div class="t-cols"><section class="t-sec"><h4>Nouveautés</h4><ul class="t-prod">'+
+      M[k].items.map(function(i){return '<li><div class="ph" style="--c:'+i[2]+'"></div><b>'+i[0]+'</b><span>'+i[1]+'</span></li>'}).join('')+'</ul></section><section class="t-sec"><h4>Horaires</h4>'+hours(k)+'<p class="t-addr">'+M[k].addr+'</p></section></div></div>'}
+  };
+
+  function mount(el,k,name,keep){
+    var st=keep?el.scrollTop:0;
+    el.innerHTML=R[k](esc((name||'').trim()||M[k].def),k);
+    el.scrollTop=st;
+  }
+  function slug(s){return (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'').slice(0,28)}
+
+  /* appareils : les sites sont dessinés à leur vraie taille puis réduits pour tenir dans le cadre */
+  function fit(){
+    var list=document.querySelectorAll('.vp');
+    Array.prototype.forEach.call(list,function(vp){
+      var w=+vp.getAttribute('data-w'),h=+vp.getAttribute('data-h'),s=vp.clientWidth/w,inner=vp.firstElementChild;
+      if(!w||!vp.clientWidth)return;
+      inner.style.width=w+'px';inner.style.height=h+'px';
+      inner.style.transform='scale('+s+')';
+      vp.style.height=(h*s)+'px';
+    });
+  }
+  window.addEventListener('resize',fit);
+  window.addEventListener('load',fit);
+
+  /* aperçu personnalisé */
+  var sel=document.getElementById('metier'),nom=document.getElementById('nom'),es=document.getElementById('essai-screen');
+  KEYS.forEach(function(k){var o=document.createElement('option');o.value=k;o.textContent=M[k].label;sel.appendChild(o)});
+  function essaiUpdate(keep){mount(es,sel.value,nom.value,keep)}
+  sel.addEventListener('change',function(){nom.placeholder=M[sel.value].def;essaiUpdate(false)});
+  nom.addEventListener('input',function(){essaiUpdate(true)});
+  nom.placeholder=M[sel.value].def;
+  essaiUpdate(false);
+
+  /* galerie */
+  var cur='coiffeur',view='phone',tabs=document.getElementById('tabs'),stage=document.getElementById('stage'),cap=document.getElementById('cap');
+  var bp=document.getElementById('v-phone'),bd=document.getElementById('v-desk');
+  KEYS.forEach(function(k){
+    var b=document.createElement('button');b.type='button';b.className='tab';b.setAttribute('role','tab');b.dataset.k=k;b.textContent=M[k].label;
+    b.addEventListener('click',function(){cur=k;draw()});tabs.appendChild(b);
+  });
+  function draw(){
+    Array.prototype.forEach.call(tabs.children,function(b){b.setAttribute('aria-selected',b.dataset.k===cur?'true':'false')});
+    bp.setAttribute('aria-pressed',view==='phone'?'true':'false');
+    bd.setAttribute('aria-pressed',view==='desk'?'true':'false');
+    if(view==='phone'){stage.innerHTML='<div class="phone"><div class="screen" id="g-screen"></div></div>'}
+    else{stage.innerHTML='<div class="desk"><div class="desk-bar"><i></i><i></i><i></i><span class="url">'+esc(slug(M[cur].def)||'votresite')+'.fr</span></div><div class="screen" id="g-screen"></div></div>'}
+    mount(document.getElementById('g-screen'),cur,'',false);
+    cap.textContent='Exemple · '+M[cur].label.toLowerCase()+' · '+(view==='phone'?'version téléphone':'version ordinateur')+' · faites défiler pour parcourir le site';
+  }
+  bp.addEventListener('click',function(){view='phone';draw()});
+  bd.addEventListener('click',function(){view='desk';draw()});
+  draw();
+
+  /* démonstration de l'éditeur */
+  var ed={target:'name',used:false,prev:null,ovr:{name:'',lead:''}};
+  var edScreen=document.getElementById('ed-screen'),edText=document.getElementById('ed-text'),edMsg=document.getElementById('ed-msg'),edLabel=document.getElementById('ed-label');
+  var chips=document.querySelectorAll('.chip');
+  var EDT={name:{label:'Nouveau titre',ph:'Maison Olive Coiffure'},lead:{label:'Nouvelle accroche',ph:'Votre coiffeur de quartier, du mardi au samedi.'}};
+  function edRender(){
+    mount(edScreen,'coiffeur',ed.ovr.name,true);
+    if(ed.ovr.lead){var l=edScreen.querySelector('.t-lead');if(l)l.textContent=ed.ovr.lead}
+  }
+  Array.prototype.forEach.call(chips,function(c){
+    c.addEventListener('click',function(){
+      ed.target=c.getAttribute('data-t');
+      Array.prototype.forEach.call(chips,function(o){o.setAttribute('aria-pressed',o===c?'true':'false')});
+      edLabel.textContent=EDT[ed.target].label;edText.placeholder=EDT[ed.target].ph;
+    });
+  });
+  document.getElementById('ed-go').addEventListener('click',function(){
+    var v=edText.value.trim();
+    if(!v){edMsg.textContent='Écrivez d’abord votre texte.';return}
+    if(ed.used){edMsg.textContent='Votre modification de la semaine est déjà utilisée. Annulez-la pour en faire une autre.';return}
+    ed.prev={name:ed.ovr.name,lead:ed.ovr.lead};
+    ed.ovr[ed.target]=v;ed.used=true;edRender();
+    edMsg.textContent='Modification publiée. C’est votre modification de la semaine, vous pouvez l’annuler.';
+  });
+  document.getElementById('ed-undo').addEventListener('click',function(){
+    if(!ed.used){edMsg.textContent='Il n’y a rien à annuler.';return}
+    ed.ovr=ed.prev;ed.used=false;ed.prev=null;edRender();
+    edMsg.textContent='Modification annulée. Vous pouvez en faire une nouvelle.';
+  });
+  edRender();
+
+  fit();
+  if(document.fonts&&document.fonts.ready){document.fonts.ready.then(fit)}
+})();
