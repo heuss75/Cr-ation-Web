@@ -186,7 +186,7 @@ THEME_INIT = "(function(){try{var t=localStorage.getItem('sv_theme');if(!t)t=mat
 
 # empreinte des fichiers pour vider le cache à chaque changement
 js_common = rd(os.path.join(SRC, "site.js"))
-VER = hashlib.sha1((css + js_common + demo_js + rd(os.path.join(SRC, "booking.js")) + rd(os.path.join(SRC, "admin.js")) + rd(os.path.join(SRC, "admin.css"))).encode("utf-8")).hexdigest()[:8]
+VER = hashlib.sha1((css + js_common + demo_js + rd(os.path.join(SRC, "booking.js")) + rd(os.path.join(SRC, "admin.js")) + rd(os.path.join(SRC, "admin.css")) + rd(os.path.join(SRC, "espace.js")) + rd(os.path.join(SRC, "espace.css"))).encode("utf-8")).hexdigest()[:8]
 
 search_entries = []   # rempli après
 
@@ -442,7 +442,7 @@ cmd_body = phead("Demande", "Demandez votre site", "Quelques informations suffis
   <p>Votre numéro de demande :</p>
   <p><span class="ref" id="d-ref">—</span> <button type="button" class="cbtn" id="d-ref-btn" data-copy="">""" + icon("copy") + """<span class="lbl">Copier</span></button></p>
   <p>Gardez-le pour toute question. Nous vous répondons sous 2 jours ouvrés pour valider les détails. <strong>Aucun paiement n’a été demandé.</strong></p>
-  <p style="display:flex;gap:12px;flex-wrap:wrap"><a class="btn" href="/">Retour à l’accueil</a><a class="btn ghost" href="/offre">Voir l’abonnement</a></p>
+  <p style="display:flex;gap:12px;flex-wrap:wrap"><a class="btn" href="/espace">Mon espace</a><a class="btn ghost" href="/offre">Voir l’abonnement</a></p>
 </div>
 </div>
 </div>
@@ -523,6 +523,7 @@ ADMIN_HTML = """<!doctype html>
 <button type="button" id="n-stats" aria-current="page">""" + _ic("M3 3v18h18M7 15l4-4 3 3 5-6") + """Tableau de bord</button>
 <button type="button" id="n-clients">""" + _ic("M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8") + """Clients</button>
 <button type="button" id="n-rev">""" + _ic("M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6") + """Revenus</button>
+<button type="button" id="n-com">""" + _ic("M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM22 6l-10 7L2 6") + """Communication</button>
 <button type="button" id="n-mdp">""" + _ic("M21 2l-2 2m-7.6 7.6a5.5 5.5 0 1 1-7.8 7.8 5.5 5.5 0 0 1 7.8-7.8zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4") + """Mot de passe</button>
 </nav>
 <div class="sp"></div>
@@ -537,6 +538,39 @@ ADMIN_HTML = """<!doctype html>
 </html>
 """ % dict(v=VER)
 wr("admin.html", ADMIN_HTML)
+
+ESPACE_HTML = """<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mon espace | SiteVitrine Express</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="light dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/admin.css?v=%(v)s">
+<link rel="stylesheet" href="/assets/espace.css?v=%(v)s">
+</head>
+<body>
+<div class="gate card" id="gate" role="status" style="max-width:420px;margin:14vh auto"><p>Chargement de votre espace…</p></div>
+<div class="shell" id="app" hidden>
+<aside class="side">
+<div class="brand"><i>""" + _ic("M3 11l9-8 9 8v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z") + """</i><div><b>SiteVitrine Express</b><small>Mon espace</small></div></div>
+<nav class="nav" id="nav" aria-label="Mon espace"></nav>
+<div class="sp"></div>
+<nav class="nav"><a href="/" target="_blank" rel="noopener">""" + _ic("M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3") + """Le site SiteVitrine</a>
+<button type="button" id="n-out">""" + _ic("M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9") + """Se déconnecter</button></nav>
+</aside>
+<main class="main" id="main"></main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="/assets/espace.js?v=%(v)s" defer></script>
+</body>
+</html>
+""" % dict(v=VER)
+wr("espace.html", ESPACE_HTML)
 
 # ------------------------------------------------------------------ pages légales
 LEGAL = legal_pages(EDITOR)
@@ -661,6 +695,8 @@ wr("assets/demo.js", demo_js)
 wr("assets/booking.js", rd(os.path.join(SRC, "booking.js")))
 wr("assets/admin.js", rd(os.path.join(SRC, "admin.js")))
 wr("assets/admin.css", rd(os.path.join(SRC, "admin.css")))
+wr("assets/espace.js", rd(os.path.join(SRC, "espace.js")))
+wr("assets/espace.css", rd(os.path.join(SRC, "espace.css")))
 wr("robots.txt", "User-agent: *\nAllow: /\nSitemap: %s/sitemap.xml\n" % BASE_URL if INDEXABLE else "User-agent: *\nDisallow: /\n")
 if INDEXABLE:
     urls = "".join("<url><loc>%s%s</loc><lastmod>%s</lastmod></url>" % (BASE_URL, "" if s == "index" else "/" + s, UPDATED_ISO) for s, _ in PAGES if s != "connexion")

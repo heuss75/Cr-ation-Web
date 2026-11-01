@@ -48,9 +48,42 @@
 
   function impersonate(id) {
     api('/api/admin/impersonate', 'POST', { compte_id: id }).then(function (r) {
-      if (r.s === 200 && r.j.ok) { try { document.cookie = 'sv_imp=1; Path=/; Max-Age=7200; Secure; SameSite=Lax'; } catch (_) {} location.href = '/commander'; }
+      if (r.s === 200 && r.j.ok) { try { document.cookie = 'sv_imp=1; Path=/; Max-Age=7200; Secure; SameSite=Lax'; } catch (_) {} location.href = '/espace'; }
       else flash('Connexion au compte impossible.', true);
     });
+  }
+  /* ===== actions sur un client ===== */
+  function actionsCard(c, demandes) {
+    var d = demandes[0], box = h('div', { class: 'card', style: 'margin-bottom:16px' }), nz = h('div');
+    box.appendChild(h('h2', { text: 'Actions' })); box.appendChild(h('p', { class: 'sub', text: 'Tout ce que vous pouvez faire pour ce client.' }));
+    var bt = function (t, fn, ghost) { return h('button', { type: 'button', class: 'btn sm' + (ghost === false ? '' : ' ghost'), text: t, onclick: fn }); };
+    var row = h('div', { class: 'tools', style: 'flex-wrap:wrap' });
+    row.appendChild(bt('Se connecter à sa place', function () { impersonate(c.id); }, false));
+    if (d) row.appendChild(bt(d.suspendu ? 'Réactiver le site' : 'Suspendre le site', function () { api('/api/admin/site', 'POST', { id: d.id, suspendu: !d.suspendu }).then(function (x) { flash(x.j.ok ? (d.suspendu ? 'Site réactivé.' : 'Site suspendu.') : 'Échec.', !x.j.ok); if (x.j.ok) loadAll().then(function () { detail(c.id); }); }); }));
+    row.appendChild(bt('Envoyer une notification', function () { nz.hidden = !nz.hidden; }));
+    row.appendChild(bt('Envoyer un e-mail', function () { COMM.pre = [c.id]; top(commView); mark('com'); }));
+    row.appendChild(bt('Réinitialiser le mot de passe', function () { if (!window.confirm('Générer un nouveau mot de passe pour ' + c.nom + ' ? L’ancien ne fonctionnera plus et ses sessions seront fermées.')) return; api('/api/admin/reset-mdp', 'POST', { compte_id: c.id }).then(function (x) { if (!x.j.ok) { flash('Échec.', true); return; } var o = h('div', { class: 'infobox' }, 'Nouveau mot de passe (à transmettre au client, affiché une seule fois) : ', h('b', { text: x.j.mdp })); box.appendChild(o); }); }));
+    box.appendChild(row);
+    var ti = h('input', { type: 'text', maxlength: '120', placeholder: 'Titre' }), ms = h('textarea', { maxlength: '1000', placeholder: 'Message affiché dans l’espace du client', style: 'min-height:80px' });
+    nz.hidden = true; nz.appendChild(h('div', { class: 'form' }, h('label', { class: 'wide' }, 'Titre', ti), h('label', { class: 'wide' }, 'Message', ms)));
+    nz.appendChild(h('button', { type: 'button', class: 'btn', text: 'Envoyer la notification', onclick: function () { api('/api/admin/notifier', 'POST', { ids: [c.id], titre: ti.value, message: ms.value }).then(function (x) { flash(x.j.ok ? 'Notification envoyée.' : 'Titre et message requis.', !x.j.ok); if (x.j.ok) { ti.value = ms.value = ''; nz.hidden = true; } }); } }));
+    box.appendChild(nz);
+    if (d) {
+      var u = h('input', { type: 'text', maxlength: '200', value: d.site_url || '', placeholder: 'https://… ou /exemples/…' });
+      box.appendChild(h('div', { class: 'form' }, h('label', { class: 'wide' }, 'Adresse du site en ligne (bouton « Voir mon site » du client)', u)));
+      box.appendChild(bt('Enregistrer l’adresse', function () { api('/api/admin/site', 'POST', { id: d.id, site_url: u.value }).then(function (x) { flash(x.j.ok ? 'Adresse enregistrée.' : 'Adresse invalide (https:// ou /chemin).', !x.j.ok); if (x.j.ok) loadAll(); }); }));
+    }
+    var plus = h('div'); box.appendChild(plus);
+    api('/api/admin/compte-plus?id=' + c.id).then(function (x) {
+      if (!x.j.ok) return;
+      var oo = h('label', { class: 'chk', style: 'margin-top:12px' }), cb = h('input', { type: 'checkbox' }); cb.checked = !!x.j.opt_out;
+      cb.addEventListener('change', function () { api('/api/admin/opt-out', 'POST', { compte_id: c.id, opt_out: cb.checked }).then(function () { flash(cb.checked ? 'Ce client ne recevra plus vos e-mails de communication.' : 'E-mails de communication réactivés.'); loadAll(); }); });
+      oo.appendChild(cb); oo.appendChild(document.createTextNode(' A demandé à ne plus recevoir les e-mails de communication')); plus.appendChild(oo);
+      plus.appendChild(h('h3', { style: 'margin-top:16px', text: 'Modifications demandées (' + x.j.modifs.length + ')' }));
+      if (!x.j.modifs.length) plus.appendChild(h('p', { class: 'empty', text: 'Aucune.' }));
+      x.j.modifs.forEach(function (m) { plus.appendChild(h('div', { class: 'row' }, h('div', null, h('b', { text: m.type }), h('div', { class: 'sub', text: m.description }), h('small', { class: 'sub', text: dt(m.created_at) })), h('button', { type: 'button', class: 'btn sm ghost', text: m.statut === 'faite' ? 'Marquer à faire' : 'Marquer faite', onclick: function () { api('/api/admin/modif-statut', 'POST', { id: m.id, statut: m.statut === 'faite' ? 'demandee' : 'faite' }).then(function () { detail(c.id); }); } }))); });
+    });
+    main.appendChild(box);
   }
   function detail(id) {
     api('/api/admin/compte?id=' + id).then(function (r) {
@@ -58,6 +91,7 @@
       var c = r.j.compte, ab = r.j.abonnement;
       main.textContent = '';
       main.appendChild(head(c.nom, c.email + ' · inscrit le ' + dt(c.created_at), [h('button', { type: 'button', class: 'btn ghost', text: '← Clients', onclick: function () { top(clientsView); } }), h('button', { type: 'button', class: 'btn', text: 'Voir en tant que ce client', onclick: function () { impersonate(c.id); } })]));
+      actionsCard(c, r.j.demandes);
       var g = h('div', { class: 'grid g2' });
       var dc = h('div', { class: 'card' }, h('h2', { text: 'Demandes de site (' + r.j.demandes.length + ')' }));
       if (!r.j.demandes.length) dc.appendChild(h('p', { class: 'empty', text: 'Aucune demande.' }));
@@ -99,6 +133,7 @@
         api('/api/mot-de-passe', 'POST', { actuel: a.value, nouveau: n.value }).then(function (r) { if (r.j.ok) { flash('Mot de passe changé.'); a.value = n.value = n2.value = ''; } else flash(r.s === 401 ? 'Le mot de passe actuel est incorrect.' : 'Impossible de changer le mot de passe.', true); });
       } })));
   }
+  function sel(opts, val) { var e = h('select'); opts.forEach(function (o) { var op = h('option', { value: o, text: lab(o) }); if (o === val) op.selected = true; e.appendChild(op); }); return e; }
   function head(title, sub, extra) { return h('div', { class: 'top' }, h('div', { class: 'hello' }, h('h1', { text: title }), sub ? h('p', { text: sub }) : null), h('div', { class: 'tools' }, extra || [])); }
 
   /* ===== données, navigation ===== */
@@ -127,7 +162,7 @@
   var who = function (r) { return (IX && IX.c[r.compte_id]) || {}; };
   function cRow(c) {
     var a = IX.abo[c.id], ds = IX.dem[c.id] || [], d = ds[0], ps = IX.pl[c.id] || [];
-    return { compte_id: c.id, nom: c.nom, email: c.email, inscrit: c.created_at, connexion: c.derniere_connexion, formule: a ? a.formule : '', abo: a ? a.statut : '', debut: a ? a.debut : '', fin: a ? a.fin : '', mails: a ? a.mails_sup : 0, prix: a && counts(a) ? prixAbo(a) : 0, site: d ? d.statut : '', commerce: d ? d.commerce : '', ville: d ? d.ville : '', activite: d ? d.activite : '', domaine: d ? d.domaine : '', tel: d ? d.tel : '', demandes: ds.length, plaintes: ps.length, plaintes_ouvertes: ps.filter(function (p) { return p.statut !== 'resolue'; }).length };
+    return { compte_id: c.id, optout: c.opt_out, demo: c.demo, nom: c.nom, email: c.email, inscrit: c.created_at, connexion: c.derniere_connexion, formule: a ? a.formule : '', abo: a ? a.statut : '', debut: a ? a.debut : '', fin: a ? a.fin : '', mails: a ? a.mails_sup : 0, prix: a && counts(a) ? prixAbo(a) : 0, site: d ? d.statut : '', commerce: d ? d.commerce : '', ville: d ? d.ville : '', activite: d ? d.activite : '', domaine: d ? d.domaine : '', tel: d ? d.tel : '', demandes: ds.length, plaintes: ps.length, plaintes_ouvertes: ps.filter(function (p) { return p.statut !== 'resolue'; }).length };
   }
   function aRow(a) { var c = IX.c[a.compte_id] || {}; return { compte_id: a.compte_id, nom: c.nom, email: c.email, formule: a.formule, abo: a.statut, debut: a.debut, fin: a.fin, mails: a.mails_sup, prix: counts(a) ? prixAbo(a) : 0, motif: a.motif || '' }; }
   function dRow(d) { var c = IX.c[d.compte_id] || {}; return { compte_id: d.compte_id, nom: c.nom, email: c.email, ref: d.ref, commerce: d.commerce, activite: d.activite, ville: d.ville, domaine: d.domaine, mails: d.mails, tel: d.tel, formule: d.formule, site: d.statut, date: d.created_at, source: srcOf(d) }; }
@@ -488,11 +523,68 @@
     document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { ov.remove(); document.removeEventListener('keydown', esc); } });
   }
 
+  /* ===== communication ===== */
+  var COMM = { pre: null, f: {}, sel: null, canal: { mail: true, notif: true }, sujet: '', corps: '' };
+  function commView() {
+    main.textContent = '';
+    main.appendChild(head('Communication', 'Écrivez à tous vos clients, ou choisissez qui reçoit le message. Rien ne part sans votre clic.', []));
+    var holder = h('div'); main.appendChild(holder);
+    api('/api/admin/communications').then(function (r) {
+      var mailOk = !!(r.j && r.j.mail_ok), hist = (r.j && r.j.liste) || [], all = D.comptes.map(cRow);
+      if (COMM.pre) { COMM.sel = {}; COMM.pre.forEach(function (i) { COMM.sel[i] = true; }); COMM.pre = null; COMM.f = {}; }
+      if (!COMM.sel) { COMM.sel = {}; all.forEach(function (c) { COMM.sel[c.compte_id] = true; }); }
+      var listBox = h('div', { class: 'tablewrap', style: 'max-height:340px;overflow:auto' }), cnt = h('span', { class: 'sub' }), btnSend;
+      var visible = function () { return applyF(all, COMM.f); };
+      var chosen = function () { return all.filter(function (c) { return COMM.sel[c.compte_id]; }); };
+      var mailable = function (list) { return list.filter(function (c) { return !c.optout && !c.demo && !/\.invalid$/i.test(c.email || ''); }); };
+      function upd() { var c = chosen(); cnt.textContent = c.length + ' sélectionné(s) sur ' + all.length + ' client(s)'; if (btnSend) { btnSend.textContent = '✉ Envoyer à ' + c.length + ' client(s)'; btnSend.disabled = !c.length; } }
+      function drawList() {
+        listBox.textContent = ''; var rows = visible();
+        if (!rows.length) { listBox.appendChild(h('p', { class: 'empty', text: 'Aucun client ne correspond.' })); upd(); return; }
+        var tb = h('tbody');
+        rows.forEach(function (r) { var cb = h('input', { type: 'checkbox', 'aria-label': 'Choisir ' + r.nom }); cb.checked = !!COMM.sel[r.compte_id]; cb.addEventListener('change', function () { if (cb.checked) COMM.sel[r.compte_id] = true; else delete COMM.sel[r.compte_id]; upd(); });
+          tb.appendChild(h('tr', null, h('td', { style: 'width:36px' }, cb), h('td', null, cell(COLS.clients[0], r)), h('td', null, cell(COLS.clients[10], r)), h('td', null, cell(COLS.clients[11], r)), h('td', null, r.optout ? h('span', { class: 'pill', text: 'STOP mails' }) : r.demo ? h('span', { class: 'pill', text: 'Démo' }) : null))); });
+        listBox.appendChild(h('table', null, tb)); upd();
+      }
+      var fs = function (key, label, opts) { var e = h('select', { 'aria-label': label }); e.appendChild(h('option', { value: '', text: 'Tous' })); opts.forEach(function (o) { e.appendChild(h('option', { value: o[0], text: o[1] })); }); e.value = COMM.f[key] || ''; e.addEventListener('change', function () { COMM.f[key] = e.value; COMM.sel = {}; applyF(all, COMM.f).forEach(function (c) { COMM.sel[c.compte_id] = true; }); drawList(); }); return h('label', null, label, e); };
+      var yes = function (a) { return a.map(function (x) { return [x, lab(x)]; }); };
+      var filt = h('div', { class: 'fgrid' }, fs('formule', 'Formule', yes(['essentiel', 'pro'])), fs('abo', 'Abonnement', yes(['actif', 'impaye', 'suspendu', 'resilie']).concat([['aucun', 'Aucun abonnement']])), fs('site', 'Statut du site', yes(['nouvelle', 'en_creation', 'apercu', 'en_ligne', 'abandonnee']).concat([['aucune', 'Aucune demande']])), fs('plaintes', 'Plaintes', [['ouvertes', 'Avec plainte ouverte'], ['avec', 'Avec au moins une plainte'], ['aucune', 'Aucune plainte']]), fs('activite', 'Activité', distinct(all, 'activite')), fs('ville', 'Ville', distinct(all, 'ville')), fs('connexion', 'Dernière connexion', [['7', 'Dans les 7 jours'], ['30', 'Dans les 30 jours'], ['jamais', 'Jamais connecté']]));
+      holder.appendChild(h('div', { class: 'card' }, h('div', { class: 'tbar' }, h('div', null, h('h2', { text: '1. Qui reçoit le message ?' }), h('p', { class: 'sub', text: 'Choisissez un filtre, puis cochez ou décochez les clients à la main.' })), cnt), filt,
+        h('div', { class: 'tools', style: 'margin-bottom:10px' }, h('button', { type: 'button', class: 'btn ghost sm', text: 'Tout cocher (liste affichée)', onclick: function () { visible().forEach(function (c) { COMM.sel[c.compte_id] = true; }); drawList(); } }), h('button', { type: 'button', class: 'btn ghost sm', text: 'Tout décocher', onclick: function () { COMM.sel = {}; drawList(); } }), h('button', { type: 'button', class: 'btn ghost sm', text: 'Réinitialiser les filtres', onclick: function () { COMM.f = {}; COMM.sel = {}; all.forEach(function (c) { COMM.sel[c.compte_id] = true; }); commView(); } })), listBox));
+      var sj = h('input', { type: 'text', maxlength: '150', value: COMM.sujet, placeholder: 'Ex. : Nouveauté sur votre espace' }), co = h('textarea', { maxlength: '8000', style: 'min-height:200px', placeholder: 'Bonjour {prenom},\n\n…' });
+      co.value = COMM.corps; sj.addEventListener('input', function () { COMM.sujet = sj.value; }); co.addEventListener('input', function () { COMM.corps = co.value; });
+      var cm = h('input', { type: 'checkbox' }), cn = h('input', { type: 'checkbox' }); cm.checked = COMM.canal.mail; cn.checked = COMM.canal.notif;
+      cm.addEventListener('change', function () { COMM.canal.mail = cm.checked; }); cn.addEventListener('change', function () { COMM.canal.notif = cn.checked; });
+      var prev = h('div', { class: 'infobox', hidden: '' });
+      btnSend = h('button', { type: 'button', class: 'btn', text: '✉ Envoyer', onclick: function () {
+        var c = chosen(); if (!c.length) { flash('Choisissez au moins un client.', true); return; }
+        if (!sj.value.trim() || co.value.trim().length < 5) { flash('Le sujet et le message sont obligatoires.', true); return; }
+        if (!cm.checked && !cn.checked) { flash('Choisissez au moins un canal : e-mail ou notification.', true); return; }
+        var nm = cm.checked ? mailable(c).length : 0;
+        if (!window.confirm('Envoyer « ' + sj.value.trim() + ' » à ' + c.length + ' client(s) ?' + (cm.checked ? '\n' + (mailOk ? nm + ' e-mail(s) partiront réellement.' : 'Les e-mails ne partiront pas : l’envoi n’est pas encore configuré.') : '') + (cn.checked ? '\nUne notification apparaîtra dans leur espace.' : ''))) return;
+        btnSend.disabled = true;
+        api('/api/admin/communication', 'POST', { sujet: sj.value, corps: co.value, ids: c.map(function (x) { return x.compte_id; }), mail: cm.checked, notif: cn.checked, filtre: JSON.stringify(COMM.f) }).then(function (x) {
+          btnSend.disabled = false;
+          if (!x.j.ok) { flash('Envoi impossible : ' + (x.j.error === 'incomplet' ? 'champs manquants.' : x.j.error === 'canal' ? 'choisissez un canal.' : 'erreur.'), true); return; }
+          flash(x.j.nb_mail ? x.j.nb_mail + ' e-mail(s) envoyé(s)' + (x.j.nb_notif ? ' et ' + x.j.nb_notif + ' notification(s).' : '.') : x.j.nb_notif ? x.j.nb_notif + ' notification(s) envoyée(s). Aucun e-mail (envoi non configuré).' : 'Aucun message envoyé.');
+          COMM.sujet = COMM.corps = ''; commView();
+        });
+      } });
+      holder.appendChild(h('div', { class: 'card', style: 'margin-top:16px' }, h('h2', { text: '2. Le message' }),
+        mailOk ? null : h('div', { class: 'infobox', style: 'margin-top:10px' }, h('b', { text: 'Envoi d’e-mails pas encore branché. ' }), 'Les notifications dans l’espace client fonctionnent déjà. Pour les e-mails, il faut relier un service d’envoi : dites-moi et je vous guide.'),
+        h('div', { class: 'tools', style: 'margin:12px 0' }, h('label', { class: 'chk' }, cm, ' E-mail'), h('label', { class: 'chk' }, cn, ' Notification dans l’espace client')),
+        h('div', { class: 'form' }, h('label', { class: 'wide' }, 'Sujet', sj), h('label', { class: 'wide' }, 'Message — vous pouvez écrire {prenom} ou {nom}', co)), prev,
+        h('div', { class: 'tools', style: 'margin-top:12px' }, h('button', { type: 'button', class: 'btn ghost', text: 'Aperçu', onclick: function () { var e = chosen()[0] || { nom: 'Marie Dupont' }; var p = function (t) { return t.replace(/\{prenom\}/gi, (e.nom || '').split(/\s+/)[0]).replace(/\{nom\}/gi, e.nom || ''); }; prev.hidden = !prev.hidden; prev.textContent = ''; prev.appendChild(h('b', { text: p(sj.value) || '(sans sujet)' })); prev.appendChild(h('div', { style: 'white-space:pre-wrap;margin-top:8px', text: p(co.value) })); prev.appendChild(h('div', { class: 'sub', style: 'margin-top:10px', text: 'Aperçu pour : ' + e.nom + ' · pied de message ajouté automatiquement : « Pour ne plus recevoir ces messages, répondez STOP. »' })); } }), btnSend)));
+      holder.appendChild(h('div', { class: 'card', style: 'margin-top:16px' }, h('h2', { text: 'Messages déjà envoyés' }), hist.length ? h('div', { class: 'tablewrap' }, h('table', null, h('thead', null, h('tr', null, ['Date', 'Sujet', 'Clients', 'E-mails', 'Notifications', 'Résultat'].map(function (t) { return h('th', { text: t }); }))), h('tbody', null, hist.map(function (x) { return h('tr', null, h('td', { text: dt(x.created_at) }), h('td', { text: x.sujet }), h('td', { text: String(x.nb) }), h('td', { text: String(x.nb_mail) }), h('td', { text: x.notif ? 'Oui' : 'Non' }), h('td', null, h('span', { class: 'pill ' + (x.statut === 'envoye' ? 'ok' : x.statut === 'notif_seule' ? 'pri' : 'warn'), text: { envoye: 'E-mails envoyés', notif_seule: 'Notifications seules', mail_non_configure: 'E-mail non configuré', partiel: 'Envoi partiel', echec: 'Échec' }[x.statut] || x.statut }))); })))) : h('p', { class: 'empty', text: 'Aucun message envoyé pour le moment.' })));
+      drawList();
+    });
+  }
+
   /* ===== navigation latérale ===== */
-  var navb = { stats: $('#n-stats'), clients: $('#n-clients'), rev: $('#n-rev'), mdp: $('#n-mdp') };
+  var navb = { stats: $('#n-stats'), clients: $('#n-clients'), rev: $('#n-rev'), com: $('#n-com'), mdp: $('#n-mdp') };
   function mark(k) { Object.keys(navb).forEach(function (x) { if (x === k) navb[x].setAttribute('aria-current', 'page'); else navb[x].removeAttribute('aria-current'); }); }
   function go(k, fn) { navb[k].addEventListener('click', function () { mark(k); top(fn); }); }
-  go('stats', showStats); go('clients', clientsView); go('rev', revenuePage); go('mdp', motDePasse);
+  go('stats', showStats); go('clients', clientsView); go('rev', revenuePage); go('com', commView); go('mdp', motDePasse);
   $('#n-out').addEventListener('click', function () { api('/api/deconnexion', 'POST').then(function () { location.href = '/connexion'; }); });
 
   api('/api/moi').then(function (r) {

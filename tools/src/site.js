@@ -464,7 +464,7 @@
   function bad(box, msg) { box.querySelector('span').textContent = msg; box.classList.add('on'); box.focus(); }
   var sf = $('#signup'), lf = $('#login');
   if (sf || lf) {
-    api('/api/moi', 'GET').then(function (r) { if (r.s === 200 && r.j.ok) location.replace(r.j.admin ? '/admin' : NEXT); }).catch(function () {});
+    api('/api/moi', 'GET').then(function (r) { if (r.s === 200 && r.j.ok) location.replace(r.j.admin ? '/admin' : '/espace'); }).catch(function () {});
   }
   if (sf) {
     wire(sf);
@@ -496,7 +496,7 @@
       busy(lbtn, true);
       api('/api/connexion', 'POST', { email: lf.elements.email.value.trim(), password: lf.elements.password.value }).then(function (r) {
         busy(lbtn, false);
-        if (r.s === 200 && r.j.ok) { api('/api/moi', 'GET').then(function (m) { location.href = (m.j && m.j.admin) ? '/admin' : NEXT; }).catch(function () { location.href = NEXT; }); }
+        if (r.s === 200 && r.j.ok) { api('/api/moi', 'GET').then(function (m) { location.href = (m.j && m.j.admin) ? '/admin' : '/espace'; }).catch(function () { location.href = '/espace'; }); }
         else if (r.s === 401) bad(lbad, 'E-mail ou mot de passe incorrect.');
         else if (r.s === 429) bad(lbad, 'Trop d’essais. Patientez quelques minutes puis réessayez.');
         else bad(lbad, 'Connexion impossible (erreur ' + r.s + '). Réessayez.');

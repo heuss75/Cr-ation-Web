@@ -3,7 +3,7 @@ const REPO = 'https://raw.githubusercontent.com/heuss75/Cr-ation-Web/main/site';
 const ROUTES = {
   '/': 'index.html', '/offre': 'offre.html', '/faq': 'faq.html', '/commander': 'commander.html', '/connexion': 'connexion.html',
   '/mentions-legales': 'mentions-legales.html', '/cgv': 'cgv.html', '/confidentialite': 'confidentialite.html', '/cookies': 'cookies.html',
-  '/reservation-demo': 'reservation-demo.html', '/inscription': 'inscription.html', '/admin': 'admin.html', '/exemples/bistro': 'exemples/bistro.html', '/exemples/salon': 'exemples/salon.html', '/exemples/artisan': 'exemples/artisan.html',
+  '/reservation-demo': 'reservation-demo.html', '/inscription': 'inscription.html', '/admin': 'admin.html', '/espace': 'espace.html', '/exemples/bistro': 'exemples/bistro.html', '/exemples/salon': 'exemples/salon.html', '/exemples/artisan': 'exemples/artisan.html',
 };
 const TYPES = {
   html: 'text/html; charset=utf-8', css: 'text/css; charset=utf-8', js: 'text/javascript; charset=utf-8', json: 'application/json; charset=utf-8',
@@ -250,6 +250,156 @@ async function motDePasse(req, env, url) {
   } catch (_) { return json({ ok: false }, 500); }
 }
 
+// ---------- Espace client et communication ----------
+const MOIS_QUOTA = { essentiel: 1, pro: 3 };
+const premierDuMois = () => new Date().toISOString().slice(0, 7) + '-01';
+async function espace(req, env, url, p) {
+  let u;
+  try { u = await currentUser(req, env); } catch (_) { return json({ ok: false }, 500); }
+  if (!u) return json({ ok: false }, 401);
+  const one = (sql, ...a) => env.DB.prepare(sql).bind(...a).first();
+  const all = async (sql, ...a) => (await env.DB.prepare(sql).bind(...a).all()).results || [];
+  const lecture = !!u.par_admin;
+  try {
+    if (p === '/api/espace' && req.method === 'GET') {
+      const compte = await one('SELECT nom, email, created_at FROM comptes WHERE id = ?', u.id);
+      const demandes = await all('SELECT id, ref, created_at, commerce, activite, ville, domaine, mails, tel, formule, statut, suspendu, site_url FROM demandes WHERE compte_id = ? ORDER BY id DESC', u.id);
+      const abo = await one('SELECT formule, statut, mails_sup, debut, fin FROM abonnements WHERE compte_id = ?', u.id);
+      const formule = abo ? abo.formule : (demandes[0] ? demandes[0].formule : 'essentiel');
+      const used = await one('SELECT COUNT(*) n FROM modifs WHERE compte_id = ? AND created_at >= ?', u.id, premierDuMois());
+      return json({ ok: true, lecture, compte, demandes, abonnement: abo, formule, quota: MOIS_QUOTA[formule] || 1, utilisees: used ? used.n : 0,
+        notifications: await all('SELECT id, titre, message, lu, created_at FROM notifications WHERE compte_id = ? ORDER BY id DESC LIMIT 40', u.id),
+        modifs: await all('SELECT id, type, description, statut, created_at FROM modifs WHERE compte_id = ? ORDER BY id DESC LIMIT 30', u.id),
+        plaintes: await all('SELECT id, sujet, statut, created_at FROM plaintes WHERE compte_id = ? ORDER BY id DESC LIMIT 20', u.id) });
+    }
+    if (req.method !== 'POST') return json({ ok: false }, 405);
+    if (lecture) return json({ ok: false, error: 'lecture-seule' }, 403);
+    const { b, err } = await readJson(req, url, 4000); if (err) return err;
+    const txt = (v, n) => (typeof v === 'string' ? v.trim().slice(0, n) : '');
+    if (p === '/api/espace/lu') {
+      await env.DB.prepare('UPDATE notifications SET lu = 1 WHERE compte_id = ?').bind(u.id).run();
+      return json({ ok: true });
+    }
+    if (p === '/api/espace/modif') {
+      const d = await one("SELECT id, statut, suspendu, formule FROM demandes WHERE compte_id = ? ORDER BY id DESC LIMIT 1", u.id);
+      if (!d || d.suspendu) return json({ ok: false, error: 'suspendu' }, 403);
+      if (!['apercu', 'en_ligne'].includes(d.statut)) return json({ ok: false, error: 'pas-en-ligne' }, 409);
+      const abo = await one('SELECT formule FROM abonnements WHERE compte_id = ?', u.id);
+      const quota = MOIS_QUOTA[abo ? abo.formule : d.formule] || 1;
+      const used = await one('SELECT COUNT(*) n FROM modifs WHERE compte_id = ? AND created_at >= ?', u.id, premierDuMois());
+      if (used.n >= quota) return json({ ok: false, error: 'quota' }, 409);
+      const type = ['texte', 'photo', 'bloc', 'autre'].includes(b.type) ? b.type : 'autre', desc = txt(b.description, 1200);
+      if (desc.length < 5) return json({ ok: false, error: 'vide' }, 422);
+      await env.DB.prepare('INSERT INTO modifs (compte_id, type, description) VALUES (?,?,?)').bind(u.id, type, desc).run();
+      await log(env, u.id, null, 'modification', type);
+      return json({ ok: true });
+    }
+    if (p === '/api/espace/plainte') {
+      const sujet = txt(b.sujet, 120);
+      if (!sujet) return json({ ok: false }, 422);
+      await env.DB.prepare('INSERT INTO plaintes (compte_id, sujet, message) VALUES (?,?,?)').bind(u.id, sujet, txt(b.message, 1500)).run();
+      await log(env, u.id, null, 'plainte', sujet);
+      return json({ ok: true });
+    }
+    return json({ ok: false }, 404);
+  } catch (_) { return json({ ok: false }, 500); }
+}
+const escH = (s) => String(s || '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const mailOk = (env) => !!(env.RESEND_API_KEY && env.MAIL_FROM);
+async function adminExtra(req, env, url, p, me, one, all) {
+  const num = (v) => { const n = parseInt(v, 10); return Number.isFinite(n) ? n : 0; };
+  const txt = (v, n) => (typeof v === 'string' ? v.trim().slice(0, n) : '');
+  if (p === '/api/admin/compte-plus' && req.method === 'GET') {
+    const id = num(url.searchParams.get('id'));
+    return json({ ok: true, modifs: await all('SELECT id, type, description, statut, created_at FROM modifs WHERE compte_id = ? ORDER BY id DESC LIMIT 30', id),
+      notifications: await all('SELECT titre, message, lu, created_at FROM notifications WHERE compte_id = ? ORDER BY id DESC LIMIT 20', id),
+      opt_out: ((await one('SELECT opt_out FROM comptes WHERE id = ?', id)) || {}).opt_out || 0 });
+  }
+  if (p === '/api/admin/communications' && req.method === 'GET') {
+    return json({ ok: true, mail_ok: mailOk(env), liste: await all('SELECT id, sujet, nb, nb_mail, notif, statut, created_at FROM communications ORDER BY id DESC LIMIT 30') });
+  }
+  if (req.method !== 'POST' || !['/api/admin/site', '/api/admin/notifier', '/api/admin/reset-mdp', '/api/admin/modif-statut', '/api/admin/opt-out', '/api/admin/communication'].includes(p)) return null;
+  const { b, err } = await readJson(req, url, 40000); if (err) return err;
+  if (p === '/api/admin/site') {
+    const d = await one('SELECT id, compte_id FROM demandes WHERE id = ?', num(b.id)); if (!d) return json({ ok: false }, 404);
+    if (typeof b.suspendu === 'boolean') {
+      await env.DB.prepare('UPDATE demandes SET suspendu = ? WHERE id = ?').bind(b.suspendu ? 1 : 0, d.id).run();
+      await log(env, d.compte_id, me.id, b.suspendu ? 'site_suspendu' : 'site_reactive', '');
+    }
+    if (typeof b.site_url === 'string') {
+      const su = b.site_url.trim().slice(0, 200);
+      if (su && !/^(\/|https:\/\/)[^\s<>"]*$/.test(su)) return json({ ok: false, error: 'url' }, 422);
+      await env.DB.prepare('UPDATE demandes SET site_url = ? WHERE id = ?').bind(su, d.id).run();
+      await log(env, d.compte_id, me.id, 'site_url', su);
+    }
+    return json({ ok: true });
+  }
+  if (p === '/api/admin/notifier') {
+    const titre = txt(b.titre, 120), message = txt(b.message, 1000), ids = (Array.isArray(b.ids) ? b.ids : []).map(num).filter(Boolean).slice(0, 500);
+    if (!titre || !message || !ids.length) return json({ ok: false }, 422);
+    const ok = new Set((await all("SELECT id FROM comptes WHERE role != 'admin'")).map((r) => r.id));
+    const cibles = ids.filter((i) => ok.has(i));
+    await env.DB.batch(cibles.map((i) => env.DB.prepare('INSERT INTO notifications (compte_id, titre, message) VALUES (?,?,?)').bind(i, titre, message)));
+    for (const i of cibles.slice(0, 20)) await log(env, i, me.id, 'notification', titre);
+    return json({ ok: true, nb: cibles.length });
+  }
+  if (p === '/api/admin/reset-mdp') {
+    const id = num(b.compte_id), c = await one("SELECT id FROM comptes WHERE id = ? AND role != 'admin'", id); if (!c) return json({ ok: false }, 404);
+    const al = 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789', r = crypto.getRandomValues(new Uint8Array(12));
+    const mdp = Array.from(r, (x) => al[x % al.length]).join('');
+    const salt = crypto.getRandomValues(new Uint8Array(16)), h = await pbkdf2(mdp, salt);
+    await env.DB.prepare('UPDATE comptes SET salt = ?, hash = ?, iter = ? WHERE id = ?').bind(hex(salt), hex(h), ITER, id).run();
+    await env.DB.prepare('DELETE FROM sessions WHERE compte_id = ?').bind(id).run();
+    await log(env, id, me.id, 'mot_de_passe_reinit', '');
+    return json({ ok: true, mdp });
+  }
+  if (p === '/api/admin/modif-statut') {
+    if (!['demandee', 'faite'].includes(b.statut)) return json({ ok: false }, 422);
+    await env.DB.prepare('UPDATE modifs SET statut = ? WHERE id = ?').bind(b.statut, num(b.id)).run();
+    return json({ ok: true });
+  }
+  if (p === '/api/admin/opt-out') {
+    await env.DB.prepare("UPDATE comptes SET opt_out = ? WHERE id = ? AND role != 'admin'").bind(b.opt_out ? 1 : 0, num(b.compte_id)).run();
+    return json({ ok: true });
+  }
+  if (p === '/api/admin/communication') {
+    const sujet = txt(b.sujet, 150), corps = txt(b.corps, 8000), ids = new Set((Array.isArray(b.ids) ? b.ids : []).map(num).filter(Boolean).slice(0, 1000));
+    if (!sujet || corps.length < 5 || !ids.size) return json({ ok: false, error: 'incomplet' }, 422);
+    const cibles = (await all("SELECT id, nom, email, opt_out, demo FROM comptes WHERE role != 'admin'")).filter((c) => ids.has(c.id));
+    const mail = !!b.mail, notif = !!b.notif;
+    if (!mail && !notif) return json({ ok: false, error: 'canal' }, 422);
+    const perso = (s, c) => s.replace(/\{prenom\}/gi, (c.nom || '').split(/\s+/)[0] || '').replace(/\{nom\}/gi, c.nom || '');
+    let nbNotif = 0, nbMail = 0, statut = 'notif_seule';
+    if (notif) {
+      await env.DB.batch(cibles.map((c) => env.DB.prepare('INSERT INTO notifications (compte_id, titre, message) VALUES (?,?,?)').bind(c.id, perso(sujet, c), perso(corps, c).slice(0, 1000))));
+      nbNotif = cibles.length;
+    }
+    if (mail) {
+      const dest = cibles.filter((c) => !c.opt_out && !c.demo && !/\.invalid$/i.test(c.email));
+      if (!mailOk(env)) statut = notif ? 'notif_seule' : 'mail_non_configure';
+      else {
+        statut = 'envoye';
+        for (let i = 0; i < dest.length; i += 100) {
+          const lot = dest.slice(i, i + 100).map((c) => {
+            const t = perso(corps, c);
+            return { from: env.MAIL_FROM, to: [c.email], subject: perso(sujet, c), text: t + '\n\n—\nPour ne plus recevoir ces messages, répondez STOP.',
+              html: '<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.55;color:#111">' + escH(t).replace(/\n/g, '<br>') + '<hr style="border:0;border-top:1px solid #ddd;margin:24px 0"><p style="font-size:12px;color:#666">Pour ne plus recevoir ces messages, répondez STOP.</p></div>' };
+          });
+          try {
+            const r = await fetch('https://api.resend.com/emails/batch', { method: 'POST', headers: { authorization: 'Bearer ' + env.RESEND_API_KEY, 'content-type': 'application/json' }, body: JSON.stringify(lot) });
+            if (r.ok) nbMail += lot.length; else statut = 'partiel';
+          } catch (_) { statut = 'partiel'; }
+        }
+        if (!nbMail && dest.length) statut = 'echec';
+      }
+    }
+    await env.DB.prepare('INSERT INTO communications (sujet, corps, nb, nb_mail, notif, statut, filtre) VALUES (?,?,?,?,?,?,?)').bind(sujet, corps, cibles.length, nbMail, nbNotif ? 1 : 0, statut, txt(b.filtre, 500)).run();
+    await log(env, null, me.id, 'communication', sujet + ' (' + cibles.length + ')');
+    return json({ ok: true, statut, nb: cibles.length, nb_mail: nbMail, nb_notif: nbNotif, mail_ok: mailOk(env) });
+  }
+  return null;
+}
+
 // ---------- Administration (réservée au rôle admin, jamais pendant une impersonation) ----------
 const STATUTS_DEMANDE = ['nouvelle', 'en_creation', 'apercu', 'en_ligne', 'abandonnee'];
 const STATUTS_ABO = ['actif', 'impaye', 'suspendu', 'resilie'];
@@ -264,6 +414,7 @@ async function adminApi(req, env, url, p) {
   const all = async (sql, ...a) => (await env.DB.prepare(sql).bind(...a).all()).results || [];
   const NOADM = "role != 'admin'";
   try {
+    { const x = await adminExtra(req, env, url, p, me, one, all); if (x) return x; }
     if (p === '/api/admin/stats' && req.method === 'GET') {
       const c = await one(`SELECT COUNT(*) total,
         SUM(created_at >= datetime('now','-1 day')) j1, SUM(created_at >= datetime('now','-7 days')) j7, SUM(created_at >= datetime('now','-30 days')) j30,
@@ -300,9 +451,9 @@ async function adminApi(req, env, url, p) {
     }
     if (p === '/api/admin/donnees' && req.method === 'GET') {
       return json({ ok: true,
-        comptes: await all(`SELECT id, nom, email, created_at, derniere_connexion FROM comptes WHERE ${NOADM} ORDER BY id DESC LIMIT 2000`),
+        comptes: await all(`SELECT id, nom, email, created_at, derniere_connexion, opt_out, demo FROM comptes WHERE ${NOADM} ORDER BY id DESC LIMIT 2000`),
         abonnements: await all('SELECT compte_id, formule, statut, mails_sup, debut, fin, motif, created_at FROM abonnements LIMIT 5000'),
-        demandes: await all('SELECT compte_id, ref, commerce, activite, ville, domaine, mails, tel, formule, statut, utm, message, created_at FROM demandes ORDER BY id DESC LIMIT 3000'),
+        demandes: await all('SELECT compte_id, ref, commerce, activite, ville, domaine, mails, tel, formule, statut, suspendu, site_url, utm, message, created_at FROM demandes ORDER BY id DESC LIMIT 3000'),
         plaintes: await all('SELECT compte_id, sujet, message, statut, created_at, resolved_at FROM plaintes ORDER BY id DESC LIMIT 3000'),
         journal: await all('SELECT compte_id, type, detail, created_at FROM journal ORDER BY id DESC LIMIT 500') });
     }
@@ -321,7 +472,7 @@ async function adminApi(req, env, url, p) {
       const cpt = await one('SELECT id, nom, email, created_at, derniere_connexion, role FROM comptes WHERE id = ?', id);
       if (!cpt) return json({ ok: false }, 404);
       return json({ ok: true, compte: cpt,
-        demandes: await all('SELECT id, ref, created_at, commerce, activite, ville, domaine, mails, tel, message, formule, statut FROM demandes WHERE compte_id = ? ORDER BY id DESC', id),
+        demandes: await all('SELECT id, ref, created_at, commerce, activite, ville, domaine, mails, tel, message, formule, statut, suspendu, site_url FROM demandes WHERE compte_id = ? ORDER BY id DESC', id),
         abonnement: await one('SELECT * FROM abonnements WHERE compte_id = ?', id),
         plaintes: await all('SELECT * FROM plaintes WHERE compte_id = ? ORDER BY id DESC', id),
         journal: await all('SELECT type, detail, created_at, admin_id FROM journal WHERE compte_id = ? ORDER BY id DESC LIMIT 30', id) });
@@ -445,6 +596,7 @@ export default {
     const url = new URL(req.url);
     let p = url.pathname;
     if (p.length > 1 && p.endsWith('/')) p = p.slice(0, -1);
+    if (p.startsWith('/api/espace')) return espace(req, env, url, p);
     if (p === '/api/demande') return demande(req, env, url);
     if (p === '/api/reservation') return reservation(req, env, url);
     if (p === '/api/inscription') return inscription(req, env, url);
