@@ -379,7 +379,7 @@ footer span.l{display:flex;gap:20px;flex-wrap:wrap}
       <span><b>SiteVitrine <em>Express</em></b><small>Sites vitrines clé en main</small></span>
     </a>
     <nav class="nav" aria-label="Sections">
-      <a href="#haut" aria-current="page">Accueil</a><a href="#essai">Essayer</a><a href="#prix">Offre &amp; Prix</a><a href="#etapes">Comment ça marche</a><a href="#faq">FAQ</a>
+      <a href="#haut" aria-current="page">Accueil</a><a href="#avant">Avant / Après</a><a href="#prix">Offre &amp; Prix</a><a href="#etapes">Comment ça marche</a><a href="#faq">FAQ</a>
     </nav>
     <div class="acts">
       <a class="btn ghost sm" href="#commander"><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>Se connecter</a>
@@ -425,7 +425,7 @@ footer span.l{display:flex;gap:20px;flex-wrap:wrap}
           <div><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg><span>Espace client<br>de suivi</span></div>
           <div><svg class="ic" aria-hidden="true"><use href="#i-book"/></svg><span>Guide pub<br>complet</span></div>
         </div>
-        <div class="cta-row"><a class="btn" href="#commander">Je veux mon site<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a><a class="btn ghost" href="#essai">Essayer avec mon nom</a></div>
+        <div class="cta-row"><a class="btn" href="#commander">Je veux mon site<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a><a class="btn ghost" href="#prix">Voir les offres</a></div>
       </div>
     </section>
 
@@ -444,25 +444,6 @@ footer span.l{display:flex;gap:20px;flex-wrap:wrap}
       </div>
     </section>
   </div>
-
-  <section class="sec" id="essai">
-    <p class="eyebrow">Essayez en direct</p>
-    <h2>Voyez votre nom sur un site, tout de suite</h2>
-    <p class="lede">Tapez le nom de votre commerce et choisissez votre métier : le modèle se remplit sous vos yeux.</p>
-    <div class="ed duo">
-      <div class="forms">
-        <div class="edform">
-          <div><label for="nom">Nom de votre commerce</label><input type="text" id="nom" placeholder="Maison Olive" maxlength="40" autocomplete="off"></div>
-          <div><label for="metier">Votre métier</label><select id="metier"></select></div>
-          <p class="hint">Faites défiler dans le téléphone : les horaires et « ouvert maintenant » sont calculés en direct.</p>
-          <div class="edbtns"><a class="btn" href="#commander">Je veux mon site<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a></div>
-        </div>
-      </div>
-      <div class="phones">
-        <div class="phone-s solo"><div class="vp" data-w="300" data-h="620"><div class="si" id="essai-screen"></div></div></div>
-      </div>
-    </div>
-  </section>
 
   <section class="sec" id="avant">
     <p class="eyebrow">Avant et après</p>
@@ -753,14 +734,6 @@ footer span.l{display:flex;gap:20px;flex-wrap:wrap}
   window.addEventListener('load',fit);
 
   /* aperçu personnalisé */
-  var sel=document.getElementById('metier'),nom=document.getElementById('nom'),es=document.getElementById('essai-screen');
-  KEYS.forEach(function(k){var o=document.createElement('option');o.value=k;o.textContent=M[k].label;sel.appendChild(o)});
-  function essaiUpdate(keep){mount(es,sel.value,nom.value,keep)}
-  sel.addEventListener('change',function(){nom.placeholder=M[sel.value].def;essaiUpdate(false)});
-  nom.addEventListener('input',function(){essaiUpdate(true)});
-  nom.placeholder=M[sel.value].def;
-  essaiUpdate(false);
-
   fit();
   if(document.fonts&&document.fonts.ready){document.fonts.ready.then(fit)}
 })();

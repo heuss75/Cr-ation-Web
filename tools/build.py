@@ -87,7 +87,7 @@ NEW_SYMBOLS = """
 sprite = sprite.replace("</svg>", NEW_SYMBOLS + "</svg>", 1)
 
 # ------------------------------------------------------------------ gabarit
-NAV = [("Accueil", "/", "home"), ("Essayer", "/#essai", None), ("Offre &amp; Prix", "/offre", "offre"),
+NAV = [("Accueil", "/", "home"), ("Offre &amp; Prix", "/offre", "offre"),
        ("Comment ça marche", "/#etapes", None), ("FAQ", "/faq", "faq")]
 
 
@@ -139,7 +139,7 @@ FOOTER = """
 <footer class="ft">
   <div class="ftg">
     <div class="brand"><b>SiteVitrine <em>Express</em></b><p>Des sites vitrines clé en main pour les commerces et les indépendants : domaine, hébergement, espace client et guide pub inclus.</p></div>
-    <div><h3>Offre</h3><ul><li><a href="/offre">Offre et prix</a></li><li><a href="/#essai">Essayer</a></li><li><a href="/#etapes">Comment ça marche</a></li><li><a href="/faq">FAQ</a></li></ul></div>
+    <div><h3>Offre</h3><ul><li><a href="/offre">Offre et prix</a></li><li><a href="/#etapes">Comment ça marche</a></li><li><a href="/faq">FAQ</a></li></ul></div>
     <div><h3>Légal</h3><ul><li><a href="/mentions-legales">Mentions légales</a></li><li><a href="/cgv">Conditions générales de vente</a></li><li><a href="/confidentialite">Confidentialité</a></li><li><a href="/cookies">Cookies</a></li><li><button type="button" class="lnk" data-cookies>Gérer les cookies</button></li></ul></div>
     <div><h3>Contact</h3><ul><li><a href="/commander">Faire une demande</a></li><li><a href="/connexion">Espace client</a></li>%(email)s<li><button type="button" class="lnk" data-copy-url="page">Copier le lien de cette page</button></li></ul></div>
   </div>

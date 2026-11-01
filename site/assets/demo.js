@@ -93,14 +93,6 @@
   window.addEventListener('load',fit);
 
   /* aperçu personnalisé */
-  var sel=document.getElementById('metier'),nom=document.getElementById('nom'),es=document.getElementById('essai-screen');
-  KEYS.forEach(function(k){var o=document.createElement('option');o.value=k;o.textContent=M[k].label;sel.appendChild(o)});
-  function essaiUpdate(keep){mount(es,sel.value,nom.value,keep)}
-  sel.addEventListener('change',function(){nom.placeholder=M[sel.value].def;essaiUpdate(false)});
-  nom.addEventListener('input',function(){essaiUpdate(true)});
-  nom.placeholder=M[sel.value].def;
-  essaiUpdate(false);
-
   fit();
   if(document.fonts&&document.fonts.ready){document.fonts.ready.then(fit)}
 })();
