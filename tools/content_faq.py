@@ -28,7 +28,7 @@ FAQ = [
     ("offre", "inclus", "Qu’est-ce qui est inclus dans l’abonnement ?",
      "<ul><li>Un site vitrine sur mesure, jusqu’à 5 pages, adapté au téléphone</li><li>Le nom de domaine, réservé et renouvelé chaque année pendant l’engagement</li><li>L’hébergement, avec certificat HTTPS</li><li>Un espace client pour suivre votre commande et modifier votre site</li><li>1 modification par semaine, que vous faites vous-même</li><li>Le guide pub, pas à pas, pour vous faire connaître</li></ul>"),
     ("offre", "non-inclus", "Qu’est-ce qui n’est pas inclus ?",
-     "<p>Ne sont pas compris : la publicité faite pour vous, le référencement payant, une boutique en ligne, un système de réservation en ligne (compris dans la formule Pro), les pages au-delà de 5, une refonte complète du design, et les séances photo. Si vous avez besoin d’un de ces points, nous en parlons et nous faisons un devis séparé.</p>"),
+     "<p>Ne sont pas compris : la publicité faite pour vous, le référencement payant, une boutique en ligne, un système de réservation en ligne (compris dans la formule Pro), une refonte complète du design, et les séances photo. Si vous avez besoin d’un de ces points, nous en parlons et nous faisons un devis séparé.</p>"),
     ("offre", "engagement-12", "Pourquoi un engagement de 12 mois ?",
      "<p>Le nom de domaine se renouvelle à l’année, et la création du site demande du temps de notre côté. L’engagement de 12 mois permet de garder un prix mensuel bas et fixe. Le prix ne change pas pendant l’engagement.</p>"),
     ("offre", "ht-ttc", "Les prix sont-ils hors taxes ou toutes taxes comprises ?",

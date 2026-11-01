@@ -338,7 +338,7 @@
       $('#c-base').textContent = base + ' €';
       $('#c-maill').textContent = pro ? 'Mails en plus de la 1re' : 'Options mail';
       $('#c-mail').textContent = mc + ' €';
-      $('#c-y').textContent = (m * 12).toLocaleString('fr-FR') + ' €';
+      var cy = $('#c-y'); if (cy) cy.textContent = (m * 12).toLocaleString('fr-FR') + ' €';
     };
     rg.addEventListener('input', upd); $$('input[name=fm]').forEach(function (r) { r.addEventListener('change', upd); }); upd();
   }
@@ -425,6 +425,8 @@
             df.hidden = true; $('#d-done').classList.add('on');
             $('#d-done').setAttribute('tabindex', '-1'); $('#d-done').focus();
             $('#d-done').scrollIntoView({ block: 'start', behavior: reduce ? 'auto' : 'smooth' });
+          } else if (r.s === 401) {
+            location.replace('/inscription' + location.search);
           } else if (r.s === 429) {
             alertBad.querySelector('span').textContent = 'Trop de demandes depuis votre connexion. Patientez une heure puis réessayez.'; alertBad.classList.add('on');
           } else if (r.s === 422 && r.j.errors) {
@@ -440,14 +442,66 @@
         });
     });
   }
-  var lf = $('#login');
+  /* ----- comptes : inscription, connexion, accès à la demande ----- */
+  function api(path, method, body) {
+    return fetch(path, { method: method, credentials: 'same-origin', headers: body ? { 'content-type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { s: r.status, j: j }; }); });
+  }
+  var NEXT = '/commander' + location.search;
+  function bad(box, msg) { box.querySelector('span').textContent = msg; box.classList.add('on'); box.focus(); }
+  var sf = $('#signup'), lf = $('#login');
+  if (sf || lf) {
+    api('/api/moi', 'GET').then(function (r) { if (r.s === 200 && r.j.ok) location.replace(NEXT); }).catch(function () {});
+  }
+  if (sf) {
+    wire(sf);
+    var sbad = $('#s-bad'), sbtn = sf.querySelector('button[type=submit]');
+    sf.addEventListener('submit', function (e) {
+      e.preventDefault(); sbad.classList.remove('on');
+      if (!validateAll(sf)) { toast('Corrigez les champs signalés'); return; }
+      busy(sbtn, true);
+      var o = { nom: sf.elements.nom.value.trim(), email: sf.elements.email.value.trim(), password: sf.elements.password.value, cgv: sf.elements.cgv.checked, site_web_url: sf.elements.site_web_url.value };
+      api('/api/inscription', 'POST', o).then(function (r) {
+        busy(sbtn, false);
+        if (r.s === 200 && r.j.ok) { location.href = NEXT; }
+        else if ((r.s === 422 || r.s === 409) && r.j.errors) {
+          Object.keys(r.j.errors).forEach(function (k) { var f = sf.elements[k]; if (f) setErr(f, r.j.errors[k]); });
+          bad(sbad, r.s === 409 ? 'Un compte existe déjà avec cette adresse. Connectez-vous.' : 'Certains champs ne sont pas valides. Vérifiez les messages en rouge.');
+        } else if (r.s === 429) bad(sbad, 'Trop de créations de compte depuis votre connexion. Patientez une heure puis réessayez.');
+        else bad(sbad, 'Le compte n’a pas pu être créé (erreur ' + r.s + '). Vos réponses sont conservées : vous pouvez réessayer.');
+      }).catch(function () { busy(sbtn, false); bad(sbad, 'Connexion impossible pour le moment. Vérifiez votre réseau puis réessayez.'); });
+    });
+  }
   if (lf) {
     wire(lf);
+    var lbad = $('#l-bad'), lbtn = lf.querySelector('button[type=submit]');
     lf.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var info = $('#l-info'); info.classList.remove('on');
+      e.preventDefault(); lbad.classList.remove('on');
       if (!validateAll(lf)) return;
-      info.classList.add('on'); info.focus();
+      busy(lbtn, true);
+      api('/api/connexion', 'POST', { email: lf.elements.email.value.trim(), password: lf.elements.password.value }).then(function (r) {
+        busy(lbtn, false);
+        if (r.s === 200 && r.j.ok) location.href = NEXT;
+        else if (r.s === 401) bad(lbad, 'E-mail ou mot de passe incorrect.');
+        else if (r.s === 429) bad(lbad, 'Trop d’essais. Patientez quelques minutes puis réessayez.');
+        else bad(lbad, 'Connexion impossible (erreur ' + r.s + '). Réessayez.');
+      }).catch(function () { busy(lbtn, false); bad(lbad, 'Connexion impossible pour le moment. Vérifiez votre réseau puis réessayez.'); });
     });
+  }
+  if (df) {
+    /* la demande exige un compte : sinon on renvoie vers l'inscription */
+    df.style.visibility = 'hidden';
+    api('/api/moi', 'GET').then(function (r) {
+      if (r.s === 200 && r.j.ok) {
+        df.style.visibility = '';
+        if (!df.elements.nom.value) df.elements.nom.value = r.j.nom || '';
+        if (!df.elements.email.value) df.elements.email.value = r.j.email || '';
+        var who = document.createElement('p'); who.className = 'sub'; who.style.marginBottom = '14px';
+        who.innerHTML = 'Connecté : <strong></strong> · <button type="button" class="lnk" id="logout">Se déconnecter</button>';
+        who.querySelector('strong').textContent = r.j.email;
+        df.parentNode.insertBefore(who, df);
+        $('#logout').addEventListener('click', function () { api('/api/deconnexion', 'POST', {}).then(function () { location.href = '/connexion'; }); });
+      } else location.replace('/inscription' + location.search);
+    }).catch(function () { df.style.visibility = ''; });
   }
 })();

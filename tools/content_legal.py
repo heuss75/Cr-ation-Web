@@ -197,6 +197,7 @@ def mk(E):
 <div class="tw"><table>
 <thead><tr><th>Situation</th><th>Données</th><th>Finalité</th><th>Base légale</th></tr></thead>
 <tbody>
+<tr><td>Compte client</td><td>Nom, e-mail, mot de passe (conservé uniquement sous forme chiffrée irréversible), date de création, empreinte irréversible de l’adresse IP</td><td>Vous permettre de faire une demande et de suivre votre commande ; limiter les abus</td><td>Exécution de mesures précontractuelles ; intérêt légitime</td></tr>
 <tr><td>Demande de site</td><td>Nom, e-mail, téléphone (facultatif), nom du commerce, activité, ville, nom de domaine souhaité, nombre d’adresses mail, message, date de la demande</td><td>Répondre à votre demande, préparer votre devis et votre site</td><td>Mesures précontractuelles prises à votre demande</td></tr>
 <tr><td>Abonnement</td><td>Identité, coordonnées, contenus du site, factures, historique des modifications</td><td>Exécuter le contrat, facturer, assurer le support</td><td>Exécution du contrat ; obligation légale (comptabilité)</td></tr>
 <tr><td>Navigation sur ce site</td><td>Adresse IP, type de navigateur, pages demandées (journaux techniques de l’hébergeur)</td><td>Sécurité, prévention des abus, bon fonctionnement</td><td>Intérêt légitime</td></tr>
@@ -260,6 +261,7 @@ def mk(E):
 <thead><tr><th>Nom</th><th>Rôle</th><th>Durée</th><th>Accord requis ?</th></tr></thead>
 <tbody>
 <tr><td><code>sv_consent</code></td><td>Mémorise vos choix sur les cookies</td><td>Navigateur, jusqu’à effacement</td><td>Non (nécessaire)</td></tr>
+<tr><td><code>sv_session</code></td><td>Vous garde connecté à votre compte</td><td>Cookie, 30 jours au plus</td><td>Non (nécessaire)</td></tr>
 <tr><td><code>sv_theme</code></td><td>Mémorise le thème clair ou sombre que vous avez choisi</td><td>Navigateur, jusqu’à effacement</td><td>Non (préférence demandée par vous)</td></tr>
 <tr><td><code>sv_utm</code></td><td>Garde l’origine de votre visite (paramètres UTM) pour la joindre à votre demande</td><td>30 jours</td><td><strong>Oui</strong></td></tr>
 </tbody></table></div>

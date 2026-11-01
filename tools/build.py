@@ -122,7 +122,7 @@ HEADER = """
       <button type="button" class="ibtn" data-search aria-label="Rechercher sur le site" title="Rechercher (touche /)">%(i_search)s</button>
       <button type="button" class="ibtn" id="theme" aria-label="Passer en mode sombre" aria-pressed="false">%(i_moon)s%(i_sun)s</button>
       <a class="btn ghost sm" href="/connexion">%(i_user)sSe connecter</a>
-      <a class="btn sm" href="/commander">Je veux mon site%(i_arrow)s</a>
+      <a class="btn sm" href="/inscription">Je veux mon site%(i_arrow)s</a>
       <button type="button" class="ibtn" id="burger" aria-expanded="false" aria-controls="menu" aria-label="Ouvrir le menu">%(i_menu)s</button>
     </div>
     <div class="prog" id="prog" aria-hidden="true"><i></i></div>
@@ -130,7 +130,7 @@ HEADER = """
 </header>
 <div class="menu" id="menu" inert>
   <nav aria-label="Menu principal">%(mnav)s<a href="/connexion">Se connecter</a></nav>
-  <div class="mcta"><a class="btn" href="/commander">Je veux mon site%(i_arrow)s</a><button type="button" class="btn ghost" data-search>%(i_search)sRechercher</button></div>
+  <div class="mcta"><a class="btn" href="/inscription">Je veux mon site%(i_arrow)s</a><button type="button" class="btn ghost" data-search>%(i_search)sRechercher</button></div>
 </div>
 """ % dict(name=SITE_NAME, nav="%(nav)s", mnav="%(mnav)s", i_monitor=icon("monitor"), i_search=icon("search"), i_moon=icon("moon", "ic ic-moon"),
            i_sun=icon("sun", "ic ic-sun"), i_user=icon("user"), i_arrow=icon("arrow"), i_menu=icon("menu"))
@@ -141,7 +141,7 @@ FOOTER = """
     <div class="brand"><b>SiteVitrine <em>Express</em></b><p>Des sites vitrines clé en main pour les commerces et les indépendants : domaine, hébergement, espace client et guide pub inclus.</p></div>
     <div><h3>Offre</h3><ul><li><a href="/offre">Offre et prix</a></li><li><a href="/#etapes">Comment ça marche</a></li><li><a href="/faq">FAQ</a></li></ul></div>
     <div><h3>Légal</h3><ul><li><a href="/mentions-legales">Mentions légales</a></li><li><a href="/cgv">Conditions générales de vente</a></li><li><a href="/confidentialite">Confidentialité</a></li><li><a href="/cookies">Cookies</a></li><li><button type="button" class="lnk" data-cookies>Gérer les cookies</button></li></ul></div>
-    <div><h3>Contact</h3><ul><li><a href="/commander">Faire une demande</a></li><li><a href="/connexion">Espace client</a></li>%(email)s<li><button type="button" class="lnk" data-copy-url="page">Copier le lien de cette page</button></li></ul></div>
+    <div><h3>Contact</h3><ul><li><a href="/inscription">Faire une demande</a></li><li><a href="/connexion">Espace client</a></li>%(email)s<li><button type="button" class="lnk" data-copy-url="page">Copier le lien de cette page</button></li></ul></div>
   </div>
   <div class="ftbot"><span>© 2026 %(name)s</span><span>Site mis à jour le <time datetime="%(iso)s">%(human)s</time></span></div>
 </footer>
@@ -245,14 +245,14 @@ def phead(crumb, h1, lede, extra=""):
 
 # ------------------------------------------------------------------ accueil
 hm = home_main
-hm = hm.replace('href="#commander"', 'href="/commander"')
+hm = hm.replace('href="#commander"', 'href="/inscription"')
 hm = re.sub(r'<section class="sec" id="commander">[\s\S]*?</section>', """<section class="sec" id="commander">
     <div class="order">
       <div>
         <p class="eyebrow">Commander</p>
         <h2 style="max-width:14ch">Prêt à lancer votre site ?</h2>
         <p class="lede">La demande prend 3 minutes, elle est sans engagement et sans paiement. Réunissez ces éléments, ils suffisent pour lancer la création.</p>
-        <p style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap"><a class="btn" href="/commander">Faire ma demande""" + icon("arrow") + """</a><a class="btn ghost" href="/offre">Voir l’abonnement</a></p>
+        <p style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap"><a class="btn" href="/inscription">Faire ma demande""" + icon("arrow") + """</a><a class="btn ghost" href="/offre">Voir l’abonnement</a></p>
       </div>
       <ul class="need">
         <li>Votre activité et le nom du commerce</li>
@@ -298,7 +298,6 @@ offre_body = phead("Offre et prix", "Deux formules, tout compris",
       <div class="big-n"><span id="c-m">60</span> €<small>HT par mois</small></div>
       <div class="row2"><span id="c-basel">Formule Essentiel</span><b id="c-base">60 €</b></div>
       <div class="row2"><span id="c-maill">Options mail</span><b id="c-mail">0 €</b></div>
-      <div class="row2"><span>Sur 12 mois d’engagement</span><b id="c-y">720 €</b></div>
     </div>
   </div>
   <p class="sub" style="margin-top:12px">Montants hors taxes. La TVA, si elle s’applique, est ajoutée sur la facture.</p>
@@ -311,9 +310,9 @@ offre_body = phead("Offre et prix", "Deux formules, tout compris",
     <div class="card"><span class="tag">Inclus</span><h3>Essentiel · 60 € HT</h3><ul>
       <li>Site vitrine sur mesure, jusqu’à 5 pages</li><li>Adapté au téléphone, tablette et ordinateur</li><li>Nom de domaine réservé et renouvelé chaque année</li><li>Hébergement et certificat HTTPS</li><li>Espace client de suivi</li><li>1 modification par semaine, par vous-même</li><li>Relecture avant mise en ligne</li><li>Guide pub, 8 chapitres</li></ul></div>
     <div class="card pro"><span class="tag">En plus, avec le Pro</span><h3>Pro · 100 € HT</h3><ul>
-      <li>Tout l’Essentiel</li><li>Réservation en ligne : prestation, jour, créneau</li><li>Agenda dans l’espace client, sans double réservation</li><li>1 adresse mail pro incluse</li><li>Prestations, durées et horaires paramétrés par nous</li></ul><p style="margin-top:14px"><a href="/reservation-demo">Essayer la réservation en démo →</a></p></div>
+      <li>Tout l’Essentiel</li><li>Réservation en ligne : prestation, jour, créneau</li><li>Agenda dans l’espace client, sans double réservation</li><li>1 adresse mail pro incluse</li><li>Prestations, durées et horaires paramétrés par nous</li></ul></div>
     <div class="card no"><span class="tag">Non inclus</span><h3>À prévoir à part</h3><ul>
-      <li>Publicité faite pour vous</li><li>Référencement payant</li><li>Boutique en ligne</li><li>Paiement ou acompte en ligne</li><li>Rappels par SMS</li><li>Refonte complète du design</li><li>Séance photo</li></ul><p class="sub" style="margin-top:12px">Mail pro supplémentaire : 4 € HT par mois et par adresse. Pages en plus : sur devis.</p></div>
+      <li>Publicité faite pour vous</li><li>Référencement payant</li><li>Boutique en ligne et paiement en ligne (peut-être bientôt)</li><li>Rappels par SMS</li><li>Refonte complète du design</li><li>Séance photo</li></ul><p class="sub" style="margin-top:12px">Mail pro supplémentaire : 4 € HT par mois et par adresse.</p></div>
   </div>
 </section>
 
@@ -350,7 +349,7 @@ offre_body = phead("Offre et prix", "Deux formules, tout compris",
 <div class="cta-band">
   <h2>Prêt à lancer votre site ?</h2>
   <p>La demande prend 3 minutes. Elle est sans engagement et sans paiement.</p>
-  <a class="btn" href="/commander">Faire ma demande""" + icon("arrow") + """</a>
+  <a class="btn" href="/inscription">Faire ma demande""" + icon("arrow") + """</a>
 </div>
 <div style="height:72px"></div>
 </div>
@@ -375,12 +374,12 @@ faq_body = phead("FAQ", "Questions fréquentes", "Prix, délais, modifications, 
   </div>
   <div class="qlist" id="qlist">
 """ + "\n".join(qhtml) + """
-    <p class="qempty" id="qempty">Aucune question ne correspond. Essayez un autre mot, ou <a href="/commander">posez-nous la question</a>.</p>
+    <p class="qempty" id="qempty">Aucune question ne correspond. Essayez un autre mot, ou <a href="/inscription">posez-nous la question</a>.</p>
   </div>
   <div class="cta-band">
     <h2>Une autre question ?</h2>
     <p>Écrivez-nous via la demande en ligne : elle est sans engagement, nous vous répondons.</p>
-    <a class="btn" href="/commander">Poser ma question""" + icon("arrow") + """</a>
+    <a class="btn" href="/inscription">Poser ma question""" + icon("arrow") + """</a>
   </div>
   <div style="height:72px"></div>
 </div>
@@ -457,19 +456,43 @@ cmd_body = phead("Demande", "Demandez votre site", "Quelques informations suffis
 """
 page("commander", "Demander mon site", "Faites votre demande de site vitrine en 3 minutes : sans engagement et sans paiement.", cmd_body)
 
-# ------------------------------------------------------------------ connexion
-login_body = phead("Connexion", "Espace client", "Suivez votre commande et modifiez votre site.") + """
+# ------------------------------------------------------------------ inscription et connexion
+def pwfield(name, label, auto):
+    return ('<div class="field"><label for="f-%s">%s</label><div class="pwrap"><input id="f-%s" name="%s" type="password" autocomplete="%s" data-req aria-required="true" aria-describedby="%s-e" minlength="8" maxlength="100">'
+            '<button type="button" class="eye" aria-label="Afficher le mot de passe" aria-pressed="false">' % (name, label, name, name, auto, name)
+            + icon("eye", "ic on") + icon("eyeoff", "ic off") + '</button></div><p class="errmsg" id="%s-e" role="alert"></p></div>' % name)
+
+HP = '<div class="hp" aria-hidden="true"><label>Ne pas remplir<input type="text" name="site_web_url" tabindex="-1" autocomplete="off"></label></div>'
+
+signup_body = phead("Inscription", "Créez votre compte", "Un compte est nécessaire pour faire une demande de site. Il vous donne aussi accès au suivi de votre commande.") + """
+<div class="wrap" style="padding-bottom:72px">
+<div class="formcard" style="max-width:560px">
+<form id="signup" class="form" novalidate>
+  <div class="alert bad" id="s-bad" role="alert" tabindex="-1">""" + icon("x") + """<span></span></div>
+  """ + field("nom", "Votre nom", req=True, auto="name", extra=' minlength="2" maxlength="80"') + """
+  """ + field("email", "Votre e-mail", "email", req=True, auto="email", extra=' maxlength="120"') + """
+  """ + pwfield("password", "Mot de passe (8 caractères minimum)", "new-password") + """
+  """ + HP + """
+  <div class="field"><label class="check" for="f-cgv"><input type="checkbox" id="f-cgv" name="cgv" data-req aria-required="true" aria-describedby="cgv-e"><span>J’agis pour mon activité professionnelle et j’ai lu les <a href="/cgv" target="_blank" rel="noopener">conditions générales de vente</a> et la <a href="/confidentialite" target="_blank" rel="noopener">politique de confidentialité</a>.</span></label><p class="errmsg" id="cgv-e" role="alert"></p></div>
+  <div><button class="btn" type="submit"><span class="lbl">Créer mon compte</span></button></div>
+  <p class="sub">Déjà un compte ? <a href="/connexion">Se connecter</a>. Créer un compte est gratuit et sans engagement.</p>
+</form>
+</div>
+</div>
+"""
+page("inscription", "Créer mon compte", "Créez votre compte pour faire votre demande de site vitrine.", signup_body)
+
+login_body = phead("Connexion", "Connexion", "Suivez votre demande et accédez à votre espace client.") + """
 <div class="wrap" style="padding-bottom:72px">
 <div class="formcard" style="max-width:520px">
 <form id="login" class="form" novalidate>
-  <div class="alert info" id="l-info" role="status" tabindex="-1">""" + icon("help") + """<span><strong>L’espace client ouvre avec votre première commande.</strong> Vos accès vous sont envoyés par e-mail quand votre site passe en création. Rien de ce que vous avez saisi ici n’a été envoyé. Pas encore de site ? <a href="/commander">Faire une demande</a>.</span></div>
+  <div class="alert bad" id="l-bad" role="alert" tabindex="-1">""" + icon("x") + """<span></span></div>
   """ + field("email", "Votre e-mail", "email", req=True, auto="email", extra=' maxlength="120"') + """
-  <div class="field"><label for="f-password">Mot de passe</label>
-    <div class="pwrap"><input id="f-password" name="password" type="password" autocomplete="current-password" data-req aria-required="true" aria-describedby="password-e" minlength="8" maxlength="100">
-      <button type="button" class="eye" aria-label="Afficher le mot de passe" aria-pressed="false">""" + icon("eye", "ic on") + icon("eyeoff", "ic off") + """</button></div>
-    <p class="errmsg" id="password-e" role="alert"></p></div>
+  """ + pwfield("password", "Mot de passe", "current-password") + """
   <div><button class="btn" type="submit"><span class="lbl">Se connecter</span></button></div>
+  <p class="sub">Pas encore de compte ? <a href="/inscription">Créer mon compte</a>.</p>
 </form>
+<div id="l-ok" hidden></div>
 </div>
 </div>
 """
@@ -544,7 +567,7 @@ resa_body = phead("Démo", "Réservation en ligne", "Voici ce que vos clients vo
 <div class="cta-band">
   <h2>La réservation fait gagner du temps</h2>
   <p>Fini les appels manqués : vos clients réservent seuls, à toute heure. Disponible avec la formule Pro, à 100 € HT par mois.</p>
-  <a class="btn" href="/commander?formule=pro">Choisir le Pro""" + icon("arrow") + """</a>
+  <a class="btn" href="/inscription?formule=pro">Choisir le Pro""" + icon("arrow") + """</a>
 </div>
 </div>
 """
@@ -552,14 +575,14 @@ page("reservation-demo", "Démo de réservation", "Essayez la réservation en li
      page_js='<script src="/assets/booking.js?v=%s" defer></script>\n' % VER)
 
 # ------------------------------------------------------------------ index de recherche
-PAGES = [("index", "Accueil"), ("offre", "Offre et prix"), ("faq", "FAQ"), ("commander", "Commander"), ("connexion", "Connexion"),
+PAGES = [("index", "Accueil"), ("offre", "Offre et prix"), ("faq", "FAQ"), ("commander", "Commander"), ("inscription", "Inscription"), ("connexion", "Connexion"),
          ("mentions-legales", "Mentions légales"), ("cgv", "CGV"), ("confidentialite", "Confidentialité"), ("cookies", "Cookies"), ("reservation-demo", "Démo réservation")]
 entries = []
 for slug, label in PAGES:
     soup = BeautifulSoup(rd(os.path.join(OUT, slug + ".html")), "html.parser")
     main = soup.find("main")
     url0 = "/" if slug == "index" else "/" + slug
-    if slug in ("commander", "connexion"):
+    if slug in ("commander", "connexion", "inscription"):
         h1 = main.find("h1")
         entries.append(dict(t=h1.get_text(" ", strip=True), p=label, u=url0, x=main.find(class_="lede").get_text(" ", strip=True)))
         continue

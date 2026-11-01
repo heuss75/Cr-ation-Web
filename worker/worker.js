@@ -3,7 +3,7 @@ const REPO = 'https://raw.githubusercontent.com/heuss75/Cr-ation-Web/main/site';
 const ROUTES = {
   '/': 'index.html', '/offre': 'offre.html', '/faq': 'faq.html', '/commander': 'commander.html', '/connexion': 'connexion.html',
   '/mentions-legales': 'mentions-legales.html', '/cgv': 'cgv.html', '/confidentialite': 'confidentialite.html', '/cookies': 'cookies.html',
-  '/reservation-demo': 'reservation-demo.html', '/exemples/bistro': 'exemples/bistro.html', '/exemples/salon': 'exemples/salon.html', '/exemples/artisan': 'exemples/artisan.html',
+  '/reservation-demo': 'reservation-demo.html', '/inscription': 'inscription.html', '/exemples/bistro': 'exemples/bistro.html', '/exemples/salon': 'exemples/salon.html', '/exemples/artisan': 'exemples/artisan.html',
 };
 const TYPES = {
   html: 'text/html; charset=utf-8', css: 'text/css; charset=utf-8', js: 'text/javascript; charset=utf-8', json: 'application/json; charset=utf-8',
@@ -66,6 +66,9 @@ async function demande(req, env, url) {
   const rnd = crypto.getRandomValues(new Uint8Array(6));
   const ref = 'SVE-' + Array.from(rnd, (x) => alphabet[x % alphabet.length]).join('');
   if (b.site_web_url) return json({ ok: true, ref }); // piège anti-robots : on fait semblant
+  let user = null;
+  try { user = await currentUser(req, env); } catch (_) {}
+  if (!user) return json({ ok: false, error: 'compte' }, 401);
   const errors = validate(b);
   if (Object.keys(errors).length) return json({ ok: false, errors }, 422);
   const ip = req.headers.get('cf-connecting-ip') || 'inconnue';
@@ -81,12 +84,120 @@ async function demande(req, env, url) {
       utm = JSON.stringify(o).slice(0, 600);
     }
     const t = (k, n) => (typeof b[k] === 'string' ? b[k].trim().slice(0, n) : '');
-    await env.DB.prepare('INSERT INTO demandes (ref, nom, email, tel, commerce, activite, ville, domaine, mails, message, utm, page, ip_hash, ua, formule) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)')
-      .bind(ref, t('nom', 80), t('email', 120), t('tel', 20), t('commerce', 80), t('activite', 20), t('ville', 60), t('domaine', 70), parseInt(b.mails, 10) || 0, t('message', 1000), utm, t('page', 60), iph, (req.headers.get('user-agent') || '').slice(0, 200), t('formule', 12)).run();
+    await env.DB.prepare('INSERT INTO demandes (ref, nom, email, tel, commerce, activite, ville, domaine, mails, message, utm, page, ip_hash, ua, formule, compte_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)')
+      .bind(ref, t('nom', 80), t('email', 120), t('tel', 20), t('commerce', 80), t('activite', 20), t('ville', 60), t('domaine', 70), parseInt(b.mails, 10) || 0, t('message', 1000), utm, t('page', 60), iph, (req.headers.get('user-agent') || '').slice(0, 200), t('formule', 12), user.id).run();
   } catch (_) {
     return json({ ok: false }, 500);
   }
   return json({ ok: true, ref });
+}
+
+
+// ---------- Comptes (inscription, connexion, session par cookie) ----------
+const enc = new TextEncoder();
+const hex = (u8) => Array.from(u8, (x) => x.toString(16).padStart(2, '0')).join('');
+const unhex = (h) => new Uint8Array((h.match(/../g) || []).map((x) => parseInt(x, 16)));
+const ITER = 100000;
+async function pbkdf2(pw, salt, iter = ITER) {
+  const key = await crypto.subtle.importKey('raw', enc.encode(pw), 'PBKDF2', false, ['deriveBits']);
+  return new Uint8Array(await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt, iterations: iter }, key, 256));
+}
+function same(a, b) { if (a.length !== b.length) return false; let d = 0; for (let i = 0; i < a.length; i++) d |= a[i] ^ b[i]; return d === 0; }
+async function sha(txt) { return hex(new Uint8Array(await crypto.subtle.digest('SHA-256', enc.encode(txt)))); }
+async function ipHash(req, tag) { return (await sha((req.headers.get('cf-connecting-ip') || 'inconnue') + '|' + tag)).slice(0, 16); }
+function cookieOf(req, name) {
+  const m = (req.headers.get('cookie') || '').split(/;\s*/).find((c) => c.startsWith(name + '='));
+  return m ? m.slice(name.length + 1) : '';
+}
+function sessionCookie(token, maxAge) {
+  return 'sv_session=' + token + '; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=' + maxAge;
+}
+async function currentUser(req, env) {
+  const t = cookieOf(req, 'sv_session');
+  if (!/^[0-9a-f]{64}$/.test(t)) return null;
+  const r = await env.DB.prepare("SELECT c.id, c.nom, c.email FROM sessions s JOIN comptes c ON c.id = s.compte_id WHERE s.token_hash = ? AND s.expires_at > datetime('now')").bind(await sha(t)).first();
+  return r || null;
+}
+async function newSession(env, compteId) {
+  const token = hex(crypto.getRandomValues(new Uint8Array(32)));
+  await env.DB.prepare("INSERT INTO sessions (token_hash, compte_id, expires_at) VALUES (?, ?, datetime('now','+30 days'))").bind(await sha(token), compteId).run();
+  return token;
+}
+async function readJson(req, url, max = 2000) {
+  const origin = req.headers.get('origin');
+  if (origin && origin !== url.origin) return { err: json({ ok: false }, 403) };
+  const raw = await req.text();
+  if (raw.length > max) return { err: json({ ok: false }, 413) };
+  try { const b = JSON.parse(raw); if (b && typeof b === 'object') return { b }; } catch (_) {}
+  return { err: json({ ok: false }, 400) };
+}
+const MAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+async function inscription(req, env, url) {
+  if (req.method !== 'POST') return json({ ok: false }, 405);
+  const { b, err } = await readJson(req, url); if (err) return err;
+  if (b.site_web_url) return json({ ok: true });
+  const nom = typeof b.nom === 'string' ? b.nom.trim() : '';
+  const email = typeof b.email === 'string' ? b.email.trim().toLowerCase() : '';
+  const pw = typeof b.password === 'string' ? b.password : '';
+  const errors = {};
+  if (nom.length < 2 || nom.length > 80) errors.nom = 'Nom requis (2 à 80 caractères).';
+  if (!MAIL_RE.test(email) || email.length > 120) errors.email = 'Adresse e-mail invalide.';
+  if (pw.length < 8 || pw.length > 100) errors.password = 'Le mot de passe contient entre 8 et 100 caractères.';
+  if (b.cgv !== true) errors.cgv = 'Acceptation requise.';
+  if (Object.keys(errors).length) return json({ ok: false, errors }, 422);
+  const iph = await ipHash(req, 'ins');
+  try {
+    const c = await env.DB.prepare("SELECT COUNT(*) AS n FROM comptes WHERE ip_hash = ? AND created_at > datetime('now','-1 hour')").bind(iph).first();
+    if (c && c.n >= 5) return json({ ok: false }, 429);
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const h = await pbkdf2(pw, salt);
+    let id;
+    try {
+      const r = await env.DB.prepare('INSERT INTO comptes (email, nom, salt, hash, iter, ip_hash) VALUES (?,?,?,?,?,?)').bind(email, nom, hex(salt), hex(h), ITER, iph).run();
+      id = r.meta.last_row_id;
+    } catch (e) {
+      if (String(e && e.message).includes('UNIQUE')) return json({ ok: false, errors: { email: 'Un compte existe déjà avec cette adresse : connectez-vous.' } }, 409);
+      throw e;
+    }
+    const token = await newSession(env, id);
+    const res = json({ ok: true, nom });
+    res.headers.append('set-cookie', sessionCookie(token, 2592000));
+    return res;
+  } catch (_) { return json({ ok: false }, 500); }
+}
+async function connexion(req, env, url) {
+  if (req.method !== 'POST') return json({ ok: false }, 405);
+  const { b, err } = await readJson(req, url); if (err) return err;
+  const email = typeof b.email === 'string' ? b.email.trim().toLowerCase() : '';
+  const pw = typeof b.password === 'string' ? b.password : '';
+  if (!MAIL_RE.test(email) || pw.length < 1 || pw.length > 100) return json({ ok: false, error: 'identifiants' }, 401);
+  const iph = await ipHash(req, 'log');
+  try {
+    await env.DB.prepare("DELETE FROM essais WHERE at < datetime('now','-1 day')").run();
+    const c = await env.DB.prepare("SELECT COUNT(*) AS n FROM essais WHERE ip_hash = ? AND at > datetime('now','-15 minutes')").bind(iph).first();
+    if (c && c.n >= 10) return json({ ok: false }, 429);
+    const u = await env.DB.prepare('SELECT id, nom, salt, hash, iter FROM comptes WHERE email = ?').bind(email).first();
+    const h = await pbkdf2(pw, u ? unhex(u.salt) : new Uint8Array(16), u ? u.iter : ITER);
+    if (!u || !same(h, unhex(u.hash))) {
+      await env.DB.prepare('INSERT INTO essais (ip_hash) VALUES (?)').bind(iph).run();
+      return json({ ok: false, error: 'identifiants' }, 401);
+    }
+    const token = await newSession(env, u.id);
+    const res = json({ ok: true, nom: u.nom });
+    res.headers.append('set-cookie', sessionCookie(token, 2592000));
+    return res;
+  } catch (_) { return json({ ok: false }, 500); }
+}
+async function deconnexion(req, env, url) {
+  if (req.method !== 'POST') return json({ ok: false }, 405);
+  const t = cookieOf(req, 'sv_session');
+  try { if (/^[0-9a-f]{64}$/.test(t)) await env.DB.prepare('DELETE FROM sessions WHERE token_hash = ?').bind(await sha(t)).run(); } catch (_) {}
+  const res = json({ ok: true });
+  res.headers.append('set-cookie', sessionCookie('', 0));
+  return res;
+}
+async function moi(req, env) {
+  try { const u = await currentUser(req, env); return u ? json({ ok: true, nom: u.nom, email: u.email }) : json({ ok: false }, 401); } catch (_) { return json({ ok: false }, 500); }
 }
 
 function parisToday() {
@@ -156,6 +267,10 @@ export default {
     if (p.length > 1 && p.endsWith('/')) p = p.slice(0, -1);
     if (p === '/api/demande') return demande(req, env, url);
     if (p === '/api/reservation') return reservation(req, env, url);
+    if (p === '/api/inscription') return inscription(req, env, url);
+    if (p === '/api/connexion') return connexion(req, env, url);
+    if (p === '/api/deconnexion') return deconnexion(req, env, url);
+    if (p === '/api/moi' && req.method === 'GET') return moi(req, env);
     if (p === '/api/creneaux' && req.method === 'GET') return creneaux(req, env, url);
     if (req.method !== 'GET' && req.method !== 'HEAD') return new Response('Méthode non autorisée', { status: 405 });
     if (p === '/index.html' || (p.endsWith('.html') && p !== '/404.html')) {
