@@ -3,187 +3,263 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Ouvert</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@600;800&family=Caveat:wght@600;700&family=Barlow+Condensed:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Anton&family=Fraunces:opsz,wght@9..144,500;9..144,700&display=swap">
+<title>SiteVitrine Express</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,700&family=Playfair+Display:ital,wght@1,600&family=Geist+Mono:wght@400;500&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@600;800&family=Caveat:wght@600;700&family=Barlow+Condensed:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Anton&family=Fraunces:opsz,wght@9..144,500;9..144,700&display=swap">
 <style>
 :root{
-  /* Concept : une enseigne de quartier. Grande typo, exemples montrés en grand, un seul vert "ouvert" comme couleur forte. */
-  --bg:#EDF2F0; --surface:#FFFFFF; --ink:#11201A; --muted:#51635C; --line:#CFDAD5; --soft:#E0E9E5;
-  --accent:#0A7A4F; --accent-ink:#FFFFFF; --sign:#22C973; --edge:#17231E;
-  --display:'Bricolage Grotesque','Arial Narrow',system-ui,sans-serif;
-  --body:'Hanken Grotesk',system-ui,-apple-system,sans-serif;
-  --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --bg:#0D1512; --surface:#15201B; --ink:#E7F0EB; --muted:#9AADA5; --line:#26352E; --soft:#1B2924;
-    --accent:#3FDC98; --accent-ink:#07130D; --sign:#3FDC98; --edge:#34453D; color-scheme:dark;
-  }
-}
-:root[data-theme="dark"]{
-  --bg:#0D1512; --surface:#15201B; --ink:#E7F0EB; --muted:#9AADA5; --line:#26352E; --soft:#1B2924;
-  --accent:#3FDC98; --accent-ink:#07130D; --sign:#3FDC98; --edge:#34453D; color-scheme:dark;
+  /* Concept : fidèle à la maquette. Noir et blanc, titres très gras, appareils posés sur une photo floue lumineuse. */
+  color-scheme:light;
+  --bg:#F5F6F6; --surface:#FFFFFF; --ink:#0B0B0C; --ink2:#2B2B2E; --muted:#5E5E64; --line:#E3E4E4; --soft:#E2E2E2;
+  --accent:#0B0B0C; --accent-ink:#FFFFFF; --sign:#17C26E; --edge:#0B0B0C;
+  --display:'Plus Jakarta Sans','Hanken Grotesk',system-ui,sans-serif;
+  --body:'Plus Jakarta Sans','Hanken Grotesk',system-ui,-apple-system,sans-serif;
+  --mono:'Geist Mono','IBM Plex Mono',ui-monospace,Menlo,monospace;
 }
 *{box-sizing:border-box}
-html{scroll-behavior:smooth;scroll-padding-top:76px}
-body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.55 var(--body);
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.55 var(--body);-webkit-font-smoothing:antialiased;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
 h1,h2,h3,h4,p,ul,ol,dl,dd{margin:0}
 ul,ol{padding:0;list-style:none}
 a{color:inherit}
-:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
-.wrap{max-width:1120px;margin:0 auto}
-.sec{max-width:1120px;margin:0 auto;padding-block:clamp(44px,8vw,88px)}
-.eyebrow{font:500 12px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-h2{font:800 clamp(1.9rem,5.2vw,3.1rem)/1.02 var(--display);letter-spacing:-.025em;text-wrap:balance;margin-top:10px;max-width:20ch}
-.lede{color:var(--muted);max-width:58ch;margin-top:14px}
+:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.wrap{max-width:1180px;margin:0 auto}
+.sec{max-width:1180px;margin:0 auto;padding-block:clamp(48px,8vw,96px)}
+.eyebrow{font:500 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+h2{font:700 clamp(2rem,5.4vw,3.4rem)/1 var(--display);letter-spacing:-.035em;text-wrap:balance;margin-top:12px;max-width:21ch}
+.lede{color:var(--muted);max-width:58ch;margin-top:16px}
+.ic{width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;flex:none}
 
-/* header */
-.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg)}
-.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:12px}
-.logo{font:800 1.45rem/1 var(--display);letter-spacing:-.03em;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
-.logo i{width:11px;height:11px;border-radius:50%;background:var(--sign)}
-.nav{display:none;gap:26px;font-weight:600;font-size:15px}
-.nav a{text-decoration:none;color:var(--muted)}
-.nav a:hover{color:var(--ink)}
-@media(min-width:820px){.nav{display:flex}}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--accent);color:var(--accent-ink);font:700 16px/1 var(--body);padding:15px 22px;border-radius:10px;border:0;text-decoration:none;cursor:pointer}
-.btn:hover{filter:brightness(1.07)}
-.btn.sm{padding:11px 16px;font-size:15px}
-.btn.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
-.btn[aria-disabled="true"]{background:var(--soft);color:var(--muted);cursor:not-allowed;filter:none}
+/* en-tête */
+.hdr{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(255,255,255,.93);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  margin-inline:calc(-1*max(16px,env(safe-area-inset-left,0px))) calc(-1*max(16px,env(safe-area-inset-right,0px)));
+  padding-inline:max(16px,env(safe-area-inset-left,0px)) max(16px,env(safe-area-inset-right,0px))}
+.hdr .wrap{display:flex;align-items:center;justify-content:space-between;gap:18px;padding-block:12px}
+.logo{display:inline-flex;align-items:center;gap:14px;text-decoration:none}
+.logo .ic{width:42px;height:42px;stroke-width:1.3}
+.logo b{display:block;font:800 1.5rem/1 var(--display);letter-spacing:-.03em}
+.logo b em{font-style:italic;font-weight:700}
+.logo small{display:none;font:500 12.5px/1.2 var(--body);color:var(--ink2);margin-top:4px}
+.nav{display:none;gap:34px;font-weight:500;font-size:16px}
+.nav a{text-decoration:none;color:var(--ink);padding-block:6px}
+.nav a[aria-current]{font-weight:700;box-shadow:0 2px 0 var(--ink)}
+.acts{display:flex;gap:10px;align-items:center}
+@media(min-width:620px){.logo small{display:block}}
+@media(min-width:1040px){.nav{display:flex}}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;background:var(--accent);color:var(--accent-ink);font:700 15.5px/1 var(--body);padding:16px 26px;border-radius:999px;border:0;text-decoration:none;cursor:pointer;transition:transform .15s}
+.btn .ic{width:18px;height:18px;stroke-width:2.2}
+.btn:hover{transform:translateY(-1px)}
+.btn.sm{padding:13px 20px;font-size:14.5px}
+.btn.ghost{background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
+.btn.ghost.sm{display:none}
+@media(min-width:780px){.btn.ghost.sm{display:inline-flex}}
+.btn[aria-disabled="true"]{background:var(--soft);color:var(--muted);cursor:not-allowed;transform:none}
+
+/* scène : photo floue lumineuse derrière l'accueil */
+.scene{position:relative;isolation:isolate;
+  margin-inline:calc(-1*max(16px,env(safe-area-inset-left,0px))) calc(-1*max(16px,env(safe-area-inset-right,0px)));
+  padding-inline:max(16px,env(safe-area-inset-left,0px)) max(16px,env(safe-area-inset-right,0px));padding-bottom:28px;overflow:hidden}
+.scene::before{content:"";position:absolute;inset:0;z-index:-1;background:
+  radial-gradient(34% 22% at 7% 70%,rgba(62,74,62,.34),transparent 72%),
+  radial-gradient(9% 16% at 97% 58%,rgba(86,128,84,.42),transparent 72%),
+  radial-gradient(6% 9% at 62% 12%,rgba(255,255,255,.95),transparent 72%),
+  radial-gradient(5% 8% at 84% 16%,rgba(255,255,255,.9),transparent 72%),
+  radial-gradient(30% 36% at 66% 30%,#fff,transparent 72%),
+  linear-gradient(100deg,#E6E8E8 0%,#F7F8F8 38%,#EEF0F0 72%,#E3E6E6 100%)}
+.scene::after{content:"";position:absolute;inset:0;z-index:-1;background:repeating-linear-gradient(90deg,rgba(255,255,255,.45) 0 70px,rgba(255,255,255,0) 70px 190px);opacity:.55;filter:blur(14px)}
 
 /* hero */
-.hero{display:grid;gap:36px;grid-template-columns:minmax(0,1fr);padding-block:clamp(24px,6vw,64px) clamp(40px,7vw,80px)}
-@media(min-width:900px){.hero{grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);align-items:center;gap:56px}}
-h1{font:800 clamp(2.35rem,8.4vw,4.7rem)/.96 var(--display);letter-spacing:-.035em;text-wrap:balance}
-h1 em{font-style:normal;color:var(--accent)}
-.hero .lede{font-size:1.1rem}
-.try{margin-top:26px;display:grid;gap:12px;max-width:520px}
-.try label{font:500 12px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px}
-.try .row{display:grid;gap:12px;grid-template-columns:minmax(0,1fr)}
-@media(min-width:520px){.try .row{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}}
-input[type=text],select{width:100%;font:500 16px var(--body);color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:13px 14px}
-.try-title{font:700 1.05rem var(--display)}
-.facts{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:22px;font:500 13px var(--mono);color:var(--muted)}
-.facts span::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--sign);margin-right:8px}
-.cta-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
+.hero{display:grid;gap:34px 40px;grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "devices" "feat";padding-block:clamp(26px,4vw,50px) clamp(22px,3vw,36px)}
+@media(min-width:980px){.hero{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"head devices" "feat devices";align-items:center;gap:30px 40px}}
+.hero-head{grid-area:head}
+.pill{display:inline-block;font:500 14px var(--body);background:#E3E3E3;color:var(--ink2);padding:8px 18px;border-radius:999px}
+h1{font:800 clamp(2.3rem,4.8vw,3.9rem)/1.03 var(--display);letter-spacing:-.035em;margin-top:20px}
+.dbr{display:none}
+@media(min-width:760px){.dbr{display:inline}}
+h1 mark{background:#E1E1E1;color:inherit;padding:0 .14em;border-radius:9px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.hero .lede{font-size:1.06rem;color:var(--ink);max-width:48ch;margin-top:20px;line-height:1.5}
+.hero-feat{grid-area:feat}
+.feat{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:18px 10px}
+.feat div{display:grid;gap:10px;justify-items:center;text-align:center;font-size:13.5px;line-height:1.3;color:var(--ink)}
+.feat .ic{width:32px;height:32px;stroke-width:1.4}
+.cta-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
 
-/* frames */
-.phone{width:min(310px,100%);margin-inline:auto;border:10px solid var(--edge);border-radius:44px;background:var(--edge);position:relative}
-.phone::before{content:"";position:absolute;top:-1px;left:50%;width:86px;height:22px;transform:translateX(-50%);background:var(--edge);border-radius:0 0 14px 14px;z-index:3}
+/* appareils */
+.devices{grid-area:devices;position:relative;padding:5% 0 9%}
+.devices::after{content:"";position:absolute;left:4%;right:2%;bottom:5%;height:8%;background:radial-gradient(closest-side,rgba(0,0,0,.38),transparent);filter:blur(8px);z-index:0}
+.laptop{position:relative;width:88%;z-index:1}
+.lid{background:#0d0d0f;border-radius:14px 14px 3px 3px;padding:2.2% 2.2% 2.6%;box-shadow:inset 0 0 0 1.5px #2b2b30;position:relative}
+.lid::before{content:"";position:absolute;top:1%;left:50%;width:.9%;aspect-ratio:1;border-radius:50%;background:#26262b;transform:translateX(-50%)}
+.base{height:clamp(8px,1.6vw,15px);width:114%;margin-left:-7%;background:linear-gradient(#ecedef,#aeb0b6);border-radius:2px 2px 18px 18px;position:relative}
+.base::after{content:"";position:absolute;left:50%;top:0;width:15%;height:55%;transform:translateX(-50%);background:#9a9ba2;border-radius:0 0 9px 9px}
+.scr{position:relative;aspect-ratio:16/10;border-radius:5px;overflow:hidden;background:#0a0f0b}
+.phone-s{position:absolute;right:0;bottom:7%;width:27%;z-index:2;background:#0d0d0f;border-radius:clamp(14px,3.2vw,28px);padding:2.6%;box-shadow:0 22px 44px rgba(0,0,0,.34),inset 0 0 0 1.5px #2b2b30}
+.phone-s .scr{aspect-ratio:9/19;border-radius:clamp(10px,2.4vw,22px)}
+.phone-s.solo{position:relative;right:auto;bottom:auto;width:min(270px,100%);margin-inline:auto;padding:9px;border-radius:38px}
+.vp{position:relative;width:100%;overflow:hidden;background:#fff;border-radius:7px}
+.phone-s.solo .vp{border-radius:30px}
+.si{position:absolute;left:0;top:0;transform-origin:0 0;overflow-y:auto;overflow-x:hidden;container-type:inline-size;background:#fff;scrollbar-width:none}
+.si::-webkit-scrollbar{display:none}
+.bistro{position:absolute;inset:0;container-type:inline-size;color:#fff}
+.bistro .bgart{position:absolute;inset:0;width:100%;height:100%}
+.bistro .nav2{position:absolute;top:5%;right:6%;display:flex;gap:3.4cqw;font:500 1.75cqw var(--body)}
+.bistro .nav2 span:first-child{box-shadow:0 .25cqw 0 #fff}
+.bistro .tl{position:absolute;top:5%;left:4%;font:600 1.4cqw var(--body);letter-spacing:.08em;opacity:.8}
+.bistro .copy{position:absolute;left:8%;top:26%;width:46%}
+.bistro h4{margin:0;font:italic 600 7.6cqw/1.04 'Playfair Display',Georgia,serif}
+.bistro p{margin:2.4cqw 0 0;font:500 2.1cqw var(--body)}
+.bistro .bp{display:inline-block;margin-top:3.4cqw;background:#fff;color:#111;font:700 2cqw var(--body);padding:1.2cqw 3.4cqw;border-radius:999px}
+.bistro.m .copy{left:0;right:0;width:auto;top:31%;text-align:center;padding-inline:8%}
+.bistro.m h4{font-size:15.5cqw}
+.bistro.m p{font-size:4.6cqw;margin-top:5cqw}
+.bistro.m .bp{font-size:5cqw;padding:2.4cqw 7cqw;margin-top:7cqw}
+.bistro.m .tl{font-size:3.6cqw;top:4.5%;left:7%}
+.bistro .burger{position:absolute;top:4.6%;right:7%;width:5.4cqw;height:3.6cqw;border-top:.7cqw solid #fff;border-bottom:.7cqw solid #fff}
+.bistro .burger::after{content:"";position:absolute;left:0;right:0;top:50%;border-top:.7cqw solid #fff;transform:translateY(-50%)}
+.cup{position:absolute;left:-10%;bottom:8%;width:15%;z-index:2}
+.plant{position:absolute;right:-9%;bottom:12%;width:21%;z-index:0}
+.tablet{position:absolute;right:-2%;bottom:3%;width:37%;height:6%;z-index:1;background:linear-gradient(#f1f1f3,#c8c9ce);border-radius:5px;transform:skewX(-24deg);box-shadow:0 8px 16px rgba(0,0,0,.22)}
+@media(max-width:700px){.cup,.plant,.tablet{display:none}}
+
+/* bandeau de preuves */
+.proof{background:#fff;border-radius:22px;box-shadow:0 12px 34px rgba(0,0,0,.08);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin-top:8px}
+@media(min-width:900px){.proof{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.proof>div{display:flex;gap:16px;align-items:center;padding:20px 24px;font-size:15px;line-height:1.3;color:var(--ink);border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.proof>div:nth-child(-n+2){border-top:0}
+.proof>div:nth-child(odd){border-left:0}
+@media(min-width:900px){.proof>div{border-top:0;border-left:1px solid var(--line)!important}.proof>div:first-child{border-left:0!important}}
+.proof b{font-weight:700}
+.proof .ic{width:34px;height:34px;stroke-width:1.4}
+
+/* barre des 8 étapes */
+.bar{margin-top:16px;background:#0B0B0C;color:#fff;border-radius:18px;padding:18px 26px;display:grid;gap:14px}
+@media(min-width:1000px){.bar{grid-template-columns:auto minmax(0,1fr);align-items:center;gap:30px}}
+.bar h3{font:600 1.45rem/1.1 var(--display);letter-spacing:-.02em;white-space:nowrap;margin:0}
+.bar h3 span{box-shadow:0 2px 0 #fff}
+.bar ol{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;counter-reset:b;margin:0}
+.bar ol::-webkit-scrollbar{display:none}
+.bar li{display:flex;align-items:center;gap:9px;font-size:14px;white-space:nowrap;flex:none}
+.bar li::before{counter-increment:b;content:counter(b);width:27px;height:27px;border-radius:50%;background:#fff;color:#0B0B0C;display:grid;place-items:center;font:700 13.5px var(--body)}
+.bar li::after{content:"→";opacity:.7;margin:0 6px 0 4px}
+.bar li:last-child::after{display:none}
+
+/* champs */
+input[type=text],select,textarea{width:100%;font:500 16px var(--body);color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:13px 14px}
+textarea{resize:vertical;min-height:88px;line-height:1.4}
+input:focus,select:focus,textarea:focus{border-color:var(--ink);outline:none}
+.edform label{font:500 11.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px}
+
+/* cadres de la galerie */
 .screen{overflow-x:hidden;overflow-y:auto;container-type:inline-size;background:#fff;scrollbar-width:thin}
+.phone{width:min(310px,100%);margin-inline:auto;border:10px solid #101012;border-radius:44px;background:#101012;position:relative}
+.phone::before{content:"";position:absolute;top:-1px;left:50%;width:86px;height:22px;transform:translateX(-50%);background:#101012;border-radius:0 0 14px 14px;z-index:3}
 .phone .screen{height:590px;border-radius:34px}
 .phone .tpl{padding-top:20px}
-.desk{width:100%;max-width:860px;margin-inline:auto;border:1.5px solid var(--edge);border-radius:14px;overflow:hidden;background:var(--surface)}
+.desk{width:100%;max-width:880px;margin-inline:auto;border:1.5px solid #101012;border-radius:14px;overflow:hidden;background:var(--surface)}
 .desk-bar{display:flex;align-items:center;gap:6px;padding:10px 12px;background:var(--soft);border-bottom:1px solid var(--line)}
 .desk-bar i{width:10px;height:10px;border-radius:50%;background:var(--line)}
 .desk-bar .url{margin-left:10px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:12px var(--mono);background:var(--surface);color:var(--muted);padding:5px 10px;border-radius:6px}
-.desk .screen{height:520px}
-.stagecap{text-align:center;font:500 12px var(--mono);color:var(--muted);margin-top:16px}
-
-/* gallery */
-.tools{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;justify-content:space-between;margin:28px 0 30px}
+.desk .screen{height:540px}
+.stagecap{text-align:center;font:500 12px var(--mono);color:var(--muted);margin-top:18px}
+.tools{display:flex;flex-wrap:wrap;gap:12px 18px;align-items:center;justify-content:space-between;margin:30px 0 32px}
 .tabs{display:flex;gap:8px;flex-wrap:wrap}
-.tab,.seg button{font:600 14px var(--body);color:var(--ink);background:transparent;border:1.5px solid var(--line);border-radius:999px;padding:9px 15px;cursor:pointer}
-.tab[aria-selected="true"],.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tab,.seg button,.chip{font:500 14px var(--body);color:var(--ink);background:transparent;border:1.5px solid var(--line);border-radius:999px;padding:10px 16px;cursor:pointer}
+.tab[aria-selected="true"],.seg button[aria-pressed="true"],.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .seg{display:flex;gap:6px}
 
-/* avant / après */
-.ba{display:grid;gap:20px;margin-top:34px;grid-template-columns:minmax(0,1fr)}
+/* éditeur */
+.ed{display:grid;gap:32px;margin-top:36px;grid-template-columns:minmax(0,1fr)}
+@media(min-width:940px){.ed{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);align-items:center;gap:56px}}
+.edform{background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:clamp(20px,4vw,30px);display:grid;gap:18px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.edbtns{display:flex;gap:10px;flex-wrap:wrap}
+.msg{font-size:14px;color:var(--ink2);display:flex;gap:10px;align-items:flex-start;min-height:22px}
+.msg::before{content:"";flex:none;width:8px;height:8px;border-radius:50%;background:var(--sign);margin-top:7px}
+.edform .hint{font-size:13.5px;color:var(--muted)}
+
+/* cartes et listes */
+.ba{display:grid;gap:20px;margin-top:36px;grid-template-columns:minmax(0,1fr)}
 @media(min-width:820px){.ba{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
-.card{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:22px;min-width:0}
-.tag{display:inline-block;font:500 12px var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border-radius:999px;background:var(--soft);color:var(--muted)}
-.card.after{border-color:var(--accent);border-width:2px}
-.card.after .tag{background:var(--accent);color:var(--accent-ink)}
-.card h3{font:700 1.5rem/1.1 var(--display);margin:16px 0 4px}
-.sub{color:var(--muted);font-size:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:26px;min-width:0}
+.tag{display:inline-block;font:500 11.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;padding:5px 12px;border-radius:999px;background:var(--soft);color:var(--muted)}
+.card.after{border:2px solid var(--ink)}
+.card.after .tag{background:var(--ink);color:var(--bg)}
+.card h3{font:700 1.65rem/1.05 var(--display);letter-spacing:-.025em;margin:18px 0 4px}
+.sub{color:var(--muted);font-size:14.5px}
 .gl{margin-top:18px;display:grid;gap:0}
-.gl div{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-top:1px solid var(--line);font-size:15px}
+.gl div{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid var(--line);font-size:15px}
 .gl dt{color:var(--muted)}
 .gl dd{font-weight:600;text-align:right}
 .gl .empty{color:var(--muted);font-weight:400;font-style:italic}
-.gl .full{color:var(--accent)}
-
-/* prix */
-.price{display:grid;gap:22px;margin-top:34px;grid-template-columns:minmax(0,1fr)}
+.price{display:grid;gap:22px;margin-top:36px;grid-template-columns:minmax(0,1fr)}
 @media(min-width:860px){.price{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr)}}
-.big{background:var(--surface);border:2px solid var(--ink);border-radius:18px;padding:28px}
-.big .amount{font:800 clamp(4.4rem,14vw,6.4rem)/.85 var(--display);letter-spacing:-.05em;display:flex;align-items:flex-start;gap:6px}
-.big .amount small{font:600 1rem/1.3 var(--body);letter-spacing:0;color:var(--muted);margin-top:10px}
-.big p{margin-top:14px;color:var(--muted)}
-.big .btn{margin-top:22px;width:100%}
-.incl li{display:flex;gap:14px;padding:14px 0;border-top:1px solid var(--line);align-items:baseline}
+.big{background:var(--ink);color:var(--bg);border-radius:26px;padding:32px}
+.big .amount{font:700 clamp(4.6rem,14vw,6.6rem)/.85 var(--display);letter-spacing:-.06em;display:flex;align-items:flex-start;gap:8px}
+.big .amount small{font:500 1rem/1.3 var(--body);letter-spacing:0;opacity:.7;margin-top:10px}
+.big p{margin-top:16px;opacity:.75}
+.big .btn{margin-top:24px;width:100%;background:var(--bg);color:var(--ink)}
+.incl li{display:flex;gap:16px;padding:16px 0;border-top:1px solid var(--line);align-items:baseline}
 .incl li:first-child{border-top:0;padding-top:0}
-.incl li::before{content:"";flex:none;width:7px;height:13px;border:solid var(--accent);border-width:0 3px 3px 0;transform:rotate(45deg) translateY(-2px)}
+.incl li::before{content:"";flex:none;width:7px;height:13px;border:solid var(--ink);border-width:0 2.5px 2.5px 0;transform:rotate(45deg) translateY(-2px)}
 .incl b{display:block}
 .incl span{color:var(--muted);font-size:15px}
-.note{margin-top:18px;padding:16px 18px;border-radius:12px;background:var(--soft);font-size:15px;display:grid;gap:6px}
-
-/* étapes */
-.steps{counter-reset:s;display:grid;gap:0;margin-top:34px;grid-template-columns:minmax(0,1fr)}
-@media(min-width:820px){.steps{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:48px}}
-.steps li{display:grid;grid-template-columns:44px minmax(0,1fr);gap:14px;padding:20px 0;border-top:1.5px solid var(--line)}
-.steps li::before{counter-increment:s;content:counter(s,decimal-leading-zero);font:500 15px var(--mono);color:var(--accent);padding-top:3px}
-.steps b{display:block;font:700 1.15rem/1.2 var(--display);margin-bottom:4px}
+.note{margin-top:18px;padding:18px 20px;border-radius:16px;background:var(--soft);font-size:15px;display:grid;gap:8px}
+.steps{counter-reset:s;display:grid;gap:0;margin-top:36px;grid-template-columns:minmax(0,1fr)}
+@media(min-width:820px){.steps{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:56px}}
+.steps li{display:grid;grid-template-columns:44px minmax(0,1fr);gap:14px;padding:22px 0;border-top:1px solid var(--line)}
+.steps li::before{counter-increment:s;content:counter(s,decimal-leading-zero);font:500 14px var(--mono);color:var(--muted);padding-top:4px}
+.steps b{display:block;font:600 1.2rem/1.2 var(--display);letter-spacing:-.015em;margin-bottom:4px}
 .steps span{color:var(--muted);font-size:15px}
-
-/* après livraison */
-.after-grid{display:grid;gap:22px;margin-top:34px;grid-template-columns:minmax(0,1fr)}
+.after-grid{display:grid;gap:22px;margin-top:36px;grid-template-columns:minmax(0,1fr)}
 @media(min-width:900px){.after-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
 .track{margin-top:18px;display:grid;gap:0}
 .track li{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:12px;align-items:center;padding:9px 0;position:relative;font-size:15px}
 .track li::before{content:"";width:14px;height:14px;border-radius:50%;border:2px solid var(--line);background:var(--surface);justify-self:center;position:relative;z-index:1}
 .track li::after{content:"";position:absolute;left:10px;top:calc(50% + 7px);height:calc(100% - 2px);width:2px;background:var(--line)}
 .track li:last-child::after{display:none}
-.track li.done::before{background:var(--accent);border-color:var(--accent)}
-.track li.done::after{background:var(--accent)}
-.track li.now::before{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 22%,transparent)}
-.track li.now{font-weight:700}
+.track li.done::before{background:var(--ink);border-color:var(--ink)}
+.track li.done::after{background:var(--ink)}
+.track li.now::before{border-color:var(--ink);box-shadow:0 0 0 4px color-mix(in srgb,var(--ink) 16%,transparent)}
+.track li.now{font-weight:600}
 .track time{font:500 12px var(--mono);color:var(--muted)}
 .kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:20px}
-.kpis div{background:var(--soft);border-radius:10px;padding:12px}
-.kpis b{display:block;font:700 1.25rem/1.1 var(--display)}
+.kpis div{background:var(--soft);border-radius:14px;padding:14px}
+.kpis b{display:block;font:700 1.3rem/1.1 var(--display);letter-spacing:-.02em}
 .kpis span{font-size:12px;color:var(--muted);line-height:1.3;display:block;margin-top:4px}
 .chap{margin-top:16px}
 .chap li{display:flex;gap:12px;align-items:baseline;padding:10px 0;border-top:1px solid var(--line);font-size:15px}
 .chap li:first-child{border-top:0}
-.chap em{font:500 12px var(--mono);font-style:normal;color:var(--accent);flex:none;width:22px}
+.chap em{font:500 12px var(--mono);font-style:normal;color:var(--muted);flex:none;width:22px}
 .chap small{color:var(--muted);margin-left:auto;text-align:right;font-size:12px;font-family:var(--mono);padding-left:10px}
-
-/* faq */
-.faq{margin-top:30px;max-width:780px}
-details{border-top:1.5px solid var(--line)}
-details:last-child{border-bottom:1.5px solid var(--line)}
-summary{list-style:none;cursor:pointer;padding:18px 0;font:700 1.1rem/1.25 var(--display);display:flex;justify-content:space-between;gap:16px}
+.faq{margin-top:32px;max-width:800px}
+details{border-top:1px solid var(--line)}
+details:last-child{border-bottom:1px solid var(--line)}
+summary{list-style:none;cursor:pointer;padding:20px 0;font:600 1.15rem/1.25 var(--display);letter-spacing:-.015em;display:flex;justify-content:space-between;gap:16px}
 summary::-webkit-details-marker{display:none}
-summary::after{content:"+";font:500 1.4rem/1 var(--mono);color:var(--accent);flex:none}
+summary::after{content:"+";font:400 1.5rem/1 var(--mono);flex:none}
 details[open] summary::after{content:"–"}
-details p{padding:0 0 18px;color:var(--muted);max-width:62ch}
-
-/* commander */
-.order{background:var(--surface);border:2px solid var(--ink);border-radius:20px;padding:clamp(22px,5vw,44px);display:grid;gap:26px;grid-template-columns:minmax(0,1fr)}
+details p{padding:0 0 20px;color:var(--muted);max-width:62ch}
+.order{background:var(--surface);border:1px solid var(--line);border-radius:28px;padding:clamp(24px,5vw,48px);display:grid;gap:28px;grid-template-columns:minmax(0,1fr)}
 @media(min-width:860px){.order{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center}}
-.need li{padding:9px 0;border-top:1px solid var(--line);display:flex;gap:12px;font-size:15px}
-.need li::before{content:"";flex:none;width:16px;height:16px;border:2px solid var(--muted);border-radius:4px;margin-top:3px}
-footer{max-width:1120px;margin:0 auto;padding-block:36px 48px;border-top:1.5px solid var(--line);display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-between;color:var(--muted);font-size:14px}
+.need li{padding:10px 0;border-top:1px solid var(--line);display:flex;gap:12px;font-size:15px}
+.need li::before{content:"";flex:none;width:16px;height:16px;border:1.5px solid var(--muted);border-radius:5px;margin-top:3px}
+footer{max-width:1180px;margin:0 auto;padding-block:36px 52px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-between;color:var(--muted);font-size:14px}
 footer span.l{display:flex;gap:20px;flex-wrap:wrap}
-
 @media(prefers-reduced-motion:no-preference){
-  .logo i,.t-open.on i{animation:pulse 2.4s ease-in-out infinite}
+  .logo i,.t-open.on i,.try-title i{animation:pulse 2.6s ease-in-out infinite}
   @keyframes pulse{50%{opacity:.35}}
 }
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.btn{transition:none}}
 
-/* ===== modèles de sites (chaque métier a son univers) ===== */
+/* modèles de sites (chaque métier a son univers) */
 .tpl{font-family:var(--tb,'Hanken Grotesk',sans-serif);background:var(--tbg);color:var(--tink);line-height:1.45;font-size:15px;min-height:100%;overflow-wrap:anywhere}
 .tpl *{box-sizing:border-box}
 .tpl h3,.tpl h4,.tpl p,.tpl ul,.tpl dl,.tpl dd{margin:0;padding:0}
 .tpl ul{list-style:none}
 .tpl .t-hero{padding:26px 20px 24px}
 .tpl .t-sec{padding:20px}
-.tpl h4{font:600 12px var(--mono,monospace);letter-spacing:.14em;text-transform:uppercase;margin-bottom:12px;opacity:.7}
+.tpl h4{font:600 12px 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;margin-bottom:12px;opacity:.7}
 .tpl .t-lead{margin:0 0 18px;max-width:34ch;font-size:16px}
 .tpl .t-addr{margin-top:14px;font-size:13px;opacity:.75}
 .tpl .t-open{display:inline-flex;align-items:center;gap:8px;font:500 12px 'IBM Plex Mono',monospace}
@@ -200,8 +276,6 @@ footer span.l{display:flex;gap:20px;flex-wrap:wrap}
   .tpl h3{font-size:4rem!important}
   .tpl .t-cols{display:grid;grid-template-columns:1.25fr 1fr;align-items:start}
 }
-
-/* coiffeur : ardoise et pointillés */
 .tpl-coiffeur{--tbg:#2A3236;--tink:#F2EFE9;--tac:#EBB9A2;--tbtn:#2A3236;--trad:999px}
 .tpl-coiffeur h3{font:800 2.6rem/1 'Syne',sans-serif;letter-spacing:-.02em;margin:8px 0 14px}
 .tpl-coiffeur .k{font:500 11px 'IBM Plex Mono',monospace;letter-spacing:.16em;text-transform:uppercase;color:var(--tac);margin-top:20px}
@@ -209,8 +283,6 @@ footer span.l{display:flex;gap:20px;flex-wrap:wrap}
 .tpl-coiffeur .t-menu small{display:block;color:#A9B3B7;font-size:12px}
 .tpl-coiffeur .t-menu b{font-weight:600;color:var(--tac)}
 .tpl-coiffeur .lead{flex:1;border-bottom:2px dotted #6C787D;transform:translateY(-5px);min-width:12px}
-
-/* restaurant : cartes manuscrites */
 .tpl-restaurant{--tbg:#F0F3EA;--tink:#26281F;--tac:#B3261E;--tbtn:#fff;--trad:6px}
 .tpl-restaurant .gingham{height:22px;background-image:linear-gradient(90deg,rgba(179,38,30,.5) 50%,transparent 50%),linear-gradient(rgba(179,38,30,.5) 50%,transparent 50%);background-size:22px 22px}
 .tpl-restaurant h3{font:700 3.2rem/.95 'Caveat',cursive;color:var(--tac);margin:14px 0 8px}
@@ -221,8 +293,6 @@ footer span.l{display:flex;gap:20px;flex-wrap:wrap}
 .tpl-restaurant .dish{font:600 1.55rem/1.05 'Caveat',cursive}
 .tpl-restaurant .t-card b{align-self:end;font-weight:700}
 .tpl-restaurant .formule{display:inline-block;margin-top:14px;background:var(--tac);color:#fff;padding:6px 12px;font:700 14px 'Hanken Grotesk',sans-serif;transform:rotate(-1.5deg)}
-
-/* artisan : plans et chiffres */
 .tpl-artisan{--tbg:#F3F5F7;--tink:#14202B;--tac:#F2A900;--tbtn:#14202B;--trad:2px;background-image:linear-gradient(#DCE2E8 1px,transparent 1px),linear-gradient(90deg,#DCE2E8 1px,transparent 1px);background-size:24px 24px}
 .tpl-artisan .stripe{height:10px;background:repeating-linear-gradient(135deg,#F2A900 0 12px,#14202B 12px 24px)}
 .tpl-artisan h3{font:700 2.9rem/.92 'Barlow Condensed',sans-serif;text-transform:uppercase;margin:16px 0 12px}
@@ -234,8 +304,6 @@ footer span.l{display:flex;gap:20px;flex-wrap:wrap}
 .tpl-artisan .t-rows li{display:flex;justify-content:space-between;gap:12px;font:500 13px 'IBM Plex Mono',monospace;padding:9px 0;border-bottom:1px dashed #14202B}
 .tpl-artisan .urgent{margin-top:16px;background:#14202B;color:#fff;padding:10px 14px;font:500 12px 'IBM Plex Mono',monospace}
 .tpl-artisan .urgent b{color:#F2A900}
-
-/* thérapeute : calme, serif fin */
 .tpl-therapeute{--tbg:#E5EDF0;--tink:#1E3138;--tac:#3F6C7A;--tbtn:#fff;--trad:999px}
 .tpl-therapeute .arch{width:132px;height:160px;border-radius:66px 66px 0 0;background:linear-gradient(#CDDFE5,#A8C5CE);position:relative;margin-bottom:22px}
 .tpl-therapeute .arch::after{content:"";position:absolute;left:50%;top:32px;width:40px;height:40px;border-radius:50%;background:#F5E9CC;transform:translateX(-50%)}
@@ -244,8 +312,6 @@ footer span.l{display:flex;gap:20px;flex-wrap:wrap}
 .tpl-therapeute .t-menu li{display:flex;justify-content:space-between;gap:14px;align-items:baseline;padding:12px 0;border-bottom:1px solid #B9CDD3}
 .tpl-therapeute .t-menu span{font:600 1.3rem/1.1 'Cormorant Garamond',serif}
 .tpl-therapeute .t-menu small{display:block;font:400 12px 'Hanken Grotesk',sans-serif;opacity:.75}
-
-/* coach : plein cadre, gros caractères */
 .tpl-coach{--tbg:#fff;--tink:#161616;--tac:#D63A1A;--tbtn:#fff;--trad:0}
 .tpl-coach .t-hero{background:#D63A1A;color:#fff}
 .tpl-coach h3{font:400 3.2rem/.95 'Anton',sans-serif;text-transform:uppercase;margin:14px 0 12px}
@@ -257,8 +323,6 @@ footer span.l{display:flex;gap:20px;flex-wrap:wrap}
 .tpl-coach .t-grid li{border:2.5px solid #161616;padding:12px}
 .tpl-coach .t-grid b{display:block;font:400 2rem/1 'Anton',sans-serif;color:#D63A1A;margin-top:6px}
 .tpl-coach .t-grid small{display:block;font-size:12px;opacity:.75}
-
-/* boutique : vitrine douce */
 .tpl-boutique{--tbg:#F6EDF1;--tink:#3A1F31;--tac:#7A2E5B;--tbtn:#fff;--trad:999px}
 .tpl-boutique h3{font:700 2.5rem/1.05 'Fraunces',serif;margin:6px 0 12px}
 .tpl-boutique .t-prod{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
@@ -272,36 +336,125 @@ footer span.l{display:flex;gap:20px;flex-wrap:wrap}
 </head>
 <body>
 
-<header class="top">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="gw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7c872"/><stop offset=".55" stop-color="#c77d2b"/><stop offset="1" stop-color="#4a2a12"/></linearGradient>
+    <radialGradient id="gl"><stop offset="0" stop-color="#fff0c0"/><stop offset=".3" stop-color="#ffc85e" stop-opacity=".75"/><stop offset="1" stop-color="#ffc85e" stop-opacity="0"/></radialGradient>
+    <linearGradient id="gf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4a8a33"/><stop offset="1" stop-color="#1b3b17"/></linearGradient>
+    <radialGradient id="gt"><stop offset="0" stop-color="#ffb04a" stop-opacity=".85"/><stop offset="1" stop-color="#ffb04a" stop-opacity="0"/></radialGradient>
+    <g id="art">
+      <rect width="1000" height="625" fill="#0a0f0b"/>
+      <rect x="380" y="60" width="620" height="420" fill="#160f08"/>
+      <g fill="url(#gw)"><rect x="396" y="78" width="88" height="386"/><rect x="498" y="78" width="88" height="386"/><rect x="600" y="78" width="88" height="386"/><rect x="702" y="78" width="88" height="386"/><rect x="804" y="78" width="88" height="386"/><rect x="906" y="78" width="94" height="386"/></g>
+      <path d="M380 205H1000M380 335H1000" stroke="#0a0f0b" stroke-width="9"/>
+      <g fill="url(#gl)"><circle cx="610" cy="70" r="46"/><circle cx="770" cy="118" r="34"/><circle cx="905" cy="62" r="52"/><circle cx="480" cy="104" r="30"/><circle cx="850" cy="290" r="38"/><circle cx="700" cy="250" r="26"/></g>
+      <rect y="470" width="1000" height="155" fill="#0d0a07"/>
+      <ellipse cx="700" cy="530" rx="280" ry="58" fill="url(#gt)"/>
+      <ellipse cx="700" cy="522" rx="220" ry="26" fill="#2c1c0e"/>
+      <g fill="#070504"><rect x="540" y="420" width="74" height="120" rx="12"/><rect x="790" y="420" width="74" height="120" rx="12"/><rect x="680" y="560" width="40" height="65"/></g>
+      <g fill="url(#gf)"><ellipse cx="90" cy="34" rx="130" ry="30" transform="rotate(32 90 34)"/><ellipse cx="120" cy="20" rx="140" ry="28" transform="rotate(58 120 20)"/><ellipse cx="60" cy="70" rx="120" ry="26" transform="rotate(12 60 70)"/><ellipse cx="210" cy="10" rx="130" ry="26" transform="rotate(76 210 10)"/><ellipse cx="10" cy="150" rx="120" ry="26" transform="rotate(-18 10 150)"/><ellipse cx="270" cy="30" rx="110" ry="24" transform="rotate(104 270 30)"/></g>
+      <g fill="#d9a53a" opacity=".38"><ellipse cx="170" cy="86" rx="46" ry="11" transform="rotate(40 170 86)"/><ellipse cx="82" cy="132" rx="40" ry="10" transform="rotate(8 82 132)"/><ellipse cx="236" cy="52" rx="40" ry="10" transform="rotate(78 236 52)"/></g>
+    </g>
+  </defs>
+  <defs>
+    <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-.6-7.96A5.5 5.5 0 0 1 17 9.5a4.2 4.2 0 0 1 .5 8.5H7z"/><path d="m9.5 13.5 2 2 3.5-3.5"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.5 20c.8-3.6 3.8-5.5 7.5-5.5s6.7 1.9 7.5 5.5"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5.5C6.5 4.5 9.5 4.5 12 6c2.5-1.5 5.5-1.5 8-.5v13c-2.5-1-5.5-1-8 .5-2.5-1.5-5.5-1.5-8-.5z"/><path d="M12 6v13.5"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol>
+    <symbol id="i-euro" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15.8 8.4a4.6 4.6 0 1 0 0 7.2M7.5 10.6h6M7.5 13.4h6"/></symbol>
+    <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M4 20l1-4.5L16.5 4a2 2 0 0 1 3 3L8 18.5z"/><path d="M14.5 6l3.5 3.5"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.5-2 2.5-5 2.5"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  </defs>
+</svg>
+
+<header class="hdr">
   <div class="wrap">
-    <a class="logo" href="#haut"><i></i>Ouvert</a>
+    <a class="logo" href="#haut" aria-label="SiteVitrine Express, accueil">
+      <svg class="ic" aria-hidden="true"><use href="#i-monitor"/></svg>
+      <span><b>SiteVitrine <em>Express</em></b><small>Sites vitrines clé en main</small></span>
+    </a>
     <nav class="nav" aria-label="Sections">
-      <a href="#exemples">Exemples</a><a href="#prix">Prix</a><a href="#etapes">Comment ça marche</a><a href="#faq">Questions</a>
+      <a href="#haut" aria-current="page">Accueil</a><a href="#exemples">Exemples</a><a href="#prix">Offre &amp; Prix</a><a href="#etapes">Comment ça marche</a><a href="#faq">FAQ</a>
     </nav>
-    <a class="btn sm" href="#commander">Je veux mon site</a>
+    <div class="acts">
+      <a class="btn ghost sm" href="#commander"><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg>Se connecter</a>
+      <a class="btn sm" href="#commander">Je veux mon site<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+    </div>
   </div>
 </header>
 
 <main id="haut">
-  <section class="wrap hero">
-    <div>
-      <p class="eyebrow">Sites vitrines pour commerces et indépendants</p>
-      <h1 style="margin-top:14px">Votre site professionnel, en ligne en <em>quelques jours</em>, sans rien à gérer.</h1>
-      <p class="lede">60 € HT par mois. Nom de domaine, hébergement, espace client et guide pub sont inclus. Vous remplissez un formulaire, nous livrons.</p>
-
-      <div class="try">
-        <p class="try-title">Voyez votre nom sur un site, tout de suite</p>
-        <div class="row">
-          <div><label for="nom">Nom de votre commerce</label><input type="text" id="nom" placeholder="Maison Olive" maxlength="40" autocomplete="off"></div>
-          <div><label for="metier">Votre métier</label><select id="metier"></select></div>
-        </div>
+  <div class="scene">
+    <section class="wrap hero">
+      <div class="hero-head">
+        <span class="pill">Sites vitrines clé en main</span>
+        <h1>Votre site professionnel,<br class="dbr"> en ligne en <mark>quelques jours,</mark><br class="dbr"> sans rien à gérer.</h1>
+        <p class="lede">Un site vitrine sur mesure, moderne et mobile, avec nom de domaine, hébergement, espace client et guide pour vous faire connaître.</p>
       </div>
-      <div class="cta-row"><a class="btn" href="#commander">Je veux mon site</a><a class="btn ghost" href="#exemples">Voir d’autres exemples</a></div>
-      <div class="facts"><span>Livré sous 5 jours ouvrés</span><span>Prix fixe, sans frais cachés</span><span>Relu par un humain</span></div>
-    </div>
-    <div>
-      <div class="phone"><div class="screen" id="hero-screen" aria-label="Aperçu de votre site"></div></div>
-      <p class="stagecap">Faites défiler dans le téléphone. Horaires et « ouvert maintenant » en direct.</p>
+
+      <div class="devices" aria-label="Exemple de site sur ordinateur et sur téléphone">
+        <svg class="plant" viewBox="0 0 160 260" aria-hidden="true"><defs><linearGradient id="gp" x1="0" x2="1"><stop offset="0" stop-color="#e4e6e6"/><stop offset="1" stop-color="#b9bcbc"/></linearGradient></defs><g fill="#3f7d3a"><ellipse cx="80" cy="112" rx="15" ry="66" transform="rotate(-24 80 190)"/><ellipse cx="80" cy="104" rx="15" ry="72" transform="rotate(-6 80 190)"/><ellipse cx="80" cy="108" rx="15" ry="68" transform="rotate(14 80 190)"/><ellipse cx="80" cy="118" rx="14" ry="60" transform="rotate(32 80 190)"/></g><g fill="#5a9a45"><ellipse cx="80" cy="120" rx="12" ry="58" transform="rotate(-40 80 190)"/><ellipse cx="80" cy="124" rx="12" ry="54" transform="rotate(48 80 190)"/></g><path d="M38 190h84l-8 68H46z" fill="url(#gp)"/></svg>
+        <svg class="cup" viewBox="0 0 120 90" aria-hidden="true"><ellipse cx="58" cy="76" rx="52" ry="10" fill="#f4f4f4" stroke="#d6d6d6"/><path d="M22 30h68v8a34 30 0 0 1-68 0z" fill="#fbfbfb" stroke="#dcdcdc"/><ellipse cx="56" cy="30" rx="34" ry="7" fill="#7b4b2b"/><path d="M90 38q22 2 14 18-4 7-16 7" fill="none" stroke="#dcdcdc" stroke-width="6" stroke-linecap="round"/></svg>
+        <div class="tablet"></div>
+        <div class="laptop">
+          <div class="lid"><div class="scr"><div class="bistro">
+            <svg class="bgart" viewBox="0 0 1000 625" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><use href="#art"/></svg>
+            <span class="tl">LE BISTRO</span>
+            <div class="nav2"><span>Accueil</span><span>Notre carte</span><span>Le restaurant</span><span>Horaires</span><span>Contact</span></div>
+            <div class="copy"><h4>Le Bistro<br>du Marché</h4><p>Cuisine maison &amp; produits de saison</p><span class="bp">Réserver une table</span></div>
+          </div></div></div>
+          <div class="base"></div>
+        </div>
+        <div class="phone-s"><div class="scr"><div class="bistro m">
+          <svg class="bgart" viewBox="0 0 1000 625" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><use href="#art"/></svg>
+          <span class="tl">LE BISTRO</span><span class="burger"></span>
+          <div class="copy"><h4>Le Bistro<br>du Marché</h4><p>Cuisine maison &amp; produits de saison</p><span class="bp">Réserver une table</span></div>
+        </div></div></div>
+      </div>
+
+      <div class="hero-feat">
+        <div class="feat">
+          <div><svg class="ic" aria-hidden="true"><use href="#i-monitor"/></svg><span>Site sur mesure<br>(jusqu’à 5 pages)</span></div>
+          <div><svg class="ic" aria-hidden="true"><use href="#i-globe"/></svg><span>Nom de domaine<br>inclus</span></div>
+          <div><svg class="ic" aria-hidden="true"><use href="#i-cloud"/></svg><span>Hébergement<br>sécurisé (HTTPS)</span></div>
+          <div><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg><span>Espace client<br>de suivi</span></div>
+          <div><svg class="ic" aria-hidden="true"><use href="#i-book"/></svg><span>Guide pub<br>complet</span></div>
+        </div>
+        <div class="cta-row"><a class="btn" href="#commander">Je veux mon site<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a><a class="btn ghost" href="#exemples">Voir des exemples</a></div>
+      </div>
+    </section>
+
+    <section class="wrap" aria-label="Nos engagements">
+      <div class="proof">
+        <div><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg><span>Livraison sous<br><b>5 jours ouvrés</b></span></div>
+        <div><svg class="ic" aria-hidden="true"><use href="#i-euro"/></svg><span><b>60 € HT/mois</b><br>(engagement 12 mois)</span></div>
+        <div><svg class="ic" aria-hidden="true"><use href="#i-pencil"/></svg><span><b>1 modification</b><br>par semaine incluse</span></div>
+        <div><svg class="ic" aria-hidden="true"><use href="#i-headset"/></svg><span>Un accompagnement<br><b>simple et humain</b></span></div>
+      </div>
+      <div class="bar">
+        <h3><span>Votre</span> site en 8 étapes simples</h3>
+        <ol aria-label="Les 8 étapes">
+          <li>Découverte</li><li>Compte</li><li>Formulaire</li><li>Validation</li><li>Création</li><li>Prévisualisation</li><li>Mise en ligne</li><li>Guide &amp; Mail</li>
+        </ol>
+      </div>
+    </section>
+  </div>
+
+  <section class="sec" id="essai">
+    <p class="eyebrow">Aperçu personnalisé</p>
+    <h2>Voyez votre nom sur un site, tout de suite</h2>
+    <p class="lede">Tapez le nom de votre commerce et choisissez votre métier : le modèle se remplit sous vos yeux.</p>
+    <div class="ed">
+      <div class="edform">
+        <div><label for="nom">Nom de votre commerce</label><input type="text" id="nom" placeholder="Maison Olive" maxlength="40" autocomplete="off"></div>
+        <div><label for="metier">Votre métier</label><select id="metier"></select></div>
+        <p class="hint">Faites défiler dans le téléphone : les horaires et « ouvert maintenant » sont calculés en direct.</p>
+        <div class="edbtns"><a class="btn" href="#commander">Je veux mon site<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a></div>
+      </div>
+      <div><div class="phone-s solo"><div class="vp" data-w="300" data-h="620"><div class="si" id="essai-screen"></div></div></div></div>
     </div>
   </section>
 
@@ -315,6 +468,36 @@ footer span.l{display:flex;gap:20px;flex-wrap:wrap}
     </div>
     <div id="stage"></div>
     <p class="stagecap" id="cap"></p>
+  </section>
+
+  <section class="sec" id="modifier">
+    <p class="eyebrow">Éditeur de modifications</p>
+    <h2>Modifiez votre site vous-même, en quelques secondes</h2>
+    <p class="lede">Depuis votre espace client, vous changez un texte, une photo ou un bloc, sans nous écrire. Essayez sur le salon ci-contre.</p>
+    <div class="ed">
+      <div class="edform">
+        <div>
+          <label id="ed-l0">Que voulez-vous changer ?</label>
+          <div class="chips" role="group" aria-labelledby="ed-l0">
+            <button type="button" class="chip" data-t="name" aria-pressed="true">Remplacer le titre</button>
+            <button type="button" class="chip" data-t="lead" aria-pressed="false">Remplacer l’accroche</button>
+          </div>
+        </div>
+        <div>
+          <label for="ed-text" id="ed-label">Nouveau titre</label>
+          <textarea id="ed-text" maxlength="70" placeholder="Maison Olive Coiffure"></textarea>
+        </div>
+        <div class="edbtns">
+          <button type="button" class="btn" id="ed-go">Publier la modification</button>
+          <button type="button" class="btn ghost" id="ed-undo">Annuler</button>
+        </div>
+        <p class="msg" id="ed-msg" aria-live="polite">1 modification par semaine est incluse dans votre abonnement.</p>
+        <p class="hint">Dans votre espace, vous remplacez aussi une photo, ajoutez ou supprimez un bloc. Vous gardez un historique et pouvez toujours revenir en arrière.</p>
+      </div>
+      <div>
+        <div class="phone-s solo"><div class="vp" data-w="300" data-h="620"><div class="si" id="ed-screen"></div></div></div>
+      </div>
+    </div>
   </section>
 
   <section class="sec" id="avant">
@@ -339,31 +522,31 @@ footer span.l{display:flex;gap:20px;flex-wrap:wrap}
         <h3>Maison Olive</h3>
         <p class="sub">Salon de coiffure · maisonolive.fr</p>
         <dl class="gl">
-          <div><dt>Site web</dt><dd class="full">en ligne, mobile et ordinateur</dd></div>
-          <div><dt>Horaires</dt><dd class="full">avec « ouvert maintenant »</dd></div>
-          <div><dt>Tarifs</dt><dd class="full">vrais prix, vraies durées</dd></div>
-          <div><dt>Photos</dt><dd class="full">les vôtres</dd></div>
-          <div><dt>Contact</dt><dd class="full">bouton d’appel et itinéraire</dd></div>
+          <div><dt>Site web</dt><dd>en ligne, mobile et ordinateur</dd></div>
+          <div><dt>Horaires</dt><dd>avec « ouvert maintenant »</dd></div>
+          <div><dt>Tarifs</dt><dd>vrais prix, vraies durées</dd></div>
+          <div><dt>Photos</dt><dd>les vôtres</dd></div>
+          <div><dt>Contact</dt><dd>bouton d’appel et itinéraire</dd></div>
         </dl>
       </div>
     </div>
   </section>
 
   <section class="sec" id="prix">
-    <p class="eyebrow">Prix</p>
+    <p class="eyebrow">Offre et prix</p>
     <h2>Un prix fixe, tout compris</h2>
     <div class="price">
       <div class="big">
         <div class="amount">60 €<small>HT<br>par mois</small></div>
         <p>Engagement de 12 mois, aligné sur la durée du nom de domaine. Le prix ne change pas pendant l’engagement.</p>
-        <a class="btn" href="#commander">Je veux mon site</a>
+        <a class="btn" href="#commander">Je veux mon site<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
       </div>
       <div>
         <ul class="incl">
           <li><div><b>Site vitrine, jusqu’à 5 pages</b><span>Design sur mesure, adapté au téléphone, formulaire de contact, mentions légales pré-remplies.</span></div></li>
           <li><div><b>Nom de domaine</b><span>Réservé et géré par nous pendant l’engagement.</span></div></li>
           <li><div><b>Hébergement</b><span>Site rapide, certificat HTTPS, sauvegardes.</span></div></li>
-          <li><div><b>Espace client</b><span>Suivi de commande, dates, engagement, factures.</span></div></li>
+          <li><div><b>Espace client et éditeur</b><span>Suivi de commande, factures, et 1 modification par semaine à faire vous-même.</span></div></li>
           <li><div><b>Guide pub complet</b><span>Pas à pas pour vous faire connaître : Google, réseaux sociaux, affiches.</span></div></li>
         </ul>
         <div class="note">
@@ -384,7 +567,7 @@ footer span.l{display:flex;gap:20px;flex-wrap:wrap}
       <li><div><b>Vous remplissez le formulaire</b><span>Activité, adresse, horaires, tarifs, photos, couleurs, nom de domaine souhaité, option mail pro.</span></div></li>
       <li><div><b>Vous acceptez et payez le premier mois</b><span>Conditions et contrat de 12 mois, paiement par carte ou prélèvement.</span></div></li>
       <li><div><b>Nous créons votre site</b><span>Il est ensuite relu et retouché à la main avant toute publication.</span></div></li>
-      <li><div><b>Vous recevez un aperçu</b><span>Jusqu’à 2 séries de retouches depuis votre espace.</span></div></li>
+      <li><div><b>Vous recevez un aperçu</b><span>Vous demandez vos ajustements avant de valider.</span></div></li>
       <li><div><b>Vous validez, le site passe en ligne</b><span>Nous branchons votre nom de domaine.</span></div></li>
       <li><div><b>Vous recevez le guide pub</b><span>Et votre adresse mail pro, si vous l’avez choisie.</span></div></li>
     </ol>
@@ -406,7 +589,7 @@ footer span.l{display:flex;gap:20px;flex-wrap:wrap}
         </ol>
         <div class="kpis">
           <div><b>3 nov.</b><span>livraison prévue</span></div>
-          <div><b>1 sur 2</b><span>retouches utilisées</span></div>
+          <div><b>1 sur 1</b><span>modification cette semaine</span></div>
           <div><b>11 mois</b><span>d’engagement restants</span></div>
         </div>
       </div>
@@ -434,8 +617,8 @@ footer span.l{display:flex;gap:20px;flex-wrap:wrap}
     <h2>Ce qu’on nous demande souvent</h2>
     <div class="faq">
       <details><summary>Combien de temps dure l’engagement ?</summary><p>12 mois, le temps du nom de domaine. Le prix reste le même pendant cette durée, et un rappel vous prévient 60 jours avant la fin.</p></details>
+      <details><summary>Comment je modifie mon site ?</summary><p>Depuis votre espace client, avec l’éditeur : vous remplacez un texte ou une photo, ajoutez ou supprimez un bloc. Une modification par semaine est incluse, et vous pouvez l’annuler. Une nouvelle page ou un nouveau design ne sont pas inclus.</p></details>
       <details><summary>Le nom de domaine est-il à moi ?</summary><p>Nous le gérons et le renouvelons pendant l’engagement. À la fin, vous pouvez partir avec votre nom grâce au code de transfert.</p></details>
-      <details><summary>Combien de retouches sont incluses ?</summary><p>Deux séries de retouches, demandées depuis votre espace client avec texte et photos. Les suivantes sont faites sur devis.</p></details>
       <details><summary>Vous faites ma publicité ?</summary><p>Non. Nous livrons un site vitrine, et le guide pub vous explique comment vous faire connaître vous-même. Aucun résultat n’est promis.</p></details>
       <details><summary>Comment fonctionne l’adresse mail pro ?</summary><p>Elle coûte 3 € HT par mois et par adresse, et suit la durée de votre abonnement. La boîte est de taille limitée, pour un usage professionnel normal, sans envoi de masse. Si vous résiliez, les adresses sont fermées après 30 jours pour vous laisser récupérer vos mails.</p></details>
       <details><summary>Qui relit mon site avant la mise en ligne ?</summary><p>Une personne. Textes corrigés, photos vérifiées, liens testés, affichage contrôlé sur téléphone. Rien n’est publié sans cette relecture.</p></details>
@@ -447,8 +630,8 @@ footer span.l{display:flex;gap:20px;flex-wrap:wrap}
       <div>
         <p class="eyebrow">Commander</p>
         <h2 style="max-width:14ch">Préparez de quoi remplir le formulaire</h2>
-        <p class="lede">La commande en ligne arrive bientôt. Vous pouvez déjà réunir ces éléments, ils suffisent pour lancer la création.</p>
-        <p style="margin-top:22px"><a class="btn" href="#commander" aria-disabled="true" role="button">Commander, bientôt disponible</a></p>
+        <p class="lede">La commande en ligne et la connexion arrivent bientôt. Vous pouvez déjà réunir ces éléments, ils suffisent pour lancer la création.</p>
+        <p style="margin-top:24px"><a class="btn" href="#commander" aria-disabled="true" role="button">Commander, bientôt disponible</a></p>
       </div>
       <ul class="need">
         <li>Votre activité et le nom du commerce</li>
@@ -464,7 +647,7 @@ footer span.l{display:flex;gap:20px;flex-wrap:wrap}
 </main>
 
 <footer>
-  <span><b style="font-family:var(--display)">Ouvert</b> · sites vitrines clé en main</span>
+  <span><b style="font-family:var(--display)">SiteVitrine <em>Express</em></b> · sites vitrines clé en main</span>
   <span class="l"><span>Mentions légales</span><span>Conditions générales de vente</span><span>Confidentialité</span></span>
 </footer>
 
@@ -548,14 +731,28 @@ footer span.l{display:flex;gap:20px;flex-wrap:wrap}
   }
   function slug(s){return (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'').slice(0,28)}
 
-  /* hero */
-  var sel=document.getElementById('metier'),nom=document.getElementById('nom'),hs=document.getElementById('hero-screen');
+  /* appareils : les sites sont dessinés à leur vraie taille puis réduits pour tenir dans le cadre */
+  function fit(){
+    var list=document.querySelectorAll('.vp');
+    Array.prototype.forEach.call(list,function(vp){
+      var w=+vp.getAttribute('data-w'),h=+vp.getAttribute('data-h'),s=vp.clientWidth/w,inner=vp.firstElementChild;
+      if(!w||!vp.clientWidth)return;
+      inner.style.width=w+'px';inner.style.height=h+'px';
+      inner.style.transform='scale('+s+')';
+      vp.style.height=(h*s)+'px';
+    });
+  }
+  window.addEventListener('resize',fit);
+  window.addEventListener('load',fit);
+
+  /* aperçu personnalisé */
+  var sel=document.getElementById('metier'),nom=document.getElementById('nom'),es=document.getElementById('essai-screen');
   KEYS.forEach(function(k){var o=document.createElement('option');o.value=k;o.textContent=M[k].label;sel.appendChild(o)});
-  function heroUpdate(keep){mount(hs,sel.value,nom.value,keep)}
-  sel.addEventListener('change',function(){nom.placeholder=M[sel.value].def;heroUpdate(false)});
-  nom.addEventListener('input',function(){heroUpdate(true)});
+  function essaiUpdate(keep){mount(es,sel.value,nom.value,keep)}
+  sel.addEventListener('change',function(){nom.placeholder=M[sel.value].def;essaiUpdate(false)});
+  nom.addEventListener('input',function(){essaiUpdate(true)});
   nom.placeholder=M[sel.value].def;
-  heroUpdate(false);
+  essaiUpdate(false);
 
   /* galerie */
   var cur='coiffeur',view='phone',tabs=document.getElementById('tabs'),stage=document.getElementById('stage'),cap=document.getElementById('cap');
@@ -576,6 +773,40 @@ footer span.l{display:flex;gap:20px;flex-wrap:wrap}
   bp.addEventListener('click',function(){view='phone';draw()});
   bd.addEventListener('click',function(){view='desk';draw()});
   draw();
+
+  /* démonstration de l'éditeur */
+  var ed={target:'name',used:false,prev:null,ovr:{name:'',lead:''}};
+  var edScreen=document.getElementById('ed-screen'),edText=document.getElementById('ed-text'),edMsg=document.getElementById('ed-msg'),edLabel=document.getElementById('ed-label');
+  var chips=document.querySelectorAll('.chip');
+  var EDT={name:{label:'Nouveau titre',ph:'Maison Olive Coiffure'},lead:{label:'Nouvelle accroche',ph:'Votre coiffeur de quartier, du mardi au samedi.'}};
+  function edRender(){
+    mount(edScreen,'coiffeur',ed.ovr.name,true);
+    if(ed.ovr.lead){var l=edScreen.querySelector('.t-lead');if(l)l.textContent=ed.ovr.lead}
+  }
+  Array.prototype.forEach.call(chips,function(c){
+    c.addEventListener('click',function(){
+      ed.target=c.getAttribute('data-t');
+      Array.prototype.forEach.call(chips,function(o){o.setAttribute('aria-pressed',o===c?'true':'false')});
+      edLabel.textContent=EDT[ed.target].label;edText.placeholder=EDT[ed.target].ph;
+    });
+  });
+  document.getElementById('ed-go').addEventListener('click',function(){
+    var v=edText.value.trim();
+    if(!v){edMsg.textContent='Écrivez d’abord votre texte.';return}
+    if(ed.used){edMsg.textContent='Votre modification de la semaine est déjà utilisée. Annulez-la pour en faire une autre.';return}
+    ed.prev={name:ed.ovr.name,lead:ed.ovr.lead};
+    ed.ovr[ed.target]=v;ed.used=true;edRender();
+    edMsg.textContent='Modification publiée. C’est votre modification de la semaine, vous pouvez l’annuler.';
+  });
+  document.getElementById('ed-undo').addEventListener('click',function(){
+    if(!ed.used){edMsg.textContent='Il n’y a rien à annuler.';return}
+    ed.ovr=ed.prev;ed.used=false;ed.prev=null;edRender();
+    edMsg.textContent='Modification annulée. Vous pouvez en faire une nouvelle.';
+  });
+  edRender();
+
+  fit();
+  if(document.fonts&&document.fonts.ready){document.fonts.ready.then(fit)}
 })();
 </script>
 </body>
