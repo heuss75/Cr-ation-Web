@@ -72,7 +72,7 @@ def mk(E):
         lede="Les règles de l’abonnement, en clair : prix, durée de 12 mois, modifications, nom de domaine, résiliation.",
         notice="Ces conditions s’appliquent aux commandes passées par des professionnels. Elles seront complétées à l’ouverture du paiement en ligne.",
         body="""
-<div class="callout"><strong>En résumé.</strong> Un site vitrine, un nom de domaine, un hébergement, un espace client et un guide pub avec un engagement de <strong>12 mois</strong>, en deux formules : <strong>Essentiel à 60 € HT par mois</strong> et <strong>Pro à 100 € HT par mois</strong> (réservation en ligne et une adresse mail pro incluses). Une modification par semaine est comprise. Chaque adresse mail pro supplémentaire coûte 4 € HT par mois. Ce résumé n’a pas de valeur contractuelle : seuls les articles ci-dessous s’appliquent.</div>
+<div class="callout"><strong>En résumé.</strong> Un site vitrine, un nom de domaine, un hébergement, un espace client et un guide pub avec un engagement de <strong>12 mois</strong>, en deux formules : <strong>Essentiel à 60 € HT par mois</strong> et <strong>Pro à 100 € HT par mois</strong> (réservation en ligne et une adresse mail pro incluses). Une modification par mois est comprise. Chaque adresse mail pro supplémentaire coûte 4 € HT par mois. Ce résumé n’a pas de valeur contractuelle : seuls les articles ci-dessous s’appliquent.</div>
 
 <h2 id="art-1">Article 1. Objet et champ d’application</h2>
 <p>Les présentes conditions générales de vente (« CGV ») régissent la vente de l’abonnement « %(NAME)s » proposé par %(NOM)s (%(STATUT)s, SIRET %(SIRET)s, %(ADRESSE)s), ci-après « l’Éditeur », à toute personne agissant pour les besoins de son activité professionnelle, ci-après « le Client ».</p>
@@ -120,9 +120,9 @@ def mk(E):
 <p>L’Éditeur met en forme les contenus fournis et corrige les fautes de langue évidentes. Il relit le site avant mise en ligne : textes, photos, liens, affichage sur téléphone. Le Client reste responsable de l’exactitude des informations (horaires, prix, adresse) et des mentions légales propres à son activité.</p>
 
 <h2 id="art-9">Article 9. Modifications comprises dans l’abonnement</h2>
-<p>Le Client dispose d’<strong>une modification par semaine</strong> (<strong>trois</strong> dans la formule Pro), qu’il réalise lui-même depuis l’éditeur de son espace client. Une modification consiste en : le remplacement d’un texte, le remplacement d’une photo, l’ajout d’un bloc de contenu ou la suppression d’un bloc de contenu.</p>
+<p>Le Client dispose d’<strong>une modification par mois</strong> (<strong>trois</strong> dans la formule Pro), qu’il réalise lui-même depuis l’éditeur de son espace client. Une modification consiste en : le remplacement d’un texte, le remplacement d’une photo, l’ajout d’un bloc de contenu ou la suppression d’un bloc de contenu.</p>
 <ul>
-<li>Les modifications non utilisées ne se cumulent pas d’une semaine sur l’autre.</li>
+<li>Les modifications non utilisées ne se cumulent pas d’un mois sur l’autre.</li>
 <li>Le Client peut annuler une modification ; un historique est conservé.</li>
 <li>L’éditeur ne permet pas de changer la mise en page, ce qui garantit la stabilité du site.</li>
 <li>Une nouvelle page, une refonte du design ou une fonctionnalité supplémentaire ne sont pas comprises et font l’objet d’un devis.</li>

@@ -298,6 +298,14 @@ async function adminApi(req, env, url, p) {
         conversion: { inscritDemande: c.total ? Math.round(((c.total - sansDemande.n) / c.total) * 1000) / 10 : 0, demandeAbonne: dem.total ? Math.round(((actifs + abResTot.n) / dem.total) * 1000) / 10 : 0 },
         divers: { reservationsDemo: resa.n, evenements30: j } });
     }
+    if (p === '/api/admin/donnees' && req.method === 'GET') {
+      return json({ ok: true,
+        comptes: await all(`SELECT id, nom, email, created_at, derniere_connexion FROM comptes WHERE ${NOADM} ORDER BY id DESC LIMIT 2000`),
+        abonnements: await all('SELECT compte_id, formule, statut, mails_sup, debut, fin, motif, created_at FROM abonnements LIMIT 5000'),
+        demandes: await all('SELECT compte_id, ref, commerce, activite, ville, domaine, mails, tel, formule, statut, utm, message, created_at FROM demandes ORDER BY id DESC LIMIT 3000'),
+        plaintes: await all('SELECT compte_id, sujet, message, statut, created_at, resolved_at FROM plaintes ORDER BY id DESC LIMIT 3000'),
+        journal: await all('SELECT compte_id, type, detail, created_at FROM journal ORDER BY id DESC LIMIT 500') });
+    }
     if (p === '/api/admin/comptes' && req.method === 'GET') {
       const q = (url.searchParams.get('q') || '').trim().slice(0, 60).replace(/[%_\\]/g, '');
       const like = '%' + q + '%';

@@ -307,9 +307,9 @@ offre_body = phead("Offre et prix", "Deux formules, tout compris",
   <h2>Inclus, en option, non inclus</h2>
   <div class="cmp">
     <div class="card"><span class="tag">Inclus</span><h3>Essentiel · 60 € HT</h3><ul>
-      <li>Site vitrine sur mesure</li><li>Adapté au téléphone, tablette et ordinateur</li><li>Nom de domaine réservé et renouvelé chaque année</li><li>Hébergement et certificat HTTPS</li><li>Espace client de suivi</li><li>1 modification par semaine, par vous-même</li><li>Relecture avant mise en ligne</li><li>Guide pub, 8 chapitres</li></ul></div>
+      <li>Site vitrine sur mesure</li><li>Adapté au téléphone, tablette et ordinateur</li><li>Nom de domaine réservé et renouvelé chaque année</li><li>Hébergement et certificat HTTPS</li><li>Espace client de suivi</li><li>1 modification par mois, par vous-même</li><li>Relecture avant mise en ligne</li><li>Guide pub, 8 chapitres</li></ul></div>
     <div class="card pro"><span class="tag">En plus, avec le Pro</span><h3>Pro · 100 € HT</h3><ul>
-      <li>Tout l’Essentiel</li><li>3 modifications par semaine</li><li>Outil de réservation en ligne : prestation, jour, créneau</li><li>Agenda dans l’espace client</li><li>1 adresse mail pro incluse</li><li>Prestations, durées et horaires paramétrés par nous</li></ul></div>
+      <li>Tout l’Essentiel</li><li>3 modifications par mois</li><li>Outil de réservation en ligne : prestation, jour, créneau</li><li>Agenda dans l’espace client</li><li>1 adresse mail pro incluse</li><li>Prestations, durées et horaires paramétrés par nous</li></ul></div>
     <div class="card no"><span class="tag">Non inclus</span><h3>À prévoir à part</h3><ul>
       <li>Publicité faite pour vous</li><li>Référencement payant</li><li>Boutique en ligne et paiement en ligne (peut-être bientôt)</li><li>Rappels par SMS</li><li>Refonte complète du design</li><li>Séance photo</li></ul><p class="sub" style="margin-top:12px">Mail pro supplémentaire : 4 € HT par mois et par adresse.</p></div>
   </div>
@@ -323,7 +323,7 @@ offre_body = phead("Offre et prix", "Deux formules, tout compris",
     <li><span class="when">Validation</span><div><b>Vous acceptez les conditions et réglez le premier mois</b><span class="d">Le contrat est formé à ce moment-là.</span></div></li>
     <li><span class="when">+ 5 jours ouvrés</span><div><b>Votre aperçu est prêt</b><span class="d">Le délai commence quand tous vos contenus sont reçus. Vous demandez vos ajustements, puis vous validez.</span></div></li>
     <li><span class="when">Mise en ligne</span><div><b>Votre site est en ligne</b><span class="d">Nous branchons votre nom de domaine. Les 12 mois d’engagement démarrent. Vous recevez le guide pub.</span></div></li>
-    <li><span class="when">Chaque semaine</span><div><b>Vous modifiez ce que vous voulez</b><span class="d">Un texte, une photo ou un bloc, depuis votre espace client, avec retour en arrière possible.</span></div></li>
+    <li><span class="when">Chaque mois</span><div><b>Vous modifiez ce que vous voulez</b><span class="d">Un texte, une photo ou un bloc, depuis votre espace client, avec retour en arrière possible.</span></div></li>
     <li><span class="when">Mois 10</span><div><b>Vous recevez un rappel</b><span class="d">60 jours avant l’échéance, pour décider : continuer, ou résilier avec 30 jours de préavis.</span></div></li>
     <li><span class="when">Mois 12</span><div><b>Reconduction ou fin</b><span class="d">Sans résiliation, l’abonnement continue pour 12 mois au même prix. Sinon le site est mis hors ligne et vous pouvez récupérer vos contenus et votre nom de domaine.</span></div></li>
   </ol>
@@ -337,7 +337,7 @@ offre_body = phead("Offre et prix", "Deux formules, tout compris",
       <li><strong>Engagement :</strong> 12 mois, puis reconduction tacite par périodes de 12 mois. Résiliation par écrit, 30 jours avant l’échéance.</li>
       <li><strong>Paiement :</strong> mensuel et d’avance, par carte ou prélèvement SEPA. Prix fixe pendant l’engagement.</li>
       <li><strong>Changer de formule :</strong> de l’Essentiel au Pro à tout moment (effet au mois suivant, nouvelle période de 12 mois) ; du Pro à l’Essentiel à l’échéance.</li>
-      <li><strong>Modifications :</strong> 1 par semaine, non cumulable. Nouvelle page ou refonte : sur devis.</li>
+      <li><strong>Modifications :</strong> 1 par mois, non cumulable. Nouvelle page ou refonte : sur devis.</li>
       <li><strong>Nom de domaine :</strong> géré et renouvelé par nous pendant l’engagement, transférable à la fin si tout est réglé.</li>
       <li><strong>Résultats :</strong> aucun nombre de visites, classement ou chiffre d’affaires n’est promis.</li>
     </ul>
@@ -522,6 +522,7 @@ ADMIN_HTML = """<!doctype html>
 <nav class="nav" aria-label="Administration">
 <button type="button" id="n-stats" aria-current="page">""" + _ic("M3 3v18h18M7 15l4-4 3 3 5-6") + """Tableau de bord</button>
 <button type="button" id="n-clients">""" + _ic("M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8") + """Clients</button>
+<button type="button" id="n-rev">""" + _ic("M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6") + """Revenus</button>
 <button type="button" id="n-mdp">""" + _ic("M21 2l-2 2m-7.6 7.6a5.5 5.5 0 1 1-7.8 7.8 5.5 5.5 0 0 1 7.8-7.8zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4") + """Mot de passe</button>
 </nav>
 <div class="sp"></div>
