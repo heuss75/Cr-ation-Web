@@ -70,7 +70,7 @@ h2{font:700 clamp(2rem,5.4vw,3.4rem)/1 var(--display);letter-spacing:-.035em;tex
 h1{font:800 clamp(2.3rem,4.8vw,3.9rem)/1.03 var(--display);letter-spacing:-.035em;margin-top:20px}
 .dbr{display:none}
 @media(min-width:760px){.dbr{display:inline}}
-h1 mark{background:var(--mark);color:inherit;padding:0 .14em;border-radius:9px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+h1 mark{background:none;color:inherit;padding:0;-webkit-box-decoration-break:clone;box-decoration-break:clone}
 .hero .lede{font-size:1.06rem;color:var(--ink);max-width:48ch;margin-top:20px;line-height:1.5}
 .hero-feat{grid-area:feat}
 .feat{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:18px 10px}
