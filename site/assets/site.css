@@ -760,3 +760,5 @@ footer{padding-block:22px 30px;font-size:13.5px}
 .notinc{text-align:center;align-self:center}.notinc li{text-align:center}
 .steps li{grid-template-columns:48px minmax(0,1fr)}
 .steps li::before{content:counter(s);font:800 1.9rem/1 var(--display);color:#000;padding-top:0;width:40px;height:40px;display:grid;place-items:center;border:2.5px solid #000;border-radius:50%;font-size:1.25rem}
+
+.viewsite{margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--soft);font-size:14px;text-align:center}
