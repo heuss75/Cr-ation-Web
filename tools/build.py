@@ -50,7 +50,7 @@ reps = [
     ("background:rgba(255,255,255,.93);-webkit-backdrop-filter", "background:var(--hdr);-webkit-backdrop-filter"),
     (".btn.ghost{background:#fff;", ".btn.ghost{background:var(--surface);"),
     ("background:#E3E3E3;color:var(--ink2)", "background:var(--soft);color:var(--ink2)"),
-    ("h1 mark{background:#E1E1E1", "h1 mark{background:var(--mark)"),
+    ("h1 mark{background:#E1E1E1", "h1 mark{background:none"),
     (".proof{background:#fff;", ".proof{background:var(--surface);"),
     (".bar{margin-top:16px;background:#0B0B0C;", ".bar{margin-top:16px;background:var(--bar);"),
     (".big{background:var(--ink);color:var(--bg);", ".big{background:var(--big-bg);color:var(--big-ink);"),
