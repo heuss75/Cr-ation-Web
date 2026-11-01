@@ -458,7 +458,9 @@
     var sbad = $('#s-bad'), sbtn = sf.querySelector('button[type=submit]');
     sf.addEventListener('submit', function (e) {
       e.preventDefault(); sbad.classList.remove('on');
-      if (!validateAll(sf)) { toast('Corrigez les champs signalés'); return; }
+      var okv = validateAll(sf);
+      if (sf.elements.password2.value && sf.elements.password.value !== sf.elements.password2.value) { setErr(sf.elements.password2, 'Les deux mots de passe ne sont pas identiques.'); okv = false; }
+      if (!okv) { toast('Corrigez les champs signalés'); return; }
       busy(sbtn, true);
       var o = { nom: sf.elements.nom.value.trim(), email: sf.elements.email.value.trim(), password: sf.elements.password.value, cgv: sf.elements.cgv.checked, site_web_url: sf.elements.site_web_url.value };
       api('/api/inscription', 'POST', o).then(function (r) {

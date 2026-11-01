@@ -470,7 +470,8 @@ signup_body = phead("Inscription", "Créez votre compte", "Un compte est nécess
   <div class="alert bad" id="s-bad" role="alert" tabindex="-1">""" + icon("x") + """<span></span></div>
   """ + field("nom", "Votre nom", req=True, auto="name", extra=' minlength="2" maxlength="80"') + """
   """ + field("email", "Votre e-mail", "email", req=True, auto="email", extra=' maxlength="120"') + """
-  """ + pwfield("password", "Mot de passe (8 caractères minimum)", "new-password") + """
+  """ + pwfield("password", "Votre mot de passe (8 caractères minimum)", "new-password") + """
+  """ + pwfield("password2", "Confirmez votre mot de passe", "new-password") + """
   """ + HP + """
   <div class="field"><label class="check" for="f-cgv"><input type="checkbox" id="f-cgv" name="cgv" data-req aria-required="true" aria-describedby="cgv-e"><span>J’agis pour mon activité professionnelle et j’ai lu les <a href="/cgv" target="_blank" rel="noopener">conditions générales de vente</a> et la <a href="/confidentialite" target="_blank" rel="noopener">politique de confidentialité</a>.</span></label><p class="errmsg" id="cgv-e" role="alert"></p></div>
   <div><button class="btn" type="submit"><span class="lbl">Créer mon compte</span></button></div>
