@@ -328,15 +328,19 @@
   var rg = $('#mails');
   if (rg) {
     var upd = function () {
-      var n = +rg.value, m = 60 + 3 * n;
-      $('#c-n').textContent = n;
-      $('#c-n2').textContent = n > 1 ? 'adresses mail pro' : (n === 1 ? 'adresse mail pro' : 'adresse mail pro');
+      var pro = ($('input[name=fm]:checked') || {}).value === 'pro';
+      var n = +rg.value, tot = pro ? Math.max(n, 1) : n, extra = pro ? tot - 1 : tot;
+      var base = pro ? 100 : 60, mc = 4 * extra, m = base + mc;
+      $('#c-n').textContent = tot;
+      $('#c-n2').textContent = tot > 1 ? 'adresses mail pro' : 'adresse mail pro';
       $('#c-m').textContent = m.toLocaleString('fr-FR');
-      $('#c-base').textContent = '60 €';
-      $('#c-mail').textContent = (3 * n) + ' €';
+      $('#c-basel').textContent = pro ? 'Formule Pro (1 mail et réservation inclus)' : 'Formule Essentiel';
+      $('#c-base').textContent = base + ' €';
+      $('#c-maill').textContent = pro ? 'Mails en plus de la 1re' : 'Options mail';
+      $('#c-mail').textContent = mc + ' €';
       $('#c-y').textContent = (m * 12).toLocaleString('fr-FR') + ' €';
     };
-    rg.addEventListener('input', upd); upd();
+    rg.addEventListener('input', upd); $$('input[name=fm]').forEach(function (r) { r.addEventListener('change', upd); }); upd();
   }
 
   /* ---------- 13. afficher le mot de passe ---------- */
@@ -392,6 +396,7 @@
   if (df) {
     wire(df);
     var cdlg = $('#confirm'), alertBad = $('#d-bad'), sendBtn = $('#d-send');
+    try { var qf = new URLSearchParams(location.search).get('formule'); if (qf === 'pro' || qf === 'essentiel') df.elements.formule.value = qf; } catch (_) {}
     var vals = function () {
       var o = {}; $$('input[name],select[name],textarea[name]', df).forEach(function (f) { o[f.name] = f.type === 'checkbox' ? f.checked : f.value.trim(); }); return o;
     };
@@ -402,6 +407,7 @@
       $('#cf-nom').textContent = v.nom; $('#cf-mail').textContent = v.email;
       $('#cf-com').textContent = v.commerce + ' (' + v.ville + ')';
       $('#cf-act').textContent = df.elements.activite.options[df.elements.activite.selectedIndex].text;
+      $('#cf-formule').textContent = df.elements.formule.options[df.elements.formule.selectedIndex].text;
       $('#cf-mails').textContent = v.mails ? v.mails + ' adresse(s) mail pro' : 'aucune';
       if (cdlg.showModal) cdlg.showModal(); else cdlg.setAttribute('open', '');
     });

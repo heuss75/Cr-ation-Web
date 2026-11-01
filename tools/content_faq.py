@@ -14,12 +14,21 @@ CATS = [
 FAQ = [
     # ---------- Offre et prix ----------
     ("offre", "prix", "Quel est le prix exact ?",
-     "<p><strong>60 € HT par mois</strong>, avec un engagement de 12 mois, soit 720 € HT sur l’année. Il n’y a pas de frais de création à part : le site, le nom de domaine, l’hébergement, l’espace client et le guide pub sont compris.</p>"
-     "<p>L’adresse mail professionnelle est une option à <strong>3 € HT par mois et par adresse</strong>. Vous pouvez simuler votre total sur la page <a href=\"/offre\">Offre et prix</a>.</p>"),
+     "<p>Deux formules, avec un engagement de 12 mois. <strong>Essentiel : 60 € HT par mois</strong> (720 € HT sur l’année). <strong>Pro : 100 € HT par mois</strong> (1 200 € HT sur l’année), avec la réservation en ligne et une adresse mail pro incluse. Il n’y a pas de frais de création à part : le site, le nom de domaine, l’hébergement, l’espace client et le guide pub sont compris dans les deux.</p>"
+     "<p>Chaque adresse mail professionnelle supplémentaire coûte <strong>4 € HT par mois</strong>. Vous pouvez simuler votre total sur la page <a href=\"/offre\">Offre et prix</a>.</p>"),
+    ("offre", "essentiel-pro", "Quelle différence entre Essentiel et Pro ?",
+     "<p>L’<strong>Essentiel</strong> est le site vitrine complet : site de 5 pages, nom de domaine, hébergement, espace client, 1 modification par semaine et guide pub.</p>"
+     "<p>Le <strong>Pro</strong> ajoute la <strong>réservation en ligne</strong> avec un agenda, et inclut <strong>1 adresse mail professionnelle</strong>. Il convient aux activités qui prennent des rendez-vous : coiffeur, esthétique, bien-être, coach, garage, restaurant.</p>"
+     "<p>Vous pouvez tester la réservation sur la <a href=\"/reservation-demo\">page de démonstration</a>.</p>"),
+    ("offre", "reservation", "Comment fonctionne la réservation en ligne ?",
+     "<p>Sur votre site, un client choisit une prestation, un jour et un créneau libre, puis laisse son nom et son téléphone. Le créneau n’est alors plus proposé aux autres : pas de double réservation. Les réservations apparaissent dans l’agenda de votre espace client.</p>"
+     "<p>Nous paramétrons pour vous vos prestations, leurs durées et vos horaires d’ouverture. Ne sont pas compris : le paiement ou l’acompte en ligne, les rappels par SMS et la synchronisation avec un autre agenda. Nous pouvons en parler sur devis.</p>"),
+    ("offre", "changer-formule", "Puis-je passer de l’Essentiel au Pro ?",
+     "<p>Oui, à tout moment : le Pro s’applique au début du mois suivant, et une nouvelle période de 12 mois commence à ce moment-là. Le passage du Pro à l’Essentiel se fait à l’échéance de la période en cours.</p>"),
     ("offre", "inclus", "Qu’est-ce qui est inclus dans l’abonnement ?",
      "<ul><li>Un site vitrine sur mesure, jusqu’à 5 pages, adapté au téléphone</li><li>Le nom de domaine, réservé et renouvelé chaque année pendant l’engagement</li><li>L’hébergement, avec certificat HTTPS</li><li>Un espace client pour suivre votre commande et modifier votre site</li><li>1 modification par semaine, que vous faites vous-même</li><li>Le guide pub, pas à pas, pour vous faire connaître</li></ul>"),
     ("offre", "non-inclus", "Qu’est-ce qui n’est pas inclus ?",
-     "<p>Ne sont pas compris : la publicité faite pour vous, le référencement payant, une boutique en ligne, un système de réservation en ligne, les pages au-delà de 5, une refonte complète du design, et les séances photo. Si vous avez besoin d’un de ces points, nous en parlons et nous faisons un devis séparé.</p>"),
+     "<p>Ne sont pas compris : la publicité faite pour vous, le référencement payant, une boutique en ligne, un système de réservation en ligne (compris dans la formule Pro), les pages au-delà de 5, une refonte complète du design, et les séances photo. Si vous avez besoin d’un de ces points, nous en parlons et nous faisons un devis séparé.</p>"),
     ("offre", "engagement-12", "Pourquoi un engagement de 12 mois ?",
      "<p>Le nom de domaine se renouvelle à l’année, et la création du site demande du temps de notre côté. L’engagement de 12 mois permet de garder un prix mensuel bas et fixe. Le prix ne change pas pendant l’engagement.</p>"),
     ("offre", "ht-ttc", "Les prix sont-ils hors taxes ou toutes taxes comprises ?",
@@ -61,7 +70,7 @@ FAQ = [
     ("domaine", "domaine-existant", "J’ai déjà un nom de domaine, puis-je le garder ?",
      "<p>En général oui : nous relions votre domaine existant à votre nouveau site. Dans ce cas, il reste chez votre hébergeur actuel et son renouvellement reste à votre charge. Précisez-le dans la demande.</p>"),
     ("domaine", "mail-pro", "Comment fonctionne l’adresse mail professionnelle ?",
-     "<p>Elle coûte 3 € HT par mois et par adresse, et suit la durée de votre abonnement (par exemple prenom@votresite.fr). La boîte est de taille limitée, pour un usage professionnel normal, sans envoi de masse. Un guide vous explique comment la configurer sur votre téléphone. Si vous résiliez, les adresses sont fermées après 30 jours pour vous laisser récupérer vos mails.</p>"),
+     "<p>Elle coûte 4 € HT par mois et par adresse (la première est incluse dans la formule Pro), et suit la durée de votre abonnement (par exemple prenom@votresite.fr). La boîte est de taille limitée, pour un usage professionnel normal, sans envoi de masse. Un guide vous explique comment la configurer sur votre téléphone. Si vous résiliez, les adresses sont fermées après 30 jours pour vous laisser récupérer vos mails.</p>"),
 
     # ---------- Technique ----------
     ("technique", "mobile", "Mon site sera-t-il lisible sur téléphone ?",

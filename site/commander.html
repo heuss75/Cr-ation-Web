@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,700&family=Playfair+Display:ital,wght@1,600&family=Geist+Mono:wght@400;500&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@600;800&family=Caveat:wght@600;700&family=Barlow+Condensed:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Anton&family=Fraunces:opsz,wght@9..144,500;9..144,700&display=swap">
-<link rel="stylesheet" href="/assets/site.css?v=f456cf47">
+<link rel="stylesheet" href="/assets/site.css?v=c55cc084">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
@@ -118,9 +118,11 @@
       </select><p class="errmsg" id="activite-e" role="alert"></p></div>
     <div class="field"><label for="f-ville">Ville</label><input id="f-ville" name="ville" type="text" autocomplete="address-level2" data-req aria-required="true" aria-describedby="ville-e" minlength="2" maxlength="60"><p class="errmsg" id="ville-e" role="alert"></p></div>
   </div>
+  <div class="field"><label for="f-formule">Formule</label>
+    <select id="f-formule" name="formule" data-req aria-required="true" aria-describedby="formule-e"><option value="essentiel">Essentiel · 60 € HT par mois</option><option value="pro">Pro · 100 € HT par mois (réservation en ligne)</option></select><p class="errmsg" id="formule-e" role="alert"></p></div>
   <div class="fgrid two">
     <div class="field"><label for="f-domaine">Nom de domaine souhaité <span class="opt">(facultatif)</span></label><input id="f-domaine" name="domaine" type="text" aria-describedby="domaine-e domaine-h" maxlength="70" autocapitalize="none" spellcheck="false"><small class="h" id="domaine-h">Par exemple : maisonolive ou maisonolive.fr. Nous vérifions la disponibilité.</small><p class="errmsg" id="domaine-e" role="alert"></p></div>
-    <div class="field"><label for="f-mails">Adresses mail pro <span class="opt">(3 € HT par mois chacune)</span></label>
+    <div class="field"><label for="f-mails">Adresses mail pro <span class="opt">(4 € HT par mois chacune, la 1ʳᵉ incluse en Pro)</span></label>
       <select id="f-mails" name="mails" aria-describedby="mails-e"><option value="0">Aucune</option><option value="1">1 adresse</option><option value="2">2 adresses</option><option value="3">3 adresses</option><option value="4">4 adresses</option><option value="5">5 adresses</option></select><p class="errmsg" id="mails-e" role="alert"></p></div>
   </div>
   <div class="field"><label for="f-message">Un mot sur votre projet <span class="opt">(facultatif)</span></label>
@@ -144,7 +146,7 @@
 <dialog class="dlg" id="confirm" aria-labelledby="cf-t">
   <h2 id="cf-t">Envoyer votre demande ?</h2>
   <p>Vérifiez ces informations. La demande est sans engagement et sans paiement.</p>
-  <dl><div><dt>Nom</dt><dd id="cf-nom"></dd></div><div><dt>E-mail</dt><dd id="cf-mail"></dd></div><div><dt>Commerce</dt><dd id="cf-com"></dd></div><div><dt>Activité</dt><dd id="cf-act"></dd></div><div><dt>Mail pro</dt><dd id="cf-mails"></dd></div></dl>
+  <dl><div><dt>Nom</dt><dd id="cf-nom"></dd></div><div><dt>E-mail</dt><dd id="cf-mail"></dd></div><div><dt>Commerce</dt><dd id="cf-com"></dd></div><div><dt>Activité</dt><dd id="cf-act"></dd></div><div><dt>Formule</dt><dd id="cf-formule"></dd></div><div><dt>Mail pro</dt><dd id="cf-mails"></dd></div></dl>
   <div class="row"><button type="button" class="btn ghost" id="cf-cancel">Modifier</button><button type="button" class="btn" id="cf-ok">Oui, envoyer</button></div>
 </dialog>
 
@@ -195,7 +197,7 @@
   </form>
 </dialog>
 
-<script>window.SITE={v:"f456cf47",email:""};</script>
-<script src="/assets/site.js?v=f456cf47" defer></script>
+<script>window.SITE={v:"c55cc084",email:""};</script>
+<script src="/assets/site.js?v=c55cc084" defer></script>
 </body>
 </html>

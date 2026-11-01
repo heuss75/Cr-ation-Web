@@ -187,7 +187,7 @@ THEME_INIT = "(function(){try{var t=localStorage.getItem('sv_theme');if(!t)t=mat
 
 # empreinte des fichiers pour vider le cache à chaque changement
 js_common = rd(os.path.join(SRC, "site.js"))
-VER = hashlib.sha1((css + js_common + demo_js).encode("utf-8")).hexdigest()[:8]
+VER = hashlib.sha1((css + js_common + demo_js + rd(os.path.join(SRC, "booking.js"))).encode("utf-8")).hexdigest()[:8]
 
 search_entries = []   # rempli après
 
@@ -271,13 +271,13 @@ hm = hm.replace("<h2>Ce qu’on nous demande souvent</h2>",
                 '<h2>Ce qu’on nous demande souvent</h2>\n    <p class="lede">Les réponses rapides. Les autres sont dans la <a href="/faq">FAQ complète</a>.</p>', 1)
 home_body = hm.replace("</main>", "")
 home_body = re.sub(r"^\s*<span id=\"haut\"></span>", "", home_body)
-page("index", "Accueil", "Votre site vitrine professionnel en ligne en quelques jours, sans rien à gérer : nom de domaine, hébergement, espace client et guide pub inclus. 60 € HT par mois.",
+page("index", "Accueil", "Votre site vitrine professionnel en ligne en quelques jours, sans rien à gérer : nom de domaine, hébergement, espace client et guide pub inclus. Dès 60 € HT par mois, avec réservation en ligne en formule Pro.",
      home_body, cur="home", page_js='<script src="/assets/demo.js?v=%s" defer></script>\n' % VER,
      full_title="%s | Votre site vitrine clé en main" % SITE_NAME)
 
 # ------------------------------------------------------------------ offre
-offre_body = phead("Offre et prix", "Un abonnement, tout compris",
-                   "60 € HT par mois, 12 mois d’engagement. Le site, le nom de domaine, l’hébergement, l’espace client et le guide pub sont compris.",
+offre_body = phead("Offre et prix", "Deux formules, tout compris",
+                   "Essentiel à 60 € HT par mois, Pro à 100 € HT par mois avec réservation en ligne et agenda. 12 mois d’engagement. Domaine, hébergement, espace client et guide pub compris.",
                    '<div class="meta"><span>Mis à jour le <time datetime="%s">%s</time></span></div>' % (UPDATED_ISO, UPDATED_HUMAN)) + """
 <div class="wrap">
 <section class="sec" id="simulateur" style="padding-top:8px;padding-bottom:20px">
@@ -285,15 +285,19 @@ offre_body = phead("Offre et prix", "Un abonnement, tout compris",
   <h2>Combien ça coûte, au total ?</h2>
   <div class="calc">
     <div>
-      <label for="mails" class="lab" style="font:500 11.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">Adresses mail professionnelles (option)</label>
+      <fieldset class="fsel"><legend>Formule</legend>
+        <label><input type="radio" name="fm" value="essentiel" checked><span>Essentiel · 60 €</span></label>
+        <label><input type="radio" name="fm" value="pro"><span>Pro · 100 €</span></label>
+      </fieldset>
+      <label for="mails" class="lab" style="display:block;margin-top:18px;font:500 11.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">Adresses mail professionnelles</label>
       <p style="font:700 1.6rem var(--display);margin:8px 0 6px"><span id="c-n">0</span> <span id="c-n2" style="font-weight:600;color:var(--muted);font-size:1rem">adresse mail pro</span></p>
       <input type="range" id="mails" min="0" max="10" step="1" value="0" aria-describedby="c-help">
-      <p id="c-help" class="sub">De 0 à 10 adresses. Chaque adresse coûte 3 € HT par mois.</p>
+      <p id="c-help" class="sub">De 0 à 10 adresses. Chaque adresse coûte 4 € HT par mois ; la première est incluse dans la formule Pro.</p>
     </div>
     <div class="out" aria-live="polite">
       <div class="big-n"><span id="c-m">60</span> €<small>HT par mois</small></div>
-      <div class="row2"><span>Abonnement</span><b id="c-base">60 €</b></div>
-      <div class="row2"><span>Options mail</span><b id="c-mail">0 €</b></div>
+      <div class="row2"><span id="c-basel">Formule Essentiel</span><b id="c-base">60 €</b></div>
+      <div class="row2"><span id="c-maill">Options mail</span><b id="c-mail">0 €</b></div>
       <div class="row2"><span>Sur 12 mois d’engagement</span><b id="c-y">720 €</b></div>
     </div>
   </div>
@@ -304,12 +308,12 @@ offre_body = phead("Offre et prix", "Un abonnement, tout compris",
   <p class="eyebrow">Ce que comprend l’abonnement</p>
   <h2>Inclus, en option, non inclus</h2>
   <div class="cmp">
-    <div class="card"><span class="tag">Inclus</span><h3>Dans les 60 € HT</h3><ul>
+    <div class="card"><span class="tag">Inclus</span><h3>Essentiel · 60 € HT</h3><ul>
       <li>Site vitrine sur mesure, jusqu’à 5 pages</li><li>Adapté au téléphone, tablette et ordinateur</li><li>Nom de domaine réservé et renouvelé chaque année</li><li>Hébergement et certificat HTTPS</li><li>Espace client de suivi</li><li>1 modification par semaine, par vous-même</li><li>Relecture avant mise en ligne</li><li>Guide pub, 8 chapitres</li></ul></div>
-    <div class="card op"><span class="tag">En option</span><h3>À la carte</h3><ul>
-      <li>Adresse mail professionnelle : 3 € HT par mois et par adresse</li><li>Guide d’installation du mail sur téléphone</li><li>Pages supplémentaires, sur devis</li></ul></div>
+    <div class="card pro"><span class="tag">En plus, avec le Pro</span><h3>Pro · 100 € HT</h3><ul>
+      <li>Tout l’Essentiel</li><li>Réservation en ligne : prestation, jour, créneau</li><li>Agenda dans l’espace client, sans double réservation</li><li>1 adresse mail pro incluse</li><li>Prestations, durées et horaires paramétrés par nous</li></ul><p style="margin-top:14px"><a href="/reservation-demo">Essayer la réservation en démo →</a></p></div>
     <div class="card no"><span class="tag">Non inclus</span><h3>À prévoir à part</h3><ul>
-      <li>Publicité faite pour vous</li><li>Référencement payant</li><li>Boutique en ligne</li><li>Réservation en ligne</li><li>Refonte complète du design</li><li>Séance photo</li></ul></div>
+      <li>Publicité faite pour vous</li><li>Référencement payant</li><li>Boutique en ligne</li><li>Paiement ou acompte en ligne</li><li>Rappels par SMS</li><li>Refonte complète du design</li><li>Séance photo</li></ul><p class="sub" style="margin-top:12px">Mail pro supplémentaire : 4 € HT par mois et par adresse. Pages en plus : sur devis.</p></div>
   </div>
 </section>
 
@@ -334,6 +338,7 @@ offre_body = phead("Offre et prix", "Un abonnement, tout compris",
     <ul>
       <li><strong>Engagement :</strong> 12 mois, puis reconduction tacite par périodes de 12 mois. Résiliation par écrit, 30 jours avant l’échéance.</li>
       <li><strong>Paiement :</strong> mensuel et d’avance, par carte ou prélèvement SEPA. Prix fixe pendant l’engagement.</li>
+      <li><strong>Changer de formule :</strong> de l’Essentiel au Pro à tout moment (effet au mois suivant, nouvelle période de 12 mois) ; du Pro à l’Essentiel à l’échéance.</li>
       <li><strong>Modifications :</strong> 1 par semaine, non cumulable. Nouvelle page ou refonte : sur devis.</li>
       <li><strong>Nom de domaine :</strong> géré et renouvelé par nous pendant l’engagement, transférable à la fin si tout est réglé.</li>
       <li><strong>Résultats :</strong> aucun nombre de visites, classement ou chiffre d’affaires n’est promis.</li>
@@ -350,7 +355,7 @@ offre_body = phead("Offre et prix", "Un abonnement, tout compris",
 <div style="height:72px"></div>
 </div>
 """
-page("offre", "Offre et prix", "L’abonnement en détail : 60 € HT par mois, 12 mois d’engagement, site, domaine, hébergement, espace client et guide pub inclus. Simulateur de prix.",
+page("offre", "Offre et prix", "Les formules Essentiel (60 € HT par mois) et Pro (100 € HT par mois, avec réservation en ligne) en détail, 12 mois d’engagement, avec simulateur de prix.",
      offre_body, cur="offre")
 
 # ------------------------------------------------------------------ FAQ
@@ -418,9 +423,11 @@ cmd_body = phead("Demande", "Demandez votre site", "Quelques informations suffis
       </select><p class="errmsg" id="activite-e" role="alert"></p></div>
     """ + field("ville", "Ville", req=True, auto="address-level2", extra=' minlength="2" maxlength="60"') + """
   </div>
+  <div class="field"><label for="f-formule">Formule</label>
+    <select id="f-formule" name="formule" data-req aria-required="true" aria-describedby="formule-e"><option value="essentiel">Essentiel · 60 € HT par mois</option><option value="pro">Pro · 100 € HT par mois (réservation en ligne)</option></select><p class="errmsg" id="formule-e" role="alert"></p></div>
   <div class="fgrid two">
     """ + field("domaine", "Nom de domaine souhaité", hint="Par exemple : maisonolive ou maisonolive.fr. Nous vérifions la disponibilité.", extra=' maxlength="70" autocapitalize="none" spellcheck="false"') + """
-    <div class="field"><label for="f-mails">Adresses mail pro <span class="opt">(3 € HT par mois chacune)</span></label>
+    <div class="field"><label for="f-mails">Adresses mail pro <span class="opt">(4 € HT par mois chacune, la 1ʳᵉ incluse en Pro)</span></label>
       <select id="f-mails" name="mails" aria-describedby="mails-e"><option value="0">Aucune</option><option value="1">1 adresse</option><option value="2">2 adresses</option><option value="3">3 adresses</option><option value="4">4 adresses</option><option value="5">5 adresses</option></select><p class="errmsg" id="mails-e" role="alert"></p></div>
   </div>
   <div class="field"><label for="f-message">Un mot sur votre projet <span class="opt">(facultatif)</span></label>
@@ -444,7 +451,7 @@ cmd_body = phead("Demande", "Demandez votre site", "Quelques informations suffis
 <dialog class="dlg" id="confirm" aria-labelledby="cf-t">
   <h2 id="cf-t">Envoyer votre demande ?</h2>
   <p>Vérifiez ces informations. La demande est sans engagement et sans paiement.</p>
-  <dl><div><dt>Nom</dt><dd id="cf-nom"></dd></div><div><dt>E-mail</dt><dd id="cf-mail"></dd></div><div><dt>Commerce</dt><dd id="cf-com"></dd></div><div><dt>Activité</dt><dd id="cf-act"></dd></div><div><dt>Mail pro</dt><dd id="cf-mails"></dd></div></dl>
+  <dl><div><dt>Nom</dt><dd id="cf-nom"></dd></div><div><dt>E-mail</dt><dd id="cf-mail"></dd></div><div><dt>Commerce</dt><dd id="cf-com"></dd></div><div><dt>Activité</dt><dd id="cf-act"></dd></div><div><dt>Formule</dt><dd id="cf-formule"></dd></div><div><dt>Mail pro</dt><dd id="cf-mails"></dd></div></dl>
   <div class="row"><button type="button" class="btn ghost" id="cf-cancel">Modifier</button><button type="button" class="btn" id="cf-ok">Oui, envoyer</button></div>
 </dialog>
 """
@@ -494,9 +501,59 @@ nf = """<div class="wrap"><div class="notfound"><p class="crumb">Erreur 404</p><
 <p style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap"><a class="btn" href="/">Retour à l’accueil</a><button type="button" class="btn ghost" data-search>""" + icon("search") + """Rechercher</button></p></div></div>"""
 page("404", "Page introuvable", "Cette page n’existe pas.", nf)
 
+# ------------------------------------------------------------------ démo réservation
+SERVICES = [("coupe-femme", "Coupe femme", "1 h", "38 €"), ("coupe-homme", "Coupe homme", "30 min", "24 €"),
+            ("couleur", "Couleur", "1 h 30", "70 €"), ("brushing", "Brushing", "30 min", "20 €")]
+svc_html = "".join('<label class="svc"><input type="radio" name="svc" value="%s"%s><span><b>%s</b><small>%s · %s</small></span></label>'
+                   % (k, " checked" if i == 0 else "", n, d, p) for i, (k, n, d, p) in enumerate(SERVICES))
+resa_body = phead("Démo", "Réservation en ligne", "Voici ce que vos clients voient avec la formule Pro. Essayez : choisissez une prestation, un jour, un créneau. Le créneau pris n’est plus proposé aux suivants.") + """
+<div class="wrap" style="padding-bottom:72px">
+<div class="alert warn on" style="display:flex;margin-bottom:18px" role="note">""" + icon("help") + """<span><b>Démonstration.</b> Ne saisissez pas de vraies données : un prénom fictif suffit. Les réservations de test sont supprimées au bout de 24 heures. Le salon « Atelier Capucine » est imaginaire.</span></div>
+<div class="tabs2" role="tablist" aria-label="Vue">
+  <button type="button" role="tab" id="t-client" aria-selected="true" aria-controls="p-client">Vue de votre client</button>
+  <button type="button" role="tab" id="t-agenda" aria-selected="false" aria-controls="p-agenda" tabindex="-1">Votre agenda (exemple)</button>
+</div>
+<div id="p-client" role="tabpanel" aria-labelledby="t-client" class="resa">
+  <form id="resa" novalidate>
+    <fieldset class="rstep"><legend><span class="n">1</span> Prestation</legend><div class="svcs">""" + svc_html + """</div></fieldset>
+    <fieldset class="rstep"><legend><span class="n">2</span> Jour</legend><div class="days" id="r-days" role="group" aria-label="Jours disponibles"></div></fieldset>
+    <fieldset class="rstep"><legend><span class="n">3</span> Créneau</legend><p class="sub" id="r-slot-help">Choisissez d’abord un jour.</p><div class="slots" id="r-slots" role="group" aria-label="Créneaux disponibles"></div></fieldset>
+    <fieldset class="rstep"><legend><span class="n">4</span> Vos coordonnées</legend>
+      <div class="fgrid two">
+        <div class="field"><label for="r-nom">Prénom</label><input id="r-nom" name="nom" type="text" maxlength="40" autocomplete="given-name" aria-describedby="r-nom-e"><p class="errmsg" id="r-nom-e" role="alert"></p></div>
+        <div class="field"><label for="r-tel">Téléphone <span class="opt">(facultatif)</span></label><input id="r-tel" name="tel" type="tel" maxlength="20" autocomplete="tel" aria-describedby="r-tel-e"><p class="errmsg" id="r-tel-e" role="alert"></p></div>
+      </div>
+      <div class="hp" aria-hidden="true"><label>Ne pas remplir<input type="text" name="site_web_url" tabindex="-1" autocomplete="off"></label></div>
+    </fieldset>
+    <div class="alert bad" id="r-bad" role="alert" tabindex="-1">""" + icon("x") + """<span></span></div>
+    <p class="rsum" id="r-sum" aria-live="polite"></p>
+    <button class="btn" id="r-send" type="submit"><span class="lbl">Réserver ce créneau</span>""" + icon("loader", "ic spin") + """</button>
+  </form>
+  <div class="done" id="r-done" aria-live="polite">
+    <p class="eyebrow">Réservation enregistrée</p>
+    <h2 style="margin:0;max-width:20ch" id="r-done-t">C’est réservé.</h2>
+    <p id="r-done-p"></p>
+    <p>Numéro : <span class="ref" id="r-ref">—</span></p>
+    <p style="display:flex;gap:12px;flex-wrap:wrap"><button type="button" class="btn" id="r-again">Réserver un autre créneau</button><button type="button" class="btn ghost" id="r-see">Voir dans l’agenda</button></p>
+  </div>
+</div>
+<div id="p-agenda" role="tabpanel" aria-labelledby="t-agenda" class="resa" hidden>
+  <p class="sub">Exemple de ce que vous voyez dans votre espace client : les rendez-vous du jour, triés par heure. Les lignes en gris sont fictives ; votre réservation de test s’ajoute en haut quand vous en faites une.</p>
+  <ol class="agenda" id="ag-list"></ol>
+</div>
+<div class="cta-band">
+  <h2>La réservation fait gagner du temps</h2>
+  <p>Fini les appels manqués : vos clients réservent seuls, à toute heure. Disponible avec la formule Pro, à 100 € HT par mois.</p>
+  <a class="btn" href="/commander?formule=pro">Choisir le Pro""" + icon("arrow") + """</a>
+</div>
+</div>
+"""
+page("reservation-demo", "Démo de réservation", "Essayez la réservation en ligne de la formule Pro : choix de la prestation, du jour et du créneau.", resa_body, cur="offre",
+     page_js='<script src="/assets/booking.js?v=%s" defer></script>\n' % VER)
+
 # ------------------------------------------------------------------ index de recherche
 PAGES = [("index", "Accueil"), ("offre", "Offre et prix"), ("faq", "FAQ"), ("commander", "Commander"), ("connexion", "Connexion"),
-         ("mentions-legales", "Mentions légales"), ("cgv", "CGV"), ("confidentialite", "Confidentialité"), ("cookies", "Cookies")]
+         ("mentions-legales", "Mentions légales"), ("cgv", "CGV"), ("confidentialite", "Confidentialité"), ("cookies", "Cookies"), ("reservation-demo", "Démo réservation")]
 entries = []
 for slug, label in PAGES:
     soup = BeautifulSoup(rd(os.path.join(OUT, slug + ".html")), "html.parser")
@@ -538,6 +595,7 @@ wr("assets/search-index.json", json.dumps(entries, ensure_ascii=False, separator
 wr("assets/site.css", css)
 wr("assets/site.js", js_common)
 wr("assets/demo.js", demo_js)
+wr("assets/booking.js", rd(os.path.join(SRC, "booking.js")))
 wr("robots.txt", "User-agent: *\nAllow: /\nSitemap: %s/sitemap.xml\n" % BASE_URL if INDEXABLE else "User-agent: *\nDisallow: /\n")
 if INDEXABLE:
     urls = "".join("<url><loc>%s%s</loc><lastmod>%s</lastmod></url>" % (BASE_URL, "" if s == "index" else "/" + s, UPDATED_ISO) for s, _ in PAGES if s != "connexion")

@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Offre et prix | SiteVitrine Express</title>
-<meta name="description" content="L’abonnement en détail : 60 € HT par mois, 12 mois d’engagement, site, domaine, hébergement, espace client et guide pub inclus. Simulateur de prix.">
+<meta name="description" content="Les formules Essentiel (60 € HT par mois) et Pro (100 € HT par mois, avec réservation en ligne) en détail, 12 mois d’engagement, avec simulateur de prix.">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#F5F6F6">
 <meta name="color-scheme" content="light dark">
 <meta property="og:title" content="Offre et prix | SiteVitrine Express">
-<meta property="og:description" content="L’abonnement en détail : 60 € HT par mois, 12 mois d’engagement, site, domaine, hébergement, espace client et guide pub inclus. Simulateur de prix.">
+<meta property="og:description" content="Les formules Essentiel (60 € HT par mois) et Pro (100 € HT par mois, avec réservation en ligne) en détail, 12 mois d’engagement, avec simulateur de prix.">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="fr_FR">
 <link rel="canonical" href="https://accueil.ouvert.workers.dev/offre">
@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,700&family=Playfair+Display:ital,wght@1,600&family=Geist+Mono:wght@400;500&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@600;800&family=Caveat:wght@600;700&family=Barlow+Condensed:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Anton&family=Fraunces:opsz,wght@9..144,500;9..144,700&display=swap">
-<link rel="stylesheet" href="/assets/site.css?v=f456cf47">
+<link rel="stylesheet" href="/assets/site.css?v=c55cc084">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
@@ -98,22 +98,26 @@
 
 <main id="contenu" tabindex="-1">
 <span id="haut"></span>
-<div class="wrap"><header class="phead"><p class="crumb"><a href="/">Accueil</a> / Offre et prix</p><h1>Un abonnement, tout compris</h1><p class="lede">60 € HT par mois, 12 mois d’engagement. Le site, le nom de domaine, l’hébergement, l’espace client et le guide pub sont compris.</p><div class="meta"><span>Mis à jour le <time datetime="2026-11-01">1 novembre 2026</time></span></div></header></div>
+<div class="wrap"><header class="phead"><p class="crumb"><a href="/">Accueil</a> / Offre et prix</p><h1>Deux formules, tout compris</h1><p class="lede">Essentiel à 60 € HT par mois, Pro à 100 € HT par mois avec réservation en ligne et agenda. 12 mois d’engagement. Domaine, hébergement, espace client et guide pub compris.</p><div class="meta"><span>Mis à jour le <time datetime="2026-11-01">1 novembre 2026</time></span></div></header></div>
 <div class="wrap">
 <section class="sec" id="simulateur" style="padding-top:8px;padding-bottom:20px">
   <p class="eyebrow">Simulateur</p>
   <h2>Combien ça coûte, au total ?</h2>
   <div class="calc">
     <div>
-      <label for="mails" class="lab" style="font:500 11.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">Adresses mail professionnelles (option)</label>
+      <fieldset class="fsel"><legend>Formule</legend>
+        <label><input type="radio" name="fm" value="essentiel" checked><span>Essentiel · 60 €</span></label>
+        <label><input type="radio" name="fm" value="pro"><span>Pro · 100 €</span></label>
+      </fieldset>
+      <label for="mails" class="lab" style="display:block;margin-top:18px;font:500 11.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">Adresses mail professionnelles</label>
       <p style="font:700 1.6rem var(--display);margin:8px 0 6px"><span id="c-n">0</span> <span id="c-n2" style="font-weight:600;color:var(--muted);font-size:1rem">adresse mail pro</span></p>
       <input type="range" id="mails" min="0" max="10" step="1" value="0" aria-describedby="c-help">
-      <p id="c-help" class="sub">De 0 à 10 adresses. Chaque adresse coûte 3 € HT par mois.</p>
+      <p id="c-help" class="sub">De 0 à 10 adresses. Chaque adresse coûte 4 € HT par mois ; la première est incluse dans la formule Pro.</p>
     </div>
     <div class="out" aria-live="polite">
       <div class="big-n"><span id="c-m">60</span> €<small>HT par mois</small></div>
-      <div class="row2"><span>Abonnement</span><b id="c-base">60 €</b></div>
-      <div class="row2"><span>Options mail</span><b id="c-mail">0 €</b></div>
+      <div class="row2"><span id="c-basel">Formule Essentiel</span><b id="c-base">60 €</b></div>
+      <div class="row2"><span id="c-maill">Options mail</span><b id="c-mail">0 €</b></div>
       <div class="row2"><span>Sur 12 mois d’engagement</span><b id="c-y">720 €</b></div>
     </div>
   </div>
@@ -124,12 +128,12 @@
   <p class="eyebrow">Ce que comprend l’abonnement</p>
   <h2>Inclus, en option, non inclus</h2>
   <div class="cmp">
-    <div class="card"><span class="tag">Inclus</span><h3>Dans les 60 € HT</h3><ul>
+    <div class="card"><span class="tag">Inclus</span><h3>Essentiel · 60 € HT</h3><ul>
       <li>Site vitrine sur mesure, jusqu’à 5 pages</li><li>Adapté au téléphone, tablette et ordinateur</li><li>Nom de domaine réservé et renouvelé chaque année</li><li>Hébergement et certificat HTTPS</li><li>Espace client de suivi</li><li>1 modification par semaine, par vous-même</li><li>Relecture avant mise en ligne</li><li>Guide pub, 8 chapitres</li></ul></div>
-    <div class="card op"><span class="tag">En option</span><h3>À la carte</h3><ul>
-      <li>Adresse mail professionnelle : 3 € HT par mois et par adresse</li><li>Guide d’installation du mail sur téléphone</li><li>Pages supplémentaires, sur devis</li></ul></div>
+    <div class="card pro"><span class="tag">En plus, avec le Pro</span><h3>Pro · 100 € HT</h3><ul>
+      <li>Tout l’Essentiel</li><li>Réservation en ligne : prestation, jour, créneau</li><li>Agenda dans l’espace client, sans double réservation</li><li>1 adresse mail pro incluse</li><li>Prestations, durées et horaires paramétrés par nous</li></ul><p style="margin-top:14px"><a href="/reservation-demo">Essayer la réservation en démo →</a></p></div>
     <div class="card no"><span class="tag">Non inclus</span><h3>À prévoir à part</h3><ul>
-      <li>Publicité faite pour vous</li><li>Référencement payant</li><li>Boutique en ligne</li><li>Réservation en ligne</li><li>Refonte complète du design</li><li>Séance photo</li></ul></div>
+      <li>Publicité faite pour vous</li><li>Référencement payant</li><li>Boutique en ligne</li><li>Paiement ou acompte en ligne</li><li>Rappels par SMS</li><li>Refonte complète du design</li><li>Séance photo</li></ul><p class="sub" style="margin-top:12px">Mail pro supplémentaire : 4 € HT par mois et par adresse. Pages en plus : sur devis.</p></div>
   </div>
 </section>
 
@@ -154,6 +158,7 @@
     <ul>
       <li><strong>Engagement :</strong> 12 mois, puis reconduction tacite par périodes de 12 mois. Résiliation par écrit, 30 jours avant l’échéance.</li>
       <li><strong>Paiement :</strong> mensuel et d’avance, par carte ou prélèvement SEPA. Prix fixe pendant l’engagement.</li>
+      <li><strong>Changer de formule :</strong> de l’Essentiel au Pro à tout moment (effet au mois suivant, nouvelle période de 12 mois) ; du Pro à l’Essentiel à l’échéance.</li>
       <li><strong>Modifications :</strong> 1 par semaine, non cumulable. Nouvelle page ou refonte : sur devis.</li>
       <li><strong>Nom de domaine :</strong> géré et renouvelé par nous pendant l’engagement, transférable à la fin si tout est réglé.</li>
       <li><strong>Résultats :</strong> aucun nombre de visites, classement ou chiffre d’affaires n’est promis.</li>
@@ -217,7 +222,7 @@
   </form>
 </dialog>
 
-<script>window.SITE={v:"f456cf47",email:""};</script>
-<script src="/assets/site.js?v=f456cf47" defer></script>
+<script>window.SITE={v:"c55cc084",email:""};</script>
+<script src="/assets/site.js?v=c55cc084" defer></script>
 </body>
 </html>
