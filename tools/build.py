@@ -464,7 +464,7 @@ def pwfield(name, label, auto):
 HP = '<div class="hp" aria-hidden="true"><label>Ne pas remplir<input type="text" name="site_web_url" tabindex="-1" autocomplete="off"></label></div>'
 
 signup_body = phead("Inscription", "Créez votre compte", "Un compte est nécessaire pour faire une demande de site. Il vous donne aussi accès au suivi de votre commande.") + """
-<div class="wrap" style="padding-bottom:72px">
+<div class="wrap ctr" style="padding-bottom:72px">
 <div class="formcard" style="max-width:560px">
 <form id="signup" class="form" novalidate>
   <div class="alert bad" id="s-bad" role="alert" tabindex="-1">""" + icon("x") + """<span></span></div>
@@ -482,7 +482,7 @@ signup_body = phead("Inscription", "Créez votre compte", "Un compte est nécess
 page("inscription", "Créer mon compte", "Créez votre compte pour faire votre demande de site vitrine.", signup_body)
 
 login_body = phead("Connexion", "Connexion", "Suivez votre demande et accédez à votre espace client.") + """
-<div class="wrap" style="padding-bottom:72px">
+<div class="wrap ctr" style="padding-bottom:72px">
 <div class="formcard" style="max-width:520px">
 <form id="login" class="form" novalidate>
   <div class="alert bad" id="l-bad" role="alert" tabindex="-1">""" + icon("x") + """<span></span></div>

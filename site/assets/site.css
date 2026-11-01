@@ -762,3 +762,7 @@ footer{padding-block:22px 30px;font-size:13.5px}
 .steps li::before{content:counter(s);font:800 1.9rem/1 var(--display);color:#000;padding-top:0;width:40px;height:40px;display:grid;place-items:center;border:2.5px solid #000;border-radius:50%;font-size:1.25rem}
 
 .viewsite{margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--soft);font-size:14px;text-align:center}
+
+.wrap:has(+.wrap.ctr) .phead{text-align:center}.wrap:has(+.wrap.ctr) .phead h1,.wrap:has(+.wrap.ctr) .phead .lede{margin-inline:auto}
+.wrap.ctr .formcard{margin-inline:auto}
+.wrap:has(+.wrap.ctr) .phead{padding-bottom:26px}
