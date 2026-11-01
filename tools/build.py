@@ -490,6 +490,7 @@ login_body = phead("Connexion", "Connexion", "Suivez votre demande et accédez �
   """ + field("email", "Votre e-mail", "email", req=True, auto="email", extra=' maxlength="120"') + """
   """ + pwfield("password", "Mot de passe", "current-password") + """
   <div><button class="btn" type="submit"><span class="lbl">Se connecter</span></button></div>
+  <p class="sub"><a href="/mot-de-passe-oublie">Mot de passe oublié ?</a></p>
   <p class="sub">Pas encore de compte ? <a href="/inscription">Créer mon compte</a>.</p>
 </form>
 <div id="l-ok" hidden></div>
@@ -497,6 +498,36 @@ login_body = phead("Connexion", "Connexion", "Suivez votre demande et accédez �
 </div>
 """
 page("connexion", "Connexion", "Espace client : suivi de commande et éditeur de modifications.", login_body)
+
+forgot_body = phead("Mot de passe", "Mot de passe oublié", "Indiquez votre e-mail : nous vous envoyons un lien pour choisir un nouveau mot de passe.") + """
+<div class="wrap ctr" style="padding-bottom:72px">
+<div class="formcard" style="max-width:520px">
+<form id="forgot" class="form" novalidate>
+  <div class="alert bad" id="f-bad" role="alert" tabindex="-1">""" + icon("x") + """<span></span></div>
+  """ + field("email", "Votre e-mail", "email", req=True, auto="email", extra=' maxlength="120"') + """
+  """ + HP + """
+  <div><button class="btn" type="submit"><span class="lbl">Envoyer le lien</span></button></div>
+  <p class="sub"><a href="/connexion">Retour à la connexion</a></p>
+</form>
+<div class="done" id="f-done" aria-live="polite"><h2 style="margin:0">Vérifiez votre boîte mail.</h2><p>Si un compte existe avec cette adresse, un lien de réinitialisation vient de lui être envoyé. Il est valable 1 heure. Pensez à regarder dans les courriers indésirables.</p><p><a class="btn ghost" href="/connexion">Retour à la connexion</a></p></div>
+</div>
+</div>
+"""
+page("mot-de-passe-oublie", "Mot de passe oublié", "Recevez un lien pour choisir un nouveau mot de passe.", forgot_body)
+
+reset_body = phead("Mot de passe", "Nouveau mot de passe", "Choisissez un nouveau mot de passe pour votre compte.") + """
+<div class="wrap ctr" style="padding-bottom:72px">
+<div class="formcard" style="max-width:520px">
+<form id="reset" class="form" novalidate>
+  <div class="alert bad" id="r-bad" role="alert" tabindex="-1">""" + icon("x") + """<span></span></div>
+  """ + pwfield("password", "Nouveau mot de passe (8 caractères minimum)", "new-password") + """
+  """ + pwfield("password2", "Confirmez le mot de passe", "new-password") + """
+  <div><button class="btn" type="submit"><span class="lbl">Changer mon mot de passe</span></button></div>
+</form>
+</div>
+</div>
+"""
+page("reinitialiser", "Nouveau mot de passe", "Choisissez un nouveau mot de passe.", reset_body)
 
 
 # ------------------------------------------------------------------ administration (page indépendante : ni menu, ni pied de page du site)

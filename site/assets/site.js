@@ -503,6 +503,40 @@
       }).catch(function () { busy(lbtn, false); bad(lbad, 'Connexion impossible pour le moment. Vérifiez votre réseau puis réessayez.'); });
     });
   }
+  var ff = $('#forgot'), rf = $('#reset');
+  if (ff) {
+    wire(ff);
+    var fbad = $('#f-bad'), fbtn = ff.querySelector('button[type=submit]');
+    ff.addEventListener('submit', function (e) {
+      e.preventDefault(); fbad.classList.remove('on');
+      if (!validateAll(ff)) return;
+      busy(fbtn, true);
+      api('/api/mot-de-passe-oublie', 'POST', { email: ff.elements.email.value.trim(), site_web_url: ff.elements.site_web_url.value }).then(function (r) {
+        busy(fbtn, false);
+        if (r.s === 200 && r.j.ok) { ff.hidden = true; $('#f-done').classList.add('on'); }
+        else if (r.s === 429) bad(fbad, 'Trop de demandes. Patientez une heure puis réessayez.');
+        else bad(fbad, 'Envoi impossible pour le moment (erreur ' + r.s + '). Réessayez.');
+      }).catch(function () { busy(fbtn, false); bad(fbad, 'Connexion impossible pour le moment. Vérifiez votre réseau.'); });
+    });
+  }
+  if (rf) {
+    wire(rf);
+    var rbad = $('#r-bad'), rbtn = rf.querySelector('button[type=submit]'), tok = (location.search.match(/[?&]t=([0-9a-f]{64})/) || [])[1];
+    if (!tok) bad(rbad, 'Ce lien n’est pas valide. Refaites une demande de réinitialisation.');
+    rf.addEventListener('submit', function (e) {
+      e.preventDefault(); rbad.classList.remove('on');
+      var okv = validateAll(rf);
+      if (rf.elements.password2.value && rf.elements.password.value !== rf.elements.password2.value) { setErr(rf.elements.password2, 'Les deux mots de passe ne sont pas identiques.'); okv = false; }
+      if (!okv || !tok) return;
+      busy(rbtn, true);
+      api('/api/reinitialiser', 'POST', { token: tok, password: rf.elements.password.value }).then(function (r) {
+        busy(rbtn, false);
+        if (r.s === 200 && r.j.ok) { toast('Mot de passe changé. Connectez-vous.'); setTimeout(function () { location.href = '/connexion'; }, 1200); }
+        else if (r.s === 410) bad(rbad, 'Ce lien a expiré ou a déjà servi. Refaites une demande de réinitialisation.');
+        else bad(rbad, 'Impossible de changer le mot de passe (erreur ' + r.s + ').');
+      }).catch(function () { busy(rbtn, false); bad(rbad, 'Connexion impossible pour le moment.'); });
+    });
+  }
   if (df) {
     /* la demande exige un compte : sinon on renvoie vers l'inscription */
     df.style.visibility = 'hidden';

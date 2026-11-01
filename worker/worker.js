@@ -3,7 +3,7 @@ const REPO = 'https://raw.githubusercontent.com/heuss75/Cr-ation-Web/main/site';
 const ROUTES = {
   '/': 'index.html', '/offre': 'offre.html', '/faq': 'faq.html', '/commander': 'commander.html', '/connexion': 'connexion.html',
   '/mentions-legales': 'mentions-legales.html', '/cgv': 'cgv.html', '/confidentialite': 'confidentialite.html', '/cookies': 'cookies.html',
-  '/reservation-demo': 'reservation-demo.html', '/inscription': 'inscription.html', '/admin': 'admin.html', '/espace': 'espace.html', '/exemples/bistro': 'exemples/bistro.html', '/exemples/salon': 'exemples/salon.html', '/exemples/artisan': 'exemples/artisan.html',
+  '/reservation-demo': 'reservation-demo.html', '/inscription': 'inscription.html', '/admin': 'admin.html', '/espace': 'espace.html', '/mot-de-passe-oublie': 'mot-de-passe-oublie.html', '/reinitialiser': 'reinitialiser.html', '/exemples/bistro': 'exemples/bistro.html', '/exemples/salon': 'exemples/salon.html', '/exemples/artisan': 'exemples/artisan.html',
 };
 const TYPES = {
   html: 'text/html; charset=utf-8', css: 'text/css; charset=utf-8', js: 'text/javascript; charset=utf-8', json: 'application/json; charset=utf-8',
@@ -306,6 +306,55 @@ async function espace(req, env, url, p) {
 }
 const escH = (s) => String(s || '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const mailOk = (env) => !!(env.RESEND_API_KEY && env.MAIL_FROM);
+async function envoyerMail(env, to, subject, text, html) {
+  if (!mailOk(env)) return false;
+  try {
+    const r = await fetch('https://api.resend.com/emails', { method: 'POST', headers: { authorization: 'Bearer ' + env.RESEND_API_KEY, 'content-type': 'application/json' }, body: JSON.stringify({ from: env.MAIL_FROM, to: [to], subject, text, html }) });
+    return r.ok;
+  } catch (_) { return false; }
+}
+async function oubli(req, env, url) {
+  if (req.method !== 'POST') return json({ ok: false }, 405);
+  const { b, err } = await readJson(req, url); if (err) return err;
+  if (b.site_web_url) return json({ ok: true });
+  const email = typeof b.email === 'string' ? b.email.trim().toLowerCase() : '';
+  if (!MAIL_RE.test(email) || email.length > 120) return json({ ok: true });
+  try {
+    const iph = await ipHash(req, 'oubli');
+    await env.DB.prepare("DELETE FROM essais WHERE at < datetime('now','-1 day')").run();
+    const c = await env.DB.prepare("SELECT COUNT(*) AS n FROM essais WHERE ip_hash = ? AND at > datetime('now','-1 hour')").bind(iph).first();
+    if (c && c.n >= 5) return json({ ok: false }, 429);
+    await env.DB.prepare('INSERT INTO essais (ip_hash) VALUES (?)').bind(iph).run();
+    const u = await env.DB.prepare('SELECT id, nom, demo FROM comptes WHERE email = ?').bind(email).first();
+    if (u && !u.demo) {
+      const token = hex(crypto.getRandomValues(new Uint8Array(32)));
+      await env.DB.prepare("INSERT INTO reset_tokens (token_hash, compte_id, expires_at) VALUES (?,?,datetime('now','+1 hour'))").bind(await sha(token), u.id).run();
+      const lien = url.origin + '/reinitialiser?t=' + token, prenom = (u.nom || '').split(/\s+/)[0];
+      const texte = 'Bonjour ' + prenom + ',\n\nVous avez demandé à changer votre mot de passe SiteVitrine Express. Ouvrez ce lien (valable 1 heure) :\n' + lien + '\n\nSi vous n’êtes pas à l’origine de cette demande, ignorez ce message : votre mot de passe ne change pas.';
+      const ok = await envoyerMail(env, email, 'Votre nouveau mot de passe SiteVitrine Express', texte,
+        '<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.55;color:#111"><p>Bonjour ' + escH(prenom) + ',</p><p>Vous avez demandé à changer votre mot de passe SiteVitrine Express.</p><p><a href="' + lien + '" style="display:inline-block;background:#0b0b0c;color:#fff;padding:12px 20px;border-radius:10px;text-decoration:none;font-weight:bold">Choisir un nouveau mot de passe</a></p><p style="font-size:13px;color:#555">Le lien est valable 1 heure. Si vous n’êtes pas à l’origine de cette demande, ignorez ce message : votre mot de passe ne change pas.</p></div>');
+      await log(env, u.id, null, ok ? 'oubli_mdp_mail' : 'oubli_mdp_sans_mail', '');
+    }
+    return json({ ok: true });
+  } catch (_) { return json({ ok: false }, 500); }
+}
+async function reinitialiser(req, env, url) {
+  if (req.method !== 'POST') return json({ ok: false }, 405);
+  const { b, err } = await readJson(req, url); if (err) return err;
+  const t = typeof b.token === 'string' ? b.token : '', pw = typeof b.password === 'string' ? b.password : '';
+  if (!/^[0-9a-f]{64}$/.test(t) || pw.length < 8 || pw.length > 100) return json({ ok: false }, 422);
+  try {
+    const th = await sha(t);
+    const r = await env.DB.prepare("SELECT compte_id FROM reset_tokens WHERE token_hash = ? AND used = 0 AND expires_at > datetime('now')").bind(th).first();
+    if (!r) return json({ ok: false }, 410);
+    const salt = crypto.getRandomValues(new Uint8Array(16)), h = await pbkdf2(pw, salt);
+    await env.DB.prepare('UPDATE comptes SET salt = ?, hash = ?, iter = ? WHERE id = ?').bind(hex(salt), hex(h), ITER, r.compte_id).run();
+    await env.DB.prepare('UPDATE reset_tokens SET used = 1 WHERE compte_id = ?').bind(r.compte_id).run();
+    await env.DB.prepare('DELETE FROM sessions WHERE compte_id = ?').bind(r.compte_id).run();
+    await log(env, r.compte_id, null, 'mot_de_passe_reinit_mail', '');
+    return json({ ok: true });
+  } catch (_) { return json({ ok: false }, 500); }
+}
 async function adminExtra(req, env, url, p, me, one, all) {
   const num = (v) => { const n = parseInt(v, 10); return Number.isFinite(n) ? n : 0; };
   const txt = (v, n) => (typeof v === 'string' ? v.trim().slice(0, n) : '');
@@ -597,6 +646,8 @@ export default {
     let p = url.pathname;
     if (p.length > 1 && p.endsWith('/')) p = p.slice(0, -1);
     if (p.startsWith('/api/espace')) return espace(req, env, url, p);
+    if (p === '/api/mot-de-passe-oublie') return oubli(req, env, url);
+    if (p === '/api/reinitialiser') return reinitialiser(req, env, url);
     if (p === '/api/demande') return demande(req, env, url);
     if (p === '/api/reservation') return reservation(req, env, url);
     if (p === '/api/inscription') return inscription(req, env, url);
