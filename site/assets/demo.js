@@ -101,57 +101,6 @@
   nom.placeholder=M[sel.value].def;
   essaiUpdate(false);
 
-  /* galerie */
-  var cur='coiffeur',view='phone',tabs=document.getElementById('tabs'),stage=document.getElementById('stage'),cap=document.getElementById('cap');
-  var bp=document.getElementById('v-phone'),bd=document.getElementById('v-desk');
-  KEYS.forEach(function(k){
-    var b=document.createElement('button');b.type='button';b.className='tab';b.setAttribute('role','tab');b.dataset.k=k;b.textContent=M[k].label;
-    b.addEventListener('click',function(){cur=k;draw()});tabs.appendChild(b);
-  });
-  function draw(){
-    Array.prototype.forEach.call(tabs.children,function(b){b.setAttribute('aria-selected',b.dataset.k===cur?'true':'false')});
-    bp.setAttribute('aria-pressed',view==='phone'?'true':'false');
-    bd.setAttribute('aria-pressed',view==='desk'?'true':'false');
-    if(view==='phone'){stage.innerHTML='<div class="phone"><div class="screen" id="g-screen"></div></div>'}
-    else{stage.innerHTML='<div class="desk"><div class="desk-bar"><i></i><i></i><i></i><span class="url">'+esc(slug(M[cur].def)||'votresite')+'.fr</span></div><div class="screen" id="g-screen"></div></div>'}
-    mount(document.getElementById('g-screen'),cur,'',false);
-    cap.textContent='Exemple · '+M[cur].label.toLowerCase()+' · '+(view==='phone'?'version téléphone':'version ordinateur')+' · faites défiler pour parcourir le site';
-  }
-  bp.addEventListener('click',function(){view='phone';draw()});
-  bd.addEventListener('click',function(){view='desk';draw()});
-  draw();
-
-  /* démonstration de l'éditeur */
-  var ed={target:'name',used:false,prev:null,ovr:{name:'',lead:''}};
-  var edScreen=document.getElementById('ed-screen'),edText=document.getElementById('ed-text'),edMsg=document.getElementById('ed-msg'),edLabel=document.getElementById('ed-label');
-  var chips=document.querySelectorAll('.chip');
-  var EDT={name:{label:'Nouveau titre',ph:'Maison Olive Coiffure'},lead:{label:'Nouvelle accroche',ph:'Votre coiffeur de quartier, du mardi au samedi.'}};
-  function edRender(){
-    mount(edScreen,'coiffeur',ed.ovr.name,true);
-    if(ed.ovr.lead){var l=edScreen.querySelector('.t-lead');if(l)l.textContent=ed.ovr.lead}
-  }
-  Array.prototype.forEach.call(chips,function(c){
-    c.addEventListener('click',function(){
-      ed.target=c.getAttribute('data-t');
-      Array.prototype.forEach.call(chips,function(o){o.setAttribute('aria-pressed',o===c?'true':'false')});
-      edLabel.textContent=EDT[ed.target].label;edText.placeholder=EDT[ed.target].ph;
-    });
-  });
-  document.getElementById('ed-go').addEventListener('click',function(){
-    var v=edText.value.trim();
-    if(!v){edMsg.textContent='Écrivez d’abord votre texte.';return}
-    if(ed.used){edMsg.textContent='Votre modification de la semaine est déjà utilisée. Annulez-la pour en faire une autre.';return}
-    ed.prev={name:ed.ovr.name,lead:ed.ovr.lead};
-    ed.ovr[ed.target]=v;ed.used=true;edRender();
-    edMsg.textContent='Modification publiée. C’est votre modification de la semaine, vous pouvez l’annuler.';
-  });
-  document.getElementById('ed-undo').addEventListener('click',function(){
-    if(!ed.used){edMsg.textContent='Il n’y a rien à annuler.';return}
-    ed.ovr=ed.prev;ed.used=false;ed.prev=null;edRender();
-    edMsg.textContent='Modification annulée. Vous pouvez en faire une nouvelle.';
-  });
-  edRender();
-
   fit();
   if(document.fonts&&document.fonts.ready){document.fonts.ready.then(fit)}
 })();

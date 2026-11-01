@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,700&family=Playfair+Display:ital,wght@1,600&family=Geist+Mono:wght@400;500&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@600;800&family=Caveat:wght@600;700&family=Barlow+Condensed:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Anton&family=Fraunces:opsz,wght@9..144,500;9..144,700&display=swap">
-<link rel="stylesheet" href="/assets/site.css?v=c55cc084">
+<link rel="stylesheet" href="/assets/site.css?v=496868c3">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
@@ -82,7 +82,7 @@
       <svg class="ic" aria-hidden="true"><use href="#i-monitor"/></svg>
       <span><b>SiteVitrine <em>Express</em></b><small>Sites vitrines clé en main</small></span>
     </a>
-    <nav class="nav" aria-label="Sections"><a href="/" aria-current="page">Accueil</a><a href="/#exemples">Exemples</a><a href="/offre">Offre &amp; Prix</a><a href="/#etapes">Comment ça marche</a><a href="/faq">FAQ</a></nav>
+    <nav class="nav" aria-label="Sections"><a href="/" aria-current="page">Accueil</a><a href="/#essai">Essayer</a><a href="/offre">Offre &amp; Prix</a><a href="/#etapes">Comment ça marche</a><a href="/faq">FAQ</a></nav>
     <div class="acts">
       <button type="button" class="ibtn" data-search aria-label="Rechercher sur le site" title="Rechercher (touche /)"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg></button>
       <button type="button" class="ibtn" id="theme" aria-label="Passer en mode sombre" aria-pressed="false"><svg class="ic ic-moon" aria-hidden="true"><use href="#i-moon"/></svg><svg class="ic ic-sun" aria-hidden="true"><use href="#i-sun"/></svg></button>
@@ -94,7 +94,7 @@
   </div>
 </header>
 <div class="menu" id="menu" inert>
-  <nav aria-label="Menu principal"><a href="/">Accueil</a><a href="/#exemples">Exemples</a><a href="/offre">Offre &amp; Prix</a><a href="/#etapes">Comment ça marche</a><a href="/faq">FAQ</a><a href="/connexion">Se connecter</a></nav>
+  <nav aria-label="Menu principal"><a href="/">Accueil</a><a href="/#essai">Essayer</a><a href="/offre">Offre &amp; Prix</a><a href="/#etapes">Comment ça marche</a><a href="/faq">FAQ</a><a href="/connexion">Se connecter</a></nav>
   <div class="mcta"><a class="btn" href="/commander">Je veux mon site<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a><button type="button" class="btn ghost" data-search><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>Rechercher</button></div>
 </div>
 
@@ -137,7 +137,7 @@
           <div><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg><span>Espace client<br>de suivi</span></div>
           <div><svg class="ic" aria-hidden="true"><use href="#i-book"/></svg><span>Guide pub<br>complet</span></div>
         </div>
-        <div class="cta-row"><a class="btn" href="/commander">Je veux mon site<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a><a class="btn ghost" href="#exemples">Voir des exemples</a></div>
+        <div class="cta-row"><a class="btn" href="/commander">Je veux mon site<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a><a class="btn ghost" href="#essai">Essayer avec mon nom</a></div>
       </div>
     </section>
 
@@ -158,58 +158,20 @@
   </div>
 
   <section class="sec" id="essai">
-    <p class="eyebrow">Aperçu personnalisé</p>
+    <p class="eyebrow">Essayez en direct</p>
     <h2>Voyez votre nom sur un site, tout de suite</h2>
     <p class="lede">Tapez le nom de votre commerce et choisissez votre métier : le modèle se remplit sous vos yeux.</p>
-    <div class="ed">
-      <div class="edform">
-        <div><label for="nom">Nom de votre commerce</label><input type="text" id="nom" placeholder="Maison Olive" maxlength="40" autocomplete="off"></div>
-        <div><label for="metier">Votre métier</label><select id="metier"></select></div>
-        <p class="hint">Faites défiler dans le téléphone : les horaires et « ouvert maintenant » sont calculés en direct.</p>
-        <div class="edbtns"><a class="btn" href="/commander">Je veux mon site<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a></div>
+    <div class="ed duo">
+      <div class="forms">
+        <div class="edform">
+          <div><label for="nom">Nom de votre commerce</label><input type="text" id="nom" placeholder="Maison Olive" maxlength="40" autocomplete="off"></div>
+          <div><label for="metier">Votre métier</label><select id="metier"></select></div>
+          <p class="hint">Faites défiler dans le téléphone : les horaires et « ouvert maintenant » sont calculés en direct.</p>
+          <div class="edbtns"><a class="btn" href="/commander">Je veux mon site<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a></div>
+        </div>
       </div>
-      <div><div class="phone-s solo"><div class="vp" data-w="300" data-h="620"><div class="si" id="essai-screen"></div></div></div></div>
-    </div>
-  </section>
-
-  <section class="sec" id="exemples">
-    <p class="eyebrow">Exemples</p>
-    <h2>Un univers différent pour chaque métier</h2>
-    <p class="lede">Chaque modèle a sa palette, ses polices et sa mise en page. Ouvrez-les comme de vrais sites, sur téléphone ou sur ordinateur.</p>
-    <div class="tools">
-      <div class="tabs" role="tablist" aria-label="Métiers" id="tabs"></div>
-      <div class="seg" role="group" aria-label="Affichage"><button type="button" id="v-phone" aria-pressed="true">Téléphone</button><button type="button" id="v-desk" aria-pressed="false">Ordinateur</button></div>
-    </div>
-    <div id="stage"></div>
-    <p class="stagecap" id="cap"></p>
-  </section>
-
-  <section class="sec" id="modifier">
-    <p class="eyebrow">Éditeur de modifications</p>
-    <h2>Modifiez votre site vous-même, en quelques secondes</h2>
-    <p class="lede">Depuis votre espace client, vous changez un texte, une photo ou un bloc, sans nous écrire. Essayez sur le salon ci-contre.</p>
-    <div class="ed">
-      <div class="edform">
-        <div>
-          <label id="ed-l0">Que voulez-vous changer ?</label>
-          <div class="chips" role="group" aria-labelledby="ed-l0">
-            <button type="button" class="chip" data-t="name" aria-pressed="true">Remplacer le titre</button>
-            <button type="button" class="chip" data-t="lead" aria-pressed="false">Remplacer l’accroche</button>
-          </div>
-        </div>
-        <div>
-          <label for="ed-text" id="ed-label">Nouveau titre</label>
-          <textarea id="ed-text" maxlength="70" placeholder="Maison Olive Coiffure"></textarea>
-        </div>
-        <div class="edbtns">
-          <button type="button" class="btn" id="ed-go">Publier la modification</button>
-          <button type="button" class="btn ghost" id="ed-undo">Annuler</button>
-        </div>
-        <p class="msg" id="ed-msg" aria-live="polite">1 modification par semaine est incluse dans votre abonnement.</p>
-        <p class="hint">Dans votre espace, vous remplacez aussi une photo, ajoutez ou supprimez un bloc. Vous gardez un historique et pouvez toujours revenir en arrière.</p>
-      </div>
-      <div>
-        <div class="phone-s solo"><div class="vp" data-w="300" data-h="620"><div class="si" id="ed-screen"></div></div></div>
+      <div class="phones">
+        <div class="phone-s solo"><div class="vp" data-w="300" data-h="620"><div class="si" id="essai-screen"></div></div></div>
       </div>
     </div>
   </section>
@@ -248,38 +210,70 @@
 
   <section class="sec" id="prix">
     <p class="eyebrow">Offre et prix</p>
-    <h2>Deux formules, tout compris</h2>
+    <h2>Deux formules, tout compris : site, domaine, hébergement, modifications</h2>
     <div class="plans">
       <div class="plan">
         <span class="pname">Essentiel</span>
-        <div class="amount2">60 €<small>HT par mois</small></div>
-        <p class="pdesc">Le site vitrine complet, sans rien à gérer.</p>
+        <div class="amount2">60 €<small>HT par mois · 720 € HT sur 12 mois</small></div>
+        <p class="pdesc">Le site vitrine complet, sans rien à gérer. Pour les commerces qui veulent être trouvés et appelés.</p>
         <ul>
-          <li>Site vitrine sur mesure, jusqu’à 5 pages</li>
-          <li>Nom de domaine réservé et renouvelé par nous</li>
-          <li>Hébergement, certificat HTTPS, sauvegardes</li>
-          <li>Espace client et 1 modification par semaine</li>
-          <li>Guide pub complet</li>
+          <li><b>Site vitrine sur mesure</b> jusqu’à 5 pages : accueil, services ou carte, tarifs, à propos, contact</li>
+          <li>Adapté au téléphone, à la tablette et à l’ordinateur, textes et photos mis en forme par nos soins</li>
+          <li>Horaires, adresse, bouton d’appel et d’itinéraire, liens vers vos réseaux</li>
+          <li><b>Nom de domaine</b> réservé et renouvelé par nous (.fr ou .com)</li>
+          <li><b>Hébergement</b> rapide, certificat HTTPS, sauvegardes automatiques</li>
+          <li><b>Espace client</b> : suivi de commande, modifications, factures</li>
+          <li><b>1 modification par semaine</b> (texte, photo, bloc), retour en arrière possible</li>
+          <li><b>Guide pub en 8 chapitres</b> : fiche Google, réseaux, avis, flyers, suivi des résultats</li>
+          <li>Référencement de base (titres, descriptions, plan du site)</li>
           <li>Adresse mail pro en option : 4 € HT par mois</li>
         </ul>
         <a class="btn" href="/commander?formule=essentiel">Choisir l’Essentiel<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
       </div>
       <div class="plan pro">
         <span class="pname">Pro <span class="pbadge">Réservation en ligne</span></span>
-        <div class="amount2">100 €<small>HT par mois</small></div>
-        <p class="pdesc">Tout l’Essentiel, et vos clients réservent seuls.</p>
+        <div class="amount2">100 €<small>HT par mois · 1 200 € HT sur 12 mois</small></div>
+        <p class="pdesc">Tout l’Essentiel, et vos clients réservent seuls, jour et nuit. Pour les coiffeurs, soins, restaurants, coachs.</p>
         <ul>
-          <li>Tout ce qui est dans l’Essentiel</li>
-          <li><b>Réservation en ligne</b> : vos clients choisissent une prestation, un jour et un créneau</li>
-          <li><b>Agenda</b> dans votre espace client, sans double réservation</li>
-          <li><b>1 adresse mail pro incluse</b> (suivantes : 4 € HT par mois)</li>
-          <li>Paramétrage de vos prestations, durées et horaires par nos soins</li>
+          <li><b>Tout l’Essentiel</b>, sans exception</li>
+          <li><b>Réservation en ligne</b> : le client choisit prestation, jour et créneau libre</li>
+          <li>Durées par prestation, horaires d’ouverture, jours de fermeture gérés</li>
+          <li>Un créneau pris n’est plus proposé : <b>aucune double réservation</b></li>
+          <li><b>Agenda</b> dans votre espace client, trié par jour et par heure</li>
+          <li>Paramétrage de vos prestations, durées et horaires <b>fait par nos soins</b></li>
+          <li><b>1 adresse mail pro incluse</b> (nom@votredomaine.fr), suivantes à 4 € HT par mois</li>
+          <li>Bouton « Réserver » mis en avant sur toutes les pages</li>
+          <li>Passage Essentiel → Pro possible à tout moment</li>
         </ul>
         <a class="btn" href="/commander?formule=pro">Choisir le Pro<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
         <a class="plink" href="/reservation-demo">Essayer la réservation en démo →</a>
       </div>
     </div>
-    <p class="sub" style="margin-top:16px">Engagement de 12 mois, prix fixe pendant l’engagement. Montants hors taxes. <a href="/offre">Comparer en détail et simuler mon prix</a>.</p>
+    <div class="cmp">
+      <table>
+        <caption>Comparatif des deux formules</caption>
+        <thead><tr><th scope="col"><span class="vh">Critère</span></th><th scope="col">Essentiel</th><th scope="col">Pro</th></tr></thead>
+        <tbody>
+        <tr><th scope="row">Site vitrine jusqu’à 5 pages</th><td>✓</td><td>✓</td></tr>
+        <tr><th scope="row">Nom de domaine et hébergement HTTPS</th><td>✓</td><td>✓</td></tr>
+        <tr><th scope="row">Espace client et factures</th><td>✓</td><td>✓</td></tr>
+        <tr><th scope="row">1 modification par semaine</th><td>✓</td><td>✓</td></tr>
+        <tr><th scope="row">Guide pub en 8 chapitres</th><td>✓</td><td>✓</td></tr>
+        <tr><th scope="row">Réservation en ligne</th><td>—</td><td>✓</td></tr>
+        <tr><th scope="row">Agenda sans double réservation</th><td>—</td><td>✓</td></tr>
+        <tr><th scope="row">Adresse mail pro</th><td>4 € HT / mois</td><td>1 incluse, puis 4 € HT</td></tr>
+        <tr><th scope="row">Livraison</th><td>5 jours ouvrés</td><td>5 jours ouvrés</td></tr>
+        <tr><th scope="row">Engagement</th><td>12 mois</td><td>12 mois</td></tr>
+        <tr><th scope="row">Prix par mois (HT)</th><td><b>60 €</b></td><td><b>100 €</b></td></tr>
+        <tr><th scope="row">Prix sur 12 mois (HT)</th><td>720 €</td><td>1 200 €</td></tr>
+        </tbody>
+      </table>
+      <div class="notinc">
+        <h3>Non inclus (devis séparé)</h3>
+        <ul><li>Publicité faite pour vous et référencement payant</li><li>Boutique en ligne et paiement en ligne</li><li>Pages au-delà de 5</li><li>Refonte complète du design</li><li>Séances photo</li></ul>
+        <p class="sub">Engagement de 12 mois, prix fixe pendant l’engagement, montants hors taxes. <a href="/offre">Simuler mon prix</a>.</p>
+      </div>
+    </div>
   </section>
 
   <section class="sec" id="etapes">
@@ -376,7 +370,7 @@
 <footer class="ft">
   <div class="ftg">
     <div class="brand"><b>SiteVitrine <em>Express</em></b><p>Des sites vitrines clé en main pour les commerces et les indépendants : domaine, hébergement, espace client et guide pub inclus.</p></div>
-    <div><h3>Offre</h3><ul><li><a href="/offre">Offre et prix</a></li><li><a href="/#exemples">Exemples</a></li><li><a href="/#etapes">Comment ça marche</a></li><li><a href="/faq">FAQ</a></li></ul></div>
+    <div><h3>Offre</h3><ul><li><a href="/offre">Offre et prix</a></li><li><a href="/#essai">Essayer</a></li><li><a href="/#etapes">Comment ça marche</a></li><li><a href="/faq">FAQ</a></li></ul></div>
     <div><h3>Légal</h3><ul><li><a href="/mentions-legales">Mentions légales</a></li><li><a href="/cgv">Conditions générales de vente</a></li><li><a href="/confidentialite">Confidentialité</a></li><li><a href="/cookies">Cookies</a></li><li><button type="button" class="lnk" data-cookies>Gérer les cookies</button></li></ul></div>
     <div><h3>Contact</h3><ul><li><a href="/commander">Faire une demande</a></li><li><a href="/connexion">Espace client</a></li><li><button type="button" class="lnk" data-copy-url="page">Copier le lien de cette page</button></li></ul></div>
   </div>
@@ -418,8 +412,8 @@
   </form>
 </dialog>
 
-<script>window.SITE={v:"c55cc084",email:""};</script>
-<script src="/assets/site.js?v=c55cc084" defer></script>
-<script src="/assets/demo.js?v=c55cc084" defer></script>
+<script>window.SITE={v:"496868c3",email:""};</script>
+<script src="/assets/site.js?v=496868c3" defer></script>
+<script src="/assets/demo.js?v=496868c3" defer></script>
 </body>
 </html>

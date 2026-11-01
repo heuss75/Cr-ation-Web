@@ -130,3 +130,9 @@ new, n = re.subn(r'<g id="art">.*?</g>\n  </defs>', lambda m: block + "\n  </def
 assert n == 1, "bloc art introuvable"
 open(P, "w", encoding="utf-8").write(new)
 print("art ok", len(block) // 1024, "ko")
+
+# version autonome (image SVG) pour les maquettes de design
+svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 625" preserveAspectRatio="xMidYMid slice"><defs>' + defs + '</defs>' + "".join(art) + '</svg>'
+out = os.path.join(ROOT, "tools", "src", "bistro-scene.svg")
+open(out, "w", encoding="utf-8").write(svg)
+print("svg", len(svg) // 1024, "ko")
