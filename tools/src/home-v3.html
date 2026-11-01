@@ -447,15 +447,12 @@ footer span.l{display:flex;gap:20px;flex-wrap:wrap}
 
   <section class="sec" id="avant">
     <p class="eyebrow">Exemples de sites</p>
-    <h2>Chaque métier a son propre univers</h2>
-    <p class="lede">Couleurs, polices et mise en page choisies pour votre activité. Faites défiler dans chaque téléphone : ce sont de vrais sites. Noms et prix fictifs.</p>
-    <div class="exs">
-      <figure class="ex"><div class="phone-s solo"><div class="vp" data-w="300" data-h="620"><div class="si" data-k="coiffeur"></div></div></div><figcaption><b>Salon de coiffure</b><span>Tarifs, durées, ouvert maintenant</span></figcaption></figure>
-      <figure class="ex"><div class="phone-s solo"><div class="vp" data-w="300" data-h="620"><div class="si" data-k="restaurant"></div></div></div><figcaption><b>Restaurant</b><span>Carte, horaires, réserver</span></figcaption></figure>
-      <figure class="ex"><div class="phone-s solo"><div class="vp" data-w="300" data-h="620"><div class="si" data-k="artisan"></div></div></div><figcaption><b>Artisan du bâtiment</b><span>Réalisations, zone, devis</span></figcaption></figure>
-      <figure class="ex"><div class="phone-s solo"><div class="vp" data-w="300" data-h="620"><div class="si" data-k="therapeute"></div></div></div><figcaption><b>Thérapeute</b><span>Séances, tarifs, rendez-vous</span></figcaption></figure>
-      <figure class="ex"><div class="phone-s solo"><div class="vp" data-w="300" data-h="620"><div class="si" data-k="coach"></div></div></div><figcaption><b>Coach sportif</b><span>Programmes, avis, contact</span></figcaption></figure>
-      <figure class="ex"><div class="phone-s solo"><div class="vp" data-w="300" data-h="620"><div class="si" data-k="boutique"></div></div></div><figcaption><b>Boutique de quartier</b><span>Produits, horaires, accès</span></figcaption></figure>
+    <h2>Des sites soignés, pensés pour chaque métier</h2>
+    <p class="lede">Voici trois sites complets : accueil, carte ou tarifs, galerie, avis, horaires et réservation. Faites défiler dans l’aperçu ou ouvrez-les en grand. Noms, prix et visuels fictifs.</p>
+    <div class="exls">
+      <article class="exl"><div class="bw"><div class="bwb"><i></i><i></i><i></i><span>lebistrodumarche.fr</span></div><div class="vp" data-w="1280" data-h="800"><iframe class="fi" src="/exemples/bistro" title="Exemple de site : Le Bistro du Marché" loading="lazy" tabindex="-1"></iframe></div></div><div class="exc"><div><b>Le Bistro du Marché</b><span>Restaurant · site complet, défilable</span></div><a class="btn sm" href="/exemples/bistro">Ouvrir le site<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a></div></article>
+      <article class="exl"><div class="bw"><div class="bwb"><i></i><i></i><i></i><span>maisonolive.fr</span></div><div class="vp" data-w="1280" data-h="800"><iframe class="fi" src="/exemples/salon" title="Exemple de site : Maison Olive" loading="lazy" tabindex="-1"></iframe></div></div><div class="exc"><div><b>Maison Olive</b><span>Salon de coiffure · site complet, défilable</span></div><a class="btn sm" href="/exemples/salon">Ouvrir le site<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a></div></article>
+      <article class="exl"><div class="bw"><div class="bwb"><i></i><i></i><i></i><span>durand-plomberie.fr</span></div><div class="vp" data-w="1280" data-h="800"><iframe class="fi" src="/exemples/artisan" title="Exemple de site : Durand Plomberie" loading="lazy" tabindex="-1"></iframe></div></div><div class="exc"><div><b>Durand Plomberie</b><span>Artisan · site complet, défilable</span></div><a class="btn sm" href="/exemples/artisan">Ouvrir le site<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a></div></article>
     </div>
   </section>
 
@@ -716,7 +713,6 @@ footer span.l{display:flex;gap:20px;flex-wrap:wrap}
   window.addEventListener('load',fit);
 
   /* aperçu personnalisé */
-  Array.prototype.forEach.call(document.querySelectorAll('.si[data-k]'),function(el){mount(el,el.getAttribute('data-k'),'',false)});
   fit();
   if(document.fonts&&document.fonts.ready){document.fonts.ready.then(fit)}
 })();
