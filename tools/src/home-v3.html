@@ -295,7 +295,7 @@ footer span.l{display:flex;gap:20px;flex-wrap:wrap}
 .tpl-restaurant .formule{display:inline-block;margin-top:14px;background:var(--tac);color:#fff;padding:6px 12px;font:700 14px 'Hanken Grotesk',sans-serif;transform:rotate(-1.5deg)}
 .tpl-artisan{--tbg:#F3F5F7;--tink:#14202B;--tac:#F2A900;--tbtn:#14202B;--trad:2px;background-image:linear-gradient(#DCE2E8 1px,transparent 1px),linear-gradient(90deg,#DCE2E8 1px,transparent 1px);background-size:24px 24px}
 .tpl-artisan .stripe{height:10px;background:repeating-linear-gradient(135deg,#F2A900 0 12px,#14202B 12px 24px)}
-.tpl-artisan h3{font:700 2.9rem/.92 'Barlow Condensed',sans-serif;text-transform:uppercase;margin:16px 0 12px}
+.tpl-artisan h3{font:700 2.5rem/.92 'Barlow Condensed',sans-serif;text-transform:uppercase;margin:16px 0 12px}
 .tpl-artisan .t-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:2px solid #14202B;background:#fff;margin:0 0 18px}
 .tpl-artisan .t-stats div{padding:10px 8px;border-right:2px solid #14202B}
 .tpl-artisan .t-stats div:last-child{border-right:0}
@@ -446,34 +446,16 @@ footer span.l{display:flex;gap:20px;flex-wrap:wrap}
   </div>
 
   <section class="sec" id="avant">
-    <p class="eyebrow">Avant et après</p>
-    <h2>Passer d’une fiche vide à un vrai site</h2>
-    <p class="lede">Aujourd’hui, un client qui cherche votre commerce trouve souvent une fiche sans horaires, sans photos et sans tarifs. Avec un site, tout est au même endroit.</p>
-    <div class="ba">
-      <div class="card">
-        <span class="tag">Avant</span>
-        <h3>Maison Olive</h3>
-        <p class="sub">Salon de coiffure · fiche en ligne</p>
-        <dl class="gl">
-          <div><dt>Site web</dt><dd class="empty">non renseigné</dd></div>
-          <div><dt>Horaires</dt><dd class="empty">non renseignés</dd></div>
-          <div><dt>Tarifs</dt><dd class="empty">introuvables</dd></div>
-          <div><dt>Photos</dt><dd class="empty">0</dd></div>
-          <div><dt>Avis</dt><dd class="empty">aucun</dd></div>
-        </dl>
-      </div>
-      <div class="card after">
-        <span class="tag">Après</span>
-        <h3>Maison Olive</h3>
-        <p class="sub">Salon de coiffure · maisonolive.fr</p>
-        <dl class="gl">
-          <div><dt>Site web</dt><dd>en ligne, mobile et ordinateur</dd></div>
-          <div><dt>Horaires</dt><dd>avec « ouvert maintenant »</dd></div>
-          <div><dt>Tarifs</dt><dd>vrais prix, vraies durées</dd></div>
-          <div><dt>Photos</dt><dd>les vôtres</dd></div>
-          <div><dt>Contact</dt><dd>bouton d’appel et itinéraire</dd></div>
-        </dl>
-      </div>
+    <p class="eyebrow">Exemples de sites</p>
+    <h2>Chaque métier a son propre univers</h2>
+    <p class="lede">Couleurs, polices et mise en page choisies pour votre activité. Faites défiler dans chaque téléphone : ce sont de vrais sites. Noms et prix fictifs.</p>
+    <div class="exs">
+      <figure class="ex"><div class="phone-s solo"><div class="vp" data-w="300" data-h="620"><div class="si" data-k="coiffeur"></div></div></div><figcaption><b>Salon de coiffure</b><span>Tarifs, durées, ouvert maintenant</span></figcaption></figure>
+      <figure class="ex"><div class="phone-s solo"><div class="vp" data-w="300" data-h="620"><div class="si" data-k="restaurant"></div></div></div><figcaption><b>Restaurant</b><span>Carte, horaires, réserver</span></figcaption></figure>
+      <figure class="ex"><div class="phone-s solo"><div class="vp" data-w="300" data-h="620"><div class="si" data-k="artisan"></div></div></div><figcaption><b>Artisan du bâtiment</b><span>Réalisations, zone, devis</span></figcaption></figure>
+      <figure class="ex"><div class="phone-s solo"><div class="vp" data-w="300" data-h="620"><div class="si" data-k="therapeute"></div></div></div><figcaption><b>Thérapeute</b><span>Séances, tarifs, rendez-vous</span></figcaption></figure>
+      <figure class="ex"><div class="phone-s solo"><div class="vp" data-w="300" data-h="620"><div class="si" data-k="coach"></div></div></div><figcaption><b>Coach sportif</b><span>Programmes, avis, contact</span></figcaption></figure>
+      <figure class="ex"><div class="phone-s solo"><div class="vp" data-w="300" data-h="620"><div class="si" data-k="boutique"></div></div></div><figcaption><b>Boutique de quartier</b><span>Produits, horaires, accès</span></figcaption></figure>
     </div>
   </section>
 
@@ -734,6 +716,7 @@ footer span.l{display:flex;gap:20px;flex-wrap:wrap}
   window.addEventListener('load',fit);
 
   /* aperçu personnalisé */
+  Array.prototype.forEach.call(document.querySelectorAll('.si[data-k]'),function(el){mount(el,el.getAttribute('data-k'),'',false)});
   fit();
   if(document.fonts&&document.fonts.ready){document.fonts.ready.then(fit)}
 })();

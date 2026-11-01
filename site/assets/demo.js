@@ -93,6 +93,7 @@
   window.addEventListener('load',fit);
 
   /* aperçu personnalisé */
+  Array.prototype.forEach.call(document.querySelectorAll('.si[data-k]'),function(el){mount(el,el.getAttribute('data-k'),'',false)});
   fit();
   if(document.fonts&&document.fonts.ready){document.fonts.ready.then(fit)}
 })();
