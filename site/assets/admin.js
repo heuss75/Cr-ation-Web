@@ -349,7 +349,7 @@
     rows.forEach(function (r, i) {
       var x = Lm + bw * i + (bw - pw) / 2, y = T + ih;
       [['ess', COL.pri], ['pro', COL.sky], ['mails', COL.ok]].forEach(function (p) { var hh = (r[p[0]] / top) * ih; if (hh <= 0) return; y -= hh; var rc = s('rect', { x: x, y: y, width: pw, height: hh, rx: 3, fill: p[1] }); var tt = s('title'); tt.textContent = r.periode + ' · ' + { ess: 'Essentiel', pro: 'Pro', mails: 'Mails pro' }[p[0]] + ' : ' + eur(r[p[0]]); rc.appendChild(tt); svg.appendChild(rc); });
-      if (rows.length <= 14 || i % 2 === 0) { var t = s('text', { x: x + pw / 2, y: H - 8, 'text-anchor': 'middle' }); t.textContent = r.periode; svg.appendChild(t); }
+      if (rows.length <= 7 || i % 2 === (rows.length - 1) % 2) { var t = s('text', { x: x + pw / 2, y: H - 8, 'text-anchor': 'middle' }); t.textContent = r.periode; svg.appendChild(t); }
     });
     return svg;
   }
@@ -493,7 +493,31 @@
     main.appendChild(head(greet + ', Admin', new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + ' · cliquez sur un chiffre pour voir le détail.', [h('button', { type: 'button', class: 'btn ghost', text: 'Actualiser', onclick: function () { loadAll().then(function () { top(showStats); flash('Statistiques actualisées.'); }); } })]));
     main.appendChild(dashboard());
   }
-  function revenuePage() { main.textContent = ''; main.appendChild(head('Revenus', 'Ce que vous gagnez, mois par mois, trimestre par trimestre ou année par année', [backBtn()])); main.appendChild(revenueBlock()); }
+  function revenuePage() {
+    main.textContent = '';
+    main.appendChild(head('Revenus', 'Ce que rapportent vos abonnements, en clair. Montants hors taxes (HT).', [backBtn()]));
+    var k = kpi(), sv = { m: REV.mode, d: REV.depuis }; REV.mode = 'mois'; REV.depuis = 'tout'; var all = revCalc(); REV.mode = sv.m; REV.depuis = sv.d;
+    var depuis = all.reduce(function (t, r) { return t + r.ca; }, 0), ce = all.length ? all[all.length - 1].ca : 0;
+    main.appendChild(h('div', { class: 'totbox card' },
+      h('div', null, h('span', { class: 'lbl', text: 'Revenu total par mois' }), h('b', { class: 'big', text: eur(k.mrr) }), h('small', { text: 'ce que vos clients actuels vous paient chaque mois' })),
+      h('div', null, h('span', { class: 'lbl', text: 'Facturé ce mois-ci' }), h('b', { text: eur(ce) })),
+      h('div', null, h('span', { class: 'lbl', text: 'Total depuis le début' }), h('b', { text: eur(depuis) })),
+      h('div', null, h('span', { class: 'lbl', text: 'Sur 12 mois' }), h('b', { text: eur(k.arr) }))));
+    var share = function (v) { return k.mrr ? Math.round((100 * v) / k.mrr) : 0; };
+    var line = function (name, sub, n, unit, tot, color) { return h('tr', null, h('td', null, h('div', { class: 'tname' }, h('i', { style: 'background:' + color }), h('div', null, h('b', { text: name }), h('small', { text: sub })))), h('td', { class: 'num', text: String(n) }), h('td', { class: 'num', text: unit }), h('td', null, h('div', { class: 'meter' }, h('i', { style: 'width:' + share(tot) + '%;background:' + color }), h('small', { text: share(tot) + ' %' }))), h('td', { class: 'num strong', text: eur(tot) })); };
+    main.appendChild(h('div', { class: 'card', style: 'margin-top:16px' },
+      h('h2', { text: 'D’où viennent vos revenus' }), h('p', { class: 'sub', text: 'Chaque ligne : combien de clients ou d’adresses, le prix de chacun, et ce que ça rapporte par mois.' }),
+      h('div', { class: 'tablewrap' }, h('table', { class: 'revt' },
+        h('thead', null, h('tr', null, ['Type', 'Nombre', 'Prix unitaire', 'Part du total', 'Par mois'].map(function (x, i) { return h('th', { text: x, class: i ? 'num' : '' }); }))),
+        h('tbody', null,
+          line('Abonnement Essentiel', 'site vitrine, 1 modification par mois', k.nEss, PRIX.essentiel + ' €', k.ess, COL.pri),
+          line('Abonnement Pro', 'réservation en ligne, éditeur, 1 mail pro inclus', k.nPro, PRIX.pro + ' €', k.pro, COL.sky),
+          line('Adresses mail pro en plus', 'hors celle incluse avec le Pro', k.mailsN, MAILP + ' €', k.mailsEur, COL.ok)),
+        h('tfoot', null, h('tr', null, h('td', { text: 'Total par mois' }), h('td', { class: 'num', text: String(k.nEss + k.nPro) + ' clients' }), h('td'), h('td'), h('td', { class: 'num strong', text: eur(k.mrr) }))))),
+      h('div', { class: 'mailnote' }, h('b', { text: String(k.nPro + k.mailsN) }), ' adresse(s) mail pro au total : ', h('b', { text: String(k.nPro) }), ' incluse(s) avec le Pro + ', h('b', { text: String(k.mailsN) }), ' payante(s) en plus.')));
+    main.appendChild(h('div', { class: 'sec', text: 'Mois par mois' }));
+    main.appendChild(revenueBlock());
+  }
 
   /* ===== clients : filtres, export, revenus ===== */
   var F = {};
@@ -530,7 +554,7 @@
     function draw() {
       upd(); var rows = applyF(all); count.textContent = rows.length + ' client(s) sur ' + all.length; tbody.textContent = '';
       if (!rows.length) { tbody.appendChild(h('p', { class: 'empty', text: all.length ? 'Aucun client ne correspond aux filtres.' : 'Aucun client pour le moment.' })); return; }
-      var cols = ['nom', 'inscrit', 'connexion', 'site', 'formule', 'abo', 'plaintes_ouvertes'].map(function (k) { return COLS.clients.filter(function (c) { return c.k === k; })[0]; });
+      var cols = ['nom', 'inscrit', 'connexion', 'site', 'formule', 'abo', 'mails', 'plaintes_ouvertes'].map(function (k) { var c = COLS.clients.filter(function (c) { return c.k === k; })[0], sh = { connexion: 'Connexion', site: 'Site', mails: 'Mails pro', plaintes_ouvertes: 'Plaintes', inscrit: 'Inscrit' }; return sh[k] ? { k: c.k, l: sh[k], t: c.t } : c; });
       var tb = h('tbody');
       rows.slice(0, 500).forEach(function (r) {
         var tr = h('tr', null, cols.map(function (c) { return h('td', null, cell(c, r)); }), h('td', { class: 'acts' }, h('button', { type: 'button', class: 'btn sm', text: 'Voir en tant que', onclick: function (e) { e.stopPropagation(); impersonate(r.compte_id); } })));
@@ -554,9 +578,12 @@
     }
     fbtn.addEventListener('click', function () { var o = panel.hidden; panel.hidden = !o; fbtn.setAttribute('aria-expanded', String(o)); if (o) buildPanel(); });
     main.appendChild(head('Clients', 'Tous les comptes inscrits · cliquez sur une ligne pour ouvrir la fiche', [h('button', { type: 'button', class: 'btn', text: '⬇ Exporter', onclick: function () { exportDialog('clients'); } })]));
-    main.appendChild(h('div', { class: 'card' }, h('div', { class: 'tbar' }, qBox, fbtn, count), panel, tbody));
-    main.appendChild(h('div', { class: 'sec', text: 'Revenus' }));
-    main.appendChild(revenueBlock());
+    var cmR = D.comptes.map(cRow), nAbo = function (f) { return cmR.filter(f).length; };
+    main.appendChild(kpiRow([['Tous les clients', cmR.length, 'users', 'c2'], ['Abonnement actif', nAbo(function (r) { return r.abo === 'actif'; }), 'repeat', 'c3'], ['Paiement en attente', nAbo(function (r) { return r.abo === 'impaye'; }), 'repeat', 'c4'], ['Sans abonnement', nAbo(function (r) { return !r.abo; }), 'users', 'c1']]));
+    var chips = h('div', { class: 'chips' }), CH = [['', 'Tous'], ['actif', 'Actifs'], ['impaye', 'Impayés'], ['suspendu', 'Suspendus'], ['resilie', 'Résiliés'], ['aucun', 'Sans abonnement']];
+    function drawChips() { chips.textContent = ''; CH.forEach(function (c) { chips.appendChild(h('button', { type: 'button', class: 'chip' + ((F.abo || '') === c[0] ? ' on' : ''), text: c[1], onclick: function () { F.abo = c[0]; drawChips(); draw(); } })); }); }
+    drawChips();
+    main.appendChild(h('div', { class: 'card' }, chips, h('div', { class: 'tbar' }, qBox, fbtn, count), panel, tbody));
     draw();
   }
 

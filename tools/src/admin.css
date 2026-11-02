@@ -97,3 +97,16 @@ details.more{margin-top:22px}details.more>summary{cursor:pointer;font-weight:700
 .kr span{line-height:1.25}.kr b{margin:0}
 .top{gap:14px 20px;margin-bottom:22px}.hello p{margin-top:6px}
 .nav button{gap:12px}.nav button .cnt{margin-left:auto}
+/* clients : pastilles de filtre ; revenus : total + tableau */
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.chip{font:600 13.5px 'Plus Jakarta Sans',system-ui,sans-serif;padding:8px 14px;border-radius:99px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}.chip.on{background:var(--pri);border-color:var(--pri);color:#fff}
+.totbox{display:grid;gap:18px 28px;grid-template-columns:1.4fr 1fr 1fr 1fr;align-items:end;padding:24px}
+@media(max-width:900px){.totbox{grid-template-columns:1fr 1fr}.totbox>div:first-child{grid-column:1/-1}}
+.totbox .lbl{display:block;color:var(--mut);font-size:13px;font-weight:600;margin-bottom:6px}.totbox b{display:block;font:800 1.7rem/1.1 'Plus Jakarta Sans',system-ui,sans-serif}.totbox b.big{font-size:2.8rem;letter-spacing:-.03em}.totbox small{display:block;color:var(--mut);margin-top:6px;font-size:12.5px}
+.revt{width:100%;border-collapse:collapse}.revt th,.revt td{padding:14px 10px;border-top:1px solid var(--line);text-align:left;vertical-align:middle}.revt th{border-top:0;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut)}.revt .num{text-align:right;white-space:nowrap}.revt .strong{font-weight:800;font-size:1.05rem}.revt tfoot td{border-top:2px solid var(--ink);font-weight:800}
+.tname{display:flex;gap:12px;align-items:center}.tname i{width:12px;height:12px;border-radius:4px;flex:none}.tname b{display:block}.tname small{display:block;color:var(--mut);font-size:12.5px}
+.meter{display:flex;align-items:center;gap:10px;min-width:120px}.meter i{display:block;height:8px;border-radius:99px;min-width:3px}.meter small{color:var(--mut);font-size:12.5px;white-space:nowrap}
+.mailnote{margin-top:14px;padding:12px 14px;background:var(--soft);border-radius:12px;font-size:14px}
+/* tableaux : colonnes lisibles, pas de mots coupés */
+.tablewrap{overflow-x:auto}.tablewrap table td,.tablewrap table th{white-space:nowrap}.tablewrap td.acts{padding-left:16px}
+.who{white-space:nowrap}.who b,.who small{white-space:nowrap}
+.tablewrap th{padding-right:18px}.tablewrap td{padding-right:18px}
