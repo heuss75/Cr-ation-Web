@@ -458,3 +458,10 @@ body.imp{padding-top:44px}
 .bar{background:var(--soft);color:var(--ink);border:1.5px solid var(--ink);box-shadow:0 8px 24px var(--shadow)}
 .bar h3 span{box-shadow:0 2px 0 var(--ink)}
 .bar li::before{background:var(--ink);color:var(--bg)}
+
+/* toutes les grandes zones noires : gris perle + contour fin */
+:root{--big-bg:#DADCE0;--big-ink:#16181B}
+.cta-band,.big,.plan.pro{border:1.5px solid var(--ink);box-shadow:0 8px 24px var(--shadow)}
+.cta-band .btn,.big .btn,.plan.pro .btn{background:var(--ink);color:var(--bg)}
+.plan.pro li::before{color:var(--ink)}
+.plan .pbadge{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
