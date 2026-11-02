@@ -13,7 +13,7 @@ OUT = os.path.join(ROOT, "site")
 SRC = os.path.join(ROOT, "tools", "src")
 
 # ------------------------------------------------------------------ réglages
-SITE_NAME = "SiteVitrine Express"
+SITE_NAME = "Devanture Web"
 BASE_URL = "https://accueil.ouvert.workers.dev"   # à remplacer par le vrai domaine
 INDEXABLE = False                                  # passer à True au lancement (retire le noindex)
 UPDATED_HUMAN = "1 novembre 2026"
@@ -114,7 +114,7 @@ HEADER = """
   <div class="wrap">
     <a class="logo" href="/" aria-label="%(name)s, accueil">
       %(i_monitor)s
-      <span><b>SiteVitrine <em>Express</em></b><small>Sites vitrines clé en main</small></span>
+      <span><b>Devanture <em>Web</em></b><small>Site vitrine pour commerçants</small></span>
     </a>
     <nav class="nav" aria-label="Sections">%(nav)s</nav>
     <div class="acts">
@@ -137,7 +137,7 @@ HEADER = """
 FOOTER = """
 <footer class="ft">
   <div class="ftg">
-    <div class="brand"><b>SiteVitrine <em>Express</em></b><p>Des sites vitrines clé en main pour les commerces et les indépendants : domaine, hébergement, espace client et guide pub inclus.</p></div>
+    <div class="brand"><b>Devanture <em>Web</em></b><p>Des sites vitrines clé en main pour les commerces et les indépendants : domaine, hébergement, espace client et guide pub inclus.</p></div>
     <div><h3>Offre</h3><ul><li><a href="/offre">Offre et prix</a></li><li><a href="/#etapes">Comment ça marche</a></li><li><a href="/faq">FAQ</a></li></ul></div>
     <div><h3>Légal</h3><ul><li><a href="/mentions-legales">Mentions légales</a></li><li><a href="/cgv">Conditions générales de vente</a></li><li><a href="/confidentialite">Confidentialité</a></li><li><a href="/cookies">Cookies</a></li><li><button type="button" class="lnk" data-cookies>Gérer les cookies</button></li></ul></div>
     <div><h3>Contact</h3><ul><li><a href="/inscription">Faire une demande</a></li><li><a href="/connexion">Espace client</a></li>%(email)s<li><button type="button" class="lnk" data-copy-url="page">Copier le lien de cette page</button></li></ul></div>
@@ -270,9 +270,9 @@ hm = hm.replace("<h2>Ce qu’on nous demande souvent</h2>",
                 '<h2>Ce qu’on nous demande souvent</h2>\n    <p class="lede">Les réponses rapides. Les autres sont dans la <a href="/faq">FAQ complète</a>.</p>', 1)
 home_body = hm.replace("</main>", "")
 home_body = re.sub(r"^\s*<span id=\"haut\"></span>", "", home_body)
-page("index", "Accueil", "Votre site vitrine professionnel en ligne en quelques jours, sans rien à gérer : nom de domaine, hébergement, espace client et guide pub inclus. Dès 60 € HT par mois, avec réservation en ligne en formule Pro.",
+page("index", "Accueil", "Votre commerce mérite d’être vu, même en ligne. Un joli site vitrine fait sur mesure : nom de domaine, hébergement, espace client et guide pub inclus. Dès 60 € HT par mois, avec réservation en ligne en formule Pro.",
      home_body, cur="home", page_js='<script src="/assets/demo.js?v=%s" defer></script>\n' % VER,
-     full_title="%s | Votre site vitrine clé en main" % SITE_NAME)
+     full_title="%s | Site vitrine pour commerçants" % SITE_NAME)
 
 # ------------------------------------------------------------------ offre
 offre_body = phead("Offre et prix", "Deux formules, tout compris",
@@ -537,7 +537,7 @@ ADMIN_HTML = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Administration | SiteVitrine Express</title>
+<title>Administration | Devanture Web</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="color-scheme" content="light dark">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -549,7 +549,7 @@ ADMIN_HTML = """<!doctype html>
 <div class="gate card" id="gate" role="status" style="max-width:420px;margin:14vh auto"><p>Vérification de l’accès…</p></div>
 <div class="shell" id="app" hidden>
 <aside class="side">
-<div class="brand"><i>""" + _ic("M2 5h20v12H2zM8 21h8M12 17v4") + """</i><div><b>SiteVitrine Express</b><small>Espace administrateur</small></div></div>
+<div class="brand"><i>""" + _ic("M2 5h20v12H2zM8 21h8M12 17v4") + """</i><div><b>Devanture Web</b><small>Espace administrateur</small></div></div>
 <nav class="nav" aria-label="Administration">
 <button type="button" id="n-stats" aria-current="page">""" + _ic("M3 3v18h18M7 15l4-4 3 3 5-6") + """Tableau de bord</button>
 <button type="button" id="n-clients">""" + _ic("M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8") + """Clients</button>
@@ -575,7 +575,7 @@ ESPACE_HTML = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Mon espace | SiteVitrine Express</title>
+<title>Mon espace | Devanture Web</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="color-scheme" content="light dark">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -588,10 +588,10 @@ ESPACE_HTML = """<!doctype html>
 <div class="gate card" id="gate" role="status" style="max-width:420px;margin:14vh auto"><p>Chargement de votre espace…</p></div>
 <div class="shell" id="app" hidden>
 <aside class="side">
-<div class="brand"><i>""" + _ic("M3 11l9-8 9 8v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z") + """</i><div><b>SiteVitrine Express</b><small>Mon espace</small></div></div>
+<div class="brand"><i>""" + _ic("M3 11l9-8 9 8v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z") + """</i><div><b>Devanture Web</b><small>Mon espace</small></div></div>
 <nav class="nav" id="nav" aria-label="Mon espace"></nav>
 <div class="sp"></div>
-<nav class="nav"><a href="/" target="_blank" rel="noopener">""" + _ic("M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3") + """Le site SiteVitrine</a>
+<nav class="nav"><a href="/" target="_blank" rel="noopener">""" + _ic("M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3") + """Le site Devanture Web</a>
 <button type="button" id="n-out">""" + _ic("M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9") + """Se déconnecter</button></nav>
 </aside>
 <main class="main" id="main"></main>

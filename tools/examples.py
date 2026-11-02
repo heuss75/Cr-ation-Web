@@ -201,7 +201,7 @@ def page(title, desc, fonts, css, body, js=""):
 {BK_JS}
 <a class="back" href="/#avant" id="back">← Retour au site</a>
 <script>(function(){{var b=document.getElementById('back');if(window.self!==window.top){{b.remove();return}}}})()</script>
-<div class="demo-bar"><span>Exemple de site réalisé par SiteVitrine Express · noms, prix et photos fictifs</span><a href="/" target="_top">← Retour à l’offre</a></div>
+<div class="demo-bar"><span>Exemple de site réalisé par Devanture Web · noms, prix et photos fictifs</span><a href="/" target="_top">← Retour à l’offre</a></div>
 {js}</body></html>'''
 
 # ======================= BISTRO =======================

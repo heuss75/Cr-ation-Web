@@ -331,9 +331,9 @@ async function oubli(req, env, url) {
       const token = hex(crypto.getRandomValues(new Uint8Array(32)));
       await env.DB.prepare("INSERT INTO reset_tokens (token_hash, compte_id, expires_at) VALUES (?,?,datetime('now','+1 hour'))").bind(await sha(token), u.id).run();
       const lien = url.origin + '/reinitialiser?t=' + token, prenom = (u.nom || '').split(/\s+/)[0];
-      const texte = 'Bonjour ' + prenom + ',\n\nVous avez demandé à changer votre mot de passe SiteVitrine Express. Ouvrez ce lien (valable 1 heure) :\n' + lien + '\n\nSi vous n’êtes pas à l’origine de cette demande, ignorez ce message : votre mot de passe ne change pas.';
-      const ok = await envoyerMail(env, email, 'Votre nouveau mot de passe SiteVitrine Express', texte,
-        '<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.55;color:#111"><p>Bonjour ' + escH(prenom) + ',</p><p>Vous avez demandé à changer votre mot de passe SiteVitrine Express.</p><p><a href="' + lien + '" style="display:inline-block;background:#0b0b0c;color:#fff;padding:12px 20px;border-radius:10px;text-decoration:none;font-weight:bold">Choisir un nouveau mot de passe</a></p><p style="font-size:13px;color:#555">Le lien est valable 1 heure. Si vous n’êtes pas à l’origine de cette demande, ignorez ce message : votre mot de passe ne change pas.</p></div>');
+      const texte = 'Bonjour ' + prenom + ',\n\nVous avez demandé à changer votre mot de passe Devanture Web. Ouvrez ce lien (valable 1 heure) :\n' + lien + '\n\nSi vous n’êtes pas à l’origine de cette demande, ignorez ce message : votre mot de passe ne change pas.';
+      const ok = await envoyerMail(env, email, 'Votre nouveau mot de passe Devanture Web', texte,
+        '<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.55;color:#111"><p>Bonjour ' + escH(prenom) + ',</p><p>Vous avez demandé à changer votre mot de passe Devanture Web.</p><p><a href="' + lien + '" style="display:inline-block;background:#0b0b0c;color:#fff;padding:12px 20px;border-radius:10px;text-decoration:none;font-weight:bold">Choisir un nouveau mot de passe</a></p><p style="font-size:13px;color:#555">Le lien est valable 1 heure. Si vous n’êtes pas à l’origine de cette demande, ignorez ce message : votre mot de passe ne change pas.</p></div>');
       await log(env, u.id, null, ok ? 'oubli_mdp_mail' : 'oubli_mdp_sans_mail', '');
     }
     return json({ ok: true });

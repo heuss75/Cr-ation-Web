@@ -1,4 +1,4 @@
-# SiteVitrine Express
+# Devanture Web
 
 Site public, généré par `python3 tools/build.py` (sources dans `tools/`), servi depuis `site/` par un Worker Cloudflare (`worker/worker.js`).
 
