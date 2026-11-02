@@ -132,6 +132,7 @@
     main.appendChild(h('div', { class: 'card', style: 'margin-top:16px' }, h('h3', { text: 'Ce qui est inclus' }), h('ul', { class: 'list' }, inc.map(function (t) { return h('li', { text: '✓ ' + t }); })), h('p', { class: 'sub', style: 'margin-top:12px', text: 'Pour changer de formule ou ajouter une adresse mail, écrivez-nous depuis l’onglet Aide.' })));
   }
   function vMessages() {
+    if (nonLues() && !E.lecture) { api('/api/espace/lu', 'POST', {}).then(function () { E.notifications.forEach(function (n) { n.lu = 1; }); drawNav(); document.querySelectorAll('.bellb i').forEach(function (e) { e.remove(); }); }); }
     main.appendChild(head('Messages', 'Les nouvelles concernant votre site', nonLues() && !E.lecture ? [h('button', { type: 'button', class: 'btn ghost', text: 'Tout marquer comme lu', onclick: function () { api('/api/espace/lu', 'POST', {}).then(function () { reload('messages'); }); } })] : []));
     main.appendChild(h('div', { class: 'card' }, E.notifications.length ? E.notifications.map(msgNode) : h('p', { class: 'empty', text: 'Aucun message pour le moment.' })));
   }
