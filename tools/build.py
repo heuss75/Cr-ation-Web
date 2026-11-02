@@ -599,9 +599,10 @@ ESPACE_HTML = """<!doctype html>
 <div class="gate card" id="gate" role="status" style="max-width:420px;margin:14vh auto"><p>Chargement de votre espace…</p></div>
 <div class="shell" id="app" hidden>
 <aside class="side">
-<div class="brand"><i>""" + _ic("M3 11l9-8 9 8v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z") + """</i><div><b>Devanture Web</b><small>Mon espace</small></div></div>
+<div class="brand"><i><svg width="22" height="22" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 20 12 8h40l4 12"/><path d="M8 20a6 6 0 0 0 12 0 6 6 0 0 0 12 0 6 6 0 0 0 12 0 6 6 0 0 0 12 0"/><path d="M12 33v23h40V33"/><path d="M26 56V42h12v14"/><path d="M41 38l11 4.5-4.6 1.8-1.8 4.7z" fill="#17C26E" stroke="#17C26E" stroke-width="1.5"/></svg></i><div><b>DEVANTURE WEB</b><small>Mon espace client</small></div></div>
 <nav class="nav" id="nav" aria-label="Mon espace"></nav>
 <div class="sp"></div>
+<div id="sidefoot"></div>
 <nav class="nav"><a href="/" target="_blank" rel="noopener">""" + _ic("M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3") + """Le site Devanture Web</a>
 <button type="button" id="n-out">""" + _ic("M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9") + """Se déconnecter</button></nav>
 </aside>

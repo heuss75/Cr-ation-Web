@@ -16,7 +16,7 @@
     return fetch(path, { method: method || 'GET', credentials: 'same-origin', headers: body ? { 'content-type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined })
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { s: r.status, j: j }; }); });
   }
-  var IC = { globe: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18', card: 'M2 7a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zM2 10h20', pen: 'M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z', msg: 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z', home: 'M3 11l9-8 9 8v9a2 2 0 0 1-2 2h-4v-7H9v7H5a2 2 0 0 1-2-2z', help: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01', user: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8', out: 'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9', ext: 'M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3', cal: 'M3 5h18v16H3zM3 10h18M8 3v4M16 3v4', edit: 'M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4' };
+  var IC = { globe: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18', card: 'M2 7a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zM2 10h20', pen: 'M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z', msg: 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z', home: 'M3 11l9-8 9 8v9a2 2 0 0 1-2 2h-4v-7H9v7H5a2 2 0 0 1-2-2z', help: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01', user: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8', out: 'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9', ext: 'M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3', cal: 'M3 5h18v16H3zM3 10h18M8 3v4M16 3v4', edit: 'M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4', bell: 'M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0', file: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 13h8M8 17h5', book: 'M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2zM22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z', bolt: 'M13 2L3 14h9l-1 8 10-12h-9z', chart: 'M4 20V10M10 20V4M16 20v-7M22 20H2', layers: 'M12 2l10 5-10 5L2 7zM2 17l10 5 10-5M2 12l10 5 10-5', eye: 'M2 12s4-8 10-8 10 8 10 8-4 8-10 8S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6', mail: 'M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM22 6l-10 7L2 6', clock: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18M12 7v5l3 2', headset: 'M3 14v-2a9 9 0 0 1 18 0v2M3 14a2 2 0 0 1 2-2h1v6H5a2 2 0 0 1-2-2zM21 14a2 2 0 0 0-2-2h-1v6h1a2 2 0 0 0 2-2z', check: 'M5 12l5 5L20 7', down: 'M6 9l6 6 6-6', right: 'M5 12h14M13 6l6 6-6 6' };
   function ico(n, size) { var s = document.createElementNS(NS, 'svg'); s.setAttribute('width', size || 22); s.setAttribute('height', size || 22); s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('fill', 'none'); s.setAttribute('stroke', 'currentColor'); s.setAttribute('stroke-width', 2); s.setAttribute('stroke-linecap', 'round'); s.setAttribute('stroke-linejoin', 'round'); s.setAttribute('aria-hidden', 'true'); var p = document.createElementNS(NS, 'path'); p.setAttribute('d', IC[n]); s.appendChild(p); return s; }
   var LBL = { nouvelle: 'Demande reçue', en_creation: 'En création', apercu: 'Aperçu à valider', en_ligne: 'En ligne', abandonnee: 'Abandonnée', actif: 'Actif', impaye: 'Impayé', suspendu: 'Suspendu', resilie: 'Résilié', ouverte: 'Reçue', en_cours: 'En cours', resolue: 'Traitée', essentiel: 'Essentiel', pro: 'Pro', demandee: 'Demandée', faite: 'Faite' };
   var PRIX = { essentiel: 60, pro: 100 }, MAILP = 4;
@@ -27,7 +27,13 @@
   function pill(k, c) { var m = { en_ligne: 'ok', actif: 'ok', faite: 'ok', resolue: 'ok', apercu: 'warn', en_creation: 'pri', nouvelle: 'pri', demandee: 'warn', ouverte: 'warn', en_cours: 'pri', impaye: 'bad', resilie: 'bad', suspendu: 'bad', abandonnee: '' }; return h('span', { class: 'pill ' + (c || m[k] || ''), text: lab(k) }); }
   var main = $('#main'), toast = $('#toast'), E = null, cur = 'accueil';
   function flash(t, bad) { toast.textContent = t; toast.className = 'toast on' + (bad ? ' bad' : ''); clearTimeout(flash.t); flash.t = setTimeout(function () { toast.className = 'toast'; }, 3800); }
-  function head(t, sub, extra) { return h('div', { class: 'top' }, h('div', { class: 'hello' }, h('h1', { text: t }), sub ? h('p', { text: sub }) : null), h('div', { class: 'tools' }, extra || [])); }
+  function initials(n) { return (n || '?').split(/\s+/).slice(0, 2).map(function (x) { return x.charAt(0).toUpperCase(); }).join(''); }
+  function who() {
+    var nl = nonLues(), bell = h('button', { type: 'button', class: 'bellb', 'aria-label': 'Messages', title: 'Messages', onclick: function () { go('messages'); } }, ico('bell', 22), nl ? h('i', { text: String(nl) }) : null);
+    var av = h('button', { type: 'button', class: 'avb', title: 'Mon compte', onclick: function () { go('compte'); } }, h('span', { text: initials(E.compte.nom) }), ico('down', 16));
+    return h('div', { class: 'who2' }, bell, av);
+  }
+  function head(t, sub, extra) { return h('div', { class: 'top' }, h('div', { class: 'hello' }, h('h1', { text: t }), sub ? h('p', { text: sub }) : null), h('div', { class: 'tools' }, (extra || []).concat([who()]))); }
   var D = function () { return E.demandes[0] || null; };
   function aMail() { var ab = E.abonnement; return E.formule === 'pro' || !!(ab && ab.mails_sup > 0) || E.demandes.some(function (d) { return d.mails > 0; }); }
   function mailCard() { return h('div', { class: 'card', style: 'margin-top:16px' }, h('h3', { text: 'Installer ma messagerie' }), h('p', { class: 'sub', text: 'Votre adresse mail pro sur iPhone, Android, Thunderbird ou Outlook, pas à pas. Comptez cinq minutes.' }), h('a', { class: 'btn', href: '/guide-messagerie', target: '_blank', rel: 'noopener', text: 'Ouvrir le guide' })); }
@@ -37,28 +43,59 @@
   function hero(c, icon, v, l, sub, go) { var n = h('div', { class: 'card hero click', role: 'button', tabindex: '0' }, h('div', { class: 'ic ' + c }, ico(icon)), h('div', null, h('b', { text: v }), h('span', { text: l }), sub ? h('em', { text: sub }) : null)); n.classList.add('click'); n.addEventListener('click', go); n.addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); }); return n; }
 
   /* ===== vues ===== */
+  function kp(icon, titre, big, sub, tint, go2, ext) { var n = h('div', { class: 'card kp' + (tint ? ' tint' : '') + (go2 ? ' click' : '') }, h('div', { class: 'kic' }, ico(icon, 26)), h('div', null, h('span', { text: titre }), h('b', null, big, ext ? ico('ext', 18) : null), h('small', { text: sub || '' }))); if (go2) { n.setAttribute('role', 'button'); n.setAttribute('tabindex', '0'); n.addEventListener('click', go2); n.addEventListener('keydown', function (e) { if (e.key === 'Enter') go2(); }); } return n; }
+  function preview(d) {
+    var box = h('div', { class: 'sprev' });
+    if (d.site_url && d.site_url.charAt(0) === '/' && enLigne()) {
+      var f = h('iframe', { src: d.site_url, title: 'Aperçu de mon site', loading: 'lazy', tabindex: '-1' }); box.appendChild(f);
+      var fit = function () { var w = box.clientWidth; if (w) f.style.transform = 'scale(' + (w / 1280) + ')'; };
+      setTimeout(fit, 0); window.addEventListener('resize', fit);
+    } else box.appendChild(h('div', { class: 'sph' }, ico('globe', 34), h('b', { text: d.commerce }), h('small', { text: enLigne() ? 'Votre site' : 'Aperçu bientôt disponible' })));
+    return box;
+  }
+  function checks(list) { return h('ul', { class: 'checks' }, list.map(function (t) { return h('li', null, ico('check', 16), t); })); }
   function vAccueil() {
     var d = D(), prenom = (E.compte.nom || '').split(/\s+/)[0], out = h('div'), idx = { nouvelle: 0, en_creation: 1, apercu: 2, en_ligne: 3 }[d && d.statut];
-    main.appendChild(head('Bonjour ' + prenom, d ? d.commerce + ' · ' + new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }) : 'Bienvenue sur votre espace', d && d.site_url && enLigne() ? [E.formule === 'pro' ? h('button', { type: 'button', class: 'btn ghost', text: 'Modifier mon site', onclick: function () { go('editeur'); } }) : null, h('a', { class: 'btn', href: d.site_url, target: '_blank', rel: 'noopener' }, 'Voir mon site ', ico('ext', 16))] : []));
+    main.appendChild(head('Bonjour ' + prenom + ' 👋', 'Bienvenue dans votre espace Devanture Web.', []));
     if (d && d.suspendu) out.appendChild(h('div', { class: 'warnbox', role: 'alert' }, h('div', null, h('b', { text: 'Votre site est temporairement suspendu.' }), h('div', { text: 'Les modifications sont désactivées. Écrivez-nous depuis l’onglet Aide pour qu’on regarde ensemble.' }))));
     if (!d) {
       out.appendChild(h('div', { class: 'card' }, h('h2', { text: 'Votre site vitrine' }), h('p', { class: 'sub', text: 'Vous n’avez pas encore fait de demande. Cela prend 3 minutes, sans engagement et sans paiement.' }), h('a', { class: 'btn', href: '/commander', text: 'Faire ma demande' })));
       main.appendChild(out); return;
     }
-    var q = E.quota, u = E.utilisees, ab = E.abonnement;
-    out.appendChild(h('div', { class: 'grid g4' },
-      hero('c1', 'globe', lab(d.statut), 'Mon site', d.domaine || d.ville, function () { go('site'); }),
-      hero('c2', 'card', lab(E.formule), 'Ma formule', eur(PRIX[E.formule] + MAILP * (ab ? ab.mails_sup : 0)) + ' / mois', function () { go('abo'); }),
-      hero('c3', 'pen', Math.max(q - u, 0) + ' / ' + q, 'Modification(s) ce mois-ci', u ? u + ' utilisée(s)' : 'Aucune utilisée', function () { go('modifs'); }),
-      hero('c4', 'msg', String(nonLues()), 'Message(s) non lu(s)', null, function () { go('messages'); })));
-    if (idx != null) out.appendChild(h('div', { class: 'card', style: 'margin-top:16px' }, h('h2', { text: 'Avancement de votre site' }), h('p', { class: 'sub', text: d.statut === 'en_ligne' ? 'Votre site est en ligne.' : 'Nous vous prévenons ici à chaque étape.' }),
-      h('ol', { class: 'steps2' }, ['Demande reçue', 'En création', 'Aperçu à valider', 'En ligne'].map(function (t, i) { return h('li', { class: i < idx || idx === 3 ? 'done' : i === idx ? 'now' : '', text: t }); }))));
-    var grid = h('div', { class: 'grid g2', style: 'margin-top:16px' });
-    grid.appendChild(h('div', { class: 'card' }, h('h3', { text: 'Dernières nouvelles' }), E.notifications.length ? E.notifications.slice(0, 3).map(msgNode) : h('p', { class: 'empty', text: 'Aucun message pour le moment.' }), E.notifications.length ? h('button', { type: 'button', class: 'btn ghost sm', text: 'Tout voir', onclick: function () { go('messages'); } }) : null));
-    if (aMail()) grid.appendChild(h('div', { class: 'card' }, h('h3', { text: 'Installer ma messagerie' }), h('p', { class: 'sub', text: 'Votre adresse mail pro sur votre téléphone ou votre ordinateur, pas à pas.' }), h('a', { class: 'btn ghost', href: '/guide-messagerie', target: '_blank', rel: 'noopener', text: 'Ouvrir le guide' })));
-    if (E.formule === 'pro') grid.appendChild(h('div', { class: 'card' }, h('h3', { text: 'Réservations en ligne' }), h('p', { class: 'sub', text: 'Outil de réservation et agenda inclus dans votre formule Pro.' }), h('p', { class: 'empty', text: 'Aucune réservation pour le moment. Elles apparaîtront ici dès que vos clients réserveront.' })));
-    else grid.appendChild(h('div', { class: 'card' }, h('h3', { text: 'Passer à la formule Pro' }), h('p', { class: 'sub', text: '100 € HT par mois' }), h('ul', { class: 'list' }, ['Outil de réservation en ligne et agenda', '3 modifications par mois', '1 adresse mail pro incluse'].map(function (t) { return h('li', { text: '✓ ' + t }); })), h('button', { type: 'button', class: 'btn ghost sm', text: 'En parler avec nous', onclick: function () { go('aide'); } })));
-    out.appendChild(grid); main.appendChild(out);
+    var q = E.quota, u = E.utilisees, ab = E.abonnement, pro = E.formule === 'pro', live = enLigne();
+    out.appendChild(h('div', { class: 'kpis' },
+      kp('layers', 'Mon site', lab(d.statut), d.domaine || d.ville, d.statut === 'en_ligne', function () { go('site'); }, d.statut === 'en_ligne'),
+      kp('layers', 'Mon offre', lab(E.formule), (PRIX[E.formule] + MAILP * (ab ? ab.mails_sup : 0)) + ' € HT / mois', false, function () { go('abo'); }),
+      kp('pen', 'Modifications', Math.max(q - u, 0) + ' / ' + q, 'restantes ce mois-ci', false, function () { go('modifs'); }),
+      kp('mail', 'Messages', String(nonLues()), nonLues() > 1 ? 'nouveaux messages' : 'nouveau message', false, function () { go('messages'); })));
+    var dEnLigne = (E.notifications.filter(function (n) { return /en ligne/i.test(n.titre); })[0] || {}).created_at;
+    var site = h('div', { class: 'card sitec' }, preview(d), h('div', { class: 'sinfo' },
+      h('div', { class: 'stop' }, h('h2', { text: d.commerce }), h('span', { class: 'dots', 'aria-hidden': 'true', text: '···' })),
+      d.domaine ? h('a', { class: 'dom', href: d.site_url || '#', target: '_blank', rel: 'noopener' }, d.domaine, ico('ext', 14)) : h('span', { class: 'dom', text: d.ville }),
+      h('div', { class: 'stat ' + (d.statut === 'en_ligne' ? 'ok' : '') }, ico('check', 16), lab(d.suspendu ? 'suspendu' : d.statut)),
+      dEnLigne && d.statut === 'en_ligne' ? h('p', { class: 'mise', }, ico('cal', 18), 'Mis en ligne le ' + new Date(dEnLigne.replace(' ', 'T') + 'Z').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })) : null,
+      h('div', { class: 'sbtn' }, d.site_url && live ? h('a', { class: 'btn', href: d.site_url, target: '_blank', rel: 'noopener' }, 'Voir mon site ', ico('ext', 16)) : null, h('button', { type: 'button', class: 'btn ghost', onclick: function () { go(pro ? 'editeur' : 'modifs'); } }, ico('edit', 16), ' Modifier mon site'))));
+    var steps = ['Demande reçue', 'En création', 'Aperçu validé', 'En ligne'];
+    var avanc = h('div', { class: 'card' }, h('h3', { class: 'ctit' }, ico('layers', 22), 'Avancement de mes demandes'), idx != null ? h('ol', { class: 'steps2' }, steps.map(function (t, i) { var done = i < idx || idx === 3; return h('li', { class: done ? 'done' : i === idx ? 'now' : '' }, h('b', { text: t }), h('small', { text: i === 0 ? dt(d.created_at).split(' ').slice(0, 3).join(' ') : done ? 'Terminé' : i === idx ? 'En cours' : 'À venir' })); })) : null);
+    var tiles = h('div', { class: 'card' }, h('h3', { class: 'ctit' }, ico('bolt', 22), 'Accès rapides'), h('div', { class: 'tiles' }, [['pen', 'Demander une modification', 'modifs'], ['cal', 'Gérer mes réservations', 'resa'], ['mail', 'Envoyer un message', 'aide'], ['book', 'Consulter les guides', 'aide']].map(function (t) { return h('button', { type: 'button', class: 'tile', onclick: function () { go(t[2]); } }, ico(t[0], 24), h('span', { text: t[1] })); })));
+    var stats = h('div', { class: 'card' }, h('h3', { class: 'ctit' }, ico('chart', 22), 'Statistiques de mon site'), h('div', { class: 'sts' }, [['eye', 'Visites'], ['right', 'Demandes de contact'], ['cal', 'Réservations']].map(function (t) { return h('div', null, ico(t[0], 20), h('b', { text: '—' }), h('small', { text: t[1] })); })), h('p', { class: 'sub', style: 'margin:10px 0 0', text: 'Les statistiques de fréquentation arrivent bientôt.' }));
+    var inc = ['Site vitrine complet', 'Modifications (' + q + ' / mois)'].concat(pro ? ['Outil de réservation', 'Éditeur en libre-service'] : []).concat(aMail() ? ['Adresse e-mail pro'] : []).concat(pro ? ['Support prioritaire'] : []);
+    var abo = h('div', { class: 'card' }, h('h3', { class: 'ctit' }, ico('card', 22), 'Mon abonnement'), h('div', { class: 'aboh' }, h('div', null, h('b', { class: 'plan', text: lab(E.formule) }), h('small', { text: (PRIX[E.formule] + MAILP * (ab ? ab.mails_sup : 0)) + ' € HT / mois' })), ab ? pill(ab.statut) : pill('nouvelle')), checks(inc), h('button', { type: 'button', class: 'btn ghost wide', onclick: function () { go('abo'); } }, 'Gérer mon abonnement ', ico('right', 16)));
+    var acts = [].concat(E.notifications.slice(0, 3).map(function (n) { return [n.titre, n.message, n.created_at]; }));
+    if (acts.length < 3) acts.push(['Nouvelle demande', 'Création de votre site.', d.created_at]);
+    var act = h('div', { class: 'card' }, h('h3', { class: 'ctit' }, ico('clock', 22), 'Dernières activités'), h('ul', { class: 'tl' }, acts.slice(0, 3).map(function (a, i) { return h('li', { class: i === 0 ? 'first' : '' }, h('div', { class: 'tr' }, h('b', { text: a[0] }), h('small', { text: dt(a[2]).split(' ').slice(0, 3).join(' ') })), h('p', { text: a[1] })); })), h('button', { type: 'button', class: 'btn ghost wide', onclick: function () { go('messages'); } }, 'Voir toutes les activités ', ico('right', 16)));
+    out.appendChild(h('div', { class: 'dgrid' }, h('div', { class: 'dleft' }, site, avanc, h('div', { class: 'two' }, tiles, stats)), h('div', { class: 'dright' }, abo, act)));
+    main.appendChild(out);
+  }
+  function vFactures() {
+    main.appendChild(head('Factures', 'Vos factures d’abonnement'));
+    var ab = E.abonnement;
+    main.appendChild(h('div', { class: 'card' }, h('h2', { text: 'Vos factures' }), ab ? h('p', { class: 'sub', text: 'Abonnement ' + lab(ab.formule) + ' depuis le ' + dOnly(ab.debut) + '. Vos factures sont envoyées par e-mail et apparaîtront ici.' }) : h('p', { class: 'sub', text: 'Votre abonnement démarre à la mise en ligne de votre site. Vos factures apparaîtront ici dès ce moment.' }), h('p', { class: 'empty', text: 'Aucune facture pour le moment.' })));
+  }
+  function vResa() {
+    main.appendChild(head('Réservations', 'Les réservations de vos clients'));
+    if (E.formule === 'pro') main.appendChild(h('div', { class: 'card' }, h('h2', { text: 'Outil de réservation en ligne' }), h('p', { class: 'sub', text: 'Inclus dans votre formule Pro : vos clients réservent seuls, jour et nuit, sans double réservation.' }), h('p', { class: 'empty', text: 'Aucune réservation pour le moment. Elles apparaîtront ici dès que vos clients réserveront.' })));
+    else main.appendChild(h('div', { class: 'card' }, h('h2', { text: 'Passer à la formule Pro' }), h('p', { class: 'sub', text: '100 € HT par mois' }), checks(['Outil de réservation en ligne et agenda', '3 modifications par mois', '1 adresse mail pro incluse']), h('button', { type: 'button', class: 'btn', text: 'En parler avec nous', onclick: function () { go('aide'); } })));
   }
   function msgNode(n) { return h('div', { class: 'msg' + (n.lu ? '' : ' nl') }, h('b', { text: n.titre }), h('p', { text: n.message }), h('small', { text: dt(n.created_at) })); }
   function vSite() {
@@ -197,11 +234,12 @@
   }
 
   /* ===== navigation ===== */
-  var VIEWS = { accueil: vAccueil, editeur: vEditeur, site: vSite, modifs: vModifs, abo: vAbo, messages: vMessages, aide: vAide, compte: vCompte };
-  var NAV = [['accueil', 'Accueil', 'home'], ['site', 'Mon site', 'globe'], ['editeur', 'Modifier mon site', 'edit', 'pro'], ['modifs', 'Demandes à l’équipe', 'pen'], ['abo', 'Abonnement', 'card'], ['messages', 'Messages', 'msg'], ['aide', 'Aide', 'help'], ['compte', 'Mon compte', 'user']];
+  var VIEWS = { accueil: vAccueil, editeur: vEditeur, site: vSite, modifs: vModifs, abo: vAbo, messages: vMessages, factures: vFactures, resa: vResa, aide: vAide, compte: vCompte };
+  var NAV = [['accueil', 'Tableau de bord', 'home'], ['site', 'Mon site', 'globe'], ['editeur', 'Modifications', 'edit', 'pro'], ['modifs', 'Demandes à l’équipe', 'headset'], ['abo', 'Abonnement', 'card'], ['messages', 'Messages', 'msg'], ['factures', 'Factures', 'file'], ['resa', 'Réservations', 'cal'], ['aide', 'Aide & Guides', 'help']];
   function drawNav() {
     var nav = $('#nav'); nav.textContent = '';
-    NAV.forEach(function (x) { if (x[3] === 'pro' && E.formule !== 'pro') return; var b = h('button', { type: 'button', 'aria-current': cur === x[0] ? 'page' : null, onclick: function () { go(x[0]); } }, ico(x[2], 20), x[1]); if (x[0] === 'messages' && nonLues()) b.appendChild(h('span', { class: 'bdg2', text: String(nonLues()) })); nav.appendChild(b); });
+    NAV.forEach(function (x) { if (x[3] === 'pro' && E.formule !== 'pro') return; var b = h('button', { type: 'button', 'aria-current': cur === x[0] ? 'page' : null, onclick: function () { go(x[0]); } }, ico(x[2], 20), x[1]); if (x[0] === 'messages' && nonLues()) b.appendChild(h('span', { class: 'bdg2', text: String(nonLues()) })); if (x[0] === 'editeur' && E.quota) b.appendChild(h('span', { class: 'bdg2', text: String(Math.max(E.quota - E.utilisees, 0)) })); nav.appendChild(b); });
+    var sf = $('#sidefoot'); if (sf) { sf.textContent = ''; sf.appendChild(h('div', { class: 'helpc' }, h('div', { class: 'hh' }, ico('headset', 22), h('div', null, h('b', { text: 'Besoin d’aide ?' }), h('small', { text: 'Notre équipe vous répond sous 24 h.' }))), h('button', { type: 'button', class: 'btn', onclick: function () { go('aide'); } }, 'Contacter le support ', ico('right', 16)))); sf.appendChild(h('button', { type: 'button', class: 'userc', onclick: function () { go('compte'); } }, h('span', { class: 'av2', text: initials(E.compte.nom) }), h('div', null, h('b', { text: E.compte.nom }), h('small', { text: (D() && D().commerce) || E.compte.email })), ico('right', 16))); }
   }
   function go(k) { cur = k; location.hash = k === 'accueil' ? '' : k; draw(); window.scrollTo(0, 0); }
   function draw() { main.textContent = ''; drawNav(); (VIEWS[cur] || vAccueil)(); }
