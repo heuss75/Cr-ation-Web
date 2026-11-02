@@ -141,6 +141,13 @@
   var Sx = null, D = null, IX = null, cur = null, par = null;
   var prixAbo = function (a) { return (PRIX[a.formule] || 0) + MAILP * (a.mails_sup || 0); };
   var counts = function (a) { return a.statut === 'actif' || a.statut === 'impaye'; };
+  /* comptes de démonstration : exclus des chiffres par défaut */
+  var DEMO = { on: false };
+  var keepId = function (id) { var c = IX && IX.c[id]; return DEMO.on || !(c && c.demo); };
+  var abosR = function () { return D.abonnements.filter(function (a) { return keepId(a.compte_id); }); };
+  var demR = function () { return D.demandes.filter(function (x) { return keepId(x.compte_id); }); };
+  var plR = function () { return D.plaintes.filter(function (x) { return keepId(x.compte_id); }); };
+  var comR = function () { return D.comptes.filter(function (c) { return DEMO.on || !c.demo; }); };
   var d10 = function (x) { return x ? String(x).slice(0, 10) : ''; };
   var ago = function (n) { return new Date(Date.now() - n * 864e5).toISOString().slice(0, 10); };
   function loadAll() {
@@ -179,9 +186,9 @@
   };
   var DS = {
     clients: { l: 'Clients', rows: function () { return D.comptes.map(cRow); }, date: 'inscrit', filt: [['formule', 'Formule', ['essentiel', 'pro']], ['abo', 'Abonnement', ['actif', 'impaye', 'suspendu', 'resilie']], ['site', 'Statut du site', ['nouvelle', 'en_creation', 'apercu', 'en_ligne', 'abandonnee']]] },
-    abonnements: { l: 'Abonnements', rows: function () { return D.abonnements.map(aRow); }, date: 'debut', filt: [['formule', 'Formule', ['essentiel', 'pro']], ['abo', 'Statut', ['actif', 'impaye', 'suspendu', 'resilie']]] },
-    demandes: { l: 'Demandes de site', rows: function () { return D.demandes.map(dRow); }, date: 'date', filt: [['formule', 'Formule', ['essentiel', 'pro']], ['site', 'Statut', ['nouvelle', 'en_creation', 'apercu', 'en_ligne', 'abandonnee']]] },
-    plaintes: { l: 'Plaintes', rows: function () { return D.plaintes.map(pRow); }, date: 'date', filt: [['pl', 'Statut', ['ouverte', 'en_cours', 'resolue']]] },
+    abonnements: { l: 'Abonnements', rows: function () { return abosR().map(aRow); }, date: 'debut', filt: [['formule', 'Formule', ['essentiel', 'pro']], ['abo', 'Statut', ['actif', 'impaye', 'suspendu', 'resilie']]] },
+    demandes: { l: 'Demandes de site', rows: function () { return demR().map(dRow); }, date: 'date', filt: [['formule', 'Formule', ['essentiel', 'pro']], ['site', 'Statut', ['nouvelle', 'en_creation', 'apercu', 'en_ligne', 'abandonnee']]] },
+    plaintes: { l: 'Plaintes', rows: function () { return plR().map(pRow); }, date: 'date', filt: [['pl', 'Statut', ['ouverte', 'en_cours', 'resolue']]] },
     journal: { l: 'Journal d’activité', rows: function () { return D.journal.map(jRow); }, date: 'date', filt: [] }
   };
   function cell(col, r) {
@@ -303,7 +310,7 @@
   var REV = { mode: 'mois', depuis: '12' };
   var mKey = function (d) { return d.slice(0, 7); };
   function revCalc() {
-    var nowM = mKey(new Date().toISOString()), abos = D.abonnements;
+    var nowM = mKey(new Date().toISOString()), abos = abosR();
     var first = abos.reduce(function (m, a) { var k = mKey(d10(a.debut) || d10(a.created_at) || nowM); return k < m ? k : m; }, nowM);
     var start;
     if (REV.depuis === 'tout') start = first; else { var d = new Date(); d.setUTCDate(1); d.setUTCMonth(d.getUTCMonth() - (parseInt(REV.depuis, 10) - 1)); start = mKey(d.toISOString()); }
@@ -332,7 +339,7 @@
     });
     return order.map(function (k) { var g = groups[k]; g.ca = g.ess + g.pro + g.mails; return g; });
   }
-  var REVCOLS = [C('periode', 'Période'), C('ca', 'Chiffre d’affaires HT', 'eur'), C('ess', 'dont Essentiel', 'eur'), C('pro', 'dont Pro', 'eur'), C('mails', 'dont mails pro', 'eur'), C('nouveaux', 'Nouveaux', 'int'), C('resilies', 'Résiliés', 'int'), C('actifs', 'Abonnés en fin de période', 'int'), C('impayes', 'Impayés (en cours)', 'eur')];
+  var REVCOLS = [C('periode', 'Période'), C('ca', 'Facturé (HT)', 'eur'), C('ess', 'dont Essentiel', 'eur'), C('pro', 'dont Pro', 'eur'), C('mails', 'dont mails pro', 'eur'), C('nouveaux', 'Nouveaux clients', 'int'), C('resilies', 'Clients partis', 'int'), C('actifs', 'Clients à la fin', 'int'), C('impayes', 'Impayés (en cours)', 'eur')];
   function revBars(rows) {
     var W = 640, H = 210, Lm = 46, B = 28, T = 10, iw = W - Lm - 8, ih = H - B - T;
     var max = Math.max.apply(null, rows.map(function (r) { return r.ca; }).concat([100])), step = Math.pow(10, Math.floor(Math.log10(max))), top = Math.ceil(max / step) * step;
@@ -352,76 +359,128 @@
       box.textContent = '';
       var rows = revCalc(), tot = rows.reduce(function (a, r) { return a + r.ca; }, 0), nv = rows.reduce(function (a, r) { return a + r.nouveaux; }, 0), rs = rows.reduce(function (a, r) { return a + r.resilies; }, 0);
       var seg = function (key, opts, val, fn) { return h('div', { class: 'seg' }, opts.map(function (o) { return h('button', { type: 'button', text: o[1], 'aria-pressed': String(val === o[0]), onclick: function () { fn(o[0]); draw(); } }); })); };
-      box.appendChild(h('div', { class: 'tbar' }, h('div', null, h('h2', { text: 'Revenus' }), h('p', { class: 'sub', text: 'Détail du chiffre d’affaires hors taxes, calculé à partir des abonnements saisis.' })),
+      box.appendChild(h('div', { class: 'tbar' }, h('div', null, h('h2', { text: 'Revenus' }), h('p', { class: 'sub', text: 'Ce que vous facturez à vos clients, hors taxes. Un client compte pour chaque mois où son abonnement est actif.' })),
         h('div', { class: 'tools' }, seg('mode', [['mois', 'Mensuel'], ['trimestre', 'Trimestriel'], ['annee', 'Annuel']], REV.mode, function (v) { REV.mode = v; }), seg('depuis', [['6', '6 mois'], ['12', '12 mois'], ['24', '24 mois'], ['tout', 'Tout']], REV.depuis, function (v) { REV.depuis = v; }),
           h('button', { type: 'button', class: 'btn ghost sm', text: '⬇ CSV', onclick: function () { download('revenus-' + REV.mode + '-' + stamp() + '.csv', csvText(REVCOLS, rows)); flash('Export des revenus téléchargé.'); } }))));
-      box.appendChild(mini([['CA sur la période', eur(tot)], ['Revenu mensuel actuel', eur(Sx.abonnements.mrr)], ['Revenu annuel prévu', eur(Sx.abonnements.arr)], ['Nouveaux abonnés', String(nv)], ['Résiliations', String(rs)], ['Panier moyen', eur(Sx.abonnements.panier)]]));
+      var kk = kpi();
+      box.appendChild(mini([['Total facturé sur la période choisie', eur(tot)], ['Vous gagnez chaque mois, maintenant', eur(kk.mrr)], ['Sur 12 mois, si personne ne part', eur(kk.arr)], ['Nouveaux clients sur la période', String(nv)], ['Clients partis sur la période', String(rs)], ['Prix moyen par client et par mois', eur(kk.panier)]]));
       box.appendChild(h('div', { class: 'legendline' }, h('span', null, h('i', { style: 'background:' + COL.pri }), 'Essentiel'), h('span', null, h('i', { style: 'background:' + COL.sky }), 'Pro'), h('span', null, h('i', { style: 'background:' + COL.ok }), 'Mails pro')));
+      box.appendChild(h('p', { class: 'sub', style: 'margin:0 0 8px', text: 'Chaque barre est une période. Sa hauteur est le total facturé ; les couleurs montrent d’où il vient.' }));
       box.appendChild(revBars(rows));
       var tb = h('tbody');
       rows.slice().reverse().forEach(function (r) { var tr = h('tr', null, REVCOLS.map(function (c) { return h('td', null, cell(c, r)); })); click(tr, function () { var abos = r.abos; open(function () { main.textContent = ''; var rr = abos.map(aRow); main.appendChild(head('Abonnements · ' + r.periode, rr.length + ' abonnement(s) facturé(s) sur la période', [backBtn(), h('button', { type: 'button', class: 'btn', text: '⬇ Exporter (CSV)', onclick: function () { download('abonnements-' + r.periode.replace(/\s/g, '-') + '.csv', csvText(COLS.abonnements, rr)); } })])); main.appendChild(dataTable('abonnements', rr)); }); }); tb.appendChild(tr); });
       box.appendChild(h('div', { class: 'tablewrap' }, h('table', null, h('thead', null, h('tr', null, REVCOLS.map(function (c) { return h('th', { text: c.l }); }))), tb)));
-      box.appendChild(h('p', { class: 'sub', style: 'margin-top:10px', text: 'Les mails pro supplémentaires sont comptés au nombre actuel (pas d’historique). Les abonnements suspendus ne sont pas facturés.' }));
+      box.appendChild(h('p', { class: 'sub', style: 'margin-top:10px', text: 'Cliquez sur une ligne pour voir les clients concernés. Les mails pro en plus sont comptés au nombre actuel (pas d’historique). Les abonnements suspendus ne sont pas facturés.' }));
     }
     draw(); return box;
   }
 
   /* ===== tableau de bord ===== */
+  function kpi() {
+    var k = { actifs: 0, mrr: 0, ess: 0, pro: 0, nEss: 0, nPro: 0, mailsN: 0, nouveaux30: 0, recurrents: 0, resilies30: 0, resTot: 0, impayes: 0, suspendus: 0 };
+    abosR().forEach(function (a) {
+      if (counts(a)) {
+        k.actifs++; k.mrr += prixAbo(a); k.mailsN += a.mails_sup || 0;
+        if (a.formule === 'pro') { k.nPro++; k.pro += PRIX.pro; } else { k.nEss++; k.ess += PRIX.essentiel; }
+        if (d10(a.debut) >= ago(30)) k.nouveaux30++; else if (a.statut === 'actif') k.recurrents++;
+      }
+      if (a.statut === 'resilie') { k.resTot++; if (d10(a.fin) >= ago(30)) k.resilies30++; }
+      if (a.statut === 'impaye') k.impayes++;
+      if (a.statut === 'suspendu') k.suspendus++;
+    });
+    k.mailsEur = k.mailsN * MAILP; k.arr = k.mrr * 12; k.panier = k.actifs ? Math.round(k.mrr / k.actifs) : 0;
+    k.churn = (k.actifs + k.resilies30) ? Math.round((100 * k.resilies30) / (k.actifs + k.resilies30)) : 0;
+    return k;
+  }
+  function groupN(list, keyFn) { var m = {}; list.forEach(function (x) { var k = keyFn(x) || '—'; m[k] = (m[k] || 0) + 1; }); return Object.keys(m).map(function (k) { return { l: k, n: m[k] }; }).sort(function (a, b) { return b.n - a.n; }).slice(0, 8); }
+  function revLine(label, detail, value, strong) { return h('div', { class: 'revline' + (strong ? ' strong' : '') }, h('div', null, h('b', { text: label }), detail ? h('small', { text: detail }) : null), h('span', { text: value })); }
   function dashboard() {
-    var c = Sx.comptes, d = Sx.demandes, a = Sx.abonnements, p = Sx.plaintes, cv = Sx.conversion, out = h('div'), st = {};
-    d.statut.forEach(function (x) { st[x.statut] = x.n; });
+    var k = kpi(), out = h('div'), dm = demR(), pl = plR(), cm = comR(), st = {}, plc = { ouverte: 0, en_cours: 0, resolue: 0 };
+    dm.forEach(function (x) { st[x.statut] = (st[x.statut] || 0) + 1; });
+    pl.forEach(function (x) { plc[x.statut] = (plc[x.statut] || 0) + 1; });
+    var nbDemo = D.comptes.filter(function (c) { return c.demo; }).length;
     var cA = function (t, f, sub) { return function () { L.abos(t, f, sub); }; };
-    var cC = function (t, f) { return function () { L.comptes(t, f); }; };
+    var cC = function (t, f) { return function () { L.comptes(t, function (r) { return (DEMO.on || !r.demo) && (!f || f(r)); }); }; };
     var cD = function (t, f) { return function () { L.demandes(t, f); }; };
     var cP = function (t, f) { return function () { L.plaintes(t, f); }; };
     var actifsF = function (r) { return r.abo === 'actif' || r.abo === 'impaye'; };
+    var j7 = cm.filter(function (c) { return d10(c.created_at) >= ago(7); }).length, j1 = cm.filter(function (c) { return d10(c.created_at) >= ago(1); }).length, j30 = cm.filter(function (c) { return d10(c.created_at) >= ago(30); }).length;
+    var s7 = function (n, one, many) { return n + ' ' + (n > 1 ? many : one); };
+    if (nbDemo) out.appendChild(h('label', { class: 'demonote' }, h('input', { type: 'checkbox', checked: DEMO.on ? 'checked' : null, onchange: function (e) { DEMO.on = e.target.checked; top(showStats); } }), h('span', null, h('b', { text: DEMO.on ? 'Les ' + nbDemo + ' comptes de démonstration sont comptés. ' : 'Les ' + nbDemo + ' comptes de démonstration ne sont pas comptés. ' }), 'Ce sont des comptes fictifs : cochez pour les inclure dans les chiffres.')));
     out.appendChild(h('div', { class: 'grid g4' },
-      hero('c3', 'euro', eur(a.mrr), 'Revenu mensuel (HT)', a.nouveaux30 ? '+' + a.nouveaux30 + ' ce mois' : null, false, function () { open(revenuePage); }),
-      hero('c1', 'users', num(c.total), 'Inscrits', c.j7 ? '+' + c.j7 + ' / 7 j' : null, false, cC('Tous les inscrits')),
-      hero('c2', 'file', num(d.total), 'Demandes de site', d.j7 ? '+' + d.j7 + ' / 7 j' : null, false, cD('Toutes les demandes de site')),
-      hero('c4', 'repeat', num(a.actifs), 'Abonnements actifs', a.resilies30 ? '-' + a.resilies30 + ' résilié(s)' : null, true, cA('Abonnements actifs', actifsF))));
-    out.appendChild(h('div', { class: 'sec', text: 'Croissance' }));
+      hero('c3', 'euro', eur(k.mrr), 'Vous gagnez chaque mois (HT)', k.actifs ? 'avec ' + s7(k.actifs, 'client qui paie', 'clients qui paient') : 'aucun client pour l’instant', false, function () { open(revenuePage); }),
+      hero('c4', 'repeat', num(k.actifs), 'Clients abonnés', k.nouveaux30 ? '+' + k.nouveaux30 + ' ce mois' : null, false, cA('Clients abonnés', actifsF)),
+      hero('c2', 'file', num(st.nouvelle || 0), 'Demandes de site à traiter', (st.nouvelle || 0) ? 'à voir en premier' : 'rien en attente', false, cD('Demandes à traiter', function (r) { return r.site === 'nouvelle'; })),
+      hero('c1', 'users', num(cm.length), 'Personnes inscrites', j7 ? '+' + j7 + ' cette semaine' : null, false, cC('Toutes les personnes inscrites'))));
+
+    out.appendChild(h('div', { class: 'sec', text: 'À faire maintenant' }));
+    var todo = [
+      [st.nouvelle || 0, 'demande(s) de site à traiter', cD('Demandes à traiter', function (r) { return r.site === 'nouvelle'; })],
+      [st.en_creation || 0, 'site(s) en cours de création', cD('Sites en création', function (r) { return r.site === 'en_creation'; })],
+      [st.apercu || 0, 'aperçu(s) envoyé(s), en attente de la réponse du client', cD('Aperçus envoyés', function (r) { return r.site === 'apercu'; })],
+      [(plc.ouverte || 0) + (plc.en_cours || 0), 'message(s) ou plainte(s) de clients à traiter', cP('Messages à traiter', function (r) { return r.pl !== 'resolue'; })],
+      [k.impayes, 'abonnement(s) impayé(s)', cA('Abonnements impayés', function (r) { return r.abo === 'impaye'; })]
+    ].filter(function (t) { return t[0] > 0; });
+    out.appendChild(h('div', { class: 'card' }, todo.length ? h('ul', { class: 'todo' }, todo.map(function (t) { return click(h('li', null, h('b', { text: String(t[0]) }), h('span', { text: t[1] }), h('em', { text: 'Voir →' })), t[2]); })) : h('p', { class: 'empty', text: 'Rien d’urgent pour le moment.' })));
+
+    out.appendChild(h('div', { class: 'sec', text: 'Vos revenus, expliqués' }));
+    var rv = h('div', { class: 'card' },
+      h('h2', { text: k.mrr ? 'Chaque mois, vous gagnez ' + eur(k.mrr) : 'Pas encore de revenus' }),
+      h('p', { class: 'sub', text: k.mrr ? 'Voici d’où vient cette somme. Tous les montants sont hors taxes (HT).' : 'Dès qu’un client aura un abonnement actif, le détail apparaîtra ici.' }));
+    if (k.mrr) {
+      rv.appendChild(revLine('Formule Essentiel', s7(k.nEss, 'client', 'clients') + ' × ' + PRIX.essentiel + ' €', eur(k.ess)));
+      rv.appendChild(revLine('Formule Pro', s7(k.nPro, 'client', 'clients') + ' × ' + PRIX.pro + ' €', eur(k.pro)));
+      rv.appendChild(revLine('Adresses mail pro en plus', s7(k.mailsN, 'adresse', 'adresses') + ' × ' + MAILP + ' €', eur(k.mailsEur)));
+      rv.appendChild(revLine('Total par mois', null, eur(k.mrr), true));
+      rv.appendChild(revLine('Sur une année', 'si personne ne part et que personne n’arrive', eur(k.arr)));
+      rv.appendChild(mini([['Prix moyen par client', eur(k.panier), cA('Clients abonnés', actifsF)], ['Clients partis (30 jours)', k.resilies30, cA('Clients partis ces 30 jours', function (r) { return r.abo === 'resilie' && d10(r.fin) >= ago(30); })], ['Impayés', k.impayes, cA('Abonnements impayés', function (r) { return r.abo === 'impaye'; })]]));
+    }
+    rv.appendChild(h('div', { style: 'margin-top:14px' }, h('button', { type: 'button', class: 'btn', text: 'Voir mois par mois →', onclick: function () { open(revenuePage); } })));
+    out.appendChild(rv);
+
+    out.appendChild(h('div', { class: 'sec', text: 'Vos clients' }));
+    var ins30 = {}; cm.forEach(function (c) { var d = d10(c.created_at); if (d >= ago(30)) ins30[d] = (ins30[d] || 0) + 1; });
+    var jours = Object.keys(ins30).map(function (d) { return { d: d, n: ins30[d] }; });
+    var avecDemande = cm.filter(function (c) { return (IX.dem[c.id] || []).length > 0; }).length, abonnes = k.actifs + k.resTot;
     out.appendChild(h('div', { class: 'grid g2' },
-      card('Inscriptions', '30 derniers jours · ' + c.j30 + ' nouveau(x) · cliquez pour la liste', (function () { var w = h('div', null, area(c.jours)); return click(w, cC('Inscrits des 30 derniers jours', recent('inscrit', 30))); })()),
-      card('Tunnel de conversion', 'De l’inscription à l’abonnement', funnel([
-        { l: 'Inscrits', n: c.total, c: COL.pri, p: 100, fn: cC('Tous les inscrits') },
-        { l: 'Ont fait une demande', n: Math.round(c.total * cv.inscritDemande / 100), c: COL.sky, p: cv.inscritDemande, fn: cC('Inscrits ayant fait une demande', function (r) { return r.demandes > 0; }) },
-        { l: 'Abonnés', n: a.actifs + a.resiliesTotal, c: COL.ok, p: cv.demandeAbonne, fn: cA('Tous les abonnements (actifs et résiliés)', function () { return true; }) }]))));
-    out.appendChild(h('div', { class: 'sec', text: 'Revenus et abonnements' }));
-    out.appendChild(h('div', { class: 'grid g3' },
-      card('Chiffre d’affaires', 'Hors taxes · cliquez pour le détail', mini([['Revenu annuel prévu', eur(a.arr), function () { open(revenuePage); }], ['Panier moyen', eur(a.panier), cA('Abonnements actifs', actifsF)], ['Taux de résiliation', a.churn + ' %', cA('Résiliés (30 j)', function (r) { return r.abo === 'resilie' && d10(r.fin) >= ago(30); })], ['Mails pro en plus', num(a.mailsSup), cA('Abonnements avec mails pro en plus', function (r) { return r.mails > 0; })]])),
-      card('Formules', 'Abonnements actifs', donut([{ l: 'Essentiel', n: a.parFormule.essentiel || 0, c: COL.pri, fn: cA('Abonnements Essentiel actifs', function (r) { return actifsF(r) && r.formule === 'essentiel'; }) }, { l: 'Pro', n: a.parFormule.pro || 0, c: COL.sky, fn: cA('Abonnements Pro actifs', function (r) { return actifsF(r) && r.formule === 'pro'; }) }], String(a.actifs), 'abonnés')),
-      card('Mouvements', '30 derniers jours', mini([
-        ['Nouveaux', a.nouveaux30, cA('Nouveaux abonnés (30 j)', function (r) { return d10(r.debut) >= ago(30); })],
-        ['Récurrents (+30 j)', a.recurrents, cA('Abonnés récurrents', function (r) { return r.abo === 'actif' && d10(r.debut) < ago(30); })],
-        ['Résiliés (30 j)', a.resilies30, cA('Résiliations des 30 derniers jours', function (r) { return r.abo === 'resilie' && d10(r.fin) >= ago(30); })],
-        ['Résiliés au total', a.resiliesTotal, cA('Toutes les résiliations', function (r) { return r.abo === 'resilie'; })],
-        ['Impayés', a.impayes, cA('Abonnements impayés', function (r) { return r.abo === 'impaye'; })],
-        ['Suspendus', a.suspendus, cA('Abonnements suspendus', function (r) { return r.abo === 'suspendu'; })]]))));
-    out.appendChild(h('div', { class: 'sec', text: 'Sites en cours' }));
-    var sF = function (k) { return cD('Demandes · ' + lab(k), function (r) { return r.site === k; }); };
-    out.appendChild(h('div', { class: 'grid g3' },
-      card('Avancement des sites', d.total + ' demande(s)', donut([{ l: 'À traiter', n: st.nouvelle || 0, c: COL.warn, fn: sF('nouvelle') }, { l: 'En création', n: st.en_creation || 0, c: COL.pri, fn: sF('en_creation') }, { l: 'Aperçu envoyé', n: st.apercu || 0, c: COL.sky, fn: sF('apercu') }, { l: 'En ligne', n: st.en_ligne || 0, c: COL.ok, fn: sF('en_ligne') }, { l: 'Abandonnées', n: st.abandonnee || 0, c: COL.gray, fn: sF('abandonnee') }], String(d.total), 'demandes')),
-      card('Activité des demandeurs', 'Par type de commerce', bars(d.activite.map(function (x) { return { l: x.activite || '—', n: x.n, fn: cD('Demandes · ' + (x.activite || '—'), function (r) { return r.activite === x.activite; }) }; }))),
-      card('Villes', 'D’où viennent les demandes', bars(d.ville.map(function (x) { return { l: x.ville, n: x.n, fn: cD('Demandes · ' + x.ville, function (r) { return (r.ville || '').toLowerCase() === x.ville.toLowerCase(); }) }; })))));
-    out.appendChild(h('div', { class: 'sec', text: 'Clients et service' }));
-    var pF = function (k) { return cP('Plaintes · ' + lab(k), function (r) { return r.pl === k; }); };
-    out.appendChild(h('div', { class: 'grid g3' },
-      card('Plaintes', p.total + ' au total · délai moyen ' + (p.delai_h == null ? '—' : p.delai_h + ' h'), donut([{ l: 'Ouvertes', n: p.ouvertes, c: COL.bad, fn: pF('ouverte') }, { l: 'En cours', n: p.en_cours, c: COL.warn, fn: pF('en_cours') }, { l: 'Résolues', n: p.resolues, c: COL.ok, fn: pF('resolue') }], String(p.total), 'plaintes')),
-      card('Motifs de résiliation', null, bars(a.motifs.map(function (x) { return { l: x.motif, n: x.n, fn: cA('Résiliations · ' + x.motif, function (r) { return r.abo === 'resilie' && (r.motif || 'non précisé') === x.motif; }) }; }), 'Aucune résiliation.')),
-      card('Provenance des demandes', null, bars(d.sources.map(function (x) { return { l: x.s, n: x.n, fn: cD('Demandes · ' + x.s, function (r) { return r.source === x.s; }) }; })))));
+      card('Nouvelles inscriptions', '30 derniers jours · ' + s7(j30, 'personne', 'personnes') + ' · cliquez pour la liste', (function () { var w = h('div', null, area(jours)); return click(w, cC('Inscrits des 30 derniers jours', recent('inscrit', 30))); })()),
+      card('De l’inscription à l’abonnement', 'Combien de personnes vont jusqu’au bout', funnel([
+        { l: 'Inscrites', n: cm.length, c: COL.pri, p: 100, fn: cC('Toutes les personnes inscrites') },
+        { l: 'Ont demandé un site', n: avecDemande, c: COL.sky, p: cm.length ? Math.round((100 * avecDemande) / cm.length) : 0, fn: cC('Inscrits ayant demandé un site', function (r) { return r.demandes > 0; }) },
+        { l: 'Sont devenues clientes', n: abonnes, c: COL.ok, p: cm.length ? Math.min(100, Math.round((100 * abonnes) / cm.length)) : 0, fn: cA('Tous les abonnements (actifs et partis)', function () { return true; }) }]))));
     out.appendChild(h('div', { class: 'grid g2', style: 'margin-top:16px' },
-      card('Activité des visiteurs', 'Inscrits', mini([['Dernières 24 h', c.j1, cC('Inscrits des dernières 24 h', recent('inscrit', 1))], ['7 jours', c.j7, cC('Inscrits des 7 derniers jours', recent('inscrit', 7))], ['30 jours', c.j30, cC('Inscrits des 30 derniers jours', recent('inscrit', 30))], ['Connectés (7 j)', c.actifs7, cC('Connectés ces 7 derniers jours', recent('connexion', 7))], ['Connectés (24 h)', c.connectes, cC('Connectés ces dernières 24 h', recent('connexion', 1))], ['Sans demande', c.sansDemande, cC('Inscrits sans demande', function (r) { return !r.demandes; })]])),
-      card('Événements (30 jours)', 'Journal du site', bars(Sx.divers.evenements30.map(function (x) { return { l: x.type.replace(/_/g, ' '), n: x.n, fn: function () { L.journal('Événements · ' + x.type.replace(/_/g, ' '), function (r) { return r.type === x.type.replace(/_/g, ' '); }); } }; }), 'Aucun événement.'))));
+      card('Formules choisies', 'Clients abonnés', donut([{ l: 'Essentiel', n: k.nEss, c: COL.pri, fn: cA('Clients Essentiel', function (r) { return actifsF(r) && r.formule === 'essentiel'; }) }, { l: 'Pro', n: k.nPro, c: COL.sky, fn: cA('Clients Pro', function (r) { return actifsF(r) && r.formule === 'pro'; }) }], String(k.actifs), 'clients')),
+      card('Mouvements des 30 derniers jours', null, mini([
+        ['Nouveaux clients', k.nouveaux30, cA('Nouveaux clients (30 jours)', function (r) { return d10(r.debut) >= ago(30); })],
+        ['Clients depuis plus d’un mois', k.recurrents, cA('Clients depuis plus d’un mois', function (r) { return r.abo === 'actif' && d10(r.debut) < ago(30); })],
+        ['Clients partis', k.resilies30, cA('Clients partis (30 jours)', function (r) { return r.abo === 'resilie' && d10(r.fin) >= ago(30); })],
+        ['Partis depuis le début', k.resTot, cA('Tous les clients partis', function (r) { return r.abo === 'resilie'; })],
+        ['Suspendus', k.suspendus, cA('Abonnements suspendus', function (r) { return r.abo === 'suspendu'; })],
+        ['Connectés ces 7 jours', cm.filter(function (c) { return d10(c.derniere_connexion) >= ago(7); }).length, cC('Connectés ces 7 derniers jours', recent('connexion', 7))]]))));
+
+    out.appendChild(h('div', { class: 'sec', text: 'Les sites' }));
+    var sF = function (key) { return cD('Demandes · ' + lab(key), function (r) { return r.site === key; }); };
+    out.appendChild(h('div', { class: 'grid g3' },
+      card('Où en sont les sites', s7(dm.length, 'demande', 'demandes'), donut([{ l: 'À traiter', n: st.nouvelle || 0, c: COL.warn, fn: sF('nouvelle') }, { l: 'En création', n: st.en_creation || 0, c: COL.pri, fn: sF('en_creation') }, { l: 'Aperçu envoyé', n: st.apercu || 0, c: COL.sky, fn: sF('apercu') }, { l: 'En ligne', n: st.en_ligne || 0, c: COL.ok, fn: sF('en_ligne') }, { l: 'Abandonnées', n: st.abandonnee || 0, c: COL.gray, fn: sF('abandonnee') }], String(dm.length), 'demandes')),
+      card('Types de commerces', 'Qui fait des demandes', bars(groupN(dm, function (x) { return x.activite; }).map(function (x) { return { l: x.l, n: x.n, fn: cD('Demandes · ' + x.l, function (r) { return (r.activite || '—') === x.l; }) }; }))),
+      card('Villes', 'D’où viennent les demandes', bars(groupN(dm, function (x) { return (x.ville || '').trim(); }).map(function (x) { return { l: x.l, n: x.n, fn: cD('Demandes · ' + x.l, function (r) { return (r.ville || '—').trim().toLowerCase() === x.l.toLowerCase(); }) }; })))));
+
+    out.appendChild(h('div', { class: 'sec', text: 'Service client' }));
+    var motifs = groupN(abosR().filter(function (a) { return a.statut === 'resilie'; }), function (a) { return a.motif || 'non précisé'; });
+    var pF = function (key) { return cP('Messages · ' + lab(key), function (r) { return r.pl === key; }); };
+    out.appendChild(h('div', { class: 'grid g3' },
+      card('Messages et plaintes', s7(pl.length, 'au total', 'au total'), donut([{ l: 'Ouvertes', n: plc.ouverte || 0, c: COL.bad, fn: pF('ouverte') }, { l: 'En cours', n: plc.en_cours || 0, c: COL.warn, fn: pF('en_cours') }, { l: 'Résolues', n: plc.resolue || 0, c: COL.ok, fn: pF('resolue') }], String(pl.length), 'messages')),
+      card('Pourquoi ils partent', null, bars(motifs.map(function (x) { return { l: x.l, n: x.n, fn: cA('Départs · ' + x.l, function (r) { return r.abo === 'resilie' && (r.motif || 'non précisé') === x.l; }) }; }), 'Personne n’est parti.')),
+      card('D’où viennent les demandes', 'Annonce, lien, accès direct…', bars(groupN(dm, function (x) { return srcOf(x); }).map(function (x) { return { l: x.l, n: x.n, fn: cD('Demandes · ' + x.l, function (r) { return r.source === x.l; }) }; })))));
     return out;
   }
   function showStats() {
     var hr = new Date().getHours(), greet = hr < 18 ? 'Bonjour' : 'Bonsoir';
     main.textContent = '';
-    main.appendChild(head(greet + ', Admin', new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + ' · cliquez sur n’importe quel chiffre ou graphique pour voir le détail.', [h('button', { type: 'button', class: 'btn ghost', text: 'Actualiser', onclick: function () { loadAll().then(function () { top(showStats); flash('Statistiques actualisées.'); }); } })]));
+    main.appendChild(head(greet + ', Admin', new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + ' · cliquez sur un chiffre pour voir le détail.', [h('button', { type: 'button', class: 'btn ghost', text: 'Actualiser', onclick: function () { loadAll().then(function () { top(showStats); flash('Statistiques actualisées.'); }); } })]));
     main.appendChild(dashboard());
   }
-  function revenuePage() { main.textContent = ''; main.appendChild(head('Revenus', 'Détail par mois, trimestre ou année', [backBtn()])); main.appendChild(revenueBlock()); }
+  function revenuePage() { main.textContent = ''; main.appendChild(head('Revenus', 'Ce que vous gagnez, mois par mois, trimestre par trimestre ou année par année', [backBtn()])); main.appendChild(revenueBlock()); }
 
   /* ===== clients : filtres, export, revenus ===== */
   var F = {};
