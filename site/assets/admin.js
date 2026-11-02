@@ -142,7 +142,7 @@
   var prixAbo = function (a) { return (PRIX[a.formule] || 0) + MAILP * (a.mails_sup || 0); };
   var counts = function (a) { return a.statut === 'actif' || a.statut === 'impaye'; };
   /* comptes de démonstration : exclus des chiffres par défaut */
-  var DEMO = { on: false };
+  var DEMO = { on: true };
   var keepId = function (id) { var c = IX && IX.c[id]; return DEMO.on || !(c && c.demo); };
   var abosR = function () { return D.abonnements.filter(function (a) { return keepId(a.compte_id); }); };
   var demR = function () { return D.demandes.filter(function (x) { return keepId(x.compte_id); }); };
@@ -406,7 +406,7 @@
     var actifsF = function (r) { return r.abo === 'actif' || r.abo === 'impaye'; };
     var j7 = cm.filter(function (c) { return d10(c.created_at) >= ago(7); }).length, j1 = cm.filter(function (c) { return d10(c.created_at) >= ago(1); }).length, j30 = cm.filter(function (c) { return d10(c.created_at) >= ago(30); }).length;
     var s7 = function (n, one, many) { return n + ' ' + (n > 1 ? many : one); };
-    if (nbDemo) out.appendChild(h('label', { class: 'demonote' }, h('input', { type: 'checkbox', checked: DEMO.on ? 'checked' : null, onchange: function (e) { DEMO.on = e.target.checked; top(showStats); } }), h('span', null, h('b', { text: DEMO.on ? 'Les ' + nbDemo + ' comptes de démonstration sont comptés. ' : 'Les ' + nbDemo + ' comptes de démonstration ne sont pas comptés. ' }), 'Ce sont des comptes fictifs : cochez pour les inclure dans les chiffres.')));
+    if (nbDemo) out.appendChild(h('label', { class: 'demonote' }, h('input', { type: 'checkbox', checked: DEMO.on ? 'checked' : null, onchange: function (e) { DEMO.on = e.target.checked; top(showStats); } }), h('span', null, h('b', { text: DEMO.on ? 'Les ' + nbDemo + ' comptes de test sont inclus dans les chiffres. ' : 'Les ' + nbDemo + ' comptes de test sont cachés. ' }), 'Décochez pour ne voir que les vrais clients.')));
     out.appendChild(h('div', { class: 'grid g4' },
       hero('c3', 'euro', eur(k.mrr), 'Vous gagnez chaque mois (HT)', k.actifs ? 'avec ' + s7(k.actifs, 'client qui paie', 'clients qui paient') : 'aucun client pour l’instant', false, function () { open(revenuePage); }),
       hero('c4', 'repeat', num(k.actifs), 'Clients abonnés', k.nouveaux30 ? '+' + k.nouveaux30 + ' ce mois' : null, false, cA('Clients abonnés', actifsF)),
