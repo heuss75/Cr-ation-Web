@@ -29,6 +29,8 @@
   function flash(t, bad) { toast.textContent = t; toast.className = 'toast on' + (bad ? ' bad' : ''); clearTimeout(flash.t); flash.t = setTimeout(function () { toast.className = 'toast'; }, 3800); }
   function head(t, sub, extra) { return h('div', { class: 'top' }, h('div', { class: 'hello' }, h('h1', { text: t }), sub ? h('p', { text: sub }) : null), h('div', { class: 'tools' }, extra || [])); }
   var D = function () { return E.demandes[0] || null; };
+  function aMail() { var ab = E.abonnement; return E.formule === 'pro' || !!(ab && ab.mails_sup > 0) || E.demandes.some(function (d) { return d.mails > 0; }); }
+  function mailCard() { return h('div', { class: 'card', style: 'margin-top:16px' }, h('h3', { text: 'Installer ma messagerie' }), h('p', { class: 'sub', text: 'Votre adresse mail pro sur iPhone, Android, Thunderbird ou Outlook, pas à pas. Comptez cinq minutes.' }), h('a', { class: 'btn', href: '/guide-messagerie', target: '_blank', rel: 'noopener', text: 'Ouvrir le guide' })); }
   var nonLues = function () { return E.notifications.filter(function (n) { return !n.lu; }).length; };
   var enLigne = function () { var d = D(); return !!d && (d.statut === 'en_ligne' || d.statut === 'apercu') && !d.suspendu; };
   var addMonths = function (iso, n) { var d = new Date(iso + 'T12:00:00Z'); d.setUTCMonth(d.getUTCMonth() + n); return d.toISOString().slice(0, 10); };
@@ -53,6 +55,7 @@
       h('ol', { class: 'steps2' }, ['Demande reçue', 'En création', 'Aperçu à valider', 'En ligne'].map(function (t, i) { return h('li', { class: i < idx || idx === 3 ? 'done' : i === idx ? 'now' : '', text: t }); }))));
     var grid = h('div', { class: 'grid g2', style: 'margin-top:16px' });
     grid.appendChild(h('div', { class: 'card' }, h('h3', { text: 'Dernières nouvelles' }), E.notifications.length ? E.notifications.slice(0, 3).map(msgNode) : h('p', { class: 'empty', text: 'Aucun message pour le moment.' }), E.notifications.length ? h('button', { type: 'button', class: 'btn ghost sm', text: 'Tout voir', onclick: function () { go('messages'); } }) : null));
+    if (aMail()) grid.appendChild(h('div', { class: 'card' }, h('h3', { text: 'Installer ma messagerie' }), h('p', { class: 'sub', text: 'Votre adresse mail pro sur votre téléphone ou votre ordinateur, pas à pas.' }), h('a', { class: 'btn ghost', href: '/guide-messagerie', target: '_blank', rel: 'noopener', text: 'Ouvrir le guide' })));
     if (E.formule === 'pro') grid.appendChild(h('div', { class: 'card' }, h('h3', { text: 'Réservations en ligne' }), h('p', { class: 'sub', text: 'Outil de réservation et agenda inclus dans votre formule Pro.' }), h('p', { class: 'empty', text: 'Aucune réservation pour le moment. Elles apparaîtront ici dès que vos clients réserveront.' })));
     else grid.appendChild(h('div', { class: 'card' }, h('h3', { text: 'Passer à la formule Pro' }), h('p', { class: 'sub', text: '100 € HT par mois' }), h('ul', { class: 'list' }, ['Outil de réservation en ligne et agenda', '3 modifications par mois', '1 adresse mail pro incluse'].map(function (t) { return h('li', { text: '✓ ' + t }); })), h('button', { type: 'button', class: 'btn ghost sm', text: 'En parler avec nous', onclick: function () { go('aide'); } })));
     out.appendChild(grid); main.appendChild(out);
@@ -88,7 +91,7 @@
     var tot = PRIX[a.formule] + MAILP * (a.mails_sup || 0), fin = a.debut ? addMonths(a.debut, 12) : null;
     main.appendChild(h('div', { class: 'card' }, h('div', { class: 'tbar' }, h('h2', { text: 'Formule ' + lab(a.formule) }), pill(a.statut)),
       h('dl', { class: 'dl' }, [['Total par mois', eur(tot)], ['Formule', eur(PRIX[a.formule])], ['Mails pro en plus', (a.mails_sup || 0) + ' × ' + eur(MAILP).replace(' HT', '') + ' HT'], ['Début', dOnly(a.debut)], ['Fin de l’engagement de 12 mois', fin ? dOnly(fin) : '—']].map(function (x) { return h('div', null, h('dt', { text: x[0] }), h('dd', { text: x[1] })); }))));
-    var inc = ['Site vitrine sur mesure', 'Nom de domaine et hébergement', 'Espace client', E.formule === 'pro' ? '3 modifications par mois réalisées par nous' : '1 modification par mois réalisée par nous', 'Guide pub'].concat(a.formule === 'pro' ? ['Éditeur en libre-service : textes, prix, horaires, photos', 'Outil de réservation en ligne', 'Agenda', '1 adresse mail pro incluse'] : []);
+    var inc = ['Site vitrine sur mesure', 'Nom de domaine et hébergement', 'Espace client', E.formule === 'pro' ? '3 modifications par mois réalisées par nous' : '1 modification par mois réalisée par nous', 'Guide pub'].concat(aMail() ? ['Guide d’installation de la messagerie'] : []).concat(a.formule === 'pro' ? ['Éditeur en libre-service : textes, prix, horaires, photos', 'Outil de réservation en ligne', 'Agenda', '1 adresse mail pro incluse'] : []);
     main.appendChild(h('div', { class: 'card', style: 'margin-top:16px' }, h('h3', { text: 'Ce qui est inclus' }), h('ul', { class: 'list' }, inc.map(function (t) { return h('li', { text: '✓ ' + t }); })), h('p', { class: 'sub', style: 'margin-top:12px', text: 'Pour changer de formule ou ajouter une adresse mail, écrivez-nous depuis l’onglet Aide.' })));
   }
   function vMessages() {
@@ -97,6 +100,7 @@
   }
   function vAide() {
     main.appendChild(head('Aide', 'Une question, un souci ? Écrivez-nous'));
+    if (aMail()) main.appendChild(mailCard());
     var sj = h('input', { type: 'text', maxlength: '120', placeholder: 'Ex. : changer de formule, un souci sur mon site…' }), ms = h('textarea', { maxlength: '1500', placeholder: 'Expliquez-nous en quelques lignes.' });
     main.appendChild(h('div', { class: 'card' }, h('h2', { text: 'Nous écrire' }), h('div', { class: 'form' }, h('label', { class: 'wide' }, 'Sujet', sj), h('label', { class: 'wide' }, 'Message', ms)),
       h('button', { type: 'button', class: 'btn', text: 'Envoyer', disabled: E.lecture ? 'disabled' : null, onclick: function () { if (!sj.value.trim()) { flash('Indiquez un sujet.', true); return; } api('/api/espace/plainte', 'POST', { sujet: sj.value, message: ms.value }).then(function (r) { if (r.j.ok) { flash('Message envoyé. Nous revenons vers vous rapidement.'); reload('aide'); } else flash('Envoi impossible.', true); }); } }),

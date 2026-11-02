@@ -8,6 +8,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "tools"))
 from content_faq import CATS, FAQ
 from content_legal import mk as legal_pages
+from content_guide import mk as guide_pages
 
 OUT = os.path.join(ROOT, "site")
 SRC = os.path.join(ROOT, "tools", "src")
@@ -138,7 +139,7 @@ FOOTER = """
 <footer class="ft">
   <div class="ftg">
     <div class="brand"><b>Devanture <em>Web</em></b><p>Des sites vitrines clé en main pour les commerces et les indépendants : domaine, hébergement, espace client et guide pub inclus.</p></div>
-    <div><h3>Offre</h3><ul><li><a href="/offre">Offre et prix</a></li><li><a href="/#etapes">Comment ça marche</a></li><li><a href="/faq">FAQ</a></li></ul></div>
+    <div><h3>Offre</h3><ul><li><a href="/offre">Offre et prix</a></li><li><a href="/#etapes">Comment ça marche</a></li><li><a href="/faq">FAQ</a></li><li><a href="/guide-messagerie">Guide messagerie</a></li></ul></div>
     <div><h3>Légal</h3><ul><li><a href="/mentions-legales">Mentions légales</a></li><li><a href="/cgv">Conditions générales de vente</a></li><li><a href="/confidentialite">Confidentialité</a></li><li><a href="/cookies">Cookies</a></li><li><button type="button" class="lnk" data-cookies>Gérer les cookies</button></li></ul></div>
     <div><h3>Contact</h3><ul><li><a href="/inscription">Faire une demande</a></li><li><a href="/connexion">Espace client</a></li>%(email)s<li><button type="button" class="lnk" data-copy-url="page">Copier le lien de cette page</button></li></ul></div>
   </div>
@@ -309,9 +310,9 @@ offre_body = phead("Offre et prix", "Deux formules, tout compris",
   <h2>Inclus, en option, non inclus</h2>
   <div class="cmp">
     <div class="card"><span class="tag">Inclus</span><h3>Essentiel · 60 € HT</h3><ul>
-      <li>Site vitrine sur mesure</li><li>Adapté au téléphone, tablette et ordinateur</li><li>Nom de domaine réservé et renouvelé chaque année</li><li>Hébergement et certificat HTTPS</li><li>Espace client de suivi</li><li>1 modification par mois, réalisée par nous sur demande</li><li>Relecture avant mise en ligne</li><li>Guide pub, 8 chapitres</li></ul></div>
+      <li>Site vitrine sur mesure</li><li>Adapté au téléphone, tablette et ordinateur</li><li>Nom de domaine réservé et renouvelé chaque année</li><li>Hébergement et certificat HTTPS</li><li>Espace client de suivi</li><li>1 modification par mois, réalisée par nous sur demande</li><li>Relecture avant mise en ligne</li><li>Guide pub, 8 chapitres</li><li>Guide d’installation de la messagerie, fourni avec l’achat d’une adresse mail pro (4 € HT par mois)</li></ul></div>
     <div class="card pro"><span class="tag">En plus, avec le Pro</span><h3>Pro · 100 € HT</h3><ul>
-      <li>Tout l’Essentiel</li><li>Éditeur en libre-service : textes, prix, horaires, photos</li><li>3 modifications par mois réalisées par nous</li><li>Outil de réservation en ligne : prestation, jour, créneau</li><li>Agenda dans l’espace client</li><li>1 adresse mail pro incluse</li><li>Prestations, durées et horaires paramétrés par nous</li></ul></div>
+      <li>Tout l’Essentiel</li><li>Éditeur en libre-service : textes, prix, horaires, photos</li><li>3 modifications par mois réalisées par nous</li><li>Outil de réservation en ligne : prestation, jour, créneau</li><li>Agenda dans l’espace client</li><li>1 adresse mail pro incluse, avec le guide d’installation de la messagerie</li><li>Prestations, durées et horaires paramétrés par nous</li></ul></div>
     <div class="card no"><span class="tag">Non inclus</span><h3>À prévoir à part</h3><ul>
       <li>Publicité faite pour vous</li><li>Référencement payant</li><li>Boutique en ligne et paiement en ligne (peut-être bientôt)</li><li>Rappels par SMS</li><li>Refonte complète du design</li><li>Séance photo</li></ul><p class="sub" style="margin-top:12px">Mail pro supplémentaire : 4 € HT par mois et par adresse.</p></div>
   </div>
@@ -611,6 +612,7 @@ wr("espace.html", ESPACE_HTML)
 
 # ------------------------------------------------------------------ pages légales
 LEGAL = legal_pages(EDITOR)
+LEGAL.update(guide_pages(EDITOR))
 LEG_TITLES = {"mentions-legales": "Mentions légales", "cgv": "CGV", "confidentialite": "Confidentialité", "cookies": "Cookies"}
 for slug, p in LEGAL.items():
     soup = BeautifulSoup(p["body"], "html.parser")
@@ -687,7 +689,7 @@ page("reservation-demo", "Démo de réservation", "Essayez la réservation en li
 
 # ------------------------------------------------------------------ index de recherche
 PAGES = [("index", "Accueil"), ("offre", "Offre et prix"), ("faq", "FAQ"), ("commander", "Commander"), ("inscription", "Inscription"), ("connexion", "Connexion"),
-         ("mentions-legales", "Mentions légales"), ("cgv", "CGV"), ("confidentialite", "Confidentialité"), ("cookies", "Cookies"), ("reservation-demo", "Démo réservation")]
+         ("mentions-legales", "Mentions légales"), ("cgv", "CGV"), ("confidentialite", "Confidentialité"), ("cookies", "Cookies"), ("guide-messagerie", "Guide messagerie"), ("reservation-demo", "Démo réservation")]
 entries = []
 for slug, label in PAGES:
     soup = BeautifulSoup(rd(os.path.join(OUT, slug + ".html")), "html.parser")

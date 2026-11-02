@@ -70,7 +70,7 @@ FAQ = [
     ("domaine", "domaine-existant", "J’ai déjà un nom de domaine, puis-je le garder ?",
      "<p>En général oui : nous relions votre domaine existant à votre nouveau site. Dans ce cas, il reste chez votre hébergeur actuel et son renouvellement reste à votre charge. Précisez-le dans la demande.</p>"),
     ("domaine", "mail-pro", "Comment fonctionne l’adresse mail professionnelle ?",
-     "<p>Elle coûte 4 € HT par mois et par adresse (la première est incluse dans la formule Pro), et suit la durée de votre abonnement (par exemple prenom@votresite.fr). La boîte est de taille limitée, pour un usage professionnel normal, sans envoi de masse. Un guide vous explique comment la configurer sur votre téléphone. Si vous résiliez, les adresses sont fermées après 30 jours pour vous laisser récupérer vos mails.</p>"),
+     "<p>Elle coûte 4 € HT par mois et par adresse (la première est incluse dans la formule Pro), et suit la durée de votre abonnement (par exemple prenom@votresite.fr). La boîte est de taille limitée, pour un usage professionnel normal, sans envoi de masse. Un <a href=\"/guide-messagerie\">guide d’installation de la messagerie</a> vous explique comment la configurer sur iPhone, Android, Thunderbird ou Outlook, ou la lire depuis un navigateur. Il est fourni avec la formule Pro, et avec la formule Essentiel dès l’achat d’une adresse mail pro. Si vous résiliez, les adresses sont fermées après 30 jours pour vous laisser récupérer vos mails.</p>"),
 
     # ---------- Technique ----------
     ("technique", "mobile", "Mon site sera-t-il lisible sur téléphone ?",

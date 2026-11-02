@@ -2,7 +2,7 @@
 const REPO = 'https://raw.githubusercontent.com/heuss75/Cr-ation-Web/main/site';
 const ROUTES = {
   '/': 'index.html', '/offre': 'offre.html', '/faq': 'faq.html', '/commander': 'commander.html', '/connexion': 'connexion.html',
-  '/mentions-legales': 'mentions-legales.html', '/cgv': 'cgv.html', '/confidentialite': 'confidentialite.html', '/cookies': 'cookies.html',
+  '/mentions-legales': 'mentions-legales.html', '/cgv': 'cgv.html', '/confidentialite': 'confidentialite.html', '/cookies': 'cookies.html', '/guide-messagerie': 'guide-messagerie.html',
   '/reservation-demo': 'reservation-demo.html', '/inscription': 'inscription.html', '/admin': 'admin.html', '/espace': 'espace.html', '/mot-de-passe-oublie': 'mot-de-passe-oublie.html', '/reinitialiser': 'reinitialiser.html', '/exemples/bistro': 'exemples/bistro.html', '/exemples/salon': 'exemples/salon.html', '/exemples/artisan': 'exemples/artisan.html',
 };
 const TYPES = {
