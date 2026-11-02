@@ -18,7 +18,7 @@ FAQ = [
      "<p>Chaque adresse mail professionnelle supplémentaire coûte <strong>4 € HT par mois</strong>. Vous pouvez simuler votre total sur la page <a href=\"/offre\">Offre et prix</a>.</p>"),
     ("offre", "essentiel-pro", "Quelle différence entre Essentiel et Pro ?",
      "<p>L’<strong>Essentiel</strong> est le site vitrine complet : site sur mesure, nom de domaine, hébergement, espace client, 1 modification par mois et guide pub.</p>"
-     "<p>Le <strong>Pro</strong> ajoute un <strong>outil de réservation en ligne</strong> avec un agenda, <strong>3 modifications par mois</strong> au lieu d’une, et inclut <strong>1 adresse mail professionnelle</strong>. Il convient aux activités qui prennent des rendez-vous : coiffeur, esthétique, bien-être, coach, garage, restaurant.</p>"
+     "<p>Le <strong>Pro</strong> ajoute un <strong>outil de réservation en ligne</strong> avec un agenda, un <strong>éditeur en libre-service</strong> pour changer vous-même textes, prix, horaires et photos, <strong>3 modifications par mois réalisées par nous</strong> au lieu d’une, et inclut <strong>1 adresse mail professionnelle</strong>. Il convient aux activités qui prennent des rendez-vous : coiffeur, esthétique, bien-être, coach, garage, restaurant.</p>"
      "<p>Vous pouvez tester la réservation sur la <a href=\"/reservation-demo\">page de démonstration</a>.</p>"),
     ("offre", "reservation", "Comment fonctionne la réservation en ligne ?",
      "<p>Sur votre site, un client choisit une prestation, un jour et un créneau libre, puis laisse son nom et son téléphone. Le créneau n’est alors plus proposé aux autres : pas de double réservation. Les réservations apparaissent dans l’agenda de votre espace client.</p>"
@@ -26,7 +26,7 @@ FAQ = [
     ("offre", "changer-formule", "Puis-je passer de l’Essentiel au Pro ?",
      "<p>Oui, à tout moment : le Pro s’applique au début du mois suivant, et une nouvelle période de 12 mois commence à ce moment-là. Le passage du Pro à l’Essentiel se fait à l’échéance de la période en cours.</p>"),
     ("offre", "inclus", "Qu’est-ce qui est inclus dans l’abonnement ?",
-     "<ul><li>Un site vitrine sur mesure, adapté au téléphone</li><li>Le nom de domaine, réservé et renouvelé chaque année pendant l’engagement</li><li>L’hébergement, avec certificat HTTPS</li><li>Un espace client pour suivre votre commande et modifier votre site</li><li>1 modification par mois, que vous faites vous-même</li><li>Le guide pub, pas à pas, pour vous faire connaître</li></ul>"),
+     "<ul><li>Un site vitrine sur mesure, adapté au téléphone</li><li>Le nom de domaine, réservé et renouvelé chaque année pendant l’engagement</li><li>L’hébergement, avec certificat HTTPS</li><li>Un espace client pour suivre votre commande et modifier votre site</li><li>1 modification par mois, réalisée par nous sur demande</li><li>Le guide pub, pas à pas, pour vous faire connaître</li></ul>"),
     ("offre", "non-inclus", "Qu’est-ce qui n’est pas inclus ?",
      "<p>Ne sont pas compris : la publicité faite pour vous, le référencement payant, une boutique en ligne, un système de réservation en ligne (compris dans la formule Pro), une refonte complète du design, et les séances photo. Si vous avez besoin d’un de ces points, nous en parlons et nous faisons un devis séparé.</p>"),
     ("offre", "engagement-12", "Pourquoi un engagement de 12 mois ?",
@@ -54,7 +54,7 @@ FAQ = [
     ("modif", "modifier", "Comment je modifie mon site ?",
      "<p>Depuis votre espace client, avec l’éditeur : vous remplacez un texte ou une photo, vous ajoutez ou supprimez un bloc. Vous ne changez pas la mise en page, ce qui évite de casser le site. Vous pouvez tester le principe sur la <a href=\"/#modifier\">démonstration de l’accueil</a>.</p>"),
     ("modif", "une-par-mois", "Que veut dire « 1 modification par mois » ?",
-     "<p>Chaque mois, vous pouvez faire une modification (trois avec la formule Pro) : remplacer un texte, remplacer une photo, ajouter un bloc ou en supprimer un. Le compteur est visible dans votre espace client. Une modification non utilisée ne se cumule pas avec le mois suivant.</p>"),
+     "<p>Chaque mois, vous nous demandez une modification (trois avec la formule Pro) depuis votre espace client, et nous la réalisons : remplacer un texte, remplacer une photo, ajouter un bloc ou en supprimer un. Le compteur est visible dans votre espace client. Avec le Pro, l’éditeur en libre-service vous permet en plus de changer vous-même textes, prix, horaires et photos, sans limite. Une modification non utilisée ne se cumule pas avec le mois suivant.</p>"),
     ("modif", "annuler", "Puis-je annuler une modification ?",
      "<p>Oui. L’éditeur garde un historique de vos changements et vous permet de revenir en arrière.</p>"),
     ("modif", "plus", "Et si j’ai besoin de faire plus de changements ?",

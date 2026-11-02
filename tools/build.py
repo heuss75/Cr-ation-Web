@@ -307,9 +307,9 @@ offre_body = phead("Offre et prix", "Deux formules, tout compris",
   <h2>Inclus, en option, non inclus</h2>
   <div class="cmp">
     <div class="card"><span class="tag">Inclus</span><h3>Essentiel · 60 € HT</h3><ul>
-      <li>Site vitrine sur mesure</li><li>Adapté au téléphone, tablette et ordinateur</li><li>Nom de domaine réservé et renouvelé chaque année</li><li>Hébergement et certificat HTTPS</li><li>Espace client de suivi</li><li>1 modification par mois, par vous-même</li><li>Relecture avant mise en ligne</li><li>Guide pub, 8 chapitres</li></ul></div>
+      <li>Site vitrine sur mesure</li><li>Adapté au téléphone, tablette et ordinateur</li><li>Nom de domaine réservé et renouvelé chaque année</li><li>Hébergement et certificat HTTPS</li><li>Espace client de suivi</li><li>1 modification par mois, réalisée par nous sur demande</li><li>Relecture avant mise en ligne</li><li>Guide pub, 8 chapitres</li></ul></div>
     <div class="card pro"><span class="tag">En plus, avec le Pro</span><h3>Pro · 100 € HT</h3><ul>
-      <li>Tout l’Essentiel</li><li>3 modifications par mois</li><li>Outil de réservation en ligne : prestation, jour, créneau</li><li>Agenda dans l’espace client</li><li>1 adresse mail pro incluse</li><li>Prestations, durées et horaires paramétrés par nous</li></ul></div>
+      <li>Tout l’Essentiel</li><li>Éditeur en libre-service : textes, prix, horaires, photos</li><li>3 modifications par mois réalisées par nous</li><li>Outil de réservation en ligne : prestation, jour, créneau</li><li>Agenda dans l’espace client</li><li>1 adresse mail pro incluse</li><li>Prestations, durées et horaires paramétrés par nous</li></ul></div>
     <div class="card no"><span class="tag">Non inclus</span><h3>À prévoir à part</h3><ul>
       <li>Publicité faite pour vous</li><li>Référencement payant</li><li>Boutique en ligne et paiement en ligne (peut-être bientôt)</li><li>Rappels par SMS</li><li>Refonte complète du design</li><li>Séance photo</li></ul><p class="sub" style="margin-top:12px">Mail pro supplémentaire : 4 € HT par mois et par adresse.</p></div>
   </div>

@@ -16,7 +16,7 @@
     return fetch(path, { method: method || 'GET', credentials: 'same-origin', headers: body ? { 'content-type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined })
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { s: r.status, j: j }; }); });
   }
-  var IC = { globe: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18', card: 'M2 7a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zM2 10h20', pen: 'M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z', msg: 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z', home: 'M3 11l9-8 9 8v9a2 2 0 0 1-2 2h-4v-7H9v7H5a2 2 0 0 1-2-2z', help: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01', user: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8', out: 'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9', ext: 'M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3', cal: 'M3 5h18v16H3zM3 10h18M8 3v4M16 3v4' };
+  var IC = { globe: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18', card: 'M2 7a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zM2 10h20', pen: 'M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z', msg: 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z', home: 'M3 11l9-8 9 8v9a2 2 0 0 1-2 2h-4v-7H9v7H5a2 2 0 0 1-2-2z', help: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01', user: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8', out: 'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9', ext: 'M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3', cal: 'M3 5h18v16H3zM3 10h18M8 3v4M16 3v4', edit: 'M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4' };
   function ico(n, size) { var s = document.createElementNS(NS, 'svg'); s.setAttribute('width', size || 22); s.setAttribute('height', size || 22); s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('fill', 'none'); s.setAttribute('stroke', 'currentColor'); s.setAttribute('stroke-width', 2); s.setAttribute('stroke-linecap', 'round'); s.setAttribute('stroke-linejoin', 'round'); s.setAttribute('aria-hidden', 'true'); var p = document.createElementNS(NS, 'path'); p.setAttribute('d', IC[n]); s.appendChild(p); return s; }
   var LBL = { nouvelle: 'Demande reçue', en_creation: 'En création', apercu: 'Aperçu à valider', en_ligne: 'En ligne', abandonnee: 'Abandonnée', actif: 'Actif', impaye: 'Impayé', suspendu: 'Suspendu', resilie: 'Résilié', ouverte: 'Reçue', en_cours: 'En cours', resolue: 'Traitée', essentiel: 'Essentiel', pro: 'Pro', demandee: 'Demandée', faite: 'Faite' };
   var PRIX = { essentiel: 60, pro: 100 }, MAILP = 4;
@@ -37,7 +37,7 @@
   /* ===== vues ===== */
   function vAccueil() {
     var d = D(), prenom = (E.compte.nom || '').split(/\s+/)[0], out = h('div'), idx = { nouvelle: 0, en_creation: 1, apercu: 2, en_ligne: 3 }[d && d.statut];
-    main.appendChild(head('Bonjour ' + prenom, d ? d.commerce + ' · ' + new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }) : 'Bienvenue sur votre espace', d && d.site_url && enLigne() ? [h('a', { class: 'btn', href: d.site_url, target: '_blank', rel: 'noopener' }, 'Voir mon site ', ico('ext', 16))] : []));
+    main.appendChild(head('Bonjour ' + prenom, d ? d.commerce + ' · ' + new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }) : 'Bienvenue sur votre espace', d && d.site_url && enLigne() ? [E.formule === 'pro' ? h('button', { type: 'button', class: 'btn ghost', text: 'Modifier mon site', onclick: function () { go('editeur'); } }) : null, h('a', { class: 'btn', href: d.site_url, target: '_blank', rel: 'noopener' }, 'Voir mon site ', ico('ext', 16))] : []));
     if (d && d.suspendu) out.appendChild(h('div', { class: 'warnbox', role: 'alert' }, h('div', null, h('b', { text: 'Votre site est temporairement suspendu.' }), h('div', { text: 'Les modifications sont désactivées. Écrivez-nous depuis l’onglet Aide pour qu’on regarde ensemble.' }))));
     if (!d) {
       out.appendChild(h('div', { class: 'card' }, h('h2', { text: 'Votre site vitrine' }), h('p', { class: 'sub', text: 'Vous n’avez pas encore fait de demande. Cela prend 3 minutes, sans engagement et sans paiement.' }), h('a', { class: 'btn', href: '/commander', text: 'Faire ma demande' })));
@@ -88,7 +88,7 @@
     var tot = PRIX[a.formule] + MAILP * (a.mails_sup || 0), fin = a.debut ? addMonths(a.debut, 12) : null;
     main.appendChild(h('div', { class: 'card' }, h('div', { class: 'tbar' }, h('h2', { text: 'Formule ' + lab(a.formule) }), pill(a.statut)),
       h('dl', { class: 'dl' }, [['Total par mois', eur(tot)], ['Formule', eur(PRIX[a.formule])], ['Mails pro en plus', (a.mails_sup || 0) + ' × ' + eur(MAILP).replace(' HT', '') + ' HT'], ['Début', dOnly(a.debut)], ['Fin de l’engagement de 12 mois', fin ? dOnly(fin) : '—']].map(function (x) { return h('div', null, h('dt', { text: x[0] }), h('dd', { text: x[1] })); }))));
-    var inc = ['Site vitrine sur mesure', 'Nom de domaine et hébergement', 'Espace client', E.formule === 'pro' ? '3 modifications par mois' : '1 modification par mois', 'Guide pub'].concat(a.formule === 'pro' ? ['Outil de réservation en ligne', 'Agenda', '1 adresse mail pro incluse'] : []);
+    var inc = ['Site vitrine sur mesure', 'Nom de domaine et hébergement', 'Espace client', E.formule === 'pro' ? '3 modifications par mois réalisées par nous' : '1 modification par mois réalisée par nous', 'Guide pub'].concat(a.formule === 'pro' ? ['Éditeur en libre-service : textes, prix, horaires, photos', 'Outil de réservation en ligne', 'Agenda', '1 adresse mail pro incluse'] : []);
     main.appendChild(h('div', { class: 'card', style: 'margin-top:16px' }, h('h3', { text: 'Ce qui est inclus' }), h('ul', { class: 'list' }, inc.map(function (t) { return h('li', { text: '✓ ' + t }); })), h('p', { class: 'sub', style: 'margin-top:12px', text: 'Pour changer de formule ou ajouter une adresse mail, écrivez-nous depuis l’onglet Aide.' })));
   }
   function vMessages() {
@@ -115,12 +115,89 @@
       } })));
   }
 
+
+  /* ===== éditeur en libre-service (formule Pro) ===== */
+  function reduire(file) {
+    return new Promise(function (ok, ko) {
+      var img = new Image(), u = URL.createObjectURL(file);
+      img.onload = function () {
+        var m = Math.max(img.width, img.height), tries = [[1600, 0.82], [1400, 0.72], [1100, 0.64], [900, 0.55]], i = 0;
+        (function essai() {
+          var k = Math.min(1, tries[i][0] / m), c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+          var g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
+          var d = c.toDataURL('image/jpeg', tries[i][1]), b = d.split(',')[1];
+          if (b.length * 0.75 > 1100000 && ++i < tries.length) return essai();
+          URL.revokeObjectURL(u); if (b.length * 0.75 > 1150000) ko(new Error('taille')); else ok(b);
+        })();
+      };
+      img.onerror = function () { URL.revokeObjectURL(u); ko(new Error('format')); };
+      img.src = u;
+    });
+  }
+  var TAGS = { h1: 'Titre', h2: 'Titre de section', h3: 'Sous-titre', h4: 'Sous-titre', p: 'Paragraphe', a: 'Bouton ou lien', small: 'Précision', b: 'Prix ou valeur', li: 'Élément de liste' };
+  function vEditeur() {
+    main.appendChild(head('Modifier mon site', 'Changez vos textes, prix, horaires et photos : le résultat apparaît tout de suite sur votre site.', []));
+    var box = h('div'); main.appendChild(box); box.appendChild(h('div', { class: 'card' }, h('p', { class: 'empty', text: 'Chargement de l’éditeur…' })));
+    api('/api/espace/editeur').then(function (r) {
+      box.textContent = '';
+      if (!r.j.ok) { box.appendChild(h('div', { class: 'card' }, h('p', { class: 'empty', text: r.j.error === 'pro' ? 'L’éditeur est réservé à la formule Pro.' : 'L’éditeur sera disponible dès que votre site sera en ligne.' }))); return; }
+      var C = r.j.champs, off = r.j.lecture || !!r.j.suspendu, frame = h('iframe', { src: r.j.site_url, title: 'Aperçu de mon site', loading: 'lazy' }), cnt = h('span', { class: 'pill', text: '' }), refT;
+      var maj = function () { cnt.textContent = C.filter(function (c) { return c.val !== null; }).length + ' modifié(s)'; };
+      var refresh = function () { clearTimeout(refT); refT = setTimeout(function () { frame.src = r.j.site_url + '?v=' + Date.now(); }, 350); };
+      function save(c, valeur, st, rst, node) {
+        var p = valeur === null ? api('/api/espace/contenu', 'POST', { k: c.k, reset: true }) : api('/api/espace/contenu', 'POST', { k: c.k, valeur: valeur });
+        st.textContent = 'Enregistrement…';
+        return p.then(function (x) {
+          if (!x.j.ok) { st.textContent = ''; flash(x.j.error === 'texte' ? 'Le texte doit faire entre 1 et 600 caractères.' : x.j.error === 'suspendu' ? 'Votre site est suspendu.' : x.j.error === 'lecture-seule' ? 'Lecture seule.' : 'Enregistrement impossible.', true); return false; }
+          c.val = valeur; st.textContent = 'Enregistré ✓'; setTimeout(function () { st.textContent = ''; }, 2200); rst.hidden = valeur === null; maj(); refresh(); return true;
+        });
+      }
+      function champ(c) {
+        var cur = c.val !== null ? c.val : c.v, st = h('small', { class: 'sub' }), rst = h('button', { type: 'button', class: 'lnk', text: 'Rétablir l’original', hidden: c.val === null ? '' : null });
+        var w = h('div', { class: 'fld' });
+        if (c.type === 'img') {
+          var im = h('img', { src: cur, alt: '', onerror: function () { im.style.visibility = 'hidden'; } }), fi = h('input', { type: 'file', accept: 'image/jpeg,image/png,image/webp', hidden: '', 'aria-label': 'Choisir une photo' });
+          fi.addEventListener('change', function () {
+            var f = fi.files[0]; if (!f) return; st.textContent = 'Envoi de la photo…';
+            reduire(f).then(function (b64) { return api('/api/espace/media', 'POST', { mime: 'image/jpeg', data: b64 }); }).then(function (m) {
+              if (!m.j.ok) { st.textContent = ''; flash(m.j.error === 'limite' ? 'Limite de photos atteinte.' : 'Photo refusée.', true); return; }
+              return save(c, m.j.url, st, rst).then(function (ok) { if (ok) { im.src = m.j.url; im.style.visibility = ''; } });
+            }).catch(function () { st.textContent = ''; flash('Cette image ne peut pas être utilisée (JPEG, PNG ou WebP).', true); });
+            fi.value = '';
+          });
+          w.appendChild(h('div', { class: 'imgrow' }, h('div', { class: 'thumb' }, im), h('div', null, h('b', { text: 'Photo' }), h('div', null, h('button', { type: 'button', class: 'btn ghost sm', text: 'Changer la photo', disabled: off ? 'disabled' : null, onclick: function () { fi.click(); } }), fi), st, rst)));
+          rst.addEventListener('click', function () { save(c, null, st, rst).then(function (ok) { if (ok) im.src = c.v; }); });
+        } else {
+          var long = c.v.length > 70, inp = h(long ? 'textarea' : 'input', { maxlength: '600', 'aria-label': TAGS[c.label] || 'Texte', disabled: off ? 'disabled' : null });
+          if (long) inp.rows = Math.min(5, Math.ceil(c.v.length / 70)); else inp.type = 'text';
+          inp.value = cur;
+          inp.addEventListener('change', function () { var v = inp.value.trim(); if (!v) { inp.value = c.val !== null ? c.val : c.v; flash('Le texte ne peut pas être vide.', true); return; } if (v === (c.val !== null ? c.val : c.v)) return; save(c, v === c.v ? null : v, st, rst); });
+          rst.addEventListener('click', function () { save(c, null, st, rst).then(function (ok) { if (ok) inp.value = c.v; }); });
+          w.appendChild(h('label', null, h('span', { text: TAGS[c.label] || 'Texte' }), inp)); w.appendChild(h('div', { class: 'fst' }, st, rst));
+        }
+        c.node = w; return w;
+      }
+      var secs = [], seen = {};
+      C.forEach(function (c) { if (!seen[c.sec]) { seen[c.sec] = { n: c.sec, c: [] }; secs.push(seen[c.sec]); } seen[c.sec].c.push(c); });
+      var q = h('input', { class: 'find', type: 'search', placeholder: 'Chercher un texte ou une section…', 'aria-label': 'Chercher' }), list = h('div');
+      var dets = secs.map(function (s, i) { var d = h('details', { class: 'sec2' }, h('summary', null, s.n, h('span', { class: 'pill', text: String(s.c.length) })), s.c.map(champ)); if (i === 0) d.open = true; s.d = d; return d; });
+      dets.forEach(function (d) { list.appendChild(d); });
+      q.addEventListener('input', function () { var t = q.value.trim().toLowerCase(); secs.forEach(function (s) { var any = false; s.c.forEach(function (c) { var m = !t || (c.v + ' ' + (c.val || '') + ' ' + s.n).toLowerCase().indexOf(t) >= 0; c.node.hidden = !m; if (m) any = true; }); s.d.hidden = !any; if (t && any) s.d.open = true; }); });
+      maj();
+      if (r.j.suspendu) box.appendChild(h('div', { class: 'warnbox' }, 'Votre site est suspendu : les modifications sont désactivées.'));
+      if (r.j.lecture) box.appendChild(h('div', { class: 'infobox', text: 'Lecture seule : vous consultez cet éditeur en tant qu’administrateur.' }));
+      box.appendChild(h('div', { class: 'editor' },
+        h('div', { class: 'edcol card' }, h('div', { class: 'tbar' }, h('h2', { text: 'Contenu du site' }), cnt), q, list),
+        h('div', { class: 'edprev card' }, h('div', { class: 'tbar' }, h('h3', { text: 'Votre site' }), h('a', { class: 'btn ghost sm', href: r.j.site_url, target: '_blank', rel: 'noopener', text: 'Ouvrir' })), h('div', { class: 'browser' }, h('div', { class: 'bar' }, h('i'), h('i'), h('i'), h('span', { text: 'Aperçu en direct' })), frame))));
+    }).catch(function () { box.textContent = ''; box.appendChild(h('div', { class: 'card' }, h('p', { class: 'empty', text: 'Chargement impossible.' }))); });
+  }
+
   /* ===== navigation ===== */
-  var VIEWS = { accueil: vAccueil, site: vSite, modifs: vModifs, abo: vAbo, messages: vMessages, aide: vAide, compte: vCompte };
-  var NAV = [['accueil', 'Accueil', 'home'], ['site', 'Mon site', 'globe'], ['modifs', 'Modifications', 'pen'], ['abo', 'Abonnement', 'card'], ['messages', 'Messages', 'msg'], ['aide', 'Aide', 'help'], ['compte', 'Mon compte', 'user']];
+  var VIEWS = { accueil: vAccueil, editeur: vEditeur, site: vSite, modifs: vModifs, abo: vAbo, messages: vMessages, aide: vAide, compte: vCompte };
+  var NAV = [['accueil', 'Accueil', 'home'], ['site', 'Mon site', 'globe'], ['editeur', 'Modifier mon site', 'edit', 'pro'], ['modifs', 'Demandes à l’équipe', 'pen'], ['abo', 'Abonnement', 'card'], ['messages', 'Messages', 'msg'], ['aide', 'Aide', 'help'], ['compte', 'Mon compte', 'user']];
   function drawNav() {
     var nav = $('#nav'); nav.textContent = '';
-    NAV.forEach(function (x) { var b = h('button', { type: 'button', 'aria-current': cur === x[0] ? 'page' : null, onclick: function () { go(x[0]); } }, ico(x[2], 20), x[1]); if (x[0] === 'messages' && nonLues()) b.appendChild(h('span', { class: 'bdg2', text: String(nonLues()) })); nav.appendChild(b); });
+    NAV.forEach(function (x) { if (x[3] === 'pro' && E.formule !== 'pro') return; var b = h('button', { type: 'button', 'aria-current': cur === x[0] ? 'page' : null, onclick: function () { go(x[0]); } }, ico(x[2], 20), x[1]); if (x[0] === 'messages' && nonLues()) b.appendChild(h('span', { class: 'bdg2', text: String(nonLues()) })); nav.appendChild(b); });
   }
   function go(k) { cur = k; location.hash = k === 'accueil' ? '' : k; draw(); window.scrollTo(0, 0); }
   function draw() { main.textContent = ''; drawNav(); (VIEWS[cur] || vAccueil)(); }

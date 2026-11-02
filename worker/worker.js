@@ -261,6 +261,7 @@ async function espace(req, env, url, p) {
   const all = async (sql, ...a) => (await env.DB.prepare(sql).bind(...a).all()).results || [];
   const lecture = !!u.par_admin;
   try {
+    if (p === '/api/espace/editeur' || p === '/api/espace/contenu' || p === '/api/espace/media') return await espaceEdit(req, env, url, p, u, lecture);
     if (p === '/api/espace' && req.method === 'GET') {
       const compte = await one('SELECT nom, email, created_at FROM comptes WHERE id = ?', u.id);
       const demandes = await all('SELECT id, ref, created_at, commerce, activite, ville, domaine, mails, tel, formule, statut, suspendu, site_url FROM demandes WHERE compte_id = ? ORDER BY id DESC', u.id);
@@ -354,6 +355,85 @@ async function reinitialiser(req, env, url) {
     await log(env, r.compte_id, null, 'mot_de_passe_reinit_mail', '');
     return json({ ok: true });
   } catch (_) { return json({ ok: false }, 500); }
+}
+const SITE_RE = /^\/exemples\/(bistro|salon|artisan)$/;
+const PAGE_SUSPENDU = '<!doctype html><html lang="fr"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Site momentanément indisponible</title><body style="font-family:system-ui,sans-serif;display:grid;place-items:center;min-height:100vh;margin:0;background:#f5f6f6;color:#0b0b0c;text-align:center;padding:24px"><div><h1 style="margin:0 0 8px">Site momentanément indisponible</h1><p style="color:#5e5e64">Ce site est en cours de maintenance. Merci de revenir un peu plus tard.</p></div></body></html>';
+async function champsDe(sitePath) {
+  const r = await fromGithub(sitePath.slice(1) + '.edit.json');
+  if (!r) return null;
+  try { return (await r.json()).champs || null; } catch (_) { return null; }
+}
+async function exemple(req, env, p) {
+  const r = await fromGithub(p.slice(1) + '.html');
+  if (!r) return null;
+  let d = null;
+  try { d = await env.DB.prepare("SELECT d.compte_id, d.suspendu, c.demo, COALESCE(a.formule, d.formule) formule FROM demandes d JOIN comptes c ON c.id = d.compte_id LEFT JOIN abonnements a ON a.compte_id = d.compte_id WHERE d.site_url = ? ORDER BY d.id DESC LIMIT 1").bind(p).first(); } catch (_) {}
+  if (!d) return r;
+  if (d.suspendu && !d.demo) return new Response(PAGE_SUSPENDU, { status: 503, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' } });
+  if (d.formule !== 'pro') return r;
+  const rows = (await env.DB.prepare('SELECT cle, valeur FROM contenus WHERE compte_id = ?').bind(d.compte_id).all()).results || [];
+  if (!rows.length) return r;
+  const ov = {}; rows.forEach((x) => { ov[x.cle] = x.valeur; });
+  const out = new HTMLRewriter().on('[data-k]', { element(el) {
+    const v = ov[el.getAttribute('data-k')];
+    if (v === undefined) return;
+    if (el.tagName === 'img') { if (/^\/media\/\d+$/.test(v)) { el.setAttribute('src', v); el.removeAttribute('srcset'); } } else el.setInnerContent(String(v));
+  } }).transform(r);
+  const h = new Headers(out.headers); h.set('cache-control', 'no-store');
+  return new Response(out.body, { status: out.status, headers: h });
+}
+async function media(env, id) {
+  const m = await env.DB.prepare('SELECT mime, data FROM medias WHERE id = ?').bind(id).first();
+  if (!m) return null;
+  const bin = atob(m.data), a = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i);
+  return new Response(a, { headers: { 'content-type': m.mime, 'cache-control': 'public, max-age=31536000, immutable', 'x-content-type-options': 'nosniff' } });
+}
+async function espaceEdit(req, env, url, p, u, lecture) {
+  const d = await env.DB.prepare("SELECT d.id, d.site_url, d.suspendu, COALESCE(a.formule, d.formule) formule FROM demandes d LEFT JOIN abonnements a ON a.compte_id = d.compte_id WHERE d.compte_id = ? ORDER BY d.id DESC LIMIT 1").bind(u.id).first();
+  if (!d || d.formule !== 'pro') return json({ ok: false, error: 'pro' }, 403);
+  if (!d.site_url || !SITE_RE.test(d.site_url)) return json({ ok: false, error: 'pas-pret' }, 409);
+  const champs = await champsDe(d.site_url);
+  if (!champs) return json({ ok: false, error: 'pas-pret' }, 409);
+  if (p === '/api/espace/editeur' && req.method === 'GET') {
+    const rows = (await env.DB.prepare('SELECT cle, valeur FROM contenus WHERE compte_id = ?').bind(u.id).all()).results || [];
+    const ov = {}; rows.forEach((x) => { ov[x.cle] = x.valeur; });
+    return json({ ok: true, lecture, site_url: d.site_url, suspendu: d.suspendu, champs: champs.map((c) => ({ k: c.k, type: c.type, sec: c.sec, v: c.v, val: ov[c.k] === undefined ? null : ov[c.k] })) });
+  }
+  if (req.method !== 'POST') return json({ ok: false }, 405);
+  if (lecture) return json({ ok: false, error: 'lecture-seule' }, 403);
+  if (d.suspendu) return json({ ok: false, error: 'suspendu' }, 403);
+  if (p === '/api/espace/media') {
+    const { b, err } = await readJson(req, url, 1600000); if (err) return err;
+    const mime = ['image/jpeg', 'image/png', 'image/webp'].includes(b.mime) ? b.mime : '';
+    if (!mime || typeof b.data !== 'string' || !/^[A-Za-z0-9+/=]+$/.test(b.data)) return json({ ok: false, error: 'format' }, 422);
+    let bin; try { bin = atob(b.data); } catch (_) { return json({ ok: false, error: 'format' }, 422); }
+    if (bin.length > 1200000 || bin.length < 100) return json({ ok: false, error: 'taille' }, 413);
+    const sig = bin.slice(0, 12), okSig = (mime === 'image/jpeg' && sig.startsWith('\xff\xd8\xff')) || (mime === 'image/png' && sig.startsWith('\x89PNG')) || (mime === 'image/webp' && sig.startsWith('RIFF') && sig.slice(8, 12) === 'WEBP');
+    if (!okSig) return json({ ok: false, error: 'format' }, 422);
+    const n = await env.DB.prepare('SELECT COUNT(*) n FROM medias WHERE compte_id = ?').bind(u.id).first();
+    if (n.n >= 60) return json({ ok: false, error: 'limite' }, 409);
+    const r = await env.DB.prepare('INSERT INTO medias (compte_id, mime, data) VALUES (?,?,?)').bind(u.id, mime, b.data).run();
+    return json({ ok: true, url: '/media/' + r.meta.last_row_id });
+  }
+  if (p === '/api/espace/contenu') {
+    const { b, err } = await readJson(req, url, 6000); if (err) return err;
+    const c = champs.find((x) => x.k === b.k);
+    if (!c) return json({ ok: false, error: 'cle' }, 422);
+    if (b.reset === true) {
+      await env.DB.prepare('DELETE FROM contenus WHERE compte_id = ? AND cle = ?').bind(u.id, c.k).run();
+      return json({ ok: true });
+    }
+    let v = typeof b.valeur === 'string' ? b.valeur.replace(/[\u0000-\u0008\u000b-\u001f]/g, '').trim() : '';
+    if (c.type === 'img') {
+      const m = v.match(/^\/media\/(\d+)$/);
+      if (!m || !(await env.DB.prepare('SELECT id FROM medias WHERE id = ? AND compte_id = ?').bind(parseInt(m[1], 10), u.id).first())) return json({ ok: false, error: 'media' }, 422);
+    } else if (v.length < 1 || v.length > 600) return json({ ok: false, error: 'texte' }, 422);
+    await env.DB.prepare("INSERT INTO contenus (compte_id, cle, valeur) VALUES (?,?,?) ON CONFLICT(compte_id, cle) DO UPDATE SET valeur = excluded.valeur, updated_at = datetime('now')").bind(u.id, c.k, v).run();
+    await log(env, u.id, null, 'edition_site', c.k);
+    return json({ ok: true });
+  }
+  return json({ ok: false }, 404);
 }
 async function adminExtra(req, env, url, p, me, one, all) {
   const num = (v) => { const n = parseInt(v, 10); return Number.isFinite(n) ? n : 0; };
@@ -663,6 +743,9 @@ export default {
       const clean = p === '/index.html' ? '/' : p.slice(0, -5);
       return Response.redirect(url.origin + clean + url.search, 301);
     }
+    const mm = p.match(/^\/media\/(\d+)$/);
+    if (mm) { const rm = await media(env, parseInt(mm[1], 10)); if (rm) return rm; }
+    if (SITE_RE.test(p)) { const re = await exemple(req, env, p); if (re) return re; }
     let file = ROUTES[p];
     if (!file && (/^\/assets\/[a-z0-9._\/-]+$/i.test(p) && !p.includes('..'))) file = p.slice(1);
     if (!file && (p === '/robots.txt' || p === '/sitemap.xml')) file = p.slice(1);

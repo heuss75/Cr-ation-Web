@@ -459,6 +459,47 @@ footer{background:var(--navy);color:#b9cde6;padding-block:34px;font-size:14px}fo
 <footer><div class="w"><span>© 2026 Durand Plomberie · Caen · SIRET fictif</span><span>Mentions légales · RGE Qualibat · Garantie décennale</span></div></footer>'''
     return page("Durand Plomberie · Plombier à Caen", "Exemple de site plombier", "family=Plus+Jakarta+Sans:wght@400;500;600;700;800", css, body)
 
+import json, re
+from bs4 import BeautifulSoup, NavigableString, Comment
+
+SKIP_TAGS = {"script", "style", "svg", "noscript", "form", "select", "option", "textarea", "button", "head", "title"}
+SKIP_CLASS = {"back", "demo-bar", "bk", "err"}
+
+def editable(html, slug):
+    """Repère chaque texte et chaque photo du site avec un identifiant stable (data-k) pour l'éditeur du client."""
+    soup = BeautifulSoup(html, "html.parser")
+    champs, n, sec = [], [0], ["En-tête"]
+    def blocked(el):
+        for a in [el] + list(el.parents):
+            if getattr(a, "name", None) in SKIP_TAGS: return True
+            if set(a.get("class") or []) & SKIP_CLASS: return True
+        return False
+    def nxt(): n[0] += 1; return n[0]
+    sec[0] = "Haut de page"
+    for el in list(soup.body.descendants):
+        if not hasattr(el, "name") or el.name is None or blocked(el): continue
+        if el.name == "h2": sec[0] = el.get_text(" ", strip=True)[:60] or sec[0]
+        if el.name == "img":
+            if el.get("src") and not el["src"].startswith("data:"):
+                k = "i%d" % nxt(); el["data-k"] = k
+                champs.append(dict(k=k, type="img", sec=sec[0], v=el["src"], label=(el.get("alt") or "Photo")))
+            continue
+        kids = [c for c in el.children if not isinstance(c, Comment)]
+        texts = [c for c in kids if isinstance(c, NavigableString) and re.search(r"[A-Za-zÀ-ÿ0-9]{2}", str(c))]
+        if not texts: continue
+        if len(kids) == 1:
+            k = "t%d" % nxt(); el["data-k"] = k
+            champs.append(dict(k=k, type="text", sec=sec[0], v=str(texts[0]).strip(), label=el.name))
+        else:
+            for c in texts:
+                k = "t%d" % nxt(); w = soup.new_tag("span"); w["data-k"] = k
+                v = str(c); c.replace_with(w); w.string = v
+                champs.append(dict(k=k, type="text", sec=sec[0], v=v.strip(), label=el.name))
+    return str(soup), champs
+
 for name, fn in (("bistro", bistro), ("salon", salon), ("artisan", artisan)):
-    open(os.path.join(OUT, name + ".html"), "w").write(fn())
+    html, champs = editable(fn(), name)
+    open(os.path.join(OUT, name + ".html"), "w").write(html)
+    json.dump(dict(slug=name, champs=champs), open(os.path.join(OUT, name + ".edit.json"), "w"), ensure_ascii=False, separators=(",", ":"))
+    print(name, len(champs), "champs modifiables")
 print("exemples OK")

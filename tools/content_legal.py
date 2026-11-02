@@ -120,11 +120,12 @@ def mk(E):
 <p>L’Éditeur met en forme les contenus fournis et corrige les fautes de langue évidentes. Il relit le site avant mise en ligne : textes, photos, liens, affichage sur téléphone. Le Client reste responsable de l’exactitude des informations (horaires, prix, adresse) et des mentions légales propres à son activité.</p>
 
 <h2 id="art-9">Article 9. Modifications comprises dans l’abonnement</h2>
-<p>Le Client dispose d’<strong>une modification par mois</strong> (<strong>trois</strong> dans la formule Pro), qu’il réalise lui-même depuis l’éditeur de son espace client. Une modification consiste en : le remplacement d’un texte, le remplacement d’une photo, l’ajout d’un bloc de contenu ou la suppression d’un bloc de contenu.</p>
+<p>Le Client peut demander à l’Éditeur, depuis son espace client, <strong>une modification par mois</strong> (<strong>trois</strong> dans la formule Pro), que l’Éditeur réalise. Une modification consiste en : le remplacement d’un texte, le remplacement d’une photo, l’ajout d’un bloc de contenu ou la suppression d’un bloc de contenu.</p>
 <ul>
 <li>Les modifications non utilisées ne se cumulent pas d’un mois sur l’autre.</li>
 <li>Le Client peut annuler une modification ; un historique est conservé.</li>
-<li>L’éditeur ne permet pas de changer la mise en page, ce qui garantit la stabilité du site.</li>
+<li>Dans la formule Pro, le Client dispose en plus d’un <strong>éditeur en libre-service</strong> lui permettant de modifier lui-même, sans limite, les textes, prix, horaires et photos de son site. Cet éditeur ne permet pas de changer la mise en page, ce qui garantit la stabilité du site.</li>
+<li>Le Client est seul responsable des contenus qu’il publie avec l’éditeur (textes, photos) : il garantit disposer des droits nécessaires (droit d’auteur, droit à l’image) et que ces contenus sont conformes à la loi.</li>
 <li>Une nouvelle page, une refonte du design ou une fonctionnalité supplémentaire ne sont pas comprises et font l’objet d’un devis.</li>
 <li>L’Éditeur peut annuler ou corriger une modification contraire à la loi ou aux présentes CGV.</li>
 </ul>
