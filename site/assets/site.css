@@ -30,9 +30,9 @@ h2{font:700 clamp(2rem,5.4vw,3.4rem)/1 var(--display);letter-spacing:-.035em;tex
   padding-inline:max(16px,env(safe-area-inset-left,0px)) max(16px,env(safe-area-inset-right,0px))}
 .hdr .wrap{display:flex;align-items:center;justify-content:space-between;gap:18px;padding-block:12px}
 .logo{display:inline-flex;align-items:center;gap:14px;text-decoration:none}
-.logo .ic{width:42px;height:42px;stroke-width:1.3}
-.logo b{display:block;font:800 1.5rem/1 var(--display);letter-spacing:-.03em}
-.logo b em{font-style:italic;font-weight:700}
+.logo .mark{width:46px;height:46px;flex:none}
+.logo b{display:block;font:600 1.1rem/1 var(--display);letter-spacing:.2em;text-transform:uppercase;white-space:nowrap}
+.logo b em{font-style:normal;font-weight:800;color:#17C26E}
 .logo small{display:none;font:500 12.5px/1.2 var(--body);color:var(--ink2);margin-top:4px}
 .nav{display:none;gap:34px;font-weight:500;font-size:16px}
 .nav a{text-decoration:none;color:var(--ink);padding-block:6px}
@@ -352,7 +352,7 @@ body.scrolled .hdr{border-bottom-color:var(--line);box-shadow:0 6px 24px var(--s
 @media(min-width:620px){.hdr .btn.sm{display:inline-flex}}
 .hdr .btn.ghost.sm{display:none!important}
 @media(min-width:1400px){.hdr .btn.ghost.sm{display:inline-flex!important}}
-@media(max-width:619px){.logo b{font-size:1.3rem}}
+@media(max-width:619px){.logo b{font-size:.95rem;letter-spacing:.14em}}
 @media(min-width:1040px){#burger{display:none}}
 .nav a{position:relative;background:linear-gradient(var(--ink),var(--ink)) 0 100%/0 2px no-repeat;transition:background-size .2s}
 .nav a:hover{background-size:100% 2px}
@@ -594,7 +594,7 @@ footer.ft{max-width:1180px;margin:0 auto;padding-block:40px 56px;border-top:1px 
 .ftg ul{display:grid;gap:6px}
 .ftg a,.ftg button.lnk{color:var(--ink2);text-decoration:none;background:none;border:0;padding:0;font:inherit;cursor:pointer;text-align:left}
 .ftg a:hover,.ftg button.lnk:hover{color:var(--ink);text-decoration:underline}
-.ftg .brand b{font:800 1.3rem var(--display);color:var(--ink);letter-spacing:-.03em;display:block;margin-bottom:8px}
+.ftg .brand b{font:600 1.05rem var(--display);color:var(--ink);letter-spacing:.18em;text-transform:uppercase;display:block;margin-bottom:8px}.ftg .brand b em{font-style:normal;font-weight:800;color:#17C26E}
 .ftbot{display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between;border-top:1px solid var(--line);padding-top:18px;font-size:13.5px}
 .notfound{padding-block:clamp(60px,12vw,140px);text-align:left}
 .notfound .n{font:800 clamp(5rem,22vw,11rem)/.9 var(--display);letter-spacing:-.06em}
@@ -619,7 +619,7 @@ footer.ft{max-width:1180px;margin:0 auto;padding-block:40px 56px;border-top:1px 
 }
 
 /* petits écrans : l'en-tête doit tenir sur 360 px */
-@media(max-width:430px){.logo .ic{width:30px;height:30px}.logo{gap:8px}.logo b{font-size:1.1rem}.ibtn{width:40px;height:40px}.acts{gap:6px}.hdr .wrap{gap:8px}}
+@media(max-width:430px){.logo .mark{width:36px;height:36px}.logo{gap:8px}.logo b{font-size:.82rem;letter-spacing:.1em}.ibtn{width:40px;height:40px}.acts{gap:6px}.hdr .wrap{gap:8px}}
 .field>label.check{font:400 15px/1.45 var(--body);letter-spacing:0;text-transform:none;color:var(--ink)}
 
 /* ---------- formules ---------- */

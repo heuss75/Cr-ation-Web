@@ -113,7 +113,7 @@ HEADER = """
 <header class="hdr">
   <div class="wrap">
     <a class="logo" href="/" aria-label="%(name)s, accueil">
-      %(i_monitor)s
+      <svg class="mark" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 20 12 8h40l4 12"/><path d="M8 20a6 6 0 0 0 12 0 6 6 0 0 0 12 0 6 6 0 0 0 12 0 6 6 0 0 0 12 0"/><path d="M12 33v23h40V33"/><path d="M26 56V42h12v14"/><path d="M41 38l11 4.5-4.6 1.8-1.8 4.7z" fill="#17C26E" stroke="#17C26E" stroke-width="1.5"/></svg>
       <span><b>Devanture <em>Web</em></b><small>Site vitrine pour commerçants</small></span>
     </a>
     <nav class="nav" aria-label="Sections">%(nav)s</nav>
@@ -207,6 +207,8 @@ def page(slug, title, desc, body, cur=None, page_js="", head_extra="", mainclass
 <meta name="description" content="%(d)s">
 %(robots)s<meta name="theme-color" content="#F5F6F6">
 <meta name="color-scheme" content="light dark">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <meta property="og:title" content="%(t)s">
 <meta property="og:description" content="%(d)s">
 <meta property="og:type" content="website">
@@ -538,6 +540,8 @@ ADMIN_HTML = """<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Administration | Devanture Web</title>
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <meta name="robots" content="noindex, nofollow">
 <meta name="color-scheme" content="light dark">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -549,7 +553,7 @@ ADMIN_HTML = """<!doctype html>
 <div class="gate card" id="gate" role="status" style="max-width:420px;margin:14vh auto"><p>Vérification de l’accès…</p></div>
 <div class="shell" id="app" hidden>
 <aside class="side">
-<div class="brand"><i>""" + _ic("M2 5h20v12H2zM8 21h8M12 17v4") + """</i><div><b>Devanture Web</b><small>Espace administrateur</small></div></div>
+<div class="brand"><i><svg width="22" height="22" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 20 12 8h40l4 12"/><path d="M8 20a6 6 0 0 0 12 0 6 6 0 0 0 12 0 6 6 0 0 0 12 0 6 6 0 0 0 12 0"/><path d="M12 33v23h40V33"/><path d="M26 56V42h12v14"/><path d="M41 38l11 4.5-4.6 1.8-1.8 4.7z" fill="#17C26E" stroke="#17C26E" stroke-width="1.5"/></svg></i><div><b>Devanture Web</b><small>Espace administrateur</small></div></div>
 <nav class="nav" aria-label="Administration">
 <button type="button" id="n-stats" aria-current="page">""" + _ic("M3 3v18h18M7 15l4-4 3 3 5-6") + """Tableau de bord</button>
 <button type="button" id="n-clients">""" + _ic("M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8") + """Clients</button>
@@ -576,6 +580,8 @@ ESPACE_HTML = """<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Mon espace | Devanture Web</title>
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <meta name="robots" content="noindex, nofollow">
 <meta name="color-scheme" content="light dark">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -717,6 +723,7 @@ for slug, label in PAGES:
         if not t or t.startswith("Article") and False:
             continue
         entries.append(dict(t=t, p=label, u=url0 + ("#" + hid if hid else ""), x=" ".join(txt)[:400]))
+wr("assets/favicon.svg", '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#fff"/><g transform="translate(5 5) scale(.84)" fill="none" stroke="#0B0B0C" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 20 12 8h40l4 12"/><path d="M8 20a6 6 0 0 0 12 0 6 6 0 0 0 12 0 6 6 0 0 0 12 0 6 6 0 0 0 12 0"/><path d="M12 33v23h40V33"/><path d="M26 56V42h12v14"/><path d="M41 38l11 4.5-4.6 1.8-1.8 4.7z" fill="#17C26E" stroke="#17C26E" stroke-width="1.5"/></g></svg>')
 wr("assets/search-index.json", json.dumps(entries, ensure_ascii=False, separators=(",", ":")))
 
 # ------------------------------------------------------------------ fichiers statiques
