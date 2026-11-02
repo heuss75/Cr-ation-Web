@@ -160,7 +160,7 @@
           ib('Se connecter à sa place', 'users', function () { impersonate(c.id); }), ib('Paramètres', 'key', function () { setTab('param'); }))));
       /* onglets */
       var TABS = [['apercu', 'Aperçu', 'home'], ['site', 'Site', 'globe'], ['abo', 'Abonnement', 'card'], ['modifs', 'Modifications', 'repeat'], ['dem', 'Demandes', 'file'], ['msg', 'Messages', 'msg'], ['fact', 'Factures', 'euro'], ['jr', 'Journal & Logs', 'alert'], ['param', 'Paramètres', 'key']];
-      var cnt = { modifs: 0, dem: dm.length, msg: pl.length }, tabs = h('div', { class: 'cf-tabs', role: 'tablist' }), tb = {};
+      var cnt = { modifs: 0, dem: dm.filter(function (x) { return ['nouvelle', 'en_creation', 'apercu'].indexOf(x.statut) >= 0; }).length, msg: pl.filter(function (x) { return x.statut !== 'resolue'; }).length }, tabs = h('div', { class: 'cf-tabs', role: 'tablist' }), tb = {};
       TABS.forEach(function (t) { var b = h('button', { type: 'button', role: 'tab', 'aria-selected': TAB === t[0] ? 'true' : 'false', onclick: function () { setTab(t[0]); } }, ico(t[2], 17), t[1]); tb[t[0]] = b; if (cnt[t[0]]) b.appendChild(h('span', { class: 'cnt', text: String(cnt[t[0]]) })); tabs.appendChild(b); });
       main.appendChild(tabs);
       setTimeout(function () { var sel = tabs.querySelector('[aria-selected=true]'); if (sel && sel.scrollIntoView) tabs.scrollLeft = Math.max(0, sel.offsetLeft - 40); }, 0);
