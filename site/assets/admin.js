@@ -268,8 +268,8 @@
   function card(title, sub, body, fn) { var n = h('div', { class: 'card' }, h('h3', { text: title }), sub ? h('p', { class: 'sub', text: sub }) : null, body); return n; }
 
   /* ===== listes détaillées (clic sur une carte) ===== */
-  function listView(dsKey, title, sub, pred, extra) {
-    open(function () {
+  function listView(dsKey, title, sub, pred, extra, isTop) {
+    (isTop ? top : open)(function () {
       main.textContent = '';
       var rows = DS[dsKey].rows().filter(pred || function () { return true; });
       main.appendChild(head(title, sub || (rows.length + ' résultat(s)'), [backBtn(), h('button', { type: 'button', class: 'btn', text: '⬇ Exporter (CSV)', onclick: function () { download(dsKey + '-' + stamp() + '.csv', csvText(COLS[dsKey], rows)); flash('Export téléchargé : ' + rows.length + ' ligne(s).'); } })]));
@@ -394,6 +394,15 @@
   }
   function groupN(list, keyFn) { var m = {}; list.forEach(function (x) { var k = keyFn(x) || '—'; m[k] = (m[k] || 0) + 1; }); return Object.keys(m).map(function (k) { return { l: k, n: m[k] }; }).sort(function (a, b) { return b.n - a.n; }).slice(0, 8); }
   function revLine(label, detail, value, strong) { return h('div', { class: 'revline' + (strong ? ' strong' : '') }, h('div', null, h('b', { text: label }), detail ? h('small', { text: detail }) : null), h('span', { text: value })); }
+  function revCalcLast(n) { var sv = { m: REV.mode, d: REV.depuis }; REV.mode = 'mois'; REV.depuis = String(n); var r = revCalc(); REV.mode = sv.m; REV.depuis = sv.d; return r; }
+  function monthCa() { var r = revCalcLast(1); return r.length ? r[r.length - 1].ca : 0; }
+  function kpiRow(items) { return h('div', { class: 'kr' }, items.map(function (i) { return h('div', { class: 'card' }, h('div', { class: 'ic ' + (i[3] || 'c1') }, ico(i[2] || 'users', 20)), h('div', null, h('span', { text: i[0] }), h('b', { text: String(i[1]) }))); })); }
+  function updBadges() { var d = demR(), n = function (f) { return d.filter(f).length; }; var set = function (id, v) { var e = $('#' + id); if (e) { e.textContent = v || ''; e.hidden = !v; } }; set('c-dem', n(function (x) { return x.statut === 'nouvelle'; })); set('c-crea', n(function (x) { return x.statut === 'en_creation' || x.statut === 'apercu'; })); set('c-ligne', n(function (x) { return x.statut === 'en_ligne'; })); }
+  function sectionPage(t, sub, key, pred, kp) { listView(key, t, sub, pred, function () { return kpiRow(kp); }, true); }
+  function pageDem() { var d = demR(), c = function (k) { return d.filter(function (x) { return x.statut === k; }).length; }; sectionPage('Demandes de site', 'Suivez et traitez les nouvelles demandes.', 'demandes', null, [['Total', d.length, 'file', 'c2'], ['Nouvelles', c('nouvelle'), 'file', 'c3'], ['En création', c('en_creation'), 'file', 'c4'], ['Aperçus envoyés', c('apercu'), 'file', 'c2'], ['Terminées', c('en_ligne'), 'file', 'c1']]); }
+  function pageCrea() { var d = demR(), c = function (k) { return d.filter(function (x) { return x.statut === k; }).length; }; sectionPage('Sites en création', 'Les sites en cours de fabrication ou en attente de l’accord du client.', 'demandes', function (r) { return r.site === 'en_creation' || r.site === 'apercu'; }, [['En création', c('en_creation'), 'file', 'c4'], ['Aperçus envoyés', c('apercu'), 'file', 'c2']]); }
+  function pageLigne() { var d = demR().filter(function (x) { return x.statut === 'en_ligne'; }); sectionPage('Sites en ligne', 'Les sites livrés et publiés.', 'demandes', function (r) { return r.site === 'en_ligne'; }, [['Sites en ligne', d.length, 'file', 'c1'], ['Formule Pro', d.filter(function (x) { return x.formule === 'pro'; }).length, 'file', 'c2'], ['Formule Essentiel', d.filter(function (x) { return x.formule !== 'pro'; }).length, 'file', 'c3']]); }
+  function pageAbo() { var k = kpi(); sectionPage('Abonnements', 'Les formules et abonnements de vos clients.', 'abonnements', null, [['Abonnements actifs', k.actifs, 'repeat', 'c4'], ['Essentiel', k.nEss, 'repeat', 'c3'], ['Pro', k.nPro, 'repeat', 'c2'], ['Impayés', k.impayes, 'repeat', 'c1'], ['Partis (30 jours)', k.resilies30, 'repeat', 'c1']]); }
   function dashboard() {
     var k = kpi(), out = h('div'), dm = demR(), pl = plR(), cm = comR(), st = {}, plc = { ouverte: 0, en_cours: 0, resolue: 0 };
     dm.forEach(function (x) { st[x.statut] = (st[x.statut] || 0) + 1; });
@@ -407,21 +416,23 @@
     var j7 = cm.filter(function (c) { return d10(c.created_at) >= ago(7); }).length, j1 = cm.filter(function (c) { return d10(c.created_at) >= ago(1); }).length, j30 = cm.filter(function (c) { return d10(c.created_at) >= ago(30); }).length;
     var s7 = function (n, one, many) { return n + ' ' + (n > 1 ? many : one); };
     if (nbDemo) out.appendChild(h('label', { class: 'demonote' }, h('input', { type: 'checkbox', checked: DEMO.on ? 'checked' : null, onchange: function (e) { DEMO.on = e.target.checked; top(showStats); } }), h('span', null, h('b', { text: DEMO.on ? 'Les ' + nbDemo + ' comptes de test sont inclus dans les chiffres. ' : 'Les ' + nbDemo + ' comptes de test sont cachés. ' }), 'Décochez pour ne voir que les vrais clients.')));
+    var enLigne = dm.filter(function (x) { return x.statut === 'en_ligne'; }).length, caMois = monthCa();
     out.appendChild(h('div', { class: 'grid g4' },
-      hero('c3', 'euro', eur(k.mrr), 'Vous gagnez chaque mois (HT)', k.actifs ? 'avec ' + s7(k.actifs, 'client qui paie', 'clients qui paient') : 'aucun client pour l’instant', false, function () { open(revenuePage); }),
-      hero('c4', 'repeat', num(k.actifs), 'Clients abonnés', k.nouveaux30 ? '+' + k.nouveaux30 + ' ce mois' : null, false, cA('Clients abonnés', actifsF)),
-      hero('c2', 'file', num(st.nouvelle || 0), 'Demandes de site à traiter', (st.nouvelle || 0) ? 'à voir en premier' : 'rien en attente', false, cD('Demandes à traiter', function (r) { return r.site === 'nouvelle'; })),
-      hero('c1', 'users', num(cm.length), 'Personnes inscrites', j7 ? '+' + j7 + ' cette semaine' : null, false, cC('Toutes les personnes inscrites'))));
-
-    out.appendChild(h('div', { class: 'sec', text: 'À faire maintenant' }));
+      hero('c3', 'euro', eur(k.mrr), 'Revenu récurrent par mois (HT)', k.actifs ? s7(k.actifs, 'client qui paie', 'clients qui paient') : null, false, function () { open(revenuePage); }),
+      hero('c2', 'file', eur(caMois), 'Facturé ce mois-ci (HT)', null, false, function () { open(revenuePage); }),
+      hero('c4', 'repeat', num(k.actifs), 'Clients actifs', k.nouveaux30 ? '+' + k.nouveaux30 + ' ce mois' : null, false, cA('Clients abonnés', actifsF)),
+      hero('c1', 'users', num(enLigne), 'Sites en ligne', null, false, cD('Sites en ligne', function (r) { return r.site === 'en_ligne'; }))));
     var todo = [
-      [st.nouvelle || 0, 'demande(s) de site à traiter', cD('Demandes à traiter', function (r) { return r.site === 'nouvelle'; })],
-      [st.en_creation || 0, 'site(s) en cours de création', cD('Sites en création', function (r) { return r.site === 'en_creation'; })],
-      [st.apercu || 0, 'aperçu(s) envoyé(s), en attente de la réponse du client', cD('Aperçus envoyés', function (r) { return r.site === 'apercu'; })],
-      [(plc.ouverte || 0) + (plc.en_cours || 0), 'message(s) ou plainte(s) de clients à traiter', cP('Messages à traiter', function (r) { return r.pl !== 'resolue'; })],
-      [k.impayes, 'abonnement(s) impayé(s)', cA('Abonnements impayés', function (r) { return r.abo === 'impaye'; })]
-    ].filter(function (t) { return t[0] > 0; });
-    out.appendChild(h('div', { class: 'card' }, todo.length ? h('ul', { class: 'todo' }, todo.map(function (t) { return click(h('li', null, h('b', { text: String(t[0]) }), h('span', { text: t[1] }), h('em', { text: 'Voir →' })), t[2]); })) : h('p', { class: 'empty', text: 'Rien d’urgent pour le moment.' })));
+      ['Demandes de site à traiter', st.nouvelle || 0, cD('Demandes à traiter', function (r) { return r.site === 'nouvelle'; })],
+      ['Sites en création', st.en_creation || 0, cD('Sites en création', function (r) { return r.site === 'en_creation'; })],
+      ['Aperçus en attente du client', st.apercu || 0, cD('Aperçus envoyés', function (r) { return r.site === 'apercu'; })],
+      ['Paiements en attente', k.impayes, cA('Abonnements impayés', function (r) { return r.abo === 'impaye'; })],
+      ['Messages de clients', (plc.ouverte || 0) + (plc.en_cours || 0), cP('Messages à traiter', function (r) { return r.pl !== 'resolue'; })]
+    ];
+    var rows6 = revCalcLast(6);
+    out.appendChild(h('div', { class: 'dash2' },
+      h('div', { class: 'card' }, h('h2', { text: 'Évolution des revenus' }), h('p', { class: 'sub', text: 'Facturé chaque mois, hors taxes. Bleu foncé : Essentiel · bleu clair : Pro · vert : mails pro.' }), revBars(rows6)),
+      h('div', { class: 'card' }, h('h2', { text: 'À traiter aujourd’hui' }), h('ul', { class: 'todo' }, todo.map(function (t) { return click(h('li', { class: t[1] ? '' : 'zero' }, h('b', { text: String(t[1]) }), h('span', { text: t[0] }), h('em', { text: 'Voir →' })), t[2]); })))));
 
     out.appendChild(h('div', { class: 'sec', text: 'Vos revenus, expliqués' }));
     var rv = h('div', { class: 'card' },
@@ -438,17 +449,18 @@
     rv.appendChild(h('div', { style: 'margin-top:14px' }, h('button', { type: 'button', class: 'btn', text: 'Voir mois par mois →', onclick: function () { open(revenuePage); } })));
     out.appendChild(rv);
 
-    out.appendChild(h('div', { class: 'sec', text: 'Vos clients' }));
+    var more = h('details', { class: 'more' }, h('summary', { text: 'Plus de statistiques' }));
+    more.appendChild(h('div', { class: 'sec', text: 'Vos clients' }));
     var ins30 = {}; cm.forEach(function (c) { var d = d10(c.created_at); if (d >= ago(30)) ins30[d] = (ins30[d] || 0) + 1; });
     var jours = Object.keys(ins30).map(function (d) { return { d: d, n: ins30[d] }; });
     var avecDemande = cm.filter(function (c) { return (IX.dem[c.id] || []).length > 0; }).length, abonnes = k.actifs + k.resTot;
-    out.appendChild(h('div', { class: 'grid g2' },
+    more.appendChild(h('div', { class: 'grid g2' },
       card('Nouvelles inscriptions', '30 derniers jours · ' + s7(j30, 'personne', 'personnes') + ' · cliquez pour la liste', (function () { var w = h('div', null, area(jours)); return click(w, cC('Inscrits des 30 derniers jours', recent('inscrit', 30))); })()),
       card('De l’inscription à l’abonnement', 'Combien de personnes vont jusqu’au bout', funnel([
         { l: 'Inscrites', n: cm.length, c: COL.pri, p: 100, fn: cC('Toutes les personnes inscrites') },
         { l: 'Ont demandé un site', n: avecDemande, c: COL.sky, p: cm.length ? Math.round((100 * avecDemande) / cm.length) : 0, fn: cC('Inscrits ayant demandé un site', function (r) { return r.demandes > 0; }) },
         { l: 'Sont devenues clientes', n: abonnes, c: COL.ok, p: cm.length ? Math.min(100, Math.round((100 * abonnes) / cm.length)) : 0, fn: cA('Tous les abonnements (actifs et partis)', function () { return true; }) }]))));
-    out.appendChild(h('div', { class: 'grid g2', style: 'margin-top:16px' },
+    more.appendChild(h('div', { class: 'grid g2', style: 'margin-top:16px' },
       card('Formules choisies', 'Clients abonnés', donut([{ l: 'Essentiel', n: k.nEss, c: COL.pri, fn: cA('Clients Essentiel', function (r) { return actifsF(r) && r.formule === 'essentiel'; }) }, { l: 'Pro', n: k.nPro, c: COL.sky, fn: cA('Clients Pro', function (r) { return actifsF(r) && r.formule === 'pro'; }) }], String(k.actifs), 'clients')),
       card('Mouvements des 30 derniers jours', null, mini([
         ['Nouveaux clients', k.nouveaux30, cA('Nouveaux clients (30 jours)', function (r) { return d10(r.debut) >= ago(30); })],
@@ -458,20 +470,21 @@
         ['Suspendus', k.suspendus, cA('Abonnements suspendus', function (r) { return r.abo === 'suspendu'; })],
         ['Connectés ces 7 jours', cm.filter(function (c) { return d10(c.derniere_connexion) >= ago(7); }).length, cC('Connectés ces 7 derniers jours', recent('connexion', 7))]]))));
 
-    out.appendChild(h('div', { class: 'sec', text: 'Les sites' }));
+    more.appendChild(h('div', { class: 'sec', text: 'Les sites' }));
     var sF = function (key) { return cD('Demandes · ' + lab(key), function (r) { return r.site === key; }); };
-    out.appendChild(h('div', { class: 'grid g3' },
+    more.appendChild(h('div', { class: 'grid g3' },
       card('Où en sont les sites', s7(dm.length, 'demande', 'demandes'), donut([{ l: 'À traiter', n: st.nouvelle || 0, c: COL.warn, fn: sF('nouvelle') }, { l: 'En création', n: st.en_creation || 0, c: COL.pri, fn: sF('en_creation') }, { l: 'Aperçu envoyé', n: st.apercu || 0, c: COL.sky, fn: sF('apercu') }, { l: 'En ligne', n: st.en_ligne || 0, c: COL.ok, fn: sF('en_ligne') }, { l: 'Abandonnées', n: st.abandonnee || 0, c: COL.gray, fn: sF('abandonnee') }], String(dm.length), 'demandes')),
       card('Types de commerces', 'Qui fait des demandes', bars(groupN(dm, function (x) { return x.activite; }).map(function (x) { return { l: x.l, n: x.n, fn: cD('Demandes · ' + x.l, function (r) { return (r.activite || '—') === x.l; }) }; }))),
       card('Villes', 'D’où viennent les demandes', bars(groupN(dm, function (x) { return (x.ville || '').trim(); }).map(function (x) { return { l: x.l, n: x.n, fn: cD('Demandes · ' + x.l, function (r) { return (r.ville || '—').trim().toLowerCase() === x.l.toLowerCase(); }) }; })))));
 
-    out.appendChild(h('div', { class: 'sec', text: 'Service client' }));
+    more.appendChild(h('div', { class: 'sec', text: 'Service client' }));
     var motifs = groupN(abosR().filter(function (a) { return a.statut === 'resilie'; }), function (a) { return a.motif || 'non précisé'; });
     var pF = function (key) { return cP('Messages · ' + lab(key), function (r) { return r.pl === key; }); };
-    out.appendChild(h('div', { class: 'grid g3' },
+    more.appendChild(h('div', { class: 'grid g3' },
       card('Messages et plaintes', s7(pl.length, 'au total', 'au total'), donut([{ l: 'Ouvertes', n: plc.ouverte || 0, c: COL.bad, fn: pF('ouverte') }, { l: 'En cours', n: plc.en_cours || 0, c: COL.warn, fn: pF('en_cours') }, { l: 'Résolues', n: plc.resolue || 0, c: COL.ok, fn: pF('resolue') }], String(pl.length), 'messages')),
       card('Pourquoi ils partent', null, bars(motifs.map(function (x) { return { l: x.l, n: x.n, fn: cA('Départs · ' + x.l, function (r) { return r.abo === 'resilie' && (r.motif || 'non précisé') === x.l; }) }; }), 'Personne n’est parti.')),
       card('D’où viennent les demandes', 'Annonce, lien, accès direct…', bars(groupN(dm, function (x) { return srcOf(x); }).map(function (x) { return { l: x.l, n: x.n, fn: cD('Demandes · ' + x.l, function (r) { return r.source === x.l; }) }; })))));
+    out.appendChild(more);
     return out;
   }
   function showStats() {
@@ -640,10 +653,10 @@
   }
 
   /* ===== navigation latérale ===== */
-  var navb = { stats: $('#n-stats'), clients: $('#n-clients'), rev: $('#n-rev'), com: $('#n-com'), mdp: $('#n-mdp') };
+  var navb = { stats: $('#n-stats'), clients: $('#n-clients'), dem: $('#n-dem'), crea: $('#n-crea'), ligne: $('#n-ligne'), abo: $('#n-abo'), rev: $('#n-rev'), com: $('#n-com'), mdp: $('#n-mdp') };
   function mark(k) { Object.keys(navb).forEach(function (x) { if (x === k) navb[x].setAttribute('aria-current', 'page'); else navb[x].removeAttribute('aria-current'); }); }
   function go(k, fn) { navb[k].addEventListener('click', function () { mark(k); top(fn); }); }
-  go('stats', showStats); go('clients', clientsView); go('rev', revenuePage); go('com', commView); go('mdp', motDePasse);
+  go('stats', showStats); go('clients', clientsView); go('dem', pageDem); go('crea', pageCrea); go('ligne', pageLigne); go('abo', pageAbo); go('rev', revenuePage); go('com', commView); go('mdp', motDePasse);
   $('#n-out').addEventListener('click', function () { api('/api/deconnexion', 'POST').then(function () { location.href = '/connexion'; }); });
 
   api('/api/moi').then(function (r) {
@@ -651,6 +664,6 @@
     if (r.s === 401) { gate.textContent = ''; gate.appendChild(h('h1', { text: 'Espace administrateur' })); gate.appendChild(h('p', { text: 'Connectez-vous avec votre compte administrateur.' })); gate.appendChild(h('a', { class: 'btn', href: '/connexion', text: 'Se connecter' })); return; }
     if (!r.j.admin) { gate.textContent = ''; gate.appendChild(h('h1', { text: 'Accès refusé' })); gate.appendChild(h('p', { text: 'Cet espace est réservé à l’administrateur.' })); gate.appendChild(h('a', { class: 'btn', href: '/', text: 'Retour au site' })); return; }
     gate.hidden = true; $('#app').hidden = false; main.appendChild(h('p', { class: 'empty', text: 'Chargement…' }));
-    loadAll().then(function () { top(showStats); }).catch(function () { main.textContent = ''; main.appendChild(h('p', { class: 'empty', text: 'Impossible de charger les données. Réessayez dans un instant.' })); });
+    loadAll().then(function () { updBadges(); top(showStats); }).catch(function () { main.textContent = ''; main.appendChild(h('p', { class: 'empty', text: 'Impossible de charger les données. Réessayez dans un instant.' })); });
   }).catch(function () { $('#gate').textContent = 'Connexion impossible pour le moment.'; });
 })();

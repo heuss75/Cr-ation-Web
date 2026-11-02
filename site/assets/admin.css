@@ -81,3 +81,12 @@ tbody tr.click:hover{background:var(--soft)}
 .revline{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:11px 0;border-top:1px solid var(--line)}.revline b{display:block;font-weight:700}.revline small{display:block;color:var(--mut);font-size:12.5px;margin-top:2px}.revline>span{font:800 1.1rem/1 'Plus Jakarta Sans',system-ui,sans-serif;white-space:nowrap}.revline.strong{border-top:2px solid var(--ink)}.revline.strong b,.revline.strong>span{font-size:1.2rem}
 .grid.g4 .hero .more{display:none}.hero>div:nth-child(2){min-width:0}.hero em{display:inline-block;margin:6px 0 0}.hero span{display:block;line-height:1.3}
 .grid.g4 .hero{flex-direction:column;align-items:flex-start;gap:12px;padding:20px}.grid.g4 .hero b{font-size:2.1rem}.grid.g4 .hero span{font-size:14px;margin-top:4px}.grid.g4 .hero em{margin:8px 0 0}
+/* mise en page type « tableau de bord » : badges du menu, cartes chiffres, 2 colonnes */
+.nav button .cnt{margin-left:auto;background:rgba(255,255,255,.14);color:#fff;font-size:12px;font-weight:700;padding:1px 8px;border-radius:99px;min-width:22px;text-align:center}
+.dash2{display:grid;gap:16px;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);margin-top:16px}
+@media(max-width:1000px){.dash2{grid-template-columns:minmax(0,1fr)}}
+.todo li.zero{opacity:.55}
+.kr{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:16px}
+.kr .card{display:flex;gap:12px;align-items:center;padding:14px 16px}.kr .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;color:#fff;flex:none}
+.kr span{display:block;color:var(--mut);font-size:12.5px;font-weight:600}.kr b{display:block;font:800 1.5rem/1.1 'Plus Jakarta Sans',system-ui,sans-serif;margin-top:2px}
+details.more{margin-top:22px}details.more>summary{cursor:pointer;font-weight:700;padding:14px 16px;background:var(--card);border:1px solid var(--line);border-radius:14px;list-style:none;box-shadow:var(--shadow)}details.more>summary::-webkit-details-marker{display:none}details.more>summary::after{content:"▾";float:right}details.more[open]>summary::after{content:"▴"}details.more[open]>summary{margin-bottom:6px}
