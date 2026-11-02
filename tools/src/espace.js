@@ -77,7 +77,7 @@
       h('div', { class: 'sbtn' }, d.site_url && live ? h('a', { class: 'btn', href: d.site_url, target: '_blank', rel: 'noopener' }, 'Voir mon site ', ico('ext', 16)) : null, h('button', { type: 'button', class: 'btn ghost', onclick: function () { go(pro ? 'editeur' : 'modifs'); } }, ico('edit', 16), ' Modifier mon site'))));
     var steps = ['Demande reçue', 'En création', 'Aperçu validé', 'En ligne'];
     var avanc = h('div', { class: 'card' }, h('h3', { class: 'ctit' }, ico('layers', 22), 'Avancement de mes demandes'), idx != null ? h('ol', { class: 'steps2' }, steps.map(function (t, i) { var done = i < idx || idx === 3; return h('li', { class: done ? 'done' : i === idx ? 'now' : '' }, h('b', { text: t }), h('small', { text: i === 0 ? dt(d.created_at).split(' ').slice(0, 3).join(' ') : done ? 'Terminé' : i === idx ? 'En cours' : 'À venir' })); })) : null);
-    var tiles = h('div', { class: 'card' }, h('h3', { class: 'ctit' }, ico('bolt', 22), 'Accès rapides'), h('div', { class: 'tiles' }, [['pen', 'Demander une modification', 'modifs'], ['cal', 'Gérer mes réservations', 'resa'], ['mail', 'Envoyer un message', 'aide'], ['book', 'Consulter les guides', 'aide']].map(function (t) { return h('button', { type: 'button', class: 'tile', onclick: function () { go(t[2]); } }, ico(t[0], 24), h('span', { text: t[1] })); })));
+    var tiles = h('div', { class: 'card' }, h('h3', { class: 'ctit' }, ico('bolt', 22), 'Accès rapides'), h('div', { class: 'tiles' }, [['pen', 'Demander une modification', 'modifs'], ['cal', 'Gérer mes réservations', 'resa'], ['mail', 'Envoyer un message', 'support'], ['book', 'Consulter les guides', 'aide']].map(function (t) { return h('button', { type: 'button', class: 'tile', onclick: function () { go(t[2]); } }, ico(t[0], 24), h('span', { text: t[1] })); })));
     var stats = h('div', { class: 'card' }, h('h3', { class: 'ctit' }, ico('chart', 22), 'Statistiques de mon site'), h('div', { class: 'sts' }, [['eye', 'Visites'], ['right', 'Demandes de contact'], ['cal', 'Réservations']].map(function (t) { return h('div', null, ico(t[0], 20), h('b', { text: '—' }), h('small', { text: t[1] })); })), h('p', { class: 'sub', style: 'margin:10px 0 0', text: 'Les statistiques de fréquentation arrivent bientôt.' }));
     var inc = ['Site vitrine complet', 'Modifications (' + q + ' / mois)'].concat(pro ? ['Outil de réservation', 'Éditeur en libre-service'] : []).concat(aMail() ? ['Adresse e-mail pro'] : []).concat(pro ? ['Support prioritaire'] : []);
     var abo = h('div', { class: 'card' }, h('h3', { class: 'ctit' }, ico('card', 22), 'Mon abonnement'), h('div', { class: 'aboh' }, h('div', null, h('b', { class: 'plan', text: lab(E.formule) }), h('small', { text: (PRIX[E.formule] + MAILP * (ab ? ab.mails_sup : 0)) + ' € HT / mois' })), ab ? pill(ab.statut) : pill('nouvelle')), checks(inc), h('button', { type: 'button', class: 'btn ghost wide', onclick: function () { go('abo'); } }, 'Gérer mon abonnement ', ico('right', 16)));
@@ -86,11 +86,6 @@
     var act = h('div', { class: 'card' }, h('h3', { class: 'ctit' }, ico('clock', 22), 'Dernières activités'), h('ul', { class: 'tl' }, acts.slice(0, 3).map(function (a, i) { return h('li', { class: i === 0 ? 'first' : '' }, h('div', { class: 'tr' }, h('b', { text: a[0] }), h('small', { text: dt(a[2]).split(' ').slice(0, 3).join(' ') })), h('p', { text: a[1] })); })), h('button', { type: 'button', class: 'btn ghost wide', onclick: function () { go('messages'); } }, 'Voir toutes les activités ', ico('right', 16)));
     out.appendChild(h('div', { class: 'dgrid' }, h('div', { class: 'dleft' }, site, avanc, h('div', { class: 'two' }, tiles, stats)), h('div', { class: 'dright' }, abo, act)));
     main.appendChild(out);
-  }
-  function vFactures() {
-    main.appendChild(head('Factures', 'Vos factures d’abonnement'));
-    var ab = E.abonnement;
-    main.appendChild(h('div', { class: 'card' }, h('h2', { text: 'Vos factures' }), ab ? h('p', { class: 'sub', text: 'Abonnement ' + lab(ab.formule) + ' depuis le ' + dOnly(ab.debut) + '. Vos factures sont envoyées par e-mail et apparaîtront ici.' }) : h('p', { class: 'sub', text: 'Votre abonnement démarre à la mise en ligne de votre site. Vos factures apparaîtront ici dès ce moment.' }), h('p', { class: 'empty', text: 'Aucune facture pour le moment.' })));
   }
   function vResa() {
     main.appendChild(head('Réservations', 'Les réservations de vos clients'));
@@ -132,13 +127,12 @@
     main.appendChild(h('div', { class: 'card', style: 'margin-top:16px' }, h('h3', { text: 'Ce qui est inclus' }), h('ul', { class: 'list' }, inc.map(function (t) { return h('li', { text: '✓ ' + t }); })), h('p', { class: 'sub', style: 'margin-top:12px', text: 'Pour changer de formule ou ajouter une adresse mail, écrivez-nous depuis l’onglet Aide.' })));
   }
   function vMessages() {
-    if (nonLues() && !E.lecture) { api('/api/espace/lu', 'POST', {}).then(function () { E.notifications.forEach(function (n) { n.lu = 1; }); drawNav(); document.querySelectorAll('.bellb i').forEach(function (e) { e.remove(); }); }); }
+    if (nonLues()) { if (!E.lecture) api('/api/espace/lu', 'POST', {}); setTimeout(function () { E.notifications.forEach(function (n) { n.lu = 1; }); drawNav(); document.querySelectorAll('.bellb i').forEach(function (e) { e.remove(); }); }, 0); }
     main.appendChild(head('Messages', 'Les nouvelles concernant votre site', nonLues() && !E.lecture ? [h('button', { type: 'button', class: 'btn ghost', text: 'Tout marquer comme lu', onclick: function () { api('/api/espace/lu', 'POST', {}).then(function () { reload('messages'); }); } })] : []));
     main.appendChild(h('div', { class: 'card' }, E.notifications.length ? E.notifications.map(msgNode) : h('p', { class: 'empty', text: 'Aucun message pour le moment.' })));
   }
-  function vAide() {
-    main.appendChild(head('Aide', 'Une question, un souci ? Écrivez-nous'));
-    if (aMail()) main.appendChild(mailCard());
+  function vSupport() {
+    main.appendChild(head('Contacter le support', 'Une question, un souci ? Écrivez-nous, nous répondons sous 24 h'));
     var sj = h('input', { type: 'text', maxlength: '120', placeholder: 'Ex. : changer de formule, un souci sur mon site…' }), ms = h('textarea', { maxlength: '1500', placeholder: 'Expliquez-nous en quelques lignes.' });
     main.appendChild(h('div', { class: 'card' }, h('h2', { text: 'Nous écrire' }), h('div', { class: 'form' }, h('label', { class: 'wide' }, 'Sujet', sj), h('label', { class: 'wide' }, 'Message', ms)),
       h('button', { type: 'button', class: 'btn', text: 'Envoyer', disabled: E.lecture ? 'disabled' : null, onclick: function () { if (!sj.value.trim()) { flash('Indiquez un sujet.', true); return; } api('/api/espace/plainte', 'POST', { sujet: sj.value, message: ms.value }).then(function (r) { if (r.j.ok) { flash('Message envoyé. Nous revenons vers vous rapidement.'); reload('aide'); } else flash('Envoi impossible.', true); }); } }),
@@ -228,19 +222,89 @@
       maj();
       if (r.j.suspendu) box.appendChild(h('div', { class: 'warnbox' }, 'Votre site est suspendu : les modifications sont désactivées.'));
       if (r.j.lecture) box.appendChild(h('div', { class: 'infobox', text: 'Lecture seule : vous consultez cet éditeur en tant qu’administrateur.' }));
+      box.appendChild(h('div', { class: 'infobox', text: 'Modifiez votre site autant de fois que vous le souhaitez, sans limite. Vous avez en plus droit à ' + E.quota + ' modifications par mois réalisées par notre équipe, si vous préférez ne pas le faire vous-même (rubrique « Demandes à l’équipe »).' }));
       box.appendChild(h('div', { class: 'editor' },
         h('div', { class: 'edcol card' }, h('div', { class: 'tbar' }, h('h2', { text: 'Contenu du site' }), cnt), q, list),
         h('div', { class: 'edprev card' }, h('div', { class: 'tbar' }, h('h3', { text: 'Votre site' }), h('a', { class: 'btn ghost sm', href: r.j.site_url, target: '_blank', rel: 'noopener', text: 'Ouvrir' })), h('div', { class: 'browser' }, h('div', { class: 'bar' }, h('i'), h('i'), h('i'), h('span', { text: 'Aperçu en direct' })), frame))));
     }).catch(function () { box.textContent = ''; box.appendChild(h('div', { class: 'card' }, h('p', { class: 'empty', text: 'Chargement impossible.' }))); });
   }
 
+  /* ===== aide & guides ===== */
+  var GUIDE_PUB = [
+    ['1. Votre fiche Google', ['Cherchez votre commerce sur Google Maps. Si une fiche existe, cliquez sur « Revendiquer cette fiche » ; sinon créez-la sur google.com/business.', 'Choisissez la catégorie la plus précise (par exemple « Coiffeur » plutôt que « Beauté »).', 'Renseignez l’adresse, le téléphone, les horaires (et les jours de fermeture) et l’adresse de votre site.', 'Ajoutez au moins 5 vraies photos : devanture, intérieur, équipe, réalisations.', 'Google envoie un code de vérification par courrier ou par téléphone : saisissez-le pour valider la fiche.']],
+    ['2. Les mêmes informations partout', ['Votre nom, votre adresse et votre téléphone doivent être écrits exactement pareil sur le site, Google, Facebook, Instagram et les annuaires.', 'Inscrivez-vous gratuitement sur Apple Plans, Bing Places et les annuaires de votre métier ou de votre ville.', 'Mettez à chaque fois le lien vers votre site.']],
+    ['3. Les avis clients', ['Demandez un avis à chaque client satisfait, juste après le service, en face à face ou par SMS.', 'Sur votre fiche Google, copiez le lien « Demander des avis » et créez-en un QR code (gratuit en ligne) à poser sur le comptoir.', 'Répondez à chaque avis, même les moins bons, poliment et brièvement.', 'N’achetez jamais d’avis : c’est interdit et Google les supprime.']],
+    ['4. Instagram et Facebook', ['Un seul profil par réseau, au nom du commerce, avec le même logo que sur le site.', 'Dans la bio : ce que vous faites, la ville, et le lien vers votre site.', 'Publiez 2 à 3 fois par semaine : une réalisation, un coulisse, une nouveauté ou une offre.', 'Les stories (photos du jour, horaires exceptionnels) sont rapides et très vues.']],
+    ['5. Flyers, cartes et vitrine', ['Ajoutez le QR code de votre site sur vos cartes de visite, flyers, tickets, sacs et vitrine.', 'Sur chaque support : nom, activité, téléphone, adresse du site. Une seule information à retenir : « venez ou appelez ».', 'Une affiche « Réservez en ligne » (formule Pro) ou « Retrouvez-nous sur notre site » en vitrine fait venir de nouveaux clients.']],
+    ['6. Les mots qui font venir les clients', ['Les gens cherchent « votre métier + votre ville » (exemple : « coiffeur Bordeaux »). Écrivez ces mots dans les textes du site, naturellement.', 'Décrivez chaque service en une ou deux phrases simples, avec le prix quand c’est possible.', 'Ajoutez les questions que les clients vous posent souvent (tarifs, délais, accès, parking).']],
+    ['7. Le bouche-à-oreille et les contacts', ['Prévenez vos clients, vos fournisseurs et vos voisins que votre site est en ligne : message, SMS, story.', 'Proposez une petite offre de lancement ou un parrainage (« amenez un ami, vous avez tous deux … »).', 'Gardez le contact de vos clients (avec leur accord) pour les prévenir d’une nouveauté ou d’une période creuse.']],
+    ['8. Suivre ce qui marche', ['Demandez à chaque nouveau client « Comment nous avez-vous connus ? » et notez la réponse.', 'Une fois par mois, regardez dans votre fiche Google : appels, itinéraires, clics vers le site.', 'Gardez ce qui amène des clients, arrêtez le reste. Comptez 3 à 6 mois avant de voir un effet régulier.', 'Personne ne peut garantir une position sur Google ni un nombre de visites : ces conseils aident, ils ne promettent pas de résultat.']]
+  ];
+  function vGuidePub() {
+    main.appendChild(head('Guide publicité et visibilité', '8 étapes simples pour faire connaître votre commerce', [h('button', { type: 'button', class: 'btn ghost', text: '← Aide & Guides', onclick: function () { go('aide'); } })]));
+    main.appendChild(h('div', { class: 'card' }, GUIDE_PUB.map(function (c, i) { return h('details', { class: 'sec2', open: i === 0 ? '' : null }, h('summary', null, h('b', { text: c[0] })), h('ul', { class: 'list' }, c[1].map(function (t) { return h('li', { text: t }); }))); })));
+  }
+  function vAide() {
+    main.appendChild(head('Aide & Guides', 'Tout pour bien démarrer, pas à pas'));
+    var g = function (ic, t, d, btn, fn) { return h('div', { class: 'card gcard' }, h('div', { class: 'kic' }, ico(ic, 28)), h('div', null, h('h3', { text: t }), h('p', { class: 'sub', text: d }), btn ? h('button', { type: 'button', class: 'btn', onclick: fn }, btn, ' ', ico('right', 16)) : null)); };
+    main.appendChild(h('div', { class: 'gridg' },
+      g('mail', 'Guide messagerie', 'Installer votre adresse mail pro sur iPhone, Android, Thunderbird ou Outlook, avec les réglages à copier.', 'Ouvrir le guide', function () { window.open('/guide-messagerie', '_blank', 'noopener'); }),
+      g('book', 'Guide publicité et visibilité', 'Fiche Google, avis, réseaux, flyers : 8 étapes simples pour faire venir des clients.', 'Ouvrir le guide', function () { go('guidepub'); })));
+    main.appendChild(h('div', { class: 'card', style: 'margin-top:16px' }, h('h3', { text: 'Une question ?' }), h('p', { class: 'sub', text: 'Regardez la FAQ, ou écrivez à notre équipe : elle répond sous 24 h.' }), h('div', { class: 'tools' }, h('a', { class: 'btn ghost', href: '/faq', target: '_blank', rel: 'noopener', text: 'Ouvrir la FAQ' }), h('button', { type: 'button', class: 'btn', text: 'Contacter le support', onclick: function () { go('support'); } }))));
+  }
+
+  /* ===== factures ===== */
+  var EMET = { nom: 'Devanture Web', l1: '[Raison sociale à compléter]', adr: '[Adresse à compléter]', siret: '[à compléter]', tva: '[FR… à compléter]', mail: 'contact@devantureweb.fr', ok: false };
+  var LOGO = '<svg width="54" height="54" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 20 12 8h40l4 12"/><path d="M8 20a6 6 0 0 0 12 0 6 6 0 0 0 12 0 6 6 0 0 0 12 0 6 6 0 0 0 12 0"/><path d="M12 33v23h40V33"/><path d="M26 56V42h12v14"/><path d="M41 38l11 4.5-4.6 1.8-1.8 4.7z" fill="#17C26E" stroke="#17C26E" stroke-width="1.5"/></svg>';
+  var fe = function (n) { return (Math.round(n * 100) / 100).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €'; };
+  var MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+  function mesFactures() {
+    var ab = E.abonnement, d = D(); if (!ab || !ab.debut || !d) return [];
+    var nowK = new Date().toISOString().slice(0, 7), fin = ab.statut === 'resilie' && ab.fin ? String(ab.fin).slice(0, 7) : nowK, out = [], y = +ab.debut.slice(0, 4), m = +ab.debut.slice(5, 7), day = ab.debut.slice(8, 10) || '01';
+    for (var n = 0; n < 36; n++) {
+      var k = y + '-' + (m < 10 ? '0' : '') + m; if (k > fin || k > nowK || k + '-' + day > new Date().toISOString().slice(0, 10)) break;
+      var lignes = [ab.formule === 'pro' ? ['Abonnement Pro', 'Site web + nom de domaine + adresse mail pro · ' + MOIS[m - 1] + ' ' + y, 1, 100] : ['Abonnement Essentiel', 'Site web + nom de domaine · ' + MOIS[m - 1] + ' ' + y, 1, 60]];
+      if (ab.mails_sup > 0) lignes.push(['Adresses mail pro supplémentaires', 'Adresses en plus de celle incluse', ab.mails_sup, 4]);
+      var ht = lignes.reduce(function (t, l) { return t + l[2] * l[3]; }, 0), tva = Math.round(ht * 20) / 100;
+      out.push({ id: k, num: 'F-' + y + (m < 10 ? '0' : '') + m + '-' + String(d.id).padStart(4, '0'), date: day + '/' + (m < 10 ? '0' : '') + m + '/' + y, periode: MOIS[m - 1].charAt(0).toUpperCase() + MOIS[m - 1].slice(1) + ' ' + y, lignes: lignes, ht: ht, tva: tva, ttc: ht + tva, statut: k === nowK && ab.statut === 'impaye' ? 'A régler' : 'Payée' });
+      m++; if (m > 12) { m = 1; y++; }
+    }
+    return out.reverse();
+  }
+  var FAC = { id: null };
+  function vFactures() {
+    main.appendChild(head('Factures', 'Vos factures d’abonnement, à télécharger en PDF'));
+    var l = mesFactures();
+    if (!l.length) { main.appendChild(h('div', { class: 'card' }, h('h2', { text: 'Vos factures' }), h('p', { class: 'sub', text: 'Votre abonnement démarre à la mise en ligne de votre site. Vos factures apparaîtront ici dès ce moment.' }), h('p', { class: 'empty', text: 'Aucune facture pour le moment.' }))); return; }
+    var tb = h('tbody'); l.forEach(function (f) { var tr = h('tr', null, h('td', null, h('b', { text: f.num })), h('td', { text: f.periode }), h('td', { text: f.date }), h('td', { class: 'num', text: fe(f.ttc) }), h('td', null, pill(f.statut === 'Payée' ? 'actif' : 'impaye')), h('td', { class: 'num' }, h('button', { type: 'button', class: 'btn sm', onclick: function () { FAC.id = f.id; go('facture'); } }, 'Voir / PDF'))); tb.appendChild(tr); });
+    main.appendChild(h('div', { class: 'card' }, h('div', { class: 'tablewrap' }, h('table', { class: 'revt' }, h('thead', null, h('tr', null, ['Facture', 'Période', 'Date', 'Total TTC', 'Statut', ''].map(function (x, i) { return h('th', { text: x, class: i === 3 || i === 5 ? 'num' : '' }); }))), tb))));
+  }
+  function vFacture() {
+    var f = mesFactures().filter(function (x) { return x.id === FAC.id; })[0], d = D();
+    if (!f) { main.appendChild(h('div', { class: 'card' }, h('p', { class: 'empty', text: 'Facture introuvable.' }), h('button', { type: 'button', class: 'btn', text: '← Mes factures', onclick: function () { go('factures'); } }))); return; }
+    main.appendChild(head('Facture ' + f.num, f.periode, [h('button', { type: 'button', class: 'btn ghost', text: '← Mes factures', onclick: function () { go('factures'); } }), h('button', { type: 'button', class: 'btn', text: '⬇ Télécharger en PDF', onclick: function () { window.print(); } })]));
+    var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+    var rows = f.lignes.map(function (l) { return '<tr><td><b>' + esc(l[0]) + '</b><small>' + esc(l[1]) + '</small></td><td class="n">' + l[2] + '</td><td class="n">' + fe(l[3]) + '</td><td class="n">20 %</td><td class="n">' + fe(l[2] * l[3]) + '</td></tr>'; }).join('');
+    var html = (EMET.ok ? '' : '<div class="inv-ex">EXEMPLE DE FACTURE · informations de l’entreprise à compléter</div>') +
+      '<div class="inv-top"><div class="inv-brand">' + LOGO + '<div><b>Devanture <em>Web</em></b><small>Site vitrine pour commerçants</small></div></div><div class="inv-ft"><h1>FACTURE</h1><p>N° ' + esc(f.num) + '</p><p><span class="inv-badge' + (f.statut === 'Payée' ? '' : ' warn') + '">' + (f.statut === 'Payée' ? 'Payée' : 'À régler') + '</span></p></div></div>' +
+      '<div class="inv-meta"><div><span>Date d’émission</span><b>' + esc(f.date) + '</b></div><div><span>Échéance</span><b>' + esc(f.date) + '</b></div><div><span>Période</span><b>' + esc(f.periode) + '</b></div><div><span>Mode de paiement</span><b>Prélèvement SEPA</b></div></div>' +
+      '<div class="inv-parties"><div><h2>Émetteur</h2><b>' + esc(EMET.nom) + '</b><p>' + esc(EMET.l1) + '</p><p>' + esc(EMET.adr) + '</p><p>SIRET : ' + esc(EMET.siret) + '</p><p>N° TVA : ' + esc(EMET.tva) + '</p><p>' + esc(EMET.mail) + '</p></div>' +
+      '<div><h2>Facturé à</h2><b>' + esc(d.commerce) + '</b><p>' + esc(E.compte.nom) + '</p><p>' + esc(d.ville) + '</p><p>' + esc(E.compte.email) + '</p>' + (d.domaine ? '<p>Site : ' + esc(d.domaine) + '</p>' : '') + '</div></div>' +
+      '<table class="inv-t"><thead><tr><th>Désignation</th><th class="n">Qté</th><th class="n">Prix unitaire HT</th><th class="n">TVA</th><th class="n">Total HT</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+      '<div class="inv-tot"><div><span>Total HT</span><b>' + fe(f.ht) + '</b></div><div><span>TVA 20 %</span><b>' + fe(f.tva) + '</b></div><div class="g"><span>Total TTC</span><span>' + fe(f.ttc) + '</span></div></div>' +
+      '<div class="inv-pay"><div><h2>Paiement</h2><p>' + (f.statut === 'Payée' ? 'Réglée le ' + esc(f.date) + ' par prélèvement.' : 'À régler par prélèvement SEPA.') + '</p></div><div><h2>Engagement</h2><p>Abonnement mensuel, engagement de 12 mois. Résiliation selon les conditions générales de vente.</p></div></div>' +
+      '<div class="inv-legal"><b>Pénalités de retard :</b> 3 fois le taux d’intérêt légal. <b>Indemnité forfaitaire de recouvrement :</b> 40 €. <b>Escompte :</b> aucun pour paiement anticipé. Facture établie en euros. Prestation : abonnement de création, d’hébergement et d’entretien d’un site vitrine.</div>';
+    var box = h('div', { class: 'invoice' }); box.innerHTML = html; main.appendChild(box);
+  }
+
   /* ===== navigation ===== */
-  var VIEWS = { accueil: vAccueil, editeur: vEditeur, site: vSite, modifs: vModifs, abo: vAbo, messages: vMessages, factures: vFactures, resa: vResa, aide: vAide, compte: vCompte };
+  var VIEWS = { accueil: vAccueil, editeur: vEditeur, site: vSite, modifs: vModifs, abo: vAbo, messages: vMessages, factures: vFactures, facture: vFacture, resa: vResa, aide: vAide, support: vSupport, guidepub: vGuidePub, compte: vCompte };
   var NAV = [['accueil', 'Tableau de bord', 'home'], ['site', 'Mon site', 'globe'], ['editeur', 'Modifications', 'edit', 'pro'], ['modifs', 'Demandes à l’équipe', 'headset'], ['abo', 'Abonnement', 'card'], ['messages', 'Messages', 'msg'], ['factures', 'Factures', 'file'], ['resa', 'Réservations', 'cal'], ['aide', 'Aide & Guides', 'help']];
+  var NAVALIAS = { facture: 'factures', guidepub: 'aide', support: 'aide' };
   function drawNav() {
     var nav = $('#nav'); nav.textContent = '';
-    NAV.forEach(function (x) { if (x[3] === 'pro' && E.formule !== 'pro') return; var b = h('button', { type: 'button', 'aria-current': cur === x[0] ? 'page' : null, onclick: function () { go(x[0]); } }, ico(x[2], 20), x[1]); if (x[0] === 'messages' && nonLues()) b.appendChild(h('span', { class: 'bdg2', text: String(nonLues()) })); if (x[0] === 'editeur' && E.quota) b.appendChild(h('span', { class: 'bdg2', text: String(Math.max(E.quota - E.utilisees, 0)) })); nav.appendChild(b); });
-    var sf = $('#sidefoot'); if (sf) { sf.textContent = ''; sf.appendChild(h('div', { class: 'helpc' }, h('div', { class: 'hh' }, ico('headset', 22), h('div', null, h('b', { text: 'Besoin d’aide ?' }), h('small', { text: 'Notre équipe vous répond sous 24 h.' }))), h('button', { type: 'button', class: 'btn', onclick: function () { go('aide'); } }, 'Contacter le support ', ico('right', 16)))); sf.appendChild(h('button', { type: 'button', class: 'userc', onclick: function () { go('compte'); } }, h('span', { class: 'av2', text: initials(E.compte.nom) }), h('div', null, h('b', { text: E.compte.nom }), h('small', { text: (D() && D().commerce) || E.compte.email })), ico('right', 16))); }
+    NAV.forEach(function (x) { if (x[3] === 'pro' && E.formule !== 'pro') return; var b = h('button', { type: 'button', 'aria-current': (cur === x[0] || NAVALIAS[cur] === x[0]) ? 'page' : null, onclick: function () { go(x[0]); } }, ico(x[2], 20), x[1]); if (x[0] === 'messages' && nonLues()) b.appendChild(h('span', { class: 'bdg2', text: String(nonLues()) })); nav.appendChild(b); });
+    var sf = $('#sidefoot'); if (sf) { sf.textContent = ''; sf.appendChild(h('div', { class: 'helpc' }, h('div', { class: 'hh' }, ico('headset', 22), h('div', null, h('b', { text: 'Besoin d’aide ?' }), h('small', { text: 'Notre équipe vous répond sous 24 h.' }))), h('button', { type: 'button', class: 'btn', onclick: function () { go('support'); } }, 'Contacter le support ', ico('right', 16)))); sf.appendChild(h('button', { type: 'button', class: 'userc', onclick: function () { go('compte'); } }, h('span', { class: 'av2', text: initials(E.compte.nom) }), h('div', null, h('b', { text: E.compte.nom }), h('small', { text: (D() && D().commerce) || E.compte.email })), ico('right', 16))); }
   }
   function go(k) { cur = k; location.hash = k === 'accueil' ? '' : k; draw(); window.scrollTo(0, 0); }
   function draw() { main.textContent = ''; drawNav(); (VIEWS[cur] || vAccueil)(); }
