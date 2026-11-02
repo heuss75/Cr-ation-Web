@@ -577,7 +577,7 @@ ADMIN_HTML = """<!doctype html>
 </body>
 </html>
 """ % dict(v=VER)
-wr("admin.html", ADMIN_HTML)
+wr("admin.html", ADMIN_HTML.replace("%(v)s", VER))
 
 ESPACE_HTML = """<!doctype html>
 <html lang="fr">
@@ -612,7 +612,7 @@ ESPACE_HTML = """<!doctype html>
 </body>
 </html>
 """ % dict(v=VER)
-wr("espace.html", ESPACE_HTML)
+wr("espace.html", ESPACE_HTML.replace("%(v)s", VER))
 
 # ------------------------------------------------------------------ pages légales
 LEGAL = legal_pages(EDITOR)

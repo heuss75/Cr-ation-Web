@@ -90,3 +90,10 @@ tbody tr.click:hover{background:var(--soft)}
 .kr .card{display:flex;gap:12px;align-items:center;padding:14px 16px}.kr .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;color:#fff;flex:none}
 .kr span{display:block;color:var(--mut);font-size:12.5px;font-weight:600}.kr b{display:block;font:800 1.5rem/1.1 'Plus Jakarta Sans',system-ui,sans-serif;margin-top:2px}
 details.more{margin-top:22px}details.more>summary{cursor:pointer;font-weight:700;padding:14px 16px;background:var(--card);border:1px solid var(--line);border-radius:14px;list-style:none;box-shadow:var(--shadow)}details.more>summary::-webkit-details-marker{display:none}details.more>summary::after{content:"▾";float:right}details.more[open]>summary::after{content:"▴"}details.more[open]>summary{margin-bottom:6px}
+/* cartes chiffres : texte aéré */
+.kr{grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px}
+.kr .card{padding:16px 18px;gap:14px}
+.kr .card>div:last-child{display:flex;flex-direction:column;gap:4px;min-width:0}
+.kr span{line-height:1.25}.kr b{margin:0}
+.top{gap:14px 20px;margin-bottom:22px}.hello p{margin-top:6px}
+.nav button{gap:12px}.nav button .cnt{margin-left:auto}
