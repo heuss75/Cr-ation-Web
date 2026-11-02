@@ -85,10 +85,10 @@
     });
     main.appendChild(box);
   }
-  function detail(id) {
+  function detailPieces(id, done) {
     api('/api/admin/compte?id=' + id).then(function (r) {
       if (!r.j.ok) { flash('Compte introuvable.', true); return; }
-      var c = r.j.compte, ab = r.j.abonnement;
+      var c = r.j.compte, ab = r.j.abonnement, realMain = main, holder = h('div'); main = holder;
       main.textContent = '';
       main.appendChild(head(c.nom, c.email + ' · inscrit le ' + dt(c.created_at), [h('button', { type: 'button', class: 'btn ghost', text: '← Clients', onclick: function () { top(clientsView); } }), h('button', { type: 'button', class: 'btn', text: 'Voir en tant que ce client', onclick: function () { impersonate(c.id); } })]));
       actionsCard(c, r.j.demandes);
@@ -120,6 +120,112 @@
       g2.appendChild(pc);
       g2.appendChild(h('div', { class: 'card' }, h('h2', { text: 'Journal' }), r.j.journal.length ? h('ul', { class: 'log' }, r.j.journal.map(function (j) { return h('li', null, h('time', { text: dt(j.created_at) }), h('b', { text: j.type.replace(/_/g, ' ') }), h('span', { text: j.detail || '' }), j.admin_id ? h('span', { class: 'pill', text: 'admin' }) : null); })) : h('p', { class: 'empty', text: 'Rien pour le moment.' })));
       main.appendChild(g2);
+      main = realMain; done(r.j, { acts: holder.children[1], dem: dc, abo: g.children[1], pl: pc, jr: g2.children[1] });
+    });
+  }
+  /* ===== fiche client (page complète, onglets) ===== */
+  var TAB = 'apercu';
+  var JCAT = function (t) { t = String(t || ''); return /mdp|mot_de_passe|connexion|reset|securite|impersonation/.test(t) ? 'Sécurité' : /mail|notif|communication/.test(t) ? 'E-mails' : /site|modif|demande|mise_en_ligne/.test(t) ? 'Site' : /abonnement|resiliation|formule|compte|inscription|plainte/.test(t) ? 'Compte' : 'Système'; };
+  function detail(id, tab) {
+    if (tab) TAB = tab; else if (!detail.id || detail.id !== id) TAB = 'apercu'; detail.id = id;
+    detailPieces(id, function (R, P) {
+      var c = R.compte, ab = R.abonnement, dm = R.demandes, d = dm[0], pl = R.plaintes, jr = R.journal;
+      var quota = ab && ab.formule === 'pro' ? 3 : 1;
+      var plus = { modifs: [], opt: 0 };
+      var live = d && d.statut === 'en_ligne';
+      var st = ab ? ab.statut : '', stTxt = ab ? (st === 'actif' ? 'Client actif' : lab(st)) : 'Prospect';
+      var ids = comR().map(function (x) { return x.id; }).sort(function (a, b) { return b - a; }), ix = ids.indexOf(c.id);
+      var nav = function (dlt) { var t = ids[ix + dlt]; if (t) detail(t, 'apercu'); };
+      var ib = function (t, ic, fn, cls) { return h('button', { type: 'button', class: 'btn sm ' + (cls || 'ghost'), onclick: fn }, ico(ic, 16), ' ', t); };
+      var clickIn = function (box, txt) { var bs = box.querySelectorAll('button'); for (var i = 0; i < bs.length; i++) if (bs[i].textContent === txt) { bs[i].click(); return true; } return false; };
+      var setTab = function (t) { TAB = t; detail(id, t); };
+      main.textContent = '';
+      /* en-tête */
+      main.appendChild(h('div', { class: 'cf-crumb' }, h('a', { href: '#', text: 'Clients', onclick: function (e) { e.preventDefault(); top(clientsView); mark('clients'); } }), h('span', { text: ' › ' }), h('b', { text: c.nom })));
+      main.appendChild(h('div', { class: 'cf-head' },
+        h('div', { class: 'cf-id' }, h('div', { class: 'cf-name' }, h('h1', { text: c.nom }), h('span', { class: 'pill ' + (pillFor(st) || ''), text: stTxt })),
+          h('div', { class: 'cf-meta' }, h('span', null, ico('msg', 15), c.email), d && d.tel ? h('span', null, ico('users', 15), d.tel) : null, h('span', null, ico('repeat', 15), 'Inscrit le ' + dt(c.created_at)), d ? h('span', null, ico('home', 15), d.commerce) : null)),
+        h('div', { class: 'cf-act' }, h('button', { type: 'button', class: 'btn sm ghost iconbtn', 'aria-label': 'Client précédent', text: '‹', disabled: ids[ix - 1] ? null : 'disabled', onclick: function () { nav(-1); } }), h('button', { type: 'button', class: 'btn sm ghost iconbtn', 'aria-label': 'Client suivant', text: '›', disabled: ids[ix + 1] ? null : 'disabled', onclick: function () { nav(1); } }),
+          ib('Se connecter à sa place', 'users', function () { impersonate(c.id); }), ib('Paramètres', 'key', function () { setTab('param'); }))));
+      /* onglets */
+      var TABS = [['apercu', 'Aperçu', 'home'], ['site', 'Site', 'globe'], ['abo', 'Abonnement', 'card'], ['modifs', 'Modifications', 'repeat'], ['dem', 'Demandes', 'file'], ['msg', 'Messages', 'msg'], ['fact', 'Factures', 'euro'], ['jr', 'Journal & Logs', 'alert'], ['param', 'Paramètres', 'key']];
+      var cnt = { modifs: 0, dem: dm.length, msg: pl.length }, tabs = h('div', { class: 'cf-tabs', role: 'tablist' }), tb = {};
+      TABS.forEach(function (t) { var b = h('button', { type: 'button', role: 'tab', 'aria-selected': TAB === t[0] ? 'true' : 'false', onclick: function () { setTab(t[0]); } }, ico(t[2], 17), t[1]); tb[t[0]] = b; if (cnt[t[0]]) b.appendChild(h('span', { class: 'cnt', text: String(cnt[t[0]]) })); tabs.appendChild(b); });
+      main.appendChild(tabs);
+      var body = h('div', { class: 'cf-body' }); main.appendChild(body);
+      var card = function (title, ic, extra, kids, cls) { return h('div', { class: 'card cf-card ' + (cls || '') }, h('div', { class: 'cf-ch' }, h('h2', null, ico(ic, 20), title), extra || null), kids); };
+      var kv = function (rows) { return h('dl', { class: 'cf-kv' }, rows.filter(Boolean).map(function (r) { return h('div', null, h('dt', { text: r[0] }), h('dd', null, r[1])); })); };
+      var siteCard = function () {
+        if (!d) return card('Son site', 'globe', null, h('p', { class: 'empty', text: 'Aucune demande de site.' }));
+        var url = d.site_url, pv = url ? h('div', { class: 'cf-pv' }, h('iframe', { src: url, title: 'Aperçu du site', loading: 'lazy', tabindex: '-1' })) : h('div', { class: 'cf-pv nopv', text: 'Pas encore d’adresse de site' });
+        return card('Son site', 'globe', null, h('div', { class: 'cf-site' }, pv, h('div', null, h('b', { class: 'cf-dom', text: d.domaine || d.commerce }), h('div', null, pillFor(d.statut) ? h('span', { class: 'pill ' + pillFor(d.statut), text: lab(d.statut) }) : h('span', { class: 'pill', text: lab(d.statut) })),
+          kv([['Créé le', dt(d.created_at)], ['Formule', lab(d.formule)], ['Activité', d.activite], ['Ville', d.ville]]),
+          h('div', { class: 'tools' }, url ? h('a', { class: 'btn sm', href: url, target: '_blank', rel: 'noopener' }, 'Voir le site ', ico('ext', 14)) : null, h('button', { type: 'button', class: 'btn sm ghost', text: 'Modifier le site', onclick: function () { impersonate(c.id); } })))));
+      };
+      var aboCard = function () {
+        if (!ab) return card('Abonnement', 'card', null, h('div', null, h('p', { class: 'sub', text: 'Aucun abonnement pour le moment.' }), h('button', { type: 'button', class: 'btn sm', text: 'Créer l’abonnement', onclick: function () { setTab('abo'); } })));
+        return card('Abonnement', 'card', h('button', { type: 'button', class: 'btn sm ghost', text: 'Gérer', onclick: function () { setTab('abo'); } }), h('div', null, h('div', { class: 'cf-plan' }, h('b', { text: lab(ab.formule) }), h('span', { class: 'pill ' + (pillFor(ab.statut) || ''), text: lab(ab.statut) })), h('div', { class: 'cf-price', text: eur(prixAbo(ab)) + ' HT / mois' }),
+          kv([['Début', dOnly(ab.debut)], ab.fin ? ['Fin', dOnly(ab.fin)] : null, ['Mails pro en plus', String(ab.mails_sup || 0)]]), h('button', { type: 'button', class: 'btn sm ghost wide', text: 'Voir les détails de l’abonnement →', onclick: function () { setTab('abo'); } })));
+      };
+      var infoCard = function () { return card('Informations du client', 'users', null, kv([['Nom complet', c.nom], ['Entreprise', d ? d.commerce : '—'], ['E-mail', c.email], ['Téléphone', d && d.tel || '—'], ['Inscription', dt(c.created_at)], ['Dernière connexion', dt(c.derniere_connexion)], ['Statut du compte', stTxt]])); };
+      var quick = function () {
+        var q = function (t, ic, cls, fn) { return h('button', { type: 'button', class: 'cf-q ' + (cls || ''), onclick: fn }, ico(ic, 18), t); };
+        var setAbo = function (statut, msg) { if (!ab) { flash('Ce client n’a pas d’abonnement.', true); return; } if (!window.confirm(msg)) return; api('/api/admin/abonnement', 'POST', { compte_id: c.id, formule: ab.formule, statut: statut, mails_sup: ab.mails_sup, motif: statut === 'resilie' ? 'Résilié par l’administrateur' : '' }).then(function (x) { flash(x.j.ok ? 'Abonnement mis à jour.' : 'Échec.', !x.j.ok); if (x.j.ok) loadAll().then(function () { detail(c.id, TAB); }); }); };
+        return card('Actions rapides', 'alert', null, h('div', { class: 'cf-qs' },
+          q('Suspendre le compte', 'alert', 'warn', function () { setAbo('suspendu', 'Suspendre l’abonnement de ' + c.nom + ' ?'); }),
+          q('Résilier l’abonnement', 'out', 'bad', function () { setAbo('resilie', 'Résilier l’abonnement de ' + c.nom + ' ?'); }),
+          q('Envoyer un e-mail', 'msg', '', function () { COMM.pre = [c.id]; top(commView); mark('com'); }),
+          q('Envoyer une notification', 'alert', '', function () { setTab('param'); setTimeout(function () { var a = document.querySelector('.cf-body'); if (a) clickIn(a, 'Envoyer une notification'); }, 50); }),
+          q('Réinitialiser le mot de passe', 'key', '', function () { clickIn(P.acts, 'Réinitialiser le mot de passe'); }),
+          q('Se connecter à sa place', 'users', '', function () { impersonate(c.id); })));
+      };
+      var tools = function () {
+        var sa = sel(['actif', 'impaye', 'suspendu', 'resilie'], st || 'actif'), ss = d ? sel(['nouvelle', 'en_creation', 'apercu', 'en_ligne', 'abandonnee'], d.statut) : null;
+        sa.disabled = !ab; sa.addEventListener('change', function () { api('/api/admin/abonnement', 'POST', { compte_id: c.id, formule: ab.formule, statut: sa.value, mails_sup: ab.mails_sup, motif: sa.value === 'resilie' ? 'Résilié par l’administrateur' : '' }).then(function (x) { flash(x.j.ok ? 'Statut du compte mis à jour.' : 'Échec.', !x.j.ok); if (x.j.ok) loadAll().then(function () { detail(c.id, TAB); }); }); });
+        if (ss) ss.addEventListener('change', function () { api('/api/admin/demande', 'POST', { id: d.id, statut: ss.value }).then(function (x) { flash(x.j.ok ? 'Statut du site mis à jour.' : 'Échec.', !x.j.ok); if (x.j.ok) loadAll().then(function () { detail(c.id, TAB); }); }); });
+        var sus = d ? h('label', { class: 'cf-sw' }, h('span', { text: 'Suspendre le site' }), h('input', { type: 'checkbox', checked: d.suspendu ? '' : null, onchange: function (e) { api('/api/admin/site', 'POST', { id: d.id, suspendu: e.target.checked }).then(function (x) { flash(x.j.ok ? (e.target.checked ? 'Site suspendu.' : 'Site réactivé.') : 'Échec.', !x.j.ok); if (x.j.ok) loadAll(); }); } })) : null;
+        return card('Outils de gestion', 'key', null, h('div', { class: 'cf-tl' }, h('label', null, h('span', { text: 'Statut du compte' }), sa), ss ? h('label', null, h('span', { text: 'Statut du site' }), ss) : null, sus));
+      };
+      var summary = h('div', { class: 'cf-sum' });
+      var summaryCard = function () { return card('Modifications & demandes', 'repeat', null, summary); };
+      var jrnl = function (limit, chip) {
+        var wrap = h('div'), list = h('div'), cur2 = 'Tout', chips = h('div', { class: 'chips' });
+        var draw = function () { list.textContent = ''; var rows = jr.filter(function (j) { return cur2 === 'Tout' || JCAT(j.type) === cur2; }).slice(0, limit || 99); if (!rows.length) list.appendChild(h('p', { class: 'empty', text: 'Rien pour le moment.' })); rows.forEach(function (j) { list.appendChild(h('div', { class: 'cf-jr' }, h('b', { text: j.type.replace(/_/g, ' ') }), h('span', { class: 'sub', text: j.detail || '' }), h('time', { text: dt(j.created_at) }), h('span', { class: 'sub', text: j.admin_id ? 'Admin' : 'Système' }))); }); };
+        ['Tout', 'Compte', 'Site', 'Sécurité', 'E-mails', 'Système'].forEach(function (k) { var b = h('button', { type: 'button', class: 'chip' + (k === cur2 ? ' on' : ''), text: k, onclick: function () { cur2 = k; Array.prototype.forEach.call(chips.children, function (x) { x.className = 'chip' + (x.textContent === k ? ' on' : ''); }); draw(); } }); chips.appendChild(b); });
+        wrap.appendChild(chips); wrap.appendChild(list); draw(); return wrap;
+      };
+      var activity = function () {
+        var items = jr.slice(0, 4); return card('Dernière activité', 'trend', null, items.length ? h('div', { class: 'cf-tline' }, items.map(function (j) { return h('div', null, h('i'), h('div', null, h('b', { text: j.type.replace(/_/g, ' ') }), h('span', { class: 'sub', text: j.detail || '' }), h('time', { text: dt(j.created_at) }))); })) : h('p', { class: 'empty', text: 'Aucune activité.' }));
+      };
+      var facs = function () {
+        var out = [], k = ab && ab.debut ? ab.debut : null; if (!k) return out;
+        var y = +k.slice(0, 4), m = +k.slice(5, 7), day = k.slice(8, 10) || '01', now = new Date().toISOString().slice(0, 10), fin = ab.fin ? ab.fin.slice(0, 7) : now.slice(0, 7);
+        for (var n = 0; n < 60; n++) { var key = y + '-' + (m < 10 ? '0' : '') + m; if (key > fin || key + '-' + day > now) break; var ht = prixAbo(ab); out.push([key, 'F-' + y + (m < 10 ? '0' : '') + m + '-' + String(c.id).padStart(4, '0'), day + '/' + (m < 10 ? '0' : '') + m + '/' + y, ht, Math.round(ht * 120) / 100]); m++; if (m > 12) { m = 1; y++; } }
+        return out.reverse();
+      };
+      /* contenu par onglet */
+      var show = {
+        apercu: function () { body.appendChild(h('div', { class: 'cf-g3' }, infoCard(), siteCard(), aboCard())); body.appendChild(h('div', { class: 'cf-g3' }, quick(), tools(), summaryCard())); body.appendChild(h('div', { class: 'cf-g2' }, card('Journal & Logs', 'alert', h('button', { type: 'button', class: 'btn sm ghost', text: 'Tout voir', onclick: function () { setTab('jr'); } }), jrnl(5)), activity())); },
+        site: function () { body.appendChild(siteCard()); body.appendChild(P.dem); },
+        abo: function () { body.appendChild(h('div', { class: 'cf-g2' }, aboCard(), P.abo)); },
+        modifs: function () { var box = card('Modifications demandées', 'repeat', null, h('div', { class: 'cf-ml' })); body.appendChild(box); api('/api/admin/compte-plus?id=' + c.id).then(function (x) { var l = box.querySelector('.cf-ml'); if (!x.j.ok) return; if (!x.j.modifs.length) l.appendChild(h('p', { class: 'empty', text: 'Aucune modification demandée.' })); x.j.modifs.forEach(function (m) { l.appendChild(h('div', { class: 'row' }, h('div', null, h('b', { text: m.type }), h('div', { class: 'sub', text: m.description }), h('small', { class: 'sub', text: dt(m.created_at) })), h('button', { type: 'button', class: 'btn sm ghost', text: m.statut === 'faite' ? 'Marquer à faire' : 'Marquer faite', onclick: function () { api('/api/admin/modif-statut', 'POST', { id: m.id, statut: m.statut === 'faite' ? 'demandee' : 'faite' }).then(function () { detail(c.id, 'modifs'); }); } }))); }); }); },
+        dem: function () { body.appendChild(P.dem); },
+        msg: function () { body.appendChild(P.pl); },
+        fact: function () { var l = facs(); body.appendChild(card('Factures', 'euro', null, l.length ? h('div', { class: 'tablewrap' }, h('table', null, h('thead', null, h('tr', null, ['Facture', 'Date', 'Total HT', 'Total TTC'].map(function (x) { return h('th', { text: x }); }))), h('tbody', null, l.map(function (f) { return h('tr', null, h('td', null, h('b', { text: f[1] })), h('td', { text: f[2] }), h('td', { text: eur(f[3]) }), h('td', { text: eur(f[4]) })); })))) : h('p', { class: 'empty', text: 'Aucune facture : l’abonnement n’a pas encore commencé.' }))); },
+        jr: function () { body.appendChild(card('Journal & Logs', 'alert', null, jrnl(0))); },
+        param: function () { body.appendChild(P.acts); }
+      };
+      (show[TAB] || show.apercu)();
+      /* données asynchrones : résumé modifications, compteur d'onglet */
+      api('/api/admin/compte-plus?id=' + c.id).then(function (x) {
+        if (!x.j.ok) return; var ms = x.j.modifs, mois = new Date().toISOString().slice(0, 7), used = ms.filter(function (m) { return String(m.created_at).slice(0, 7) === mois; }).length, nl = pl.filter(function (p) { return p.statut !== 'resolue'; }).length;
+        var b = tb.modifs; if (ms.length && b && !b.querySelector('.cnt')) b.appendChild(h('span', { class: 'cnt', text: String(ms.length) }));
+        var row = function (ic, t, right, fn) { return h('button', { type: 'button', class: 'cf-sr', onclick: fn }, ico(ic, 18), h('span', { text: t }), right, h('em', { text: '›' })); };
+        var bars = h('div', { class: 'cf-bars' }); for (var i = 0; i < quota; i++) bars.appendChild(h('i', { class: i < used ? 'on' : '' }));
+        summary.appendChild(row('repeat', 'Modifications (' + used + ' / ' + quota + ')', bars, function () { setTab('modifs'); }));
+        summary.appendChild(row('file', 'Demandes de site (' + dm.length + ')', d ? h('span', { class: 'pill ' + (pillFor(d.statut) || ''), text: lab(d.statut) }) : null, function () { setTab('dem'); }));
+        summary.appendChild(row('msg', 'Messages (' + pl.length + ')', nl ? h('span', { class: 'pill bad', text: nl + ' non résolu' + (nl > 1 ? 's' : '') }) : null, function () { setTab('msg'); }));
+      });
     });
   }
   function motDePasse() {
