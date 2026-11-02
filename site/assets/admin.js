@@ -282,8 +282,17 @@
     var shown = { clients: ['nom', 'inscrit', 'connexion', 'site', 'formule', 'abo', 'plaintes_ouvertes'], abonnements: ['nom', 'formule', 'abo', 'debut', 'fin', 'mails', 'prix', 'motif'], demandes: ['commerce', 'nom', 'activite', 'ville', 'formule', 'site', 'date'], plaintes: ['nom', 'sujet', 'pl', 'date', 'resolue'], journal: ['date', 'type', 'nom', 'detail'] }[dsKey];
     cols = COLS[dsKey].filter(function (c) { return shown.indexOf(c.k) >= 0; });
     var box = h('input', { class: 'find', type: 'search', placeholder: 'Rechercher dans ce tableau…', 'aria-label': 'Rechercher' }), body = h('div', { class: 'tablewrap' }), count = h('span', { class: 'sub' });
+    var FK = { formule: 'formule', abo: 'abo', site: 'site', pl: 'pl' }, filt = (DS[dsKey].filt || []).filter(function (f) { return FK[f[0]]; }), sel = {};
+    var badge = h('span', { class: 'bdg', hidden: '' }), fbtn = h('button', { type: 'button', class: 'btn ghost iconbtn', 'aria-label': 'Filtrer', 'aria-expanded': 'false', title: 'Filtrer' }, ico('filter', 18), badge);
+    var panel = h('div', { class: 'fpanel', hidden: '' }, h('div', { class: 'fgrid' }, filt.map(function (f) {
+      var sl = h('select', { 'aria-label': f[1] }, h('option', { value: '', text: f[1] + ' : toutes' }), f[2].map(function (o) { return h('option', { value: o, text: lab(o) }); }));
+      sl.addEventListener('change', function () { sel[f[0]] = sl.value; draw(); });
+      return h('label', null, f[1], sl);
+    })));
+    if (filt.length) fbtn.addEventListener('click', function () { var o = panel.hidden; panel.hidden = !o; fbtn.setAttribute('aria-expanded', String(o)); });
     function draw() {
-      var q = box.value.trim().toLowerCase(), list = rows.filter(function (r) { return !q || JSON.stringify(r).toLowerCase().indexOf(q) >= 0; });
+      var q = box.value.trim().toLowerCase(), nf = Object.keys(sel).filter(function (k) { return sel[k]; }).length; badge.textContent = nf ? String(nf) : ''; badge.hidden = !nf;
+      var list = rows.filter(function (r) { if (q && JSON.stringify(r).toLowerCase().indexOf(q) < 0) return false; return filt.every(function (f) { return !sel[f[0]] || r[FK[f[0]]] === sel[f[0]]; }); });
       count.textContent = list.length + ' ligne(s)'; body.textContent = '';
       if (!list.length) { body.appendChild(h('p', { class: 'empty', text: 'Rien à afficher pour le moment.' })); return; }
       var tb = h('tbody');
@@ -295,7 +304,7 @@
       body.appendChild(h('table', null, h('thead', null, h('tr', null, cols.map(function (c) { return h('th', { text: c.l }); }))), tb));
     }
     box.addEventListener('input', draw); draw();
-    return h('div', { class: 'card' }, h('div', { class: 'tbar' }, box, count), body);
+    return h('div', { class: 'card' }, h('div', { class: 'tbar' }, box, filt.length ? fbtn : null, count), filt.length ? panel : null, body);
   }
   var L = {
     comptes: function (t, p, sub) { listView('clients', t, sub, p); },
