@@ -125,7 +125,18 @@
   }
   /* ===== fiche client (page complète, onglets) ===== */
   var TAB = 'apercu';
-  var JCAT = function (t) { t = String(t || ''); return /mdp|mot_de_passe|connexion|reset|securite|impersonation/.test(t) ? 'Sécurité' : /mail|notif|communication/.test(t) ? 'E-mails' : /site|modif|demande|mise_en_ligne/.test(t) ? 'Site' : /abonnement|resiliation|formule|compte|inscription|plainte/.test(t) ? 'Compte' : 'Système'; };
+  var LOGM = {
+    inscription: ['Inscription du client', 'users', 'Compte', 'ok'], connexion: ['Connexion à l’espace client', 'key', 'Sécurité', ''],
+    mot_de_passe: ['Mot de passe modifié', 'key', 'Sécurité', ''], mot_de_passe_reinit: ['Mot de passe réinitialisé', 'key', 'Sécurité', 'warn'], mot_de_passe_reinit_mail: ['Mail de réinitialisation envoyé', 'msg', 'E-mails', ''],
+    admin_impersonation: ['Admin connecté à sa place', 'users', 'Sécurité', 'warn'], admin_fin_impersonation: ['Fin de la connexion admin', 'out', 'Sécurité', ''],
+    abonnement_cree: ['Abonnement créé', 'card', 'Compte', 'ok'], abonnement_statut: ['Statut d’abonnement modifié', 'card', 'Compte', 'warn'], changement_formule: ['Changement de formule', 'repeat', 'Compte', ''], resiliation: ['Abonnement résilié', 'alert', 'Compte', 'bad'],
+    site_statut: ['Statut du site modifié', 'globe', 'Site', ''], site_url: ['Adresse du site modifiée', 'globe', 'Site', ''], mise_en_ligne: ['Site mis en ligne', 'globe', 'Site', 'ok'],
+    edition_site: ['Contenu du site modifié', 'repeat', 'Site', ''], modification: ['Modification demandée', 'repeat', 'Site', ''],
+    notification: ['Notification envoyée', 'alert', 'E-mails', ''], communication: ['Message de communication', 'msg', 'E-mails', ''],
+    plainte: ['Message envoyé au support', 'msg', 'Compte', 'warn'], plainte_statut: ['Message du support traité', 'check', 'Compte', 'ok']
+  };
+  var logm = function (t) { return LOGM[t] || [String(t || '').replace(/_/g, ' ').replace(/^./, function (x) { return x.toUpperCase(); }), 'alert', 'Système', '']; };
+  var JCAT = function (t) { if (LOGM[t]) return LOGM[t][2]; t = String(t || ''); return /mdp|mot_de_passe|connexion|reset|securite|impersonation/.test(t) ? 'Sécurité' : /mail|notif|communication/.test(t) ? 'E-mails' : /site|modif|demande|mise_en_ligne/.test(t) ? 'Site' : /abonnement|resiliation|formule|compte|inscription|plainte/.test(t) ? 'Compte' : 'Système'; };
   function detail(id, tab) {
     if (tab) TAB = tab; else if (!detail.id || detail.id !== id) TAB = 'apercu'; detail.id = id;
     detailPieces(id, function (R, P) {
@@ -152,6 +163,7 @@
       var cnt = { modifs: 0, dem: dm.length, msg: pl.length }, tabs = h('div', { class: 'cf-tabs', role: 'tablist' }), tb = {};
       TABS.forEach(function (t) { var b = h('button', { type: 'button', role: 'tab', 'aria-selected': TAB === t[0] ? 'true' : 'false', onclick: function () { setTab(t[0]); } }, ico(t[2], 17), t[1]); tb[t[0]] = b; if (cnt[t[0]]) b.appendChild(h('span', { class: 'cnt', text: String(cnt[t[0]]) })); tabs.appendChild(b); });
       main.appendChild(tabs);
+      setTimeout(function () { var sel = tabs.querySelector('[aria-selected=true]'); if (sel && sel.scrollIntoView) tabs.scrollLeft = Math.max(0, sel.offsetLeft - 40); }, 0);
       var body = h('div', { class: 'cf-body' }); main.appendChild(body);
       var card = function (title, ic, extra, kids, cls) { return h('div', { class: 'card cf-card ' + (cls || '') }, h('div', { class: 'cf-ch' }, h('h2', null, ico(ic, 20), title), extra || null), kids); };
       var kv = function (rows) { return h('dl', { class: 'cf-kv' }, rows.filter(Boolean).map(function (r) { return h('div', null, h('dt', { text: r[0] }), h('dd', null, r[1])); })); };
@@ -188,14 +200,22 @@
       };
       var summary = h('div', { class: 'cf-sum' });
       var summaryCard = function () { return card('Modifications & demandes', 'repeat', null, summary); };
-      var jrnl = function (limit, chip) {
-        var wrap = h('div'), list = h('div'), cur2 = 'Tout', chips = h('div', { class: 'chips' });
-        var draw = function () { list.textContent = ''; var rows = jr.filter(function (j) { return cur2 === 'Tout' || JCAT(j.type) === cur2; }).slice(0, limit || 99); if (!rows.length) list.appendChild(h('p', { class: 'empty', text: 'Rien pour le moment.' })); rows.forEach(function (j) { list.appendChild(h('div', { class: 'cf-jr' }, h('b', { text: j.type.replace(/_/g, ' ') }), h('span', { class: 'sub', text: j.detail || '' }), h('time', { text: dt(j.created_at) }), h('span', { class: 'sub', text: j.admin_id ? 'Admin' : 'Système' }))); }); };
-        ['Tout', 'Compte', 'Site', 'Sécurité', 'E-mails', 'Système'].forEach(function (k) { var b = h('button', { type: 'button', class: 'chip' + (k === cur2 ? ' on' : ''), text: k, onclick: function () { cur2 = k; Array.prototype.forEach.call(chips.children, function (x) { x.className = 'chip' + (x.textContent === k ? ' on' : ''); }); draw(); } }); chips.appendChild(b); });
-        wrap.appendChild(chips); wrap.appendChild(list); draw(); return wrap;
+      var jrnl = function (limit) {
+        var wrap = h('div'), list = h('div', { class: 'cf-jl' }), cur2 = 'Tout', q = '', chips = h('div', { class: 'chips' }), find = h('input', { type: 'search', class: 'cf-find', placeholder: 'Rechercher dans le journal…', 'aria-label': 'Rechercher dans le journal' });
+        var day = function (x) { return String(x || '').slice(0, 10); };
+        var draw = function () {
+          list.textContent = ''; var rows = jr.filter(function (j) { var m = logm(j.type); return (cur2 === 'Tout' || m[2] === cur2) && (!q || (m[0] + ' ' + (j.detail || '')).toLowerCase().indexOf(q) >= 0); }).slice(0, limit || 200), last = '';
+          if (!rows.length) list.appendChild(h('p', { class: 'empty', text: 'Rien pour le moment.' }));
+          rows.forEach(function (j) { var m = logm(j.type), dd = day(j.created_at);
+            if (!limit && dd !== last) { last = dd; list.appendChild(h('div', { class: 'cf-day', text: dOnly(dd) })); }
+            list.appendChild(h('div', { class: 'cf-jr' }, h('span', { class: 'cf-ji ' + m[3] }, ico(m[1], 16)), h('div', { class: 'cf-jt' }, h('b', { text: m[0] }), j.detail ? h('span', { class: 'sub', text: j.detail }) : null), h('span', { class: 'cf-cat', text: m[2] }), h('span', { class: 'cf-by', text: j.admin_id ? 'Admin' : 'Client / système' }), h('time', { text: dt(j.created_at) }))); });
+        };
+        ['Tout', 'Compte', 'Site', 'Sécurité', 'E-mails', 'Système'].forEach(function (k) { chips.appendChild(h('button', { type: 'button', class: 'chip' + (k === cur2 ? ' on' : ''), text: k, onclick: function () { cur2 = k; Array.prototype.forEach.call(chips.children, function (x) { x.className = 'chip' + (x.textContent === k ? ' on' : ''); }); draw(); } })); });
+        find.addEventListener('input', function () { q = find.value.trim().toLowerCase(); draw(); });
+        wrap.appendChild(chips); if (!limit) wrap.appendChild(find); wrap.appendChild(list); draw(); return wrap;
       };
       var activity = function () {
-        var items = jr.slice(0, 4); return card('Dernière activité', 'trend', null, items.length ? h('div', { class: 'cf-tline' }, items.map(function (j) { return h('div', null, h('i'), h('div', null, h('b', { text: j.type.replace(/_/g, ' ') }), h('span', { class: 'sub', text: j.detail || '' }), h('time', { text: dt(j.created_at) }))); })) : h('p', { class: 'empty', text: 'Aucune activité.' }));
+        var items = jr.slice(0, 4); return card('Dernière activité', 'trend', null, items.length ? h('div', { class: 'cf-tline' }, items.map(function (j) { return h('div', null, h('i'), h('div', null, h('b', { text: logm(j.type)[0] }), h('span', { class: 'sub', text: j.detail || '' }), h('time', { text: dt(j.created_at) }))); })) : h('p', { class: 'empty', text: 'Aucune activité.' }));
       };
       var facs = function () {
         var out = [], k = ab && ab.debut ? ab.debut : null; if (!k) return out;
@@ -211,7 +231,7 @@
         modifs: function () { var box = card('Modifications demandées', 'repeat', null, h('div', { class: 'cf-ml' })); body.appendChild(box); api('/api/admin/compte-plus?id=' + c.id).then(function (x) { var l = box.querySelector('.cf-ml'); if (!x.j.ok) return; if (!x.j.modifs.length) l.appendChild(h('p', { class: 'empty', text: 'Aucune modification demandée.' })); x.j.modifs.forEach(function (m) { l.appendChild(h('div', { class: 'row' }, h('div', null, h('b', { text: m.type }), h('div', { class: 'sub', text: m.description }), h('small', { class: 'sub', text: dt(m.created_at) })), h('button', { type: 'button', class: 'btn sm ghost', text: m.statut === 'faite' ? 'Marquer à faire' : 'Marquer faite', onclick: function () { api('/api/admin/modif-statut', 'POST', { id: m.id, statut: m.statut === 'faite' ? 'demandee' : 'faite' }).then(function () { detail(c.id, 'modifs'); }); } }))); }); }); },
         dem: function () { body.appendChild(P.dem); },
         msg: function () { body.appendChild(P.pl); },
-        fact: function () { var l = facs(); body.appendChild(card('Factures', 'euro', null, l.length ? h('div', { class: 'tablewrap' }, h('table', null, h('thead', null, h('tr', null, ['Facture', 'Date', 'Total HT', 'Total TTC'].map(function (x) { return h('th', { text: x }); }))), h('tbody', null, l.map(function (f) { return h('tr', null, h('td', null, h('b', { text: f[1] })), h('td', { text: f[2] }), h('td', { text: eur(f[3]) }), h('td', { text: eur(f[4]) })); })))) : h('p', { class: 'empty', text: 'Aucune facture : l’abonnement n’a pas encore commencé.' }))); },
+        fact: function () { var l = facs(); body.appendChild(card('Factures', 'euro', null, l.length ? h('div', { class: 'tablewrap' }, h('table', null, h('thead', null, h('tr', null, ['Facture', 'Date', 'Total HT', 'Total TTC', 'Statut', ''].map(function (x) { return h('th', { text: x }); }))), h('tbody', null, l.map(function (f) { return h('tr', null, h('td', null, h('b', { text: f[1] })), h('td', { text: f[2] }), h('td', { text: eur(f[3]) }), h('td', { text: eur(f[4]) }), h('td', null, h('span', { class: 'pill ' + (f[0] === l[0][0] && st === 'impaye' ? 'bad' : 'ok'), text: f[0] === l[0][0] && st === 'impaye' ? 'À régler' : 'Payée' })), h('td', null, h('button', { type: 'button', class: 'btn sm', text: 'Voir / PDF', onclick: function () { factureView(c, d, ab, f, l[0][0] === f[0] && st === 'impaye'); } }))); })))) : h('p', { class: 'empty', text: 'Aucune facture : l’abonnement n’a pas encore commencé.' }))); },
         jr: function () { body.appendChild(card('Journal & Logs', 'alert', null, jrnl(0))); },
         param: function () { body.appendChild(P.acts); }
       };
@@ -227,6 +247,25 @@
         summary.appendChild(row('msg', 'Messages (' + pl.length + ')', nl ? h('span', { class: 'pill bad', text: nl + ' non résolu' + (nl > 1 ? 's' : '') }) : null, function () { setTab('msg'); }));
       });
     });
+  }
+  var LOGO = '<svg width="54" height="54" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 20 12 8h40l4 12"/><path d="M8 20a6 6 0 0 0 12 0 6 6 0 0 0 12 0 6 6 0 0 0 12 0 6 6 0 0 0 12 0"/><path d="M12 33v23h40V33"/><path d="M26 56V42h12v14"/><path d="M41 38l11 4.5-4.6 1.8-1.8 4.7z" fill="#17C26E" stroke="#17C26E" stroke-width="1.5"/></svg>';
+  function factureView(c, d, ab, f, due) {
+    var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (x) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[x]; }); };
+    var fe = function (n) { return (Math.round(n * 100) / 100).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €'; };
+    var MO = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'], mi = +f[0].slice(5, 7), per = MO[mi - 1].charAt(0).toUpperCase() + MO[mi - 1].slice(1) + ' ' + f[0].slice(0, 4);
+    var base = ab.formule === 'pro' ? ['Abonnement Pro', 'Site web + nom de domaine + adresse mail pro · ' + per, 100] : ['Abonnement Essentiel', 'Site web + nom de domaine · ' + per, 60];
+    var rows = '<tr><td><b>' + esc(base[0]) + '</b><small>' + esc(base[1]) + '</small></td><td class="n">1</td><td class="n">' + fe(base[2]) + '</td><td class="n">20 %</td><td class="n">' + fe(base[2]) + '</td></tr>';
+    if (ab.mails_sup > 0) rows += '<tr><td><b>Adresses mail pro supplémentaires</b><small>Adresses en plus de celle incluse</small></td><td class="n">' + ab.mails_sup + '</td><td class="n">' + fe(4) + '</td><td class="n">20 %</td><td class="n">' + fe(4 * ab.mails_sup) + '</td></tr>';
+    var ht = f[3], tva = Math.round(ht * 20) / 100;
+    var html = '<div class="inv-ex">EXEMPLE DE FACTURE · informations de l’entreprise à compléter</div><div class="inv-top"><div class="inv-brand">' + LOGO + '<div><b>Devanture <em>Web</em></b><small>Site vitrine pour commerçants</small></div></div><div class="inv-ft"><h1>FACTURE</h1><p>N° ' + esc(f[1]) + '</p><p><span class="inv-badge' + (due ? ' warn' : '') + '">' + (due ? 'À régler' : 'Payée') + '</span></p></div></div>' +
+      '<div class="inv-meta"><div><span>Date d’émission</span><b>' + esc(f[2]) + '</b></div><div><span>Échéance</span><b>' + esc(f[2]) + '</b></div><div><span>Période</span><b>' + esc(per) + '</b></div><div><span>Mode de paiement</span><b>Prélèvement SEPA</b></div></div>' +
+      '<div class="inv-parties"><div><h2>Émetteur</h2><b>Devanture Web</b><p>[Raison sociale à compléter]</p><p>[Adresse à compléter]</p><p>SIRET : [à compléter]</p><p>N° TVA : [FR… à compléter]</p></div><div><h2>Facturé à</h2><b>' + esc(d ? d.commerce : c.nom) + '</b><p>' + esc(c.nom) + '</p><p>' + esc(d ? d.ville : '') + '</p><p>' + esc(c.email) + '</p></div></div>' +
+      '<table class="inv-t"><thead><tr><th>Désignation</th><th class="n">Qté</th><th class="n">Prix unitaire HT</th><th class="n">TVA</th><th class="n">Total HT</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+      '<div class="inv-tot"><div><span>Total HT</span><b>' + fe(ht) + '</b></div><div><span>TVA 20 %</span><b>' + fe(tva) + '</b></div><div class="g"><span>Total TTC</span><span>' + fe(ht + tva) + '</span></div></div>' +
+      '<div class="inv-legal"><b>Pénalités de retard :</b> 3 fois le taux d’intérêt légal. <b>Indemnité forfaitaire de recouvrement :</b> 40 €. <b>Escompte :</b> aucun pour paiement anticipé. Abonnement mensuel, engagement de 12 mois.</div>';
+    main.textContent = '';
+    main.appendChild(head('Facture ' + f[1], c.nom + ' · ' + per, [h('button', { type: 'button', class: 'btn ghost', text: '← Factures du client', onclick: function () { detail(c.id, 'fact'); } }), h('button', { type: 'button', class: 'btn', text: '⬇ Télécharger en PDF', onclick: function () { window.print(); } })]));
+    var box = h('div', { class: 'invoice' }); box.innerHTML = html; main.appendChild(box); window.scrollTo(0, 0);
   }
   function motDePasse() {
     main.textContent = '';

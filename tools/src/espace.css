@@ -166,3 +166,4 @@ ul.list{margin:10px 0 0;padding-left:20px;display:grid;gap:8px;line-height:1.5}
 @media print{body *{visibility:hidden}.invoice,.invoice *{visibility:visible}.invoice{position:absolute;left:0;top:0;width:100%;border:0;max-width:none}}
 .invoice .inv-t{min-width:0;width:100%;table-layout:auto;margin:0}.invoice .inv-t th,.invoice .inv-t td{padding-left:6px;padding-right:6px}
 .invoice{overflow:hidden}.gcard + .card .btn,a.btn{text-decoration:none}
+.invoice table.inv-t{min-width:0!important;width:100%!important;max-width:100%;table-layout:fixed}.invoice .inv-t th:first-child{width:40%}.invoice .inv-t th,.invoice .inv-t td{white-space:normal}.invoice .inv-t .n{white-space:nowrap}
