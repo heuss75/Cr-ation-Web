@@ -136,6 +136,48 @@ async function readJson(req, url, max = 2000) {
   return { err: json({ ok: false }, 400) };
 }
 const MAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const mailOk0 = (env) => !!(env.RESEND_API_KEY && env.MAIL_FROM);
+async function ensureCodes(env) {
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS codes_mail (email TEXT PRIMARY KEY, code_hash TEXT NOT NULL, essais INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL DEFAULT (datetime('now')), expires_at TEXT NOT NULL)").run();
+}
+async function inscriptionConfig(env) { return json({ ok: true, verif: mailOk0(env) }); }
+async function inscriptionCode(req, env, url) {
+  if (req.method !== 'POST') return json({ ok: false }, 405);
+  const { b, err } = await readJson(req, url); if (err) return err;
+  if (b.site_web_url) return json({ ok: true });
+  if (!mailOk0(env)) return json({ ok: false, error: 'indisponible' }, 503);
+  const email = typeof b.email === 'string' ? b.email.trim().toLowerCase() : '';
+  if (!MAIL_RE.test(email) || email.length > 120) return json({ ok: false, errors: { email: 'Adresse e-mail invalide.' } }, 422);
+  try {
+    await ensureCodes(env);
+    const iph = await ipHash(req, 'code');
+    await env.DB.prepare("DELETE FROM essais WHERE at < datetime('now','-1 day')").run();
+    const c = await env.DB.prepare("SELECT COUNT(*) AS n FROM essais WHERE ip_hash = ? AND at > datetime('now','-1 hour')").bind(iph).first();
+    if (c && c.n >= 8) return json({ ok: false }, 429);
+    if (await env.DB.prepare('SELECT id FROM comptes WHERE email = ?').bind(email).first()) return json({ ok: false, errors: { email: 'Un compte existe déjà avec cette adresse : connectez-vous.' } }, 409);
+    const ex = await env.DB.prepare("SELECT 1 AS x FROM codes_mail WHERE email = ? AND created_at > datetime('now','-30 seconds')").bind(email).first();
+    if (ex) return json({ ok: false, error: 'attente' }, 429);
+    await env.DB.prepare('INSERT INTO essais (ip_hash) VALUES (?)').bind(iph).run();
+    const code = String(crypto.getRandomValues(new Uint32Array(1))[0] % 1000000).padStart(6, '0');
+    await env.DB.prepare("INSERT OR REPLACE INTO codes_mail (email, code_hash, essais, created_at, expires_at) VALUES (?,?,0,datetime('now'),datetime('now','+10 minutes'))").bind(email, await sha(code + '|' + email)).run();
+    const ok = await envoyerMail(env, email, 'Votre code de vérification : ' + code,
+      'Bonjour,\n\nVotre code de vérification Devanture Web est : ' + code + '\n\nIl est valable 10 minutes. Si vous n’êtes pas à l’origine de cette demande, ignorez ce message.\n\nDevanture Web',
+      '<div style="font-family:system-ui,sans-serif;max-width:480px;margin:auto;padding:24px"><h2 style="margin:0 0 12px">Votre code de vérification</h2><p>Saisissez ce code pour créer votre compte Devanture Web :</p><p style="font-size:34px;letter-spacing:8px;font-weight:800;margin:20px 0">' + code + '</p><p style="color:#666">Il est valable 10 minutes. Si vous n’êtes pas à l’origine de cette demande, ignorez ce message.</p></div>');
+    if (!ok) return json({ ok: false, error: 'envoi' }, 502);
+    return json({ ok: true });
+  } catch (_) { return json({ ok: false }, 500); }
+}
+async function codeValide(env, email, code) {
+  await ensureCodes(env);
+  const r = await env.DB.prepare("SELECT code_hash, essais FROM codes_mail WHERE email = ? AND expires_at > datetime('now')").bind(email).first();
+  if (!r) return 'expire';
+  if (r.essais >= 5) { await env.DB.prepare('DELETE FROM codes_mail WHERE email = ?').bind(email).run(); return 'trop'; }
+  if (!/^[0-9]{6}$/.test(code) || !same(unhex(r.code_hash), unhex(await sha(code + '|' + email)))) {
+    await env.DB.prepare('UPDATE codes_mail SET essais = essais + 1 WHERE email = ?').bind(email).run(); return 'faux';
+  }
+  await env.DB.prepare('DELETE FROM codes_mail WHERE email = ?').bind(email).run();
+  return 'ok';
+}
 async function inscription(req, env, url) {
   if (req.method !== 'POST') return json({ ok: false }, 405);
   const { b, err } = await readJson(req, url); if (err) return err;
@@ -149,6 +191,10 @@ async function inscription(req, env, url) {
   if (pw.length < 8 || pw.length > 100) errors.password = 'Le mot de passe contient entre 8 et 100 caractères.';
   if (b.cgv !== true) errors.cgv = 'Acceptation requise.';
   if (Object.keys(errors).length) return json({ ok: false, errors }, 422);
+  if (mailOk0(env)) {
+    const v = await codeValide(env, email, typeof b.code === 'string' ? b.code.trim() : '').catch(() => 'erreur');
+    if (v !== 'ok') return json({ ok: false, errors: { code: v === 'faux' ? 'Code incorrect.' : v === 'trop' ? 'Trop d’essais : demandez un nouveau code.' : 'Code expiré ou absent : demandez un nouveau code.' } }, 422);
+  }
   const iph = await ipHash(req, 'ins');
   try {
     const c = await env.DB.prepare("SELECT COUNT(*) AS n FROM comptes WHERE ip_hash = ? AND created_at > datetime('now','-1 hour')").bind(iph).first();
@@ -730,6 +776,8 @@ export default {
     if (p === '/api/reinitialiser') return reinitialiser(req, env, url);
     if (p === '/api/demande') return demande(req, env, url);
     if (p === '/api/reservation') return reservation(req, env, url);
+    if (p === '/api/inscription/config') return inscriptionConfig(env);
+    if (p === '/api/inscription/code') return inscriptionCode(req, env, url);
     if (p === '/api/inscription') return inscription(req, env, url);
     if (p === '/api/connexion') return connexion(req, env, url);
     if (p === '/api/deconnexion') return deconnexion(req, env, url);

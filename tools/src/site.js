@@ -474,18 +474,46 @@
       var okv = validateAll(sf);
       if (sf.elements.password2.value && sf.elements.password.value !== sf.elements.password2.value) { setErr(sf.elements.password2, 'Les deux mots de passe ne sont pas identiques.'); okv = false; }
       if (!okv) { toast('Corrigez les champs signalés'); return; }
-      busy(sbtn, true);
-      var o = { nom: sf.elements.nom.value.trim(), email: sf.elements.email.value.trim(), password: sf.elements.password.value, cgv: sf.elements.cgv.checked, site_web_url: sf.elements.site_web_url.value };
-      api('/api/inscription', 'POST', o).then(function (r) {
-        busy(sbtn, false);
+      var cbox = $('#codebox'), cin = sf.elements.code, lbl = sbtn.querySelector('.lbl');
+      var create = function () {
+        busy(sbtn, true);
+        var o = { nom: sf.elements.nom.value.trim(), email: sf.elements.email.value.trim(), password: sf.elements.password.value, cgv: sf.elements.cgv.checked, site_web_url: sf.elements.site_web_url.value, code: cin ? cin.value.trim() : '' };
+        api('/api/inscription', 'POST', o).then(function (r) { busy(sbtn, false); done(r); }).catch(function () { busy(sbtn, false); bad(sbad, 'Connexion impossible pour le moment. Vérifiez votre réseau puis réessayez.'); });
+      };
+      var sendCode = function (again) {
+        busy(sbtn, true);
+        api('/api/inscription/code', 'POST', { email: sf.elements.email.value.trim(), site_web_url: sf.elements.site_web_url.value }).then(function (r) {
+          busy(sbtn, false);
+          if (r.s === 200 && r.j.ok) {
+            cbox.hidden = false; sf.classList.add('coded'); ['nom', 'email', 'password', 'password2'].forEach(function (n) { sf.elements[n].readOnly = true; });
+            if (lbl) lbl.textContent = 'Vérifier et créer mon compte'; cin.value = ''; cin.focus(); if (again) toast('Nouveau code envoyé');
+          } else if (r.s === 409 && r.j.errors) { setErr(sf.elements.email, r.j.errors.email); bad(sbad, 'Un compte existe déjà avec cette adresse. Connectez-vous.'); }
+          else if (r.s === 422 && r.j.errors) { setErr(sf.elements.email, r.j.errors.email); }
+          else if (r.s === 429) bad(sbad, r.j.error === 'attente' ? 'Un code vient d’être envoyé. Patientez 30 secondes avant d’en demander un autre.' : 'Trop de demandes de code. Patientez une heure puis réessayez.');
+          else bad(sbad, 'Le code n’a pas pu être envoyé. Vérifiez l’adresse e-mail puis réessayez.');
+        }).catch(function () { busy(sbtn, false); bad(sbad, 'Connexion impossible pour le moment. Vérifiez votre réseau puis réessayez.'); });
+      };
+      sf._sendCode = sendCode;
+      if (!cbox) { create(); return; }
+      if (cbox.hidden) {
+        api('/api/inscription/config', 'GET').then(function (c) { if (c.j && c.j.verif) sendCode(false); else create(); }).catch(create);
+      } else {
+        if (!/^[0-9]{6}$/.test(cin.value.trim())) { setErr(cin, 'Saisissez les 6 chiffres reçus par e-mail.'); return; }
+        create();
+      }
+      return;
+      function done(r) {
         if (r.s === 200 && r.j.ok) { location.href = NEXT; }
         else if ((r.s === 422 || r.s === 409) && r.j.errors) {
           Object.keys(r.j.errors).forEach(function (k) { var f = sf.elements[k]; if (f) setErr(f, r.j.errors[k]); });
           bad(sbad, r.s === 409 ? 'Un compte existe déjà avec cette adresse. Connectez-vous.' : 'Certains champs ne sont pas valides. Vérifiez les messages en rouge.');
         } else if (r.s === 429) bad(sbad, 'Trop de créations de compte depuis votre connexion. Patientez une heure puis réessayez.');
         else bad(sbad, 'Le compte n’a pas pu être créé (erreur ' + r.s + '). Vos réponses sont conservées : vous pouvez réessayer.');
-      }).catch(function () { busy(sbtn, false); bad(sbad, 'Connexion impossible pour le moment. Vérifiez votre réseau puis réessayez.'); });
+      }
     });
+    var rs = $('#code-resend'), ch = $('#code-change');
+    if (rs) rs.addEventListener('click', function () { sf._sendCode && sf._sendCode(true); });
+    if (ch) ch.addEventListener('click', function () { $('#codebox').hidden = true; sf.classList.remove('coded'); ['nom', 'email', 'password', 'password2'].forEach(function (n) { sf.elements[n].readOnly = false; }); var l = sbtn.querySelector('.lbl'); if (l) l.textContent = 'Créer mon compte'; sf.elements.email.focus(); });
   }
   if (lf) {
     wire(lf);

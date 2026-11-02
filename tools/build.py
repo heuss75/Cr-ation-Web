@@ -476,6 +476,13 @@ signup_body = phead("Inscription", "Créez votre compte", "Un compte est nécess
   """ + pwfield("password", "Votre mot de passe (8 caractères minimum)", "new-password") + """
   """ + pwfield("password2", "Confirmez votre mot de passe", "new-password") + """
   """ + HP + """
+  <div class="field codebox" id="codebox" hidden>
+    <label for="f-code">Code de vérification</label>
+    <input id="f-code" name="code" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" maxlength="6" aria-describedby="code-e code-h" placeholder="123456">
+    <p class="hint" id="code-h">Nous venons de vous envoyer un code à 6 chiffres par e-mail. Pensez à regarder vos courriers indésirables. Il est valable 10 minutes.</p>
+    <p class="errmsg" id="code-e" role="alert"></p>
+    <p class="sub"><button type="button" class="linkbtn" id="code-resend">Renvoyer le code</button> · <button type="button" class="linkbtn" id="code-change">Changer d’e-mail</button></p>
+  </div>
   <div class="field"><label class="check" for="f-cgv"><input type="checkbox" id="f-cgv" name="cgv" data-req aria-required="true" aria-describedby="cgv-e"><span>J’agis pour mon activité professionnelle et j’ai lu les <a href="/cgv" target="_blank" rel="noopener">conditions générales de vente</a> et la <a href="/confidentialite" target="_blank" rel="noopener">politique de confidentialité</a>.</span></label><p class="errmsg" id="cgv-e" role="alert"></p></div>
   <div><button class="btn" type="submit"><span class="lbl">Créer mon compte</span></button></div>
   <p class="sub">Déjà un compte ? <a href="/connexion">Se connecter</a>. Créer un compte est gratuit et sans engagement.</p>

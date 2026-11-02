@@ -19,7 +19,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,700&family=Playfair+Display:ital,wght@1,600&family=Geist+Mono:wght@400;500&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@600;800&family=Caveat:wght@600;700&family=Barlow+Condensed:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Anton&family=Fraunces:opsz,wght@9..144,500;9..144,700&display=swap">
-<link rel="stylesheet" href="/assets/site.css?v=cecd9b06">
+<link rel="stylesheet" href="/assets/site.css?v=17d99601">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
@@ -112,6 +112,13 @@
   <div class="field"><label for="f-password">Votre mot de passe (8 caractères minimum)</label><div class="pwrap"><input id="f-password" name="password" type="password" autocomplete="new-password" data-req aria-required="true" aria-describedby="password-e" minlength="8" maxlength="100"><button type="button" class="eye" aria-label="Afficher le mot de passe" aria-pressed="false"><svg class="ic on" aria-hidden="true"><use href="#i-eye"/></svg><svg class="ic off" aria-hidden="true"><use href="#i-eyeoff"/></svg></button></div><p class="errmsg" id="password-e" role="alert"></p></div>
   <div class="field"><label for="f-password2">Confirmez votre mot de passe</label><div class="pwrap"><input id="f-password2" name="password2" type="password" autocomplete="new-password" data-req aria-required="true" aria-describedby="password2-e" minlength="8" maxlength="100"><button type="button" class="eye" aria-label="Afficher le mot de passe" aria-pressed="false"><svg class="ic on" aria-hidden="true"><use href="#i-eye"/></svg><svg class="ic off" aria-hidden="true"><use href="#i-eyeoff"/></svg></button></div><p class="errmsg" id="password2-e" role="alert"></p></div>
   <div class="hp" aria-hidden="true"><label>Ne pas remplir<input type="text" name="site_web_url" tabindex="-1" autocomplete="off"></label></div>
+  <div class="field codebox" id="codebox" hidden>
+    <label for="f-code">Code de vérification</label>
+    <input id="f-code" name="code" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" maxlength="6" aria-describedby="code-e code-h" placeholder="123456">
+    <p class="hint" id="code-h">Nous venons de vous envoyer un code à 6 chiffres par e-mail. Pensez à regarder vos courriers indésirables. Il est valable 10 minutes.</p>
+    <p class="errmsg" id="code-e" role="alert"></p>
+    <p class="sub"><button type="button" class="linkbtn" id="code-resend">Renvoyer le code</button> · <button type="button" class="linkbtn" id="code-change">Changer d’e-mail</button></p>
+  </div>
   <div class="field"><label class="check" for="f-cgv"><input type="checkbox" id="f-cgv" name="cgv" data-req aria-required="true" aria-describedby="cgv-e"><span>J’agis pour mon activité professionnelle et j’ai lu les <a href="/cgv" target="_blank" rel="noopener">conditions générales de vente</a> et la <a href="/confidentialite" target="_blank" rel="noopener">politique de confidentialité</a>.</span></label><p class="errmsg" id="cgv-e" role="alert"></p></div>
   <div><button class="btn" type="submit"><span class="lbl">Créer mon compte</span></button></div>
   <p class="sub">Déjà un compte ? <a href="/connexion">Se connecter</a>. Créer un compte est gratuit et sans engagement.</p>
@@ -166,7 +173,7 @@
   </form>
 </dialog>
 
-<script>window.SITE={v:"cecd9b06",email:""};</script>
-<script src="/assets/site.js?v=cecd9b06" defer></script>
+<script>window.SITE={v:"17d99601",email:""};</script>
+<script src="/assets/site.js?v=17d99601" defer></script>
 </body>
 </html>
