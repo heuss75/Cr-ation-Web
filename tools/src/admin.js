@@ -557,7 +557,7 @@
       var cols = ['nom', 'inscrit', 'connexion', 'site', 'formule', 'abo', 'mails', 'plaintes_ouvertes'].map(function (k) { var c = COLS.clients.filter(function (c) { return c.k === k; })[0], sh = { connexion: 'Connexion', site: 'Site', mails: 'Mails pro', plaintes_ouvertes: 'Plaintes', inscrit: 'Inscrit' }; return sh[k] ? { k: c.k, l: sh[k], t: c.t } : c; });
       var tb = h('tbody');
       rows.slice(0, 500).forEach(function (r) {
-        var tr = h('tr', null, cols.map(function (c) { return h('td', null, cell(c, r)); }), h('td', { class: 'acts' }, h('button', { type: 'button', class: 'btn sm', text: 'Voir en tant que', onclick: function (e) { e.stopPropagation(); impersonate(r.compte_id); } })));
+        var tr = h('tr', null, cols.map(function (c) { return h('td', null, cell(c, r)); }), h('td', { class: 'acts' }, h('button', { type: 'button', class: 'btn sm', text: 'Son espace', title: 'Voir le site en tant que ce client', onclick: function (e) { e.stopPropagation(); impersonate(r.compte_id); } })));
         click(tr, function () { open(function () { detail(r.compte_id); }); }); tb.appendChild(tr);
       });
       tbody.appendChild(h('table', null, h('thead', null, h('tr', null, cols.map(function (c) { return h('th', { text: c.l }); }), h('th'))), tb));

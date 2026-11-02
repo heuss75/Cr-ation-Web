@@ -109,4 +109,4 @@ details.more{margin-top:22px}details.more>summary{cursor:pointer;font-weight:700
 /* tableaux : colonnes lisibles, pas de mots coupés */
 .tablewrap{overflow-x:auto}.tablewrap table td,.tablewrap table th{white-space:nowrap}.tablewrap td.acts{padding-left:16px}
 .who{white-space:nowrap}.who b,.who small{white-space:nowrap}
-.tablewrap th{padding-right:18px}.tablewrap td{padding-right:18px}
+.tablewrap th{padding-right:12px}.tablewrap td{padding-right:12px}
