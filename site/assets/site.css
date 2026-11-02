@@ -65,7 +65,7 @@ h2{font:700 clamp(2rem,5.4vw,3.4rem)/1 var(--display);letter-spacing:-.035em;tex
 /* hero */
 .hero{display:grid;gap:34px 40px;grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "devices" "feat";padding-block:0 clamp(22px,3vw,36px)}
 @media(min-width:980px){.hero{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"head devices" "feat devices";align-items:center;gap:30px 40px}}
-.hero-head{grid-area:head}
+.hero-head{grid-area:head;align-self:start}
 .pill{display:inline-block;font:500 14px var(--body);background:var(--soft);color:var(--ink2);padding:8px 18px;border-radius:999px}
 h1{font:800 clamp(2.3rem,4.8vw,3.9rem)/1.03 var(--display);letter-spacing:-.035em;margin-top:20px}
 .dbr{display:none}
