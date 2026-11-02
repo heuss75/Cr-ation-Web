@@ -307,7 +307,7 @@
   var recent = function (k, n) { return function (r) { return d10(r[k]) >= ago(n); }; };
 
   /* ===== revenus par période ===== */
-  var REV = { mode: 'mois', depuis: '12' };
+  var REV = { mode: 'mois', depuis: '6' };
   var mKey = function (d) { return d.slice(0, 7); };
   function revCalc() {
     var nowM = mKey(new Date().toISOString()), abos = abosR();
@@ -339,7 +339,7 @@
     });
     return order.map(function (k) { var g = groups[k]; g.ca = g.ess + g.pro + g.mails; return g; });
   }
-  var REVCOLS = [C('periode', 'Période'), C('ca', 'Facturé (HT)', 'eur'), C('ess', 'dont Essentiel', 'eur'), C('pro', 'dont Pro', 'eur'), C('mails', 'dont mails pro', 'eur'), C('nouveaux', 'Nouveaux clients', 'int'), C('resilies', 'Clients partis', 'int'), C('actifs', 'Clients à la fin', 'int'), C('impayes', 'Impayés (en cours)', 'eur')];
+  var REVCOLS = [C('periode', 'Période'), C('ca', 'Facturé', 'eur'), C('ess', 'Essentiel', 'eur'), C('pro', 'Pro', 'eur'), C('mails', 'Mails pro', 'eur'), C('nouveaux', 'Nouveaux', 'int'), C('resilies', 'Partis', 'int'), C('actifs', 'Clients', 'int'), C('impayes', 'Impayés', 'eur')];
   function revBars(rows) {
     var W = 640, H = 210, Lm = 46, B = 28, T = 10, iw = W - Lm - 8, ih = H - B - T;
     var max = Math.max.apply(null, rows.map(function (r) { return r.ca; }).concat([100])), step = Math.pow(10, Math.floor(Math.log10(max))), top = Math.ceil(max / step) * step;
@@ -357,19 +357,18 @@
     var box = h('div', { class: 'card', id: 'revenus' });
     function draw() {
       box.textContent = '';
-      var rows = revCalc(), tot = rows.reduce(function (a, r) { return a + r.ca; }, 0), nv = rows.reduce(function (a, r) { return a + r.nouveaux; }, 0), rs = rows.reduce(function (a, r) { return a + r.resilies; }, 0);
+      var rows = revCalc(); while (rows.length > 1 && !rows[0].ca && !rows[0].nouveaux && !rows[0].actifs) rows.shift(); var tot = rows.reduce(function (a, r) { return a + r.ca; }, 0), nv = rows.reduce(function (a, r) { return a + r.nouveaux; }, 0), rs = rows.reduce(function (a, r) { return a + r.resilies; }, 0);
       var seg = function (key, opts, val, fn) { return h('div', { class: 'seg' }, opts.map(function (o) { return h('button', { type: 'button', text: o[1], 'aria-pressed': String(val === o[0]), onclick: function () { fn(o[0]); draw(); } }); })); };
       box.appendChild(h('div', { class: 'tbar' }, h('div', null, h('h2', { text: 'Revenus' }), h('p', { class: 'sub', text: 'Ce que vous facturez à vos clients, hors taxes. Un client compte pour chaque mois où son abonnement est actif.' })),
         h('div', { class: 'tools' }, seg('mode', [['mois', 'Mensuel'], ['trimestre', 'Trimestriel'], ['annee', 'Annuel']], REV.mode, function (v) { REV.mode = v; }), seg('depuis', [['6', '6 mois'], ['12', '12 mois'], ['24', '24 mois'], ['tout', 'Tout']], REV.depuis, function (v) { REV.depuis = v; }),
           h('button', { type: 'button', class: 'btn ghost sm', text: '⬇ CSV', onclick: function () { download('revenus-' + REV.mode + '-' + stamp() + '.csv', csvText(REVCOLS, rows)); flash('Export des revenus téléchargé.'); } }))));
-      var kk = kpi();
-      box.appendChild(mini([['Total facturé sur la période choisie', eur(tot)], ['Vous gagnez chaque mois, maintenant', eur(kk.mrr)], ['Sur 12 mois, si personne ne part', eur(kk.arr)], ['Nouveaux clients sur la période', String(nv)], ['Clients partis sur la période', String(rs)], ['Prix moyen par client et par mois', eur(kk.panier)]]));
+      box.appendChild(h('div', { class: 'revsum' }, h('span', null, 'Total facturé sur cette période : ', h('b', { text: eur(tot) })), h('span', null, h('b', { text: String(nv) }), ' nouveau(x) client(s)'), h('span', null, h('b', { text: String(rs) }), ' client(s) parti(s)')));
       box.appendChild(h('div', { class: 'legendline' }, h('span', null, h('i', { style: 'background:' + COL.pri }), 'Essentiel'), h('span', null, h('i', { style: 'background:' + COL.sky }), 'Pro'), h('span', null, h('i', { style: 'background:' + COL.ok }), 'Mails pro')));
-      box.appendChild(h('p', { class: 'sub', style: 'margin:0 0 8px', text: 'Chaque barre est une période. Sa hauteur est le total facturé ; les couleurs montrent d’où il vient.' }));
+      box.appendChild(h('p', { class: 'sub', style: 'margin:0 0 8px', text: 'Chaque barre est un mois : sa hauteur est le total facturé, les couleurs montrent d’où il vient.' }));
       box.appendChild(revBars(rows));
       var tb = h('tbody');
-      rows.slice().reverse().forEach(function (r) { var tr = h('tr', null, REVCOLS.map(function (c) { return h('td', null, cell(c, r)); })); click(tr, function () { var abos = r.abos; open(function () { main.textContent = ''; var rr = abos.map(aRow); main.appendChild(head('Abonnements · ' + r.periode, rr.length + ' abonnement(s) facturé(s) sur la période', [backBtn(), h('button', { type: 'button', class: 'btn', text: '⬇ Exporter (CSV)', onclick: function () { download('abonnements-' + r.periode.replace(/\s/g, '-') + '.csv', csvText(COLS.abonnements, rr)); } })])); main.appendChild(dataTable('abonnements', rr)); }); }); tb.appendChild(tr); });
-      box.appendChild(h('div', { class: 'tablewrap' }, h('table', null, h('thead', null, h('tr', null, REVCOLS.map(function (c) { return h('th', { text: c.l }); }))), tb)));
+      rows.slice().reverse().forEach(function (r) { var tr = h('tr', null, REVCOLS.map(function (c, ix) { return h('td', { class: ix ? 'num' : 'per' }, cell(c, r)); })); click(tr, function () { var abos = r.abos; open(function () { main.textContent = ''; var rr = abos.map(aRow); main.appendChild(head('Abonnements · ' + r.periode, rr.length + ' abonnement(s) facturé(s) sur la période', [backBtn(), h('button', { type: 'button', class: 'btn', text: '⬇ Exporter (CSV)', onclick: function () { download('abonnements-' + r.periode.replace(/\s/g, '-') + '.csv', csvText(COLS.abonnements, rr)); } })])); main.appendChild(dataTable('abonnements', rr)); }); }); tb.appendChild(tr); });
+      box.appendChild(h('div', { class: 'tablewrap' }, h('table', { class: 'revt revm' }, h('thead', null, h('tr', null, REVCOLS.map(function (c, ix) { return h('th', { text: c.l, class: ix ? 'num' : '' }); }))), tb)));
       box.appendChild(h('p', { class: 'sub', style: 'margin-top:10px', text: 'Cliquez sur une ligne pour voir les clients concernés. Les mails pro en plus sont comptés au nombre actuel (pas d’historique). Les abonnements suspendus ne sont pas facturés.' }));
     }
     draw(); return box;

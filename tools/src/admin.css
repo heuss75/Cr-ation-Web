@@ -110,3 +110,9 @@ details.more{margin-top:22px}details.more>summary{cursor:pointer;font-weight:700
 .tablewrap{overflow-x:auto}.tablewrap table td,.tablewrap table th{white-space:nowrap}.tablewrap td.acts{padding-left:16px}
 .who{white-space:nowrap}.who b,.who small{white-space:nowrap}
 .tablewrap th{padding-right:12px}.tablewrap td{padding-right:12px}
+/* revenus mois par mois */
+.revsum{display:flex;gap:10px 28px;flex-wrap:wrap;padding:12px 16px;background:var(--soft);border-radius:12px;margin:6px 0 16px;font-size:14px;color:var(--mut)}.revsum b{color:var(--ink);font-size:1.05rem}
+.chart{max-height:260px}
+.revm td.per{font-weight:700}.revm tbody tr:hover{background:var(--soft)}.revm td:nth-child(2){font-weight:800}
+.revm th,.revm td{padding:13px 14px}
+.legendline{display:flex;gap:18px;margin:4px 0 6px;font-size:13px}.legendline i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px}
