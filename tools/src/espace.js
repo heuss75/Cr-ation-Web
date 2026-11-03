@@ -18,10 +18,12 @@
   }
   var IC = { globe: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18', card: 'M2 7a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zM2 10h20', pen: 'M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z', msg: 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z', home: 'M3 11l9-8 9 8v9a2 2 0 0 1-2 2h-4v-7H9v7H5a2 2 0 0 1-2-2z', help: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01', user: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8', out: 'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9', ext: 'M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3', cal: 'M3 5h18v16H3zM3 10h18M8 3v4M16 3v4', edit: 'M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4', bell: 'M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0', file: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 13h8M8 17h5', book: 'M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2zM22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z', bolt: 'M13 2L3 14h9l-1 8 10-12h-9z', chart: 'M4 20V10M10 20V4M16 20v-7M22 20H2', layers: 'M12 2l10 5-10 5L2 7zM2 17l10 5 10-5M2 12l10 5 10-5', eye: 'M2 12s4-8 10-8 10 8 10 8-4 8-10 8S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6', mail: 'M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM22 6l-10 7L2 6', clock: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18M12 7v5l3 2', headset: 'M3 14v-2a9 9 0 0 1 18 0v2M3 14a2 2 0 0 1 2-2h1v6H5a2 2 0 0 1-2-2zM21 14a2 2 0 0 0-2-2h-1v6h1a2 2 0 0 0 2-2z', check: 'M5 12l5 5L20 7', down: 'M6 9l6 6 6-6', right: 'M5 12h14M13 6l6 6-6 6' };
   function ico(n, size) { var s = document.createElementNS(NS, 'svg'); s.setAttribute('width', size || 22); s.setAttribute('height', size || 22); s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('fill', 'none'); s.setAttribute('stroke', 'currentColor'); s.setAttribute('stroke-width', 2); s.setAttribute('stroke-linecap', 'round'); s.setAttribute('stroke-linejoin', 'round'); s.setAttribute('aria-hidden', 'true'); var p = document.createElementNS(NS, 'path'); p.setAttribute('d', IC[n]); s.appendChild(p); return s; }
-  var LBL = { nouvelle: 'Demande reçue', en_creation: 'En création', apercu: 'Aperçu à valider', en_ligne: 'En ligne', abandonnee: 'Abandonnée', actif: 'Actif', impaye: 'Impayé', suspendu: 'Suspendu', resilie: 'Résilié', ouverte: 'Reçue', en_cours: 'En cours', resolue: 'Traitée', essentiel: 'Essentiel', pro: 'Pro', demandee: 'Demandée', faite: 'Faite' };
+  var LBL = { nouvelle: 'Demande reçue', en_creation: 'En création', apercu: 'Aperçu à valider', en_ligne: 'En ligne', abandonnee: 'Abandonnée', hesite: 'En pause', a_rappeler: 'En pause', plus_tard: 'En pause', sans_reponse: 'En pause', refusee: 'Clôturée', trop_cher: 'Clôturée', concurrent: 'Clôturée', actif: 'Actif', impaye: 'Impayé', suspendu: 'Suspendu', resilie: 'Résilié', ouverte: 'Reçue', en_cours: 'En cours', resolue: 'Traitée', essentiel: 'Essentiel', pro: 'Pro', demandee: 'Demandée', faite: 'Faite' };
   var PRIX = { essentiel: 60, pro: 100 }, MAILP = 4, ACT = { coiffeur: 'Coiffeur', restaurant: 'Restaurant', artisan: 'Artisan du bâtiment', therapeute: 'Thérapeute, bien-être', coach: 'Coach sportif', boutique: 'Boutique de quartier', autre: 'Autre' };
   var lab = function (k) { return LBL[k] || k || '—'; };
-  var eur = function (n) { return (Math.round((n || 0) * 100) / 100).toLocaleString('fr-FR') + ' € HT'; };
+  var nf = function (n) { return (Math.round((n || 0) * 100) / 100).toLocaleString('fr-FR'); };
+  var eur = function (n) { return nf(n) + ' € HT'; };
+  var eurT = function (n) { return nf(n) + ' € HT · ' + nf(n * 1.2) + ' € TTC'; };
   function dt(x) { if (!x) return '—'; var d = new Date(String(x).replace(' ', 'T') + 'Z'); return isNaN(d) ? x : d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }); }
   function dOnly(x) { if (!x) return '—'; var d = new Date(x + 'T12:00:00Z'); return isNaN(d) ? x : d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }); }
   function pill(k, c) { var m = { en_ligne: 'ok', actif: 'ok', faite: 'ok', resolue: 'ok', apercu: 'warn', en_creation: 'pri', nouvelle: 'pri', demandee: 'warn', ouverte: 'warn', en_cours: 'pri', impaye: 'bad', resilie: 'bad', suspendu: 'bad', abandonnee: '' }; return h('span', { class: 'pill ' + (c || m[k] || ''), text: lab(k) }); }
@@ -58,6 +60,7 @@
     var d = D(), prenom = (E.compte.nom || '').split(/\s+/)[0], out = h('div'), idx = { nouvelle: 0, en_creation: 1, apercu: 2, en_ligne: 3 }[d && d.statut];
     main.appendChild(head('Bonjour ' + prenom + ' 👋', 'Bienvenue dans votre espace Devanture Web.', []));
     if (d && d.suspendu) out.appendChild(h('div', { class: 'warnbox', role: 'alert' }, h('div', null, h('b', { text: 'Votre site est temporairement suspendu.' }), h('div', { text: 'Les modifications sont désactivées. Écrivez-nous depuis l’onglet Aide pour qu’on regarde ensemble.' }))));
+    var tf = aFaire(); if (tf) out.appendChild(tf);
     if (!d) {
       out.appendChild(h('div', { class: 'card' }, h('h2', { text: 'Votre site vitrine' }), h('p', { class: 'sub', text: 'Vous n’avez pas encore fait de demande. Cela prend 3 minutes, sans engagement et sans paiement.' }), h('a', { class: 'btn', href: '/commander', text: 'Faire ma demande' })));
       main.appendChild(out); return;
@@ -65,7 +68,7 @@
     var q = E.quota, u = E.utilisees, ab = E.abonnement, pro = E.formule === 'pro', live = enLigne();
     out.appendChild(h('div', { class: 'kpis' },
       kp('layers', 'Mon site', lab(d.statut), d.domaine || d.ville, d.statut === 'en_ligne', function () { go('site'); }, d.statut === 'en_ligne'),
-      kp('layers', 'Mon offre', lab(E.formule), (PRIX[E.formule] + MAILP * (ab ? ab.mails_sup : 0)) + ' € HT / mois', false, function () { go('abo'); }),
+      kp('layers', 'Mon offre', lab(E.formule), eurT(PRIX[E.formule] + MAILP * (ab ? ab.mails_sup : 0)) + ' / mois', false, function () { go('abo'); }),
       kp('pen', 'Modifications', Math.max(q - u, 0) + ' / ' + q, 'restantes ce mois-ci', false, function () { go('modifs'); }),
       kp('mail', 'Messages', String(nonLues()), nonLues() > 1 ? 'nouveaux messages' : 'nouveau message', false, function () { go('messages'); })));
     var dEnLigne = (E.notifications.filter(function (n) { return /en ligne/i.test(n.titre); })[0] || {}).created_at;
@@ -80,7 +83,7 @@
     var tiles = h('div', { class: 'card' }, h('h3', { class: 'ctit' }, ico('bolt', 22), 'Accès rapides'), h('div', { class: 'tiles' }, [['pen', 'Demander une modification', 'modifs'], ['cal', 'Gérer mes réservations', 'resa'], ['mail', 'Envoyer un message', 'support'], ['book', 'Consulter les guides', 'aide']].map(function (t) { return h('button', { type: 'button', class: 'tile', onclick: function () { go(t[2]); } }, ico(t[0], 24), h('span', { text: t[1] })); })));
     var stats = h('div', { class: 'card' }, h('h3', { class: 'ctit' }, ico('chart', 22), 'Statistiques de mon site'), h('div', { class: 'sts' }, [['eye', 'Visites'], ['right', 'Demandes de contact'], ['cal', 'Réservations']].map(function (t) { return h('div', null, ico(t[0], 20), h('b', { text: '—' }), h('small', { text: t[1] })); })), h('p', { class: 'sub', style: 'margin:10px 0 0', text: 'Les statistiques de fréquentation arrivent bientôt.' }));
     var inc = ['Site vitrine complet', 'Modifications (' + q + ' / mois)'].concat(pro ? ['Outil de réservation', 'Éditeur en libre-service'] : []).concat(aMail() ? ['Adresse e-mail pro'] : []).concat(pro ? ['Support prioritaire'] : []);
-    var abo = h('div', { class: 'card' }, h('h3', { class: 'ctit' }, ico('card', 22), 'Mon abonnement'), h('div', { class: 'aboh' }, h('div', null, h('b', { class: 'plan', text: lab(E.formule) }), h('small', { text: (PRIX[E.formule] + MAILP * (ab ? ab.mails_sup : 0)) + ' € HT / mois' })), ab ? pill(ab.statut) : pill('nouvelle')), checks(inc), h('button', { type: 'button', class: 'btn ghost wide', onclick: function () { go('abo'); } }, 'Gérer mon abonnement ', ico('right', 16)));
+    var abo = h('div', { class: 'card' }, h('h3', { class: 'ctit' }, ico('card', 22), 'Mon abonnement'), h('div', { class: 'aboh' }, h('div', null, h('b', { class: 'plan', text: lab(E.formule) }), h('small', { text: eurT(PRIX[E.formule] + MAILP * (ab ? ab.mails_sup : 0)) + ' / mois' })), ab ? pill(ab.statut) : pill('nouvelle')), checks(inc), h('button', { type: 'button', class: 'btn ghost wide', onclick: function () { go('abo'); } }, 'Gérer mon abonnement ', ico('right', 16)));
     var acts = [].concat(E.notifications.slice(0, 3).map(function (n) { return [n.titre, n.message, n.created_at]; }));
     if (acts.length < 3) acts.push(['Nouvelle demande', 'Création de votre site.', d.created_at]);
     var act = h('div', { class: 'card' }, h('h3', { class: 'ctit' }, ico('clock', 22), 'Dernières activités'), h('ul', { class: 'tl' }, acts.slice(0, 3).map(function (a, i) { return h('li', { class: i === 0 ? 'first' : '' }, h('div', { class: 'tr' }, h('b', { text: a[0] }), h('small', { text: dt(a[2]).split(' ').slice(0, 3).join(' ') })), h('p', { text: a[1] })); })), h('button', { type: 'button', class: 'btn ghost wide', onclick: function () { go('messages'); } }, 'Voir toutes les activités ', ico('right', 16)));
@@ -95,7 +98,7 @@
   }
   function vResa() {
     main.appendChild(head('Réservations', 'Sur votre site, pas ici'));
-    if (E.formule !== 'pro') { main.appendChild(h('div', { class: 'card' }, h('h2', { text: 'Passer à la formule Pro' }), h('p', { class: 'sub', text: '100 € HT par mois' }), checks(['Outil de réservation en ligne et agenda, sur votre site', 'Statistiques de réservations', '3 modifications par mois', '1 adresse mail pro incluse']), h('button', { type: 'button', class: 'btn', text: 'En parler avec nous', onclick: function () { go('aide'); } }))); return; }
+    if (E.formule !== 'pro') { main.appendChild(h('div', { class: 'card' }, h('h2', { text: 'Passer à la formule Pro' }), h('p', { class: 'sub', text: '100 € HT (120 € TTC) par mois' }), checks(['Outil de réservation en ligne et agenda, sur votre site', 'Statistiques de réservations', '3 modifications par mois', '1 adresse mail pro incluse']), h('button', { type: 'button', class: 'btn', text: 'En parler avec nous', onclick: function () { go('aide'); } }))); return; }
     var U = resaUrls();
     main.appendChild(h('div', { class: 'card' }, h('h2', { text: 'Votre outil de réservation est sur votre site' }),
       h('p', { class: 'sub', text: 'Vos clients réservent directement sur votre site. Vous gérez votre planning et vos statistiques (nombre de réservations et de personnes, matin, midi, soir, par jour ou par période) depuis votre site, sur une page protégée. Elles ne sont pas dans cet espace.' }),
@@ -130,12 +133,13 @@
   }
   function vAbo() {
     var a = E.abonnement; main.appendChild(head('Mon abonnement', 'Formule, prix et engagement'));
-    if (!a) { main.appendChild(h('div', { class: 'card' }, h('h2', { text: 'Formule ' + lab(E.formule) }), h('p', { class: 'sub', text: 'Votre abonnement démarre à la mise en ligne de votre site. Aucun paiement n’a été demandé à ce stade.' }), h('p', { text: eur(PRIX[E.formule]) + ' par mois, engagement de 12 mois.' }))); return; }
+    if (!a) { main.appendChild(h('div', { class: 'card' }, h('h2', { text: 'Formule ' + lab(E.formule) }), h('p', { class: 'sub', text: 'Votre abonnement démarre à la mise en ligne de votre site. Aucun paiement n’a été demandé à ce stade.' }), h('p', { text: eurT(PRIX[E.formule]) + ' par mois, engagement de 12 mois.' }))); var rc0 = resilCard(); if (rc0) main.appendChild(rc0); return; }
     var tot = PRIX[a.formule] + MAILP * (a.mails_sup || 0), fin = a.debut ? addMonths(a.debut, 12) : null;
     main.appendChild(h('div', { class: 'card' }, h('div', { class: 'tbar' }, h('h2', { text: 'Formule ' + lab(a.formule) }), pill(a.statut)),
-      h('dl', { class: 'dl' }, [['Total par mois', eur(tot)], ['Formule', eur(PRIX[a.formule])], ['Mails pro en plus', (a.mails_sup || 0) + ' × ' + eur(MAILP).replace(' HT', '') + ' HT'], ['Début', dOnly(a.debut)], ['Fin de l’engagement de 12 mois', fin ? dOnly(fin) : '—']].map(function (x) { return h('div', null, h('dt', { text: x[0] }), h('dd', { text: x[1] })); }))));
+      h('dl', { class: 'dl' }, [['Total par mois', eurT(tot)], ['Formule', eurT(PRIX[a.formule])], ['Mails pro en plus', (a.mails_sup || 0) + ' × ' + eurT(MAILP)], ['Début', dOnly(a.debut)], ['Fin de l’engagement de 12 mois', fin ? dOnly(fin) : '—']].map(function (x) { return h('div', null, h('dt', { text: x[0] }), h('dd', { text: x[1] })); }))));
     var inc = ['Site vitrine sur mesure', 'Nom de domaine et hébergement', 'Espace client', E.formule === 'pro' ? '3 modifications par mois réalisées par nous' : '1 modification par mois réalisée par nous', 'Guide pub'].concat(aMail() ? ['Guide d’installation de la messagerie'] : []).concat(a.formule === 'pro' ? ['Éditeur en libre-service : textes, prix, horaires, photos', 'Outil de réservation en ligne', 'Agenda', '1 adresse mail pro incluse'] : []);
     main.appendChild(h('div', { class: 'card', style: 'margin-top:16px' }, h('h3', { text: 'Ce qui est inclus' }), h('ul', { class: 'list' }, inc.map(function (t) { return h('li', { text: '✓ ' + t }); })), h('p', { class: 'sub', style: 'margin-top:12px', text: 'Pour changer de formule ou ajouter une adresse mail, écrivez-nous depuis l’onglet Aide.' })));
+    var rc = resilCard(); if (rc) main.appendChild(rc);
   }
   function vMessages() {
     if (nonLues()) { if (!E.lecture) api('/api/espace/lu', 'POST', {}); setTimeout(function () { E.notifications.forEach(function (n) { n.lu = 1; }); drawNav(); document.querySelectorAll('.bellb i').forEach(function (e) { e.remove(); }); }, 0); }
@@ -280,6 +284,8 @@
       var k = y + '-' + (m < 10 ? '0' : '') + m; if (k > fin || k > nowK || k + '-' + day > new Date().toISOString().slice(0, 10)) break;
       var lignes = [ab.formule === 'pro' ? ['Abonnement Pro', 'Site web + nom de domaine + adresse mail pro · ' + MOIS[m - 1] + ' ' + y, 1, 100] : ['Abonnement Essentiel', 'Site web + nom de domaine · ' + MOIS[m - 1] + ' ' + y, 1, 60]];
       if (ab.mails_sup > 0) lignes.push(['Adresses mail pro supplémentaires', 'Adresses en plus de celle incluse', ab.mails_sup, 4]);
+      var cu = P && P.parrainage ? P.parrainage.credits.filter(function (c) { return c.utilise_le && c.utilise_le.slice(0, 7) === k; }).length : 0;
+      if (cu) lignes.push(['Mois offert (parrainage)', 'Remise de 100 % sur l’abonnement du mois', cu, -(ab.formule === 'pro' ? 100 : 60)]);
       var ht = lignes.reduce(function (t, l) { return t + l[2] * l[3]; }, 0), tva = Math.round(ht * 20) / 100;
       out.push({ id: k, num: 'F-' + y + (m < 10 ? '0' : '') + m + '-' + String(d.id).padStart(4, '0'), date: day + '/' + (m < 10 ? '0' : '') + m + '/' + y, periode: MOIS[m - 1].charAt(0).toUpperCase() + MOIS[m - 1].slice(1) + ' ' + y, lignes: lignes, ht: ht, tva: tva, ttc: ht + tva, statut: k === nowK && ab.statut === 'impaye' ? 'A régler' : 'Payée' });
       m++; if (m > 12) { m = 1; y++; }
@@ -312,9 +318,253 @@
     var box = h('div', { class: 'invoice' }); box.innerHTML = html; main.appendChild(box);
   }
 
+  /* ===== parcours, dossier, résiliation, parrainage, avis ===== */
+  var P = null;
+  function loadP() { return api('/api/espace/parcours').then(function (r) { P = r.s === 200 && r.j.ok ? r.j : null; }).catch(function () { P = null; }); }
+  function reloadP(k) { return loadP().then(function () { if (k) cur = k; draw(); }); }
+  var fdate = function (iso) { return iso ? dOnly(iso) : '—'; };
+  var ERR = { 'pas-apercu': 'Votre aperçu n’est pas (ou plus) à valider.', deja: 'C’est déjà fait.', 'en-cours': 'Une demande d’ajustements est déjà en cours.', vide: 'Écrivez au moins quelques mots pour que nous comprenions.', suspendu: 'Votre site est suspendu : écrivez-nous depuis Aide & Guides.', 'lecture-seule': 'Lecture seule : vous consultez ce compte en tant qu’administrateur.', incomplet: 'Il manque encore des informations obligatoires.', type: 'Format non accepté : envoyez une image PNG, JPEG ou WebP, ou un PDF.', taille: 'Ce fichier est trop lourd. Réduisez-le ou envoyez-le par e-mail.', trop: 'Vous avez atteint le nombre maximum de fichiers : supprimez-en un d’abord.', fichier: 'Ce fichier n’a pas pu être lu.', consentement: 'Cochez la case pour autoriser la publication.', note: 'Choisissez une note de 1 à 5 étoiles.', confirmation: 'Cochez la case de confirmation.', resilie: 'Votre abonnement est déjà résilié.', inconnu: 'Ce code n’existe pas. Vérifiez-le : il commence par DW-.', soi: 'Vous ne pouvez pas utiliser votre propre code.', client: 'Les codes sont réservés aux nouveaux clients.', inactif: 'Ce code n’est pas utilisable pour le moment (le parrain n’a pas d’abonnement actif).', publie: 'Votre avis est déjà publié.' };
+  var errTxt = function (j, s) { return (j && ERR[j.error]) || (s === 429 ? 'Trop de tentatives, réessayez dans un instant.' : 'Une erreur est survenue. Réessayez dans un instant.'); };
+
+  function modal(titre, body, onclose) {
+    var prev = document.activeElement, ov = h('div', { class: 'mdl', role: 'presentation' });
+    var box = h('div', { class: 'mdl-box', role: 'dialog', 'aria-modal': 'true', 'aria-label': titre, tabindex: '-1' });
+    var close = function () { document.removeEventListener('keydown', key); ov.remove(); if (prev && prev.focus) prev.focus(); if (onclose) onclose(); };
+    var key = function (e) { if (e.key === 'Escape') close(); };
+    box.appendChild(h('button', { type: 'button', class: 'mdl-x', 'aria-label': 'Fermer', text: '×', onclick: close }));
+    box.appendChild(body); ov.appendChild(box);
+    ov.addEventListener('mousedown', function (e) { if (e.target === ov) close(); });
+    document.addEventListener('keydown', key); document.body.appendChild(ov); box.focus();
+    return close;
+  }
+  function stars(init, onchange) {
+    var v = init || 0, wrap = h('div', { class: 'stars', role: 'radiogroup', 'aria-label': 'Votre note sur 5' }), bs = [];
+    var paint = function () { bs.forEach(function (b, i) { b.className = i < v ? 'on' : ''; b.setAttribute('aria-checked', String(i + 1 === v)); b.tabIndex = (v ? i + 1 === v : i === 0) ? 0 : -1; }); };
+    for (var i = 1; i <= 5; i++) (function (n) {
+      var b = h('button', { type: 'button', role: 'radio', 'aria-label': n + ' étoile' + (n > 1 ? 's' : ''), text: '★', onclick: function () { v = n; paint(); onchange(n); },
+        onkeydown: function (e) { if (e.key === 'ArrowRight' || e.key === 'ArrowUp') { e.preventDefault(); v = Math.min(5, (v || 0) + 1); paint(); onchange(v); bs[v - 1].focus(); } else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') { e.preventDefault(); v = Math.max(1, (v || 2) - 1); paint(); onchange(v); bs[v - 1].focus(); } } });
+      bs.push(b); wrap.appendChild(b);
+    })(i);
+    paint(); return wrap;
+  }
+  function avisForm(done) {
+    var note = (P && P.avis && P.avis.note) || 0, st = stars(note, function (n) { note = n; });
+    var com = h('textarea', { maxlength: '600', rows: '4', placeholder: 'Ce que vous avez aimé, ce qui peut être amélioré… (facultatif)', 'aria-label': 'Votre commentaire' }); com.value = (P && P.avis && P.avis.commentaire) || '';
+    var ok = h('input', { type: 'checkbox', id: 'av-ok' }), msg = h('p', { class: 'err', role: 'alert', hidden: 'hidden' });
+    var btn = h('button', { type: 'button', class: 'btn', text: 'Envoyer mon avis', onclick: function () {
+      msg.hidden = true;
+      if (!note) { msg.textContent = ERR.note; msg.hidden = false; return; }
+      btn.disabled = true;
+      api('/api/espace/avis', 'POST', { note: note, commentaire: com.value, publication: ok.checked }).then(function (r) {
+        btn.disabled = false;
+        if (r.j.ok) { flash('Merci pour votre avis !'); done(true); } else { msg.textContent = errTxt(r.j, r.s); msg.hidden = false; }
+      });
+    } });
+    return h('div', { class: 'avf' }, h('h2', { text: 'Votre site est en ligne. Qu’en pensez-vous ?' }), h('p', { class: 'sub', text: 'Votre avis nous aide à nous améliorer et rassure les autres commerçants. Cela prend une minute.' }), st, h('label', { class: 'wide', style: 'display:block;margin-top:12px' }, 'Votre commentaire', com),
+      h('label', { class: 'chk' }, ok, h('span', { text: 'J’autorise la publication de mon avis sur le site, avec mon prénom, l’initiale de mon nom et le nom de mon commerce.' })), msg,
+      h('div', { class: 'tools', style: 'margin-top:14px;flex-wrap:wrap' }, btn, h('button', { type: 'button', class: 'btn ghost', text: 'Plus tard', onclick: function () { done(false, true); } })));
+  }
+  function avisPopup() {
+    if (!P || !P.avis_invite || E.lecture) return;
+    try { var t = +localStorage.getItem('dw-avis-plus-tard'); if (t && Date.now() - t < 7 * 864e5) return; } catch (_) {}
+    var closeFn;
+    var f = avisForm(function (sent, later) { if (later) { try { localStorage.setItem('dw-avis-plus-tard', String(Date.now())); } catch (_) {} } closeFn(); if (sent) reloadP(); });
+    closeFn = modal('Donner mon avis', f, null);
+  }
+
+  function aFaire() {
+    if (!P || !P.demande || E.lecture) return null;
+    var d = P.demande, items = [], req = P.requis, n = req.filter(function (r) { return r.ok; }).length;
+    var termine = !!P.dossier._termine, val = P.retours.some(function (r) { return r.type === 'valide'; }), enCours = P.retours.some(function (r) { return r.type === 'changements' && r.statut === 'a_traiter'; });
+    if (d.statut === 'nouvelle' && !termine) items.push(['Complétez votre dossier (' + n + ' sur ' + req.length + ' éléments obligatoires)', 'Sans votre dossier complet, nous ne pouvons pas commencer. Le délai de ' + P.delai + ' jours ouvrés démarre à ce moment-là.', 'Compléter mon dossier', 'dossier']);
+    if (d.statut === 'apercu' && !val && !enCours) items.push(['Votre aperçu est prêt', 'Regardez-le, puis validez-le ou demandez des ajustements.', 'Voir mon aperçu', 'parcours']);
+    if (d.statut === 'en_ligne' && P.avis_invite) items.push(['Donnez votre avis', 'Votre site est en ligne : dites-nous ce que vous en pensez.', 'Donner mon avis', 'avis']);
+    if (P.resiliation) items.push(['Votre demande de résiliation est en cours', 'Elle prendra effet le ' + fdate(P.resiliation.effet) + '. Vous pouvez l’annuler depuis « Abonnement ».', 'Voir', 'abo']);
+    if (!items.length) return null;
+    return h('div', { class: 'card todo' }, h('h3', { class: 'ctit' }, ico('bolt', 22), 'À faire'), items.map(function (x) { return h('div', { class: 'todo-i' }, h('div', null, h('b', { text: x[0] }), h('p', { class: 'sub', text: x[1] })), h('button', { type: 'button', class: 'btn', text: x[2], onclick: function () { if (x[3] === 'avis') { try { localStorage.removeItem('dw-avis-plus-tard'); } catch (_) {} avisPopup(); } else go(x[3]); } })); }));
+  }
+
+  function vParcours() {
+    main.appendChild(head('Mon parcours', 'Où en est votre site, et ce qu’il vous reste à faire'));
+    if (!P || !P.demande) { main.appendChild(h('div', { class: 'card' }, h('p', { class: 'empty', text: P ? 'Vous n’avez pas encore fait de demande de site.' : 'Impossible de charger votre parcours pour le moment.' }), h('a', { class: 'btn', href: '/commander', text: 'Faire ma demande' }))); return; }
+    var d = P.demande, F = P.frise;
+    if (F.pause) main.appendChild(h('div', { class: 'infobox', text: 'Votre demande est en pause. Écrivez-nous depuis « Aide & Guides » pour la reprendre.' }));
+    var ol = h('ol', { class: 'frise' }, F.etapes.map(function (e) {
+      var dd = e.etat === 'fait' && e.date ? fdate(e.date) : (e.etat !== 'fait' && e.prevue ? 'Prévu au plus tard le ' + fdate(e.prevue) : '');
+      return h('li', { class: e.etat, 'aria-current': e.etat === 'cours' ? 'step' : null }, h('i', { 'aria-hidden': 'true' }, e.etat === 'fait' ? ico('check', 14) : null), h('div', null, h('b', { text: e.titre }), h('span', { class: 'sr', text: e.etat === 'fait' ? ' (terminé)' : e.etat === 'cours' ? ' (en cours)' : ' (à venir)' }), h('p', { text: e.detail }), dd ? h('small', { text: dd }) : null));
+    }));
+    main.appendChild(h('div', { class: 'card' }, h('h2', { text: 'Les étapes de votre site' }), ol, h('p', { class: 'sub', style: 'margin:12px 0 0', text: 'Votre site est livré sous ' + P.delai + ' jours ouvrés à compter de la réception de votre dossier complet.' })));
+    if (d.statut === 'apercu') main.appendChild(apercuCard());
+    if (d.statut === 'nouvelle' && !P.dossier._termine) main.appendChild(h('div', { class: 'card', style: 'margin-top:16px' }, h('h3', { text: 'Votre dossier' }), h('p', { class: 'sub', text: P.requis.filter(function (r) { return r.ok; }).length + ' éléments obligatoires sur ' + P.requis.length + ' sont remplis.' }), h('button', { type: 'button', class: 'btn', text: 'Compléter mon dossier', onclick: function () { go('dossier'); } })));
+    if (d.statut === 'en_ligne') {
+      var av = P.avis;
+      main.appendChild(h('div', { class: 'card', style: 'margin-top:16px' }, h('h3', { text: 'Votre avis' }),
+        av ? h('div', null, h('p', { class: 'stars ro', 'aria-label': 'Votre note : ' + av.note + ' sur 5', text: '★★★★★'.slice(0, av.note) + '☆☆☆☆☆'.slice(0, 5 - av.note) }), av.commentaire ? h('p', { text: '« ' + av.commentaire + ' »' }) : null, h('p', { class: 'sub', text: av.statut === 'publie' ? 'Merci ! Votre avis est publié sur notre site.' : av.statut === 'refuse' ? 'Merci pour votre retour.' : 'Merci ! Votre avis sera publié après relecture.' }), av.statut === 'en_attente' && !E.lecture ? h('button', { type: 'button', class: 'btn ghost', text: 'Modifier mon avis', onclick: function () { var c; c = modal('Modifier mon avis', avisForm(function (sent) { c(); if (sent) reloadP(); }), null); } }) : null)
+          : h('div', null, h('p', { class: 'sub', text: 'Votre site est en ligne. Donnez-nous votre avis en une minute.' }), E.lecture ? null : h('button', { type: 'button', class: 'btn', text: 'Donner mon avis', onclick: function () { try { localStorage.removeItem('dw-avis-plus-tard'); } catch (_) {} avisPopup(); } }))));
+    }
+  }
+  function apercuCard() {
+    var d = P.demande, val = P.retours.filter(function (r) { return r.type === 'valide'; })[0], enCours = P.retours.filter(function (r) { return r.type === 'changements' && r.statut === 'a_traiter'; })[0];
+    var box = h('div', { class: 'card apv', id: 'apercu', style: 'margin-top:16px' }, h('h2', { text: val ? 'Aperçu validé' : 'Votre aperçu est prêt' }));
+    if (val) { box.appendChild(h('div', { class: 'infobox', text: 'Vous avez validé votre aperçu le ' + fdate(val.created_at.slice(0, 10)) + '. Nous préparons la mise en ligne de votre site.' })); return box; }
+    box.appendChild(h('p', { class: 'sub', text: 'Regardez votre site sur téléphone et sur ordinateur. Vérifiez les textes, les horaires, les prix, l’adresse et les photos. Si tout vous convient, validez-le. Sinon, dites-nous précisément ce qui doit changer.' }));
+    if (d.site_url) box.appendChild(h('p', null, h('a', { class: 'btn ghost', href: d.site_url, target: '_blank', rel: 'noopener' }, 'Ouvrir mon aperçu ', ico('ext', 16))));
+    else box.appendChild(h('p', { class: 'sub', text: 'Le lien de votre aperçu vous est communiqué dans l’onglet Messages ou par téléphone.' }));
+    if (enCours) box.appendChild(h('div', { class: 'infobox' }, h('b', { text: 'Votre demande d’ajustements est en cours de traitement.' }), h('p', { class: 'sub', style: 'margin:6px 0 0', text: '« ' + enCours.message + ' »' })));
+    var zone = h('div', { class: 'apv-zone' }), btns = h('div', { class: 'tools', style: 'flex-wrap:wrap;gap:10px' });
+    var dis = E.lecture ? 'disabled' : null;
+    var bv = h('button', { type: 'button', class: 'btn', text: 'Je valide mon site', disabled: dis || (enCours ? 'disabled' : null), onclick: function () {
+      zone.textContent = '';
+      var msg = h('p', { class: 'err', role: 'alert', hidden: 'hidden' });
+      zone.appendChild(h('div', { class: 'infobox' }, h('b', { text: 'Confirmer la validation ?' }), h('p', { class: 'sub', style: 'margin:6px 0 10px', text: 'Votre site sera mis en ligne et votre abonnement démarrera, avec un engagement de 12 mois. Vous pourrez ensuite demander des modifications dans la limite de votre formule.' }),
+        h('div', { class: 'tools', style: 'flex-wrap:wrap;gap:10px' }, h('button', { type: 'button', class: 'btn', text: 'Oui, je valide', onclick: function () { api('/api/espace/apercu', 'POST', { action: 'valide' }).then(function (r) { if (r.j.ok) { flash('Aperçu validé, merci !'); reloadP('parcours'); } else { msg.textContent = errTxt(r.j, r.s); msg.hidden = false; } }); } }), h('button', { type: 'button', class: 'btn ghost', text: 'Pas encore', onclick: function () { zone.textContent = ''; } })), msg));
+    } });
+    var bc = h('button', { type: 'button', class: 'btn ghost', text: 'Je veux des changements', disabled: dis || (enCours ? 'disabled' : null), onclick: function () {
+      zone.textContent = '';
+      var ta = h('textarea', { maxlength: '1500', rows: '5', placeholder: 'Exemple : « Sur la page d’accueil, remplacez la photo du haut par celle de ma vitrine, et corrigez le téléphone : 04 12 34 56 78. »' }), msg = h('p', { class: 'err', role: 'alert', hidden: 'hidden' });
+      zone.appendChild(h('div', { class: 'form' }, h('label', { class: 'wide' }, 'Que faut-il changer ?', ta), msg,
+        h('div', { class: 'tools', style: 'flex-wrap:wrap;gap:10px' }, h('button', { type: 'button', class: 'btn', text: 'Envoyer mes demandes', onclick: function () { msg.hidden = true; api('/api/espace/apercu', 'POST', { action: 'changements', message: ta.value }).then(function (r) { if (r.j.ok) { flash('Vos demandes sont envoyées.'); reloadP('parcours'); } else { msg.textContent = errTxt(r.j, r.s); msg.hidden = false; } }); } }), h('button', { type: 'button', class: 'btn ghost', text: 'Annuler', onclick: function () { zone.textContent = ''; } }))));
+      ta.focus();
+    } });
+    btns.appendChild(bv); btns.appendChild(bc); box.appendChild(btns); box.appendChild(zone);
+    if (E.lecture) box.appendChild(h('p', { class: 'sub', text: 'Lecture seule : vous consultez ce compte en tant qu’administrateur.' }));
+    var hist = P.retours.filter(function (r) { return r.type === 'changements'; });
+    if (hist.length) box.appendChild(h('div', { style: 'margin-top:16px' }, h('h3', { text: 'Vos demandes d’ajustements' }), h('ul', { class: 'list' }, hist.map(function (r) { return h('li', null, h('div', { class: 'tbar', style: 'margin:0' }, h('b', { text: fdate(r.created_at.slice(0, 10)) }), h('span', { class: 'pill ' + (r.statut === 'traite' ? 'ok' : 'warn'), text: r.statut === 'traite' ? 'Faite' : 'En cours' })), h('div', { class: 'sub', text: r.message })); }))));
+    return box;
+  }
+
+  var CHAMPS = [
+    ['description', 'Présentation de votre commerce', 'ta', 'Qui êtes-vous, que proposez-vous, depuis quand, ce qui vous distingue. Quelques phrases suffisent, nous les mettrons en forme.', 'Boulangerie artisanale à Lyon depuis 2012. Pain au levain, viennoiseries maison…', true],
+    ['horaires', 'Horaires d’ouverture', 'ta', 'Jour par jour, avec les fermetures (déjeuner, jours fériés).', 'Lundi : fermé\nMardi au samedi : 7h00 – 19h30\nDimanche : 7h00 – 13h00', true],
+    ['adresse_pub', 'Adresse', 'in', 'L’adresse affichée sur votre site, comme sur une enseigne.', '12 rue des Fleurs, 69003 Lyon', true],
+    ['tel_pub', 'Téléphone', 'in', 'Le numéro que vos clients doivent appeler.', '04 12 34 56 78', true],
+    ['email_pub', 'E-mail de contact', 'in', 'Pour recevoir les messages de vos clients (facultatif).', 'contact@moncommerce.fr', false],
+    ['services', 'Prestations ou carte, avec les tarifs', 'ta', 'Listez ce que vous vendez, avec les prix et les durées si cela s’applique.', 'Baguette tradition 1,20 €\nCroissant 1,40 €', true],
+    ['reseaux', 'Réseaux sociaux', 'in', 'Les liens de vos pages Facebook, Instagram, etc. (facultatif).', 'https://www.instagram.com/moncommerce', false],
+    ['couleurs', 'Couleurs et style souhaités', 'in', 'Vos couleurs préférées, ou le style : sobre, chaleureux, moderne… (facultatif).', 'Bleu marine et blanc, style sobre', false],
+    ['slogan', 'Slogan', 'in', 'Une phrase d’accroche si vous en avez une (facultatif).', 'Le goût du vrai pain', false],
+    ['domaine_choisi', 'Nom de domaine souhaité', 'in', 'L’adresse de votre site, par exemple boulangerie-martin.fr. Nous vérifions qu’elle est disponible.', 'boulangerie-martin.fr', false],
+    ['remarques', 'Autre chose à nous dire ?', 'ta', 'Toute information utile (facultatif).', '', false]
+  ];
+  function lisFichier(f) {
+    var max = P.fichier_max, isImg = /^image\/(png|jpeg|webp)$/.test(f.type);
+    return new Promise(function (res, rej) {
+      var fr = new FileReader();
+      var send = function (blob, name, mime) { var r2 = new FileReader(); r2.onload = function () { res({ nom: name, mime: mime, data: String(r2.result).split(',')[1] }); }; r2.onerror = function () { rej(new Error('lecture')); }; r2.readAsDataURL(blob); };
+      if (!isImg && f.type !== 'application/pdf') { rej(new Error('type')); return; }
+      if (f.size <= max * 0.9 && (!isImg || f.size < 700000)) { send(f, f.name, f.type); return; }
+      if (!isImg) { rej(new Error('taille')); return; }
+      fr.onload = function () {
+        var im = new Image();
+        im.onload = function () {
+          var s = Math.min(1, 1800 / Math.max(im.width, im.height)), cv = document.createElement('canvas'); cv.width = Math.round(im.width * s); cv.height = Math.round(im.height * s);
+          var cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, cv.width, cv.height); cx.drawImage(im, 0, 0, cv.width, cv.height);
+          var q = 0.85, tryOnce = function () { cv.toBlob(function (b) { if (!b) { rej(new Error('lecture')); return; } if (b.size > max * 0.9 && q > 0.4) { q -= 0.15; tryOnce(); } else if (b.size > max * 0.9) rej(new Error('taille')); else send(b, f.name.replace(/\.\w+$/, '') + '.jpg', 'image/jpeg'); }, 'image/jpeg', q); };
+          tryOnce();
+        };
+        im.onerror = function () { rej(new Error('lecture')); }; im.src = fr.result;
+      };
+      fr.onerror = function () { rej(new Error('lecture')); }; fr.readAsDataURL(f);
+    });
+  }
+  var FERR = {};
+  function vDossier() {
+    main.appendChild(head('Mon dossier', 'Les informations et fichiers dont nous avons besoin pour créer votre site'));
+    if (!P || !P.demande) { main.appendChild(h('div', { class: 'card' }, h('p', { class: 'empty', text: P ? 'Faites d’abord votre demande de site.' : 'Impossible de charger votre dossier pour le moment.' }), h('a', { class: 'btn', href: '/commander', text: 'Faire ma demande' }))); return; }
+    var dos = P.dossier, termine = !!dos._termine, ro = E.lecture ? 'disabled' : null, n = P.requis.filter(function (r) { return r.ok; }).length;
+    main.appendChild(h('div', { class: 'card' }, h('h2', { text: termine ? 'Votre dossier est complet' : 'Comment ça marche' }),
+      termine ? h('p', { class: 'sub', text: 'Reçu le ' + fdate(dos._termine) + '. Vous pouvez encore le compléter ou le corriger : prévenez-nous par un message si vous changez quelque chose d’important.' })
+        : h('ol', { class: 'howto' }, h('li', { text: 'Remplissez les champs ci-dessous. Seuls cinq sont obligatoires, les autres nous aident mais sont facultatifs.' }), h('li', { text: 'Ajoutez votre logo (si vous en avez un) et quelques belles photos.' }), h('li', { text: 'Cliquez sur « J’ai terminé mon dossier ». C’est à ce moment que démarre le délai de ' + P.delai + ' jours ouvrés.' })),
+      h('p', { class: 'sub', style: 'margin:8px 0 0', text: 'Vous pouvez enregistrer et revenir plus tard : rien n’est perdu.' })));
+    var prog = h('div', { class: 'card', style: 'margin-top:16px' }, h('div', { class: 'tbar' }, h('h3', { text: 'Éléments obligatoires' }), h('span', { class: 'pill ' + (n === P.requis.length ? 'ok' : 'warn'), text: n + ' sur ' + P.requis.length })),
+      h('div', { class: 'quota', 'aria-hidden': 'true' }, h('u', { style: 'width:' + Math.round(n / P.requis.length * 100) + '%' })),
+      h('ul', { class: 'reqs' }, P.requis.map(function (r) { return h('li', { class: r.ok ? 'ok' : '' }, h('i', { 'aria-hidden': 'true', text: r.ok ? '✓' : '○' }), r.libelle, h('span', { class: 'sr', text: r.ok ? ' (rempli)' : ' (à remplir)' })); })));
+    main.appendChild(prog);
+    var inputs = {}, form = h('div', { class: 'form dos' });
+    CHAMPS.forEach(function (c) {
+      var el = c[2] === 'ta' ? h('textarea', { rows: '4', maxlength: '900', placeholder: c[4], disabled: ro, id: 'dos-' + c[0] }) : h('input', { type: 'text', maxlength: '300', placeholder: c[4], disabled: ro, id: 'dos-' + c[0] });
+      el.value = dos[c[0]] != null ? dos[c[0]] : (c[0] === 'domaine_choisi' && P.demande.domaine ? P.demande.domaine : ''); inputs[c[0]] = el;
+      form.appendChild(h('label', { class: 'wide', for: 'dos-' + c[0] }, c[1] + (c[5] ? ' *' : ''), h('small', { class: 'hint', text: c[3] }), el));
+    });
+    var msg = h('p', { class: 'err', role: 'alert', hidden: 'hidden' });
+    var save = function (after) {
+      var ch = {}; CHAMPS.forEach(function (c) { ch[c[0]] = inputs[c[0]].value; });
+      return api('/api/espace/dossier', 'POST', { champs: ch }).then(function (r) { if (r.j.ok) { if (after) after(); else { flash('Dossier enregistré.'); reloadP('dossier'); } } else { msg.textContent = errTxt(r.j, r.s); msg.hidden = false; } });
+    };
+    main.appendChild(h('div', { class: 'card', style: 'margin-top:16px' }, h('h3', { text: 'Vos informations' }), form, msg, E.lecture ? null : h('button', { type: 'button', class: 'btn', text: 'Enregistrer', onclick: function () { msg.hidden = true; save(); } })));
+    var files = h('div', { class: 'card', style: 'margin-top:16px' }, h('h3', { text: 'Vos fichiers' }), h('p', { class: 'sub', text: 'Formats acceptés : images PNG, JPEG ou WebP, et PDF. Les photos trop lourdes sont réduites automatiquement. Vous pouvez envoyer jusqu’à ' + P.fichiers_max + ' fichiers.' }));
+    [['logo', 'Votre logo', 'Si vous n’en avez pas, ce n’est pas grave : nous en créons un simple pour vous (inclus).'], ['photo', 'Vos photos', 'Vitrine, intérieur, produits, réalisations, vous au travail. Des photos nettes, prises en journée.'], ['document', 'Vos documents', 'Carte, tarifs, brochure en PDF.']].forEach(function (cat) {
+      var mine = P.fichiers.filter(function (f) { return f.categorie === cat[0] || (cat[0] === 'document' && f.categorie === 'autre'); });
+      var fin = h('input', { type: 'file', accept: cat[0] === 'document' ? 'application/pdf,image/png,image/jpeg,image/webp' : 'image/png,image/jpeg,image/webp', multiple: cat[0] !== 'logo' ? 'multiple' : null, disabled: ro, 'aria-label': 'Ajouter : ' + cat[1] });
+      var em = h('p', { class: 'err', role: 'alert', hidden: FERR[cat[0]] ? null : 'hidden', text: FERR[cat[0]] || '' }); FERR[cat[0]] = '';
+      fin.addEventListener('change', function () {
+        var list = Array.prototype.slice.call(fin.files); if (!list.length) return;
+        var chain = Promise.resolve(), okn = 0, errs = [];
+        list.forEach(function (f) { chain = chain.then(function () { return lisFichier(f).then(function (x) { return api('/api/espace/fichier', 'POST', { categorie: cat[0], nom: x.nom, mime: x.mime, data: x.data }).then(function (r) { if (r.j.ok) okn++; else errs.push(f.name + ' : ' + errTxt(r.j, r.s)); }); }, function (er) { errs.push(f.name + ' : ' + (er.message === 'taille' ? ERR.taille : er.message === 'type' ? ERR.type : ERR.fichier)); }); }); });
+        chain.then(function () { if (okn) flash(okn + ' fichier' + (okn > 1 ? 's' : '') + ' ajouté' + (okn > 1 ? 's' : '') + '.'); FERR[cat[0]] = errs.join(' '); return loadP(); }).then(function () { cur = 'dossier'; draw(); });
+      });
+      files.appendChild(h('div', { class: 'fcat' }, h('h4', { text: cat[1] }), h('p', { class: 'sub', text: cat[2] }),
+        mine.length ? h('ul', { class: 'flist' }, mine.map(function (f) { var isI = /^image\//.test(f.mime); return h('li', null, isI ? h('img', { src: '/api/espace/fichier?id=' + f.id, alt: f.nom, width: '48', height: '48', loading: 'lazy' }) : h('span', { class: 'fico', 'aria-hidden': 'true', text: 'PDF' }), h('div', null, h('b', { text: f.nom }), h('small', { text: Math.max(1, Math.round(f.taille / 1024)) + ' Ko · ajouté le ' + fdate(f.created_at.slice(0, 10)) })), E.lecture ? null : h('button', { type: 'button', class: 'btn ghost sm', text: 'Supprimer', 'aria-label': 'Supprimer ' + f.nom, onclick: function () { api('/api/espace/fichier-suppr', 'POST', { id: f.id }).then(function () { flash('Fichier supprimé.'); reloadP('dossier'); }); } })); })) : h('p', { class: 'empty', style: 'margin:6px 0', text: 'Aucun fichier pour le moment.' }),
+        E.lecture ? null : h('label', { class: 'upl' }, h('span', { class: 'btn ghost sm', text: cat[0] === 'logo' ? 'Ajouter mon logo' : cat[0] === 'photo' ? 'Ajouter des photos' : 'Ajouter un document' }), fin), em));
+    });
+    main.appendChild(files);
+    if (!termine && !E.lecture) {
+      var m2 = h('div', { class: 'err', role: 'alert', hidden: 'hidden' });
+      main.appendChild(h('div', { class: 'card fin', style: 'margin-top:16px' }, h('h3', { text: 'Dernière étape' }), h('p', { class: 'sub', text: 'Quand vous avez tout rempli, cliquez ici. Nous recevons votre dossier et commençons la création de votre site.' }),
+        h('button', { type: 'button', class: 'btn', text: 'J’ai terminé mon dossier', onclick: function () {
+          m2.hidden = true;
+          save(function () { api('/api/espace/dossier-termine', 'POST', {}).then(function (r) {
+            if (r.j.ok) { flash('Dossier reçu, merci !'); reloadP('parcours'); }
+            else if (r.j.error === 'incomplet') { m2.textContent = 'Il manque encore : ' + r.j.manquants.join(', ') + '.'; m2.hidden = false; loadP(); }
+            else { m2.textContent = errTxt(r.j, r.s); m2.hidden = false; } }); });
+        } }), m2));
+    }
+  }
+
+  function resilCard() {
+    var r = P && P.resiliation, a = E.abonnement, eff = P && P.effet, box = h('div', { class: 'card resil', style: 'margin-top:16px' }, h('h3', { text: 'Résilier mon abonnement' }));
+    if (!P || !P.demande) return null;
+    if (a && a.statut === 'resilie') { box.appendChild(h('p', { class: 'sub', text: 'Votre abonnement est résilié' + (a.fin ? ' depuis le ' + dOnly(a.fin) : '') + '.' })); return box; }
+    if (r) {
+      box.appendChild(h('div', { class: 'infobox' }, h('b', { text: 'Votre demande de résiliation est enregistrée.' }), h('p', { class: 'sub', style: 'margin:6px 0 0', text: 'Elle prendra effet le ' + fdate(r.effet) + '. Jusque-là, votre site reste en ligne. Vous pouvez changer d’avis tant que nous ne l’avons pas traitée.' })));
+      if (!E.lecture) box.appendChild(h('button', { type: 'button', class: 'btn ghost', text: 'Annuler ma demande de résiliation', onclick: function () { api('/api/espace/resiliation-annuler', 'POST', {}).then(function (x) { if (x.j.ok) { flash('Votre demande est annulée.'); reloadP('abo'); } else flash(errTxt(x.j, x.s), true); }); } }));
+      return box;
+    }
+    box.appendChild(h('p', { class: 'sub', text: a && a.debut ? 'Votre engagement de 12 mois court jusqu’au ' + fdate(eff.echeance) + '. La résiliation prend effet à cette échéance, avec un préavis d’au moins 30 jours. Les mensualités de la période en cours restent dues.' : 'Votre abonnement n’a pas encore démarré : vous pouvez nous demander d’arrêter dès maintenant, sans engagement en cours.' }));
+    var zone = h('div'), b1 = h('button', { type: 'button', class: 'btn ghost', text: 'Demander la résiliation', disabled: E.lecture ? 'disabled' : null, onclick: function () {
+      b1.hidden = true;
+      var mo = h('select', { 'aria-label': 'Motif' }, [['', 'Choisir un motif (facultatif)'], ['prix', 'Le prix'], ['plus_besoin', 'Je n’en ai plus besoin'], ['insatisfait', 'Je ne suis pas satisfait'], ['fermeture', 'Je ferme mon commerce'], ['autre', 'Autre raison']].map(function (o) { return h('option', { value: o[0], text: o[1] }); }));
+      var ms = h('textarea', { rows: '3', maxlength: '800', placeholder: 'Dites-nous ce que nous aurions pu mieux faire (facultatif).' }), ck = h('input', { type: 'checkbox', id: 'rs-ck' }), er = h('p', { class: 'err', role: 'alert', hidden: 'hidden' });
+      var quand = a && a.debut ? (eff.decale ? 'Le préavis de 30 jours avant votre échéance du ' + fdate(eff.echeance) + ' est dépassé : votre résiliation prendrait effet le ' + fdate(eff.effet) + '.' : 'Votre résiliation prendrait effet le ' + fdate(eff.effet) + '.') : 'Votre résiliation prendrait effet immédiatement.';
+      zone.appendChild(h('div', { class: 'form' }, h('div', { class: 'warnbox', style: 'margin:0' }, h('div', null, h('b', { text: quand }), h('div', { text: 'Votre site sera ensuite mis hors ligne. Vous pourrez nous demander de récupérer vos textes et photos, et le transfert de votre nom de domaine.' }))), h('label', { class: 'wide' }, 'Motif', mo), h('label', { class: 'wide' }, 'Message', ms),
+        h('label', { class: 'chk' }, ck, h('span', { text: 'Je confirme vouloir résilier mon abonnement et j’ai compris la date d’effet.' })), er,
+        h('div', { class: 'tools', style: 'flex-wrap:wrap;gap:10px' }, h('button', { type: 'button', class: 'btn danger', text: 'Confirmer la résiliation', onclick: function () { er.hidden = true; api('/api/espace/resiliation', 'POST', { motif: mo.value, message: ms.value, confirme: ck.checked }).then(function (x) { if (x.j.ok) { flash('Demande de résiliation enregistrée.'); reloadP('abo'); } else { er.textContent = errTxt(x.j, x.s); er.hidden = false; } }); } }), h('button', { type: 'button', class: 'btn ghost', text: 'Je garde mon abonnement', onclick: function () { zone.textContent = ''; b1.hidden = false; } }))));
+    } });
+    box.appendChild(b1); box.appendChild(zone); return box;
+  }
+
+  function vParrainage() {
+    main.appendChild(head('Parrainage', 'Un mois offert pour vous et pour le commerçant que vous nous présentez'));
+    if (!P) { main.appendChild(h('div', { class: 'card' }, h('p', { class: 'empty', text: 'Impossible de charger le parrainage pour le moment.' }))); return; }
+    var pa = P.parrainage, dispo = pa.credits.filter(function (c) { return c.etat === 'disponible'; }).length;
+    var cp = function (txt, ok) { var done = function () { flash(ok); }; if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done, function () { flash('Copiez le texte à la main : ' + txt, true); }); else flash('Copiez le texte à la main : ' + txt, true); };
+    main.appendChild(h('div', { class: 'card' }, h('h2', { text: 'Votre code de parrainage' }), h('p', { class: 'code', 'aria-label': 'Votre code : ' + pa.code.split('').join(' '), text: pa.code }),
+      h('div', { class: 'tools', style: 'flex-wrap:wrap;gap:10px;margin:8px 0 12px' }, h('button', { type: 'button', class: 'btn', text: 'Copier mon code', onclick: function () { cp(pa.code, 'Code copié.'); } }), h('button', { type: 'button', class: 'btn ghost', text: 'Copier le lien à partager', onclick: function () { cp(pa.lien, 'Lien copié.'); } })),
+      h('ol', { class: 'howto' }, h('li', { text: 'Donnez votre code à un commerçant, ou envoyez-lui le lien.' }), h('li', { text: 'Il le saisit en créant son compte, ou dans son espace avant le démarrage de son abonnement.' }), h('li', { text: 'Quand son abonnement démarre, un mois offert est ajouté à votre compte et au sien, déduit d’une prochaine facture.' })),
+      h('p', { class: 'sub', style: 'margin:10px 0 0', text: 'Vous pouvez parrainer autant de commerçants que vous voulez : un mois offert pour chacun. Le code n’est valable que pour de nouveaux clients, et un parrainage non transformé en abonnement expire au bout de ' + pa.validite + ' jours. Chaque mois offert est valable 12 mois.' })));
+    main.appendChild(h('div', { class: 'card', style: 'margin-top:16px' }, h('div', { class: 'tbar' }, h('h3', { text: 'Mes mois offerts' }), h('span', { class: 'pill ' + (dispo ? 'ok' : ''), text: dispo + ' disponible' + (dispo > 1 ? 's' : '') })),
+      pa.credits.length ? h('ul', { class: 'list' }, pa.credits.map(function (c) { return h('li', null, h('div', { class: 'tbar', style: 'margin:0' }, h('b', { text: '1 mois offert' + (c.origine === 'filleul' ? ' (bienvenue)' : ' (parrainage)') }), h('span', { class: 'pill ' + (c.etat === 'disponible' ? 'ok' : c.etat === 'utilise' ? 'pri' : 'bad'), text: c.etat === 'disponible' ? 'Disponible' : c.etat === 'utilise' ? 'Utilisé' : 'Expiré' })), h('div', { class: 'sub', text: c.etat === 'disponible' ? 'À utiliser avant le ' + fdate(c.expire_at) + '. Il sera déduit d’une prochaine facture.' : c.etat === 'utilise' ? 'Déjà déduit d’une facture.' : 'La validité de 12 mois est dépassée.' })); })) : h('p', { class: 'empty', text: 'Aucun mois offert pour le moment.' })));
+    main.appendChild(h('div', { class: 'card', style: 'margin-top:16px' }, h('h3', { text: 'Mes filleuls' }), pa.filleuls.length ? h('ul', { class: 'list' }, pa.filleuls.map(function (f) { return h('li', null, h('div', { class: 'tbar', style: 'margin:0' }, h('b', { text: f.prenom || 'Un commerçant' }), h('span', { class: 'pill ' + (f.statut === 'valide' ? 'ok' : f.statut === 'expire' ? 'bad' : 'warn'), text: f.statut === 'valide' ? 'Parrainage validé' : f.statut === 'expire' ? 'Expiré' : 'En attente de son abonnement' })), h('div', { class: 'sub', text: 'Depuis le ' + fdate(f.date) })); })) : h('p', { class: 'empty', text: 'Personne n’a encore utilisé votre code.' })));
+    if (pa.moi) main.appendChild(h('div', { class: 'card', style: 'margin-top:16px' }, h('h3', { text: 'Votre parrain' }), h('p', { class: 'sub', text: 'Vous avez utilisé le code ' + pa.moi.code + '. ' + (pa.moi.statut === 'valide' ? 'Votre mois offert est ajouté à votre compte.' : pa.moi.statut === 'expire' ? 'Ce parrainage a expiré.' : 'Votre mois offert sera ajouté au démarrage de votre abonnement.') })));
+    else if (!E.lecture && (!E.abonnement) && P.demande && P.demande.statut !== 'en_ligne') {
+      var ci = h('input', { type: 'text', maxlength: '9', placeholder: 'DW-XXXXX', 'aria-label': 'Code de parrainage reçu', autocapitalize: 'characters', autocomplete: 'off' }), er = h('p', { class: 'err', role: 'alert', hidden: 'hidden' });
+      main.appendChild(h('div', { class: 'card', style: 'margin-top:16px' }, h('h3', { text: 'J’ai reçu un code de parrainage' }), h('p', { class: 'sub', text: 'Saisissez-le avant le démarrage de votre abonnement pour recevoir un mois offert.' }), h('div', { class: 'form' }, h('label', null, 'Code', ci), er), h('button', { type: 'button', class: 'btn', text: 'Appliquer le code', onclick: function () { er.hidden = true; api('/api/espace/parrain-appliquer', 'POST', { code: ci.value }).then(function (x) { if (x.j.ok) { flash('Code appliqué : un mois offert vous attend.'); reloadP('parrainage'); } else { er.textContent = errTxt(x.j, x.s); er.hidden = false; } }); } })));
+    }
+  }
+
   /* ===== navigation ===== */
-  var VIEWS = { accueil: vAccueil, editeur: vEditeur, site: vSite, modifs: vModifs, abo: vAbo, messages: vMessages, factures: vFactures, facture: vFacture, resa: vResa, aide: vAide, support: vSupport, guidepub: vGuidePub, compte: vCompte };
-  var NAV = [['accueil', 'Tableau de bord', 'home'], ['site', 'Mon site', 'globe'], ['editeur', 'Modifications', 'edit', 'pro'], ['modifs', 'Demandes à l’équipe', 'headset'], ['abo', 'Abonnement', 'card'], ['messages', 'Messages', 'msg'], ['factures', 'Factures', 'file'], ['resa', 'Réservations', 'cal'], ['aide', 'Aide & Guides', 'help']];
+  var VIEWS = { accueil: vAccueil, editeur: vEditeur, site: vSite, modifs: vModifs, abo: vAbo, messages: vMessages, factures: vFactures, facture: vFacture, resa: vResa, parcours: vParcours, dossier: vDossier, parrainage: vParrainage, aide: vAide, support: vSupport, guidepub: vGuidePub, compte: vCompte };
+  var NAV = [['accueil', 'Tableau de bord', 'home'], ['parcours', 'Mon parcours', 'layers'], ['dossier', 'Mon dossier', 'file'], ['site', 'Mon site', 'globe'], ['editeur', 'Modifications', 'edit', 'pro'], ['modifs', 'Demandes à l’équipe', 'headset'], ['abo', 'Abonnement', 'card'], ['messages', 'Messages', 'msg'], ['factures', 'Factures', 'file'], ['resa', 'Réservations', 'cal'], ['parrainage', 'Parrainage', 'bolt'], ['aide', 'Aide & Guides', 'help']];
   var NAVALIAS = { facture: 'factures', guidepub: 'aide', support: 'aide' };
   function drawNav() {
     var nav = $('#nav'); nav.textContent = '';
@@ -324,7 +574,7 @@
   function go(k) { cur = k; location.hash = k === 'accueil' ? '' : k; draw(); window.scrollTo(0, 0); }
   function draw() { main.textContent = ''; drawNav(); (VIEWS[cur] || vAccueil)(); }
   function prix() { if (E && E.prix) { PRIX = E.prix; MAILP = E.prix_mail || MAILP; } }
-  function reload(k) { return api('/api/espace').then(function (r) { if (r.s === 401) { location.href = '/connexion'; return; } E = r.j; prix(); if (k) cur = k; draw(); }); }
+  function reload(k) { return api('/api/espace').then(function (r) { if (r.s === 401) { location.href = '/connexion'; return; } E = r.j; prix(); if (k) cur = k; return loadP().then(draw); }); }
   $('#n-out').addEventListener('click', function () { api('/api/deconnexion', 'POST').then(function () { location.href = '/connexion'; }); });
   window.addEventListener('hashchange', function () { var k = location.hash.slice(1) || 'accueil'; if (VIEWS[k] && k !== cur && E) { cur = k; draw(); } });
 
@@ -338,7 +588,7 @@
     return api('/api/espace').then(function (r) {
       if (r.s !== 200 || !r.j.ok) { $('#gate').textContent = 'Impossible de charger votre espace. Réessayez dans un instant.'; return; }
       E = r.j; prix(); var k = location.hash.slice(1); cur = VIEWS[k] ? k : 'accueil';
-      $('#gate').hidden = true; $('#app').hidden = false; draw();
+      return loadP().then(function () { $('#gate').hidden = true; $('#app').hidden = false; draw(); avisPopup(); });
     });
   }).catch(function () { $('#gate').textContent = 'Connexion impossible pour le moment.'; });
 })();

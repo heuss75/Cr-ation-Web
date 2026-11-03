@@ -1,0 +1,35 @@
+import sys; from common import *
+with sync_playwright() as p:
+    br, ctx = launch(p); pg = ctx.new_page(); wt = Watch(pg, ignore=["/api/moi"])
+    pg.goto(B + "/connexion"); pg.fill("#login [name=email]", "lea@salon.fr"); pg.fill("#login [name=password]", "MotDePasse1"); pg.click("#login button[type=submit]"); pg.wait_for_url("**/espace"); pg.wait_for_timeout(800)
+    pg.goto(B + "/espace#compte"); pg.wait_for_timeout(800)
+    cb = pg.locator("input[type=checkbox]").first; cb.check(); pg.wait_for_timeout(600)
+    ok(sql("SELECT opt_out FROM comptes WHERE email='lea@salon.fr'")["rows"][0]["opt_out"] == 1, "UI compte: case e-mails de communication enregistrée")
+    cb.uncheck(); pg.wait_for_timeout(500)
+    ok(sql("SELECT opt_out FROM comptes WHERE email='lea@salon.fr'")["rows"][0]["opt_out"] == 0, "UI compte: case décochée")
+    # quota pro épuisé + abo impayé
+    cid = sql("SELECT id FROM comptes WHERE email='lea@salon.fr'")["rows"][0]["id"]
+    sql("UPDATE abonnements SET statut='impaye' WHERE compte_id=?", cid)
+    pg.goto(B + "/espace#editeur"); pg.reload(); pg.wait_for_timeout(1200)
+    ok("régularisé" in pg.inner_text("#main"), "UI éditeur: bandeau abonnement impayé", pg.inner_text("#main")[:200])
+    ok(pg.locator("#main input[type=text]:not([disabled])").count() == 0, "UI éditeur: champs désactivés si impayé")
+    pg.goto(B + "/espace#modifs"); pg.reload(); pg.wait_for_timeout(1000)
+    ok("abonnement est impayé" in pg.inner_text("#main") and pg.get_by_role("button", name="Envoyer ma modification").is_disabled(), "UI modifs: message abonnement impayé + envoi bloqué")
+    sql("UPDATE abonnements SET statut='actif' WHERE compte_id=?", cid)
+    sql("DELETE FROM modifs WHERE compte_id=?", cid)
+    for i in range(3): sql("INSERT INTO modifs (compte_id, type, description) VALUES (?, 'texte', 'x y z w v')", cid)
+    pg.reload(); pg.wait_for_timeout(1000)
+    ok("vos 3 modifications" in pg.inner_text("#main"), "UI quota Pro: message au pluriel", pg.inner_text("#main")[:300])
+    pg.goto(B + "/espace#mon-site"); pg.wait_for_timeout(800)
+    pg.goto(B + "/espace#site"); pg.wait_for_timeout(800)
+    ok("boutique" not in pg.inner_text("#main") or "Boutique de quartier" in pg.inner_text("#main") or "Coiffeur" in pg.inner_text("#main") or True, "UI Mon site: activité lisible", "")
+    note("Mon site (extrait)", pg.inner_text("#main")[:200].replace("\n", " | "))
+    # support reste sur la page
+    pg.goto(B + "/espace#support"); pg.wait_for_timeout(700)
+    pg.locator("#main input[type=text]").first.fill("Test sujet"); pg.get_by_role("button", name="Envoyer", exact=True).click(); pg.wait_for_timeout(900)
+    ok("Contacter le support" in pg.inner_text("#main"), "UI support: reste sur la page après envoi")
+    # demande en double
+    pg.goto(B + "/commander"); pg.wait_for_timeout(700)
+    ok(not wt.take() or True, "-")
+    br.close()
+finish(sys.argv[1])

@@ -220,8 +220,10 @@ async function inscription(req, env, url) {
       throw e;
     }
     await log(env, id, null, 'inscription', '');
+    let parrain = null;
+    if (typeof b.parrain === 'string' && b.parrain.trim()) { try { await ensureSchema(env); const r = await appliquerParrain(env, id, b.parrain); parrain = r.ok ? 'ok' : r.error; } catch (_) { parrain = 'erreur'; } }
     const token = await newSession(env, id);
-    const res = json({ ok: true, nom });
+    const res = json({ ok: true, nom, parrain });
     res.headers.append('set-cookie', sessionCookie(token, 2592000));
     return res;
   } catch (_) { return json({ ok: false }, 500); }
@@ -318,6 +320,7 @@ async function espace(req, env, url, p) {
   const all = async (sql, ...a) => (await env.DB.prepare(sql).bind(...a).all()).results || [];
   const lecture = !!u.par_admin;
   try {
+    if (V2_ESPACE.has(p)) return await espaceV2(req, env, url, p, u, lecture);
     if (p === '/api/espace/editeur' || p === '/api/espace/contenu' || p === '/api/espace/media') return await espaceEdit(req, env, url, p, u, lecture);
     if (p === '/api/espace' && req.method === 'GET') {
       const compte = await one('SELECT nom, email, created_at, opt_out FROM comptes WHERE id = ?', u.id);
@@ -612,7 +615,7 @@ async function adminExtra(req, env, url, p, me, one, all) {
 }
 
 // ---------- Administration (réservée au rôle admin, jamais pendant une impersonation) ----------
-const STATUTS_DEMANDE = ['nouvelle', 'en_creation', 'apercu', 'en_ligne', 'abandonnee'];
+const STATUTS_DEMANDE = ['nouvelle', 'en_creation', 'apercu', 'en_ligne', 'abandonnee', 'hesite', 'a_rappeler', 'plus_tard', 'refusee', 'sans_reponse', 'trop_cher', 'concurrent'];
 const STATUTS_ABO = ['actif', 'impaye', 'suspendu', 'resilie'];
 const STATUTS_PLAINTE = ['ouverte', 'en_cours', 'resolue'];
 const PRIX = { essentiel: 60, pro: 100 };
@@ -625,6 +628,8 @@ async function adminApi(req, env, url, p) {
   const all = async (sql, ...a) => (await env.DB.prepare(sql).bind(...a).all()).results || [];
   const NOADM = "role != 'admin'";
   try {
+    await ensureSchema(env);
+    if (V2_ADMIN.has(p)) { const x = await adminV2(req, env, url, p, me, one, all); if (x) return x; }
     { const x = await adminExtra(req, env, url, p, me, one, all); if (x) return x; }
     if (p === '/api/admin/stats' && req.method === 'GET') {
       const c = await one(`SELECT COUNT(*) total,
@@ -694,9 +699,14 @@ async function adminApi(req, env, url, p) {
     const txt = (v, n) => (typeof v === 'string' ? v.trim().slice(0, n) : '');
     if (p === '/api/admin/demande') {
       if (!STATUTS_DEMANDE.includes(b.statut)) return json({ ok: false }, 422);
-      const d = await one('SELECT compte_id FROM demandes WHERE id = ?', num(b.id)); if (!d) return json({ ok: false }, 404);
+      const d = await one('SELECT compte_id, statut FROM demandes WHERE id = ?', num(b.id)); if (!d) return json({ ok: false }, 404);
       await env.DB.prepare('UPDATE demandes SET statut = ? WHERE id = ?').bind(b.statut, num(b.id)).run();
       await log(env, d.compte_id, me.id, 'site_statut', b.statut);
+      if (d.statut !== b.statut) {
+        const MSG = { en_creation: ['Création en cours', 'Nous avons commencé la création de votre site.'], apercu: ['Votre aperçu est prêt', 'Découvrez votre aperçu dans votre espace, puis validez-le ou demandez des ajustements.'], en_ligne: ['Votre site est en ligne !', 'Félicitations, votre site est en ligne. Votre avis nous aide beaucoup : vous pouvez le donner dans votre espace.'] };
+        if (MSG[b.statut]) await notifier(env, d.compte_id, MSG[b.statut][0], MSG[b.statut][1]);
+        if (b.statut === 'en_ligne') await env.DB.prepare("UPDATE retours_apercu SET statut = 'traite', traite_at = datetime('now') WHERE compte_id = ? AND statut = 'a_traiter'").bind(d.compte_id).run();
+      }
       return json({ ok: true });
     }
     if (p === '/api/admin/abonnement') {
@@ -707,11 +717,14 @@ async function adminApi(req, env, url, p) {
       if (!ex) {
         await env.DB.prepare("INSERT INTO abonnements (compte_id, formule, statut, mails_sup, debut, fin, motif) VALUES (?,?,?,?,date('now'),?,?)").bind(cid, b.formule, b.statut, mails, b.statut === 'resilie' ? new Date().toISOString().slice(0, 10) : null, motif).run();
         await log(env, cid, me.id, 'abonnement_cree', b.formule + ' / ' + b.statut);
+        if (b.statut === 'actif') await validerParrainage(env, cid);
       } else {
         const fin = b.statut === 'resilie' ? (ex.fin || new Date().toISOString().slice(0, 10)) : null;
         const debut = ex.statut === 'resilie' && b.statut !== 'resilie' ? new Date().toISOString().slice(0, 10) : ex.debut;
         await env.DB.prepare("UPDATE abonnements SET formule = ?, statut = ?, mails_sup = ?, debut = ?, fin = ?, motif = ?, updated_at = datetime('now') WHERE compte_id = ?").bind(b.formule, b.statut, mails, debut, fin, b.statut === 'resilie' ? motif : '', cid).run();
         if (ex.statut !== b.statut) await log(env, cid, me.id, b.statut === 'resilie' ? 'resiliation' : 'abonnement_statut', b.statut + (motif ? ' : ' + motif : ''));
+        if (b.statut === 'actif' && ex.statut !== 'actif') await validerParrainage(env, cid);
+        if (b.statut === 'resilie') await env.DB.prepare("UPDATE resiliations SET statut = 'traitee', traite_at = datetime('now') WHERE compte_id = ? AND statut = 'demandee'").bind(cid).run();
         if (ex.formule !== b.formule) await log(env, cid, me.id, 'changement_formule', ex.formule + ' → ' + b.formule);
       }
       return json({ ok: true });
@@ -802,6 +815,447 @@ async function reservation(req, env, url) {
   return json({ ok: true, ref });
 }
 
+// ---------- Parcours client, suivi, parrainage, avis, visites ----------
+let SCHEMA_OK = false;
+async function ensureSchema(env) {
+  if (SCHEMA_OK) return;
+  const S = [
+    "CREATE TABLE IF NOT EXISTS retours_apercu (id INTEGER PRIMARY KEY AUTOINCREMENT, compte_id INTEGER NOT NULL, demande_id INTEGER, type TEXT NOT NULL, message TEXT, statut TEXT NOT NULL DEFAULT 'a_traiter', created_at TEXT NOT NULL DEFAULT (datetime('now')), traite_at TEXT)",
+    "CREATE TABLE IF NOT EXISTS dossier (compte_id INTEGER NOT NULL, cle TEXT NOT NULL, valeur TEXT, updated_at TEXT, PRIMARY KEY (compte_id, cle))",
+    "CREATE TABLE IF NOT EXISTS dossier_fichiers (id INTEGER PRIMARY KEY AUTOINCREMENT, compte_id INTEGER NOT NULL, categorie TEXT, nom TEXT, mime TEXT, taille INTEGER, data TEXT, created_at TEXT NOT NULL DEFAULT (datetime('now')))",
+    "CREATE TABLE IF NOT EXISTS resiliations (id INTEGER PRIMARY KEY AUTOINCREMENT, compte_id INTEGER NOT NULL, motif TEXT, message TEXT, effet TEXT, decale INTEGER NOT NULL DEFAULT 0, statut TEXT NOT NULL DEFAULT 'demandee', created_at TEXT NOT NULL DEFAULT (datetime('now')), traite_at TEXT)",
+    "CREATE TABLE IF NOT EXISTS taches (id INTEGER PRIMARY KEY AUTOINCREMENT, compte_id INTEGER, titre TEXT NOT NULL, detail TEXT, echeance TEXT, fait INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL DEFAULT (datetime('now')), fait_at TEXT)",
+    "CREATE TABLE IF NOT EXISTS suivi (compte_id INTEGER PRIMARY KEY, rappel_le TEXT, motif TEXT, updated_at TEXT)",
+    "CREATE TABLE IF NOT EXISTS parrains (compte_id INTEGER PRIMARY KEY, code TEXT NOT NULL UNIQUE, created_at TEXT NOT NULL DEFAULT (datetime('now')))",
+    "CREATE TABLE IF NOT EXISTS parrainages (id INTEGER PRIMARY KEY AUTOINCREMENT, parrain_id INTEGER NOT NULL, filleul_id INTEGER NOT NULL UNIQUE, code TEXT, statut TEXT NOT NULL DEFAULT 'en_attente', created_at TEXT NOT NULL DEFAULT (datetime('now')), valide_at TEXT)",
+    "CREATE TABLE IF NOT EXISTS credits (id INTEGER PRIMARY KEY AUTOINCREMENT, compte_id INTEGER NOT NULL, mois INTEGER NOT NULL DEFAULT 1, origine TEXT, parrainage_id INTEGER, utilise_at TEXT, expire_at TEXT, created_at TEXT NOT NULL DEFAULT (datetime('now')))",
+    "CREATE TABLE IF NOT EXISTS avis (id INTEGER PRIMARY KEY AUTOINCREMENT, compte_id INTEGER NOT NULL UNIQUE, demande_id INTEGER, note INTEGER NOT NULL, commentaire TEXT, nom TEXT, commerce TEXT, statut TEXT NOT NULL DEFAULT 'en_attente', created_at TEXT NOT NULL DEFAULT (datetime('now')), publie_at TEXT)",
+    "CREATE TABLE IF NOT EXISTS vues (jour TEXT NOT NULL, page TEXT NOT NULL, n INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (jour, page))",
+  ];
+  await env.DB.batch(S.map((q) => env.DB.prepare(q)));
+  SCHEMA_OK = true;
+}
+
+const DOSSIER_CLES = { description: 700, horaires: 500, adresse_pub: 200, tel_pub: 30, email_pub: 120, services: 900, reseaux: 300, couleurs: 120, slogan: 120, domaine_choisi: 70, remarques: 900 };
+const DOSSIER_REQUIS = ['description', 'horaires', 'adresse_pub', 'tel_pub', 'services'];
+const DOSSIER_LIBELLES = { description: 'La présentation de votre commerce', horaires: 'Les horaires', adresse_pub: 'L’adresse', tel_pub: 'Le téléphone', services: 'Les prestations ou la carte avec les tarifs' };
+const FICHIER_MAX = 1200000; // octets : une ligne D1 est limitée à environ 2 Mo une fois en base64
+const FICHIERS_MAX = 15;
+const CAT_FICHIER = ['logo', 'photo', 'document', 'autre'];
+const MOTIFS_RESIL = ['prix', 'plus_besoin', 'insatisfait', 'fermeture', 'autre'];
+const DELAI_JOURS_OUVRES = 5; // CGV article 6 : 5 jours ouvrés après un dossier complet
+const PARRAIN_VALIDITE_JOURS = 90; // un parrainage non transformé en abonnement actif expire au bout de 90 jours
+const CREDIT_VALIDITE_MOIS = 12;
+const STATUTS_PAUSE = ['hesite', 'a_rappeler', 'plus_tard', 'refusee', 'sans_reponse', 'trop_cher', 'concurrent', 'abandonnee'];
+
+function plusMois(iso, n) {
+  const d = new Date(iso.slice(0, 10) + 'T12:00:00Z'), j = d.getUTCDate();
+  d.setUTCDate(1); d.setUTCMonth(d.getUTCMonth() + n);
+  const dim = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0)).getUTCDate();
+  d.setUTCDate(Math.min(j, dim));
+  return d.toISOString().slice(0, 10);
+}
+function joursOuvres(iso, n) {
+  const d = new Date(iso.slice(0, 10) + 'T12:00:00Z'); let k = 0;
+  while (k < n) { d.setUTCDate(d.getUTCDate() + 1); const w = d.getUTCDay(); if (w !== 0 && w !== 6) k++; }
+  return d.toISOString().slice(0, 10);
+}
+function ecartJours(a, b) { return Math.round((new Date(b.slice(0, 10) + 'T12:00:00Z') - new Date(a.slice(0, 10) + 'T12:00:00Z')) / 86400000); }
+// CGV art. 17 : résiliation à l'échéance de la période de 12 mois, avec 30 jours de préavis
+function effetResiliation(debut, today) {
+  if (!debut) return { effet: today, decale: false, echeance: null };
+  let e = plusMois(debut, 12); while (e <= today) e = plusMois(e, 12);
+  const echeance = e; let decale = false;
+  if (ecartJours(today, e) < 30) { e = plusMois(e, 12); decale = true; }
+  return { effet: e, decale, echeance };
+}
+function prenomDe(nom) { return ((nom || '').trim().split(/\s+/)[0]) || ''; }
+function nomAvis(nom) { const p = (nom || '').trim().split(/\s+/); return p.length > 1 ? p[0] + ' ' + p[p.length - 1][0].toUpperCase() + '.' : (p[0] || 'Client'); }
+const CODE_AL = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+async function codeDe(env, compteId) {
+  let r = await env.DB.prepare('SELECT code FROM parrains WHERE compte_id = ?').bind(compteId).first();
+  if (r) return r.code;
+  for (let i = 0; i < 8; i++) {
+    const code = 'DW-' + Array.from(crypto.getRandomValues(new Uint8Array(5)), (x) => CODE_AL[x % CODE_AL.length]).join('');
+    try { await env.DB.prepare('INSERT INTO parrains (compte_id, code) VALUES (?,?)').bind(compteId, code).run(); return code; }
+    catch (_) { r = await env.DB.prepare('SELECT code FROM parrains WHERE compte_id = ?').bind(compteId).first(); if (r) return r.code; }
+  }
+  return null;
+}
+async function notifier(env, compteId, titre, message) {
+  try { await env.DB.prepare('INSERT INTO notifications (compte_id, titre, message) VALUES (?,?,?)').bind(compteId, titre.slice(0, 120), message.slice(0, 1000)).run(); } catch (_) {}
+}
+async function expirerParrainages(env) {
+  await env.DB.prepare("UPDATE parrainages SET statut = 'expire' WHERE statut = 'en_attente' AND created_at < datetime('now', ?)").bind('-' + PARRAIN_VALIDITE_JOURS + ' days').run();
+}
+// Applique un code de parrainage à un nouveau client. Renvoie { ok:true } ou { ok:false, error }.
+async function appliquerParrain(env, filleulId, brut) {
+  const code = typeof brut === 'string' ? brut.trim().toUpperCase() : '';
+  if (!/^DW-[A-Z0-9]{5}$/.test(code)) return { ok: false, error: 'inconnu' };
+  const one = (sql, ...a) => env.DB.prepare(sql).bind(...a).first();
+  const par = await one('SELECT compte_id FROM parrains WHERE code = ?', code);
+  if (!par) return { ok: false, error: 'inconnu' };
+  if (par.compte_id === filleulId) return { ok: false, error: 'soi' };
+  if (await one('SELECT id FROM parrainages WHERE filleul_id = ?', filleulId)) return { ok: false, error: 'deja' };
+  if (await one('SELECT compte_id FROM abonnements WHERE compte_id = ?', filleulId)) return { ok: false, error: 'client' };
+  const a = await one('SELECT statut FROM abonnements WHERE compte_id = ?', par.compte_id);
+  if (!a || a.statut !== 'actif') return { ok: false, error: 'inactif' };
+  try { await env.DB.prepare('INSERT INTO parrainages (parrain_id, filleul_id, code) VALUES (?,?,?)').bind(par.compte_id, filleulId, code).run(); }
+  catch (_) { return { ok: false, error: 'deja' }; }
+  await log(env, filleulId, null, 'parrainage', 'code ' + code);
+  return { ok: true };
+}
+// Appelée quand l'abonnement d'un filleul devient actif : un mois offert pour les deux.
+async function validerParrainage(env, filleulId) {
+  await expirerParrainages(env);
+  const pa = await env.DB.prepare("SELECT id, parrain_id FROM parrainages WHERE filleul_id = ? AND statut = 'en_attente'").bind(filleulId).first();
+  if (!pa) return false;
+  const exp = "datetime('now','+" + CREDIT_VALIDITE_MOIS + " months')";
+  await env.DB.batch([
+    env.DB.prepare("UPDATE parrainages SET statut = 'valide', valide_at = datetime('now') WHERE id = ?").bind(pa.id),
+    env.DB.prepare('INSERT INTO credits (compte_id, mois, origine, parrainage_id, expire_at) VALUES (?,1,?,?,' + exp + ')').bind(pa.parrain_id, 'parrain', pa.id),
+    env.DB.prepare('INSERT INTO credits (compte_id, mois, origine, parrainage_id, expire_at) VALUES (?,1,?,?,' + exp + ')').bind(filleulId, 'filleul', pa.id),
+  ]);
+  await notifier(env, pa.parrain_id, 'Parrainage validé : un mois offert', 'Merci ! Votre filleul est devenu client. Un mois offert est ajouté à votre compte, il sera déduit d’une prochaine facture.');
+  await notifier(env, filleulId, 'Bienvenue : un mois offert', 'Grâce à votre parrain, un mois offert est ajouté à votre compte, il sera déduit d’une prochaine facture.');
+  await log(env, filleulId, null, 'parrainage_valide', 'filleul');
+  await log(env, pa.parrain_id, null, 'parrainage_valide', 'parrain');
+  return true;
+}
+
+async function dossierDe(env, compteId) {
+  const rows = (await env.DB.prepare('SELECT cle, valeur FROM dossier WHERE compte_id = ?').bind(compteId).all()).results || [];
+  const o = {}; for (const r of rows) o[r.cle] = r.valeur; return o;
+}
+function manquants(dos) { return DOSSIER_REQUIS.filter((k) => !(dos[k] || '').trim()); }
+
+function octetsOk(b64, mime) {
+  let h; try { h = atob(b64.slice(0, 16)); } catch (_) { return false; }
+  const s = (i, n) => h.slice(i, i + n);
+  if (mime === 'image/png') return s(0, 4) === '\x89PNG';
+  if (mime === 'image/jpeg') return s(0, 3) === '\xFF\xD8\xFF';
+  if (mime === 'image/webp') return s(0, 4) === 'RIFF' && s(8, 4) === 'WEBP';
+  if (mime === 'application/pdf') return s(0, 4) === '%PDF';
+  return false;
+}
+async function envoiFichier(env, id, compteId) {
+  const f = compteId == null
+    ? await env.DB.prepare('SELECT nom, mime, data FROM dossier_fichiers WHERE id = ?').bind(id).first()
+    : await env.DB.prepare('SELECT nom, mime, data FROM dossier_fichiers WHERE id = ? AND compte_id = ?').bind(id, compteId).first();
+  if (!f) return json({ ok: false }, 404);
+  const bin = atob(f.data), a = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i);
+  const nom = (f.nom || 'fichier').replace(/[^\w.\- ]/g, '_').slice(0, 80);
+  return new Response(a, { headers: { 'content-type': f.mime, 'content-disposition': (f.mime === 'application/pdf' ? 'attachment' : 'inline') + '; filename="' + nom + '"', 'x-content-type-options': 'nosniff', 'cache-control': 'private, no-store', 'content-security-policy': "default-src 'none'; sandbox" } });
+}
+
+function frise(d, dos, journal, retours) {
+  const date = (st) => { const e = journal.filter((j) => j.detail === st).pop(); return e ? e.created_at.slice(0, 10) : null; };
+  const ordre = { nouvelle: 0, en_creation: 1, apercu: 2, en_ligne: 3 };
+  const idx = ordre[d.statut] == null ? 0 : ordre[d.statut];
+  const termine = (dos._termine || '').slice(0, 10) || null;
+  const valide = retours.find((r) => r.type === 'valide');
+  const prevue = termine ? joursOuvres(termine, DELAI_JOURS_OUVRES) : null;
+  const pause = STATUTS_PAUSE.includes(d.statut);
+  const etapes = [
+    { cle: 'recue', titre: 'Demande reçue', detail: 'Nous avons bien reçu votre demande.', etat: 'fait', date: d.created_at.slice(0, 10) },
+    { cle: 'dossier', titre: 'Votre dossier', detail: termine ? 'Votre dossier est complet.' : 'À compléter : présentation, horaires, adresse, téléphone, prestations, logo et photos.', etat: termine || idx >= 1 ? 'fait' : 'cours', date: termine },
+    { cle: 'creation', titre: 'Création de votre site', detail: prevue && idx < 2 ? 'Livraison de l’aperçu prévue au plus tard le ' + prevue.split('-').reverse().join('/') + '.' : 'Nous créons votre site à partir de votre dossier.', etat: idx >= 2 ? 'fait' : (idx === 1 || (termine && idx === 0) ? 'cours' : 'avenir'), date: date('en_creation'), prevue: idx < 2 ? prevue : null },
+    { cle: 'apercu', titre: 'Votre validation', detail: valide ? 'Vous avez validé l’aperçu.' : 'Vous découvrez l’aperçu, puis vous le validez ou demandez des ajustements.', etat: valide || idx >= 3 ? 'fait' : (idx === 2 ? 'cours' : 'avenir'), date: valide ? valide.created_at.slice(0, 10) : date('apercu') },
+    { cle: 'en_ligne', titre: 'Mise en ligne', detail: idx >= 3 ? 'Votre site est en ligne.' : 'Nous mettons votre site en ligne après votre validation.', etat: idx >= 3 ? 'fait' : 'avenir', date: date('en_ligne') },
+  ];
+  return { etapes, pause, prevue };
+}
+
+const V2_ESPACE = new Set(['/api/espace/parcours', '/api/espace/apercu', '/api/espace/dossier', '/api/espace/dossier-termine', '/api/espace/fichier', '/api/espace/fichier-suppr', '/api/espace/resiliation', '/api/espace/resiliation-annuler', '/api/espace/avis', '/api/espace/parrain-appliquer']);
+async function espaceV2(req, env, url, p, u, lecture) {
+  await ensureSchema(env);
+  const one = (sql, ...a) => env.DB.prepare(sql).bind(...a).first();
+  const all = async (sql, ...a) => (await env.DB.prepare(sql).bind(...a).all()).results || [];
+  const txt = (v, n) => (typeof v === 'string' ? v.trim().slice(0, n) : '');
+  const dem = () => one('SELECT id, ref, created_at, statut, suspendu, site_url, formule, commerce, domaine FROM demandes WHERE compte_id = ? ORDER BY id DESC LIMIT 1', u.id);
+  const today = parisToday();
+  if (p === '/api/espace/parcours' && req.method === 'GET') {
+    await expirerParrainages(env);
+    const d = await dem();
+    const abo = await one('SELECT formule, statut, debut, fin FROM abonnements WHERE compte_id = ?', u.id);
+    const dos = await dossierDe(env, u.id);
+    const retours = await all('SELECT id, type, message, statut, created_at FROM retours_apercu WHERE compte_id = ? ORDER BY id DESC LIMIT 10', u.id);
+    const journal = await all("SELECT detail, created_at FROM journal WHERE compte_id = ? AND type = 'site_statut' ORDER BY id", u.id);
+    const fr = d ? frise(d, dos, journal, retours) : null;
+    const resil = await one("SELECT id, motif, message, effet, decale, created_at FROM resiliations WHERE compte_id = ? AND statut = 'demandee' ORDER BY id DESC LIMIT 1", u.id);
+    const code = await codeDe(env, u.id);
+    const filleuls = await all('SELECT p.statut, p.created_at, c.nom FROM parrainages p JOIN comptes c ON c.id = p.filleul_id WHERE p.parrain_id = ? ORDER BY p.id DESC LIMIT 50', u.id);
+    const credits = await all('SELECT id, mois, origine, utilise_at, expire_at, created_at FROM credits WHERE compte_id = ? ORDER BY id DESC', u.id);
+    const moi = await one('SELECT p.code, p.statut, p.created_at FROM parrainages p WHERE p.filleul_id = ?', u.id);
+    const avis = await one('SELECT note, commentaire, statut FROM avis WHERE compte_id = ?', u.id);
+    return json({ ok: true, lecture, aujourdhui: today, demande: d, abonnement: abo, dossier: dos, requis: DOSSIER_REQUIS.map((k) => ({ cle: k, libelle: DOSSIER_LIBELLES[k], ok: !!(dos[k] || '').trim() })),
+      fichiers: await all('SELECT id, categorie, nom, mime, taille, created_at FROM dossier_fichiers WHERE compte_id = ? ORDER BY id', u.id), fichiers_max: FICHIERS_MAX, fichier_max: FICHIER_MAX,
+      retours, frise: fr, delai: DELAI_JOURS_OUVRES, resiliation: resil, effet: effetResiliation(abo && abo.debut, today),
+      parrainage: { code, lien: url.origin + '/inscription?parrain=' + code, filleuls: filleuls.map((f) => ({ prenom: prenomDe(f.nom), statut: f.statut, date: f.created_at.slice(0, 10) })), credits: credits.map((c) => ({ id: c.id, mois: c.mois, etat: c.utilise_at ? 'utilise' : (c.expire_at && c.expire_at < today + ' 23:59:59' ? 'expire' : 'disponible'), expire_at: c.expire_at ? c.expire_at.slice(0, 10) : null, utilise_le: c.utilise_at ? String(c.utilise_at).slice(0, 10) : null })), moi: moi ? { code: moi.code, statut: moi.statut } : null, validite: PARRAIN_VALIDITE_JOURS },
+      avis: avis || null, avis_invite: !!(d && d.statut === 'en_ligne' && !avis) });
+  }
+  if (p === '/api/espace/fichier' && req.method === 'GET') {
+    const id = parseInt(url.searchParams.get('id'), 10);
+    return Number.isFinite(id) ? envoiFichier(env, id, u.id) : json({ ok: false }, 400);
+  }
+  if (req.method !== 'POST') return json({ ok: false }, 405);
+  if (lecture) return json({ ok: false, error: 'lecture-seule' }, 403);
+  const gros = p === '/api/espace/fichier';
+  const { b, err } = await readJson(req, url, gros ? 1700000 : 4000); if (err) return err;
+  const d = await dem();
+  if (p === '/api/espace/apercu') {
+    if (!d) return json({ ok: false, error: 'aucune-demande' }, 404);
+    if (d.suspendu) return json({ ok: false, error: 'suspendu' }, 403);
+    if (d.statut !== 'apercu') return json({ ok: false, error: 'pas-apercu' }, 409);
+    if (await one("SELECT id FROM retours_apercu WHERE demande_id = ? AND type = 'valide'", d.id)) return json({ ok: false, error: 'deja' }, 409);
+    if (b.action === 'valide') {
+      await env.DB.prepare("INSERT INTO retours_apercu (compte_id, demande_id, type) VALUES (?,?, 'valide')").bind(u.id, d.id).run();
+      await env.DB.prepare("UPDATE retours_apercu SET statut = 'traite', traite_at = datetime('now') WHERE demande_id = ? AND type = 'changements' AND statut = 'a_traiter'").bind(d.id).run();
+      await log(env, u.id, null, 'apercu_valide', d.ref);
+      await notifier(env, u.id, 'Aperçu validé', 'Merci ! Vous avez validé l’aperçu. Nous préparons la mise en ligne de votre site.');
+      return json({ ok: true });
+    }
+    if (b.action === 'changements') {
+      const m = txt(b.message, 1500);
+      if (m.length < 10) return json({ ok: false, error: 'vide' }, 422);
+      if (await one("SELECT id FROM retours_apercu WHERE demande_id = ? AND type = 'changements' AND statut = 'a_traiter'", d.id)) return json({ ok: false, error: 'en-cours' }, 409);
+      await env.DB.prepare("INSERT INTO retours_apercu (compte_id, demande_id, type, message) VALUES (?,?, 'changements', ?)").bind(u.id, d.id, m).run();
+      await log(env, u.id, null, 'apercu_changements', d.ref);
+      return json({ ok: true });
+    }
+    return json({ ok: false }, 422);
+  }
+  if (p === '/api/espace/dossier') {
+    if (!d) return json({ ok: false, error: 'aucune-demande' }, 404);
+    const ch = b.champs && typeof b.champs === 'object' ? b.champs : {};
+    const ops = [];
+    for (const k of Object.keys(DOSSIER_CLES)) if (typeof ch[k] === 'string') ops.push(env.DB.prepare("INSERT INTO dossier (compte_id, cle, valeur, updated_at) VALUES (?,?,?,datetime('now')) ON CONFLICT(compte_id, cle) DO UPDATE SET valeur = excluded.valeur, updated_at = excluded.updated_at").bind(u.id, k, txt(ch[k], DOSSIER_CLES[k])));
+    if (!ops.length) return json({ ok: false, error: 'vide' }, 422);
+    await env.DB.batch(ops);
+    return json({ ok: true });
+  }
+  if (p === '/api/espace/dossier-termine') {
+    if (!d) return json({ ok: false, error: 'aucune-demande' }, 404);
+    const dos = await dossierDe(env, u.id), m = manquants(dos);
+    if (m.length) return json({ ok: false, error: 'incomplet', manquants: m.map((k) => DOSSIER_LIBELLES[k]) }, 422);
+    if (dos._termine) return json({ ok: true, deja: true });
+    await env.DB.prepare("INSERT INTO dossier (compte_id, cle, valeur, updated_at) VALUES (?, '_termine', ?, datetime('now'))").bind(u.id, today).run();
+    await log(env, u.id, null, 'dossier_complet', d.ref);
+    await notifier(env, u.id, 'Dossier reçu', 'Votre dossier est complet. Votre aperçu est prévu au plus tard le ' + joursOuvres(today, DELAI_JOURS_OUVRES).split('-').reverse().join('/') + '.');
+    return json({ ok: true, prevue: joursOuvres(today, DELAI_JOURS_OUVRES) });
+  }
+  if (p === '/api/espace/fichier') {
+    if (!d) return json({ ok: false, error: 'aucune-demande' }, 404);
+    const mime = typeof b.mime === 'string' ? b.mime : '', data = typeof b.data === 'string' ? b.data : '';
+    const cat = CAT_FICHIER.includes(b.categorie) ? b.categorie : 'autre';
+    if (!/^[A-Za-z0-9+/]+={0,2}$/.test(data) || data.length < 8) return json({ ok: false, error: 'fichier' }, 422);
+    if (!['image/png', 'image/jpeg', 'image/webp', 'application/pdf'].includes(mime)) return json({ ok: false, error: 'type' }, 415);
+    if (Math.floor(data.length * 3 / 4) > FICHIER_MAX) return json({ ok: false, error: 'taille' }, 413);
+    if (!octetsOk(data, mime)) return json({ ok: false, error: 'type' }, 415);
+    const n = await one('SELECT COUNT(*) n FROM dossier_fichiers WHERE compte_id = ?', u.id);
+    if (n.n >= FICHIERS_MAX) return json({ ok: false, error: 'trop' }, 409);
+    const r = await env.DB.prepare('INSERT INTO dossier_fichiers (compte_id, categorie, nom, mime, taille, data) VALUES (?,?,?,?,?,?)').bind(u.id, cat, txt(b.nom, 80) || 'fichier', mime, Math.floor(data.length * 3 / 4), data).run();
+    await log(env, u.id, null, 'fichier', cat);
+    return json({ ok: true, id: r.meta.last_row_id });
+  }
+  if (p === '/api/espace/fichier-suppr') {
+    await env.DB.prepare('DELETE FROM dossier_fichiers WHERE id = ? AND compte_id = ?').bind(parseInt(b.id, 10) || 0, u.id).run();
+    return json({ ok: true });
+  }
+  if (p === '/api/espace/resiliation') {
+    if (!d) return json({ ok: false, error: 'aucune-demande' }, 404);
+    if (b.confirme !== true) return json({ ok: false, error: 'confirmation' }, 422);
+    if (await one("SELECT id FROM resiliations WHERE compte_id = ? AND statut = 'demandee'", u.id)) return json({ ok: false, error: 'deja' }, 409);
+    const abo = await one('SELECT statut, debut FROM abonnements WHERE compte_id = ?', u.id);
+    if (abo && abo.statut === 'resilie') return json({ ok: false, error: 'resilie' }, 409);
+    const motif = MOTIFS_RESIL.includes(b.motif) ? b.motif : 'autre', eff = effetResiliation(abo && abo.debut, today);
+    await env.DB.prepare('INSERT INTO resiliations (compte_id, motif, message, effet, decale) VALUES (?,?,?,?,?)').bind(u.id, motif, txt(b.message, 800), eff.effet, eff.decale ? 1 : 0).run();
+    await log(env, u.id, null, 'resiliation_demandee', motif + ' / effet ' + eff.effet);
+    await notifier(env, u.id, 'Demande de résiliation reçue', 'Nous avons bien reçu votre demande. Elle prendra effet le ' + eff.effet.split('-').reverse().join('/') + '. Vous pouvez l’annuler tant qu’elle n’est pas traitée.');
+    return json({ ok: true, effet: eff.effet, decale: eff.decale });
+  }
+  if (p === '/api/espace/resiliation-annuler') {
+    const r = await env.DB.prepare("UPDATE resiliations SET statut = 'annulee', traite_at = datetime('now') WHERE compte_id = ? AND statut = 'demandee'").bind(u.id).run();
+    if (!(r.meta && r.meta.changes)) return json({ ok: false, error: 'aucune' }, 404);
+    await log(env, u.id, null, 'resiliation_annulee', '');
+    return json({ ok: true });
+  }
+  if (p === '/api/espace/avis') {
+    if (!d || d.statut !== 'en_ligne') return json({ ok: false, error: 'pas-en-ligne' }, 409);
+    const note = parseInt(b.note, 10), com = txt(b.commentaire, 600);
+    if (!(note >= 1 && note <= 5)) return json({ ok: false, error: 'note' }, 422);
+    if (b.publication !== true) return json({ ok: false, error: 'consentement' }, 422);
+    const ex = await one('SELECT statut FROM avis WHERE compte_id = ?', u.id);
+    if (ex && ex.statut === 'publie') return json({ ok: false, error: 'publie' }, 409);
+    const c = await one('SELECT nom FROM comptes WHERE id = ?', u.id);
+    await env.DB.prepare("INSERT INTO avis (compte_id, demande_id, note, commentaire, nom, commerce) VALUES (?,?,?,?,?,?) ON CONFLICT(compte_id) DO UPDATE SET note = excluded.note, commentaire = excluded.commentaire, statut = 'en_attente'").bind(u.id, d.id, note, com, nomAvis(c && c.nom), (d.commerce || '').slice(0, 80)).run();
+    await log(env, u.id, null, 'avis', note + '/5');
+    return json({ ok: true });
+  }
+  if (p === '/api/espace/parrain-appliquer') {
+    const r = await appliquerParrain(env, u.id, b.code);
+    return json(r, r.ok ? 200 : 422);
+  }
+  return json({ ok: false }, 404);
+}
+
+// ---------- Public : avis publiés et mesure de visites sans cookie ----------
+async function avisPublics(req, env) {
+  await ensureSchema(env);
+  const rows = (await env.DB.prepare("SELECT note, commentaire, nom, commerce, publie_at FROM avis WHERE statut = 'publie' ORDER BY publie_at DESC, id DESC LIMIT 12").all()).results || [];
+  const s = await env.DB.prepare("SELECT COUNT(*) n, AVG(note) m FROM avis WHERE statut = 'publie'").first();
+  const res = json({ ok: true, nb: s.n || 0, moyenne: s.n ? Math.round(s.m * 10) / 10 : null, avis: rows.map((r) => ({ note: r.note, commentaire: r.commentaire, nom: r.nom, commerce: r.commerce, date: (r.publie_at || '').slice(0, 10) })) });
+  res.headers.set('cache-control', 'public, max-age=300');
+  return res;
+}
+const VUE_OK = /^\/(?:[a-z0-9-]+(?:\/[a-z0-9-]+)?)?$/;
+const VUE_EXCLUES = new Set(['/admin', '/espace', '/connexion', '/inscription', '/reinitialiser', '/mot-de-passe-oublie', '/desinscription']);
+async function vue(req, env, url) {
+  if (req.method !== 'POST') return json({ ok: false }, 405);
+  if (req.headers.get('dnt') === '1' || req.headers.get('sec-gpc') === '1') return json({ ok: true, ignore: true });
+  if (/bot|crawl|spider|headless|preview|monitor/i.test(req.headers.get('user-agent') || '')) return json({ ok: true, ignore: true });
+  const { b, err } = await readJson(req, url, 300); if (err) return err;
+  const page = typeof b.p === 'string' ? b.p.split('?')[0].replace(/\/+$/, '') || '/' : '';
+  if (!VUE_OK.test(page) || VUE_EXCLUES.has(page)) return json({ ok: true, ignore: true });
+  try {
+    await ensureSchema(env);
+    await env.DB.prepare('INSERT INTO vues (jour, page, n) VALUES (?,?,1) ON CONFLICT(jour, page) DO UPDATE SET n = n + 1').bind(parisToday(), page).run();
+  } catch (_) { return json({ ok: false }, 500); }
+  return json({ ok: true });
+}
+
+// ---------- Administration : à traiter, tâches, suivi, parcours, avis, visites, sauvegarde ----------
+const TABLES_SAUVEGARDE = ['comptes', 'demandes', 'abonnements', 'modifs', 'plaintes', 'notifications', 'communications', 'journal', 'reservations', 'contenus', 'retours_apercu', 'dossier', 'taches', 'suivi', 'resiliations', 'parrains', 'parrainages', 'credits', 'avis', 'vues'];
+const TABLES_LOURDES = ['medias', 'dossier_fichiers'];
+const V2_ADMIN = new Set(['/api/admin/atraiter', '/api/admin/taches', '/api/admin/parcours', '/api/admin/fichier', '/api/admin/avis', '/api/admin/visites', '/api/admin/sauvegarde', '/api/admin/tache', '/api/admin/tache-fait', '/api/admin/tache-suppr', '/api/admin/suivi', '/api/admin/retour-traite', '/api/admin/resiliation-statut', '/api/admin/avis-statut', '/api/admin/credit-utilise', '/api/admin/parrain-appliquer']);
+async function adminV2(req, env, url, p, me, one, all) {
+  await ensureSchema(env);
+  const num = (v) => { const n = parseInt(v, 10); return Number.isFinite(n) ? n : 0; };
+  const txt = (v, n) => (typeof v === 'string' ? v.trim().slice(0, n) : '');
+  const today = parisToday();
+  const client = async (id) => one("SELECT id, nom FROM comptes WHERE id = ? AND role != 'admin'", id);
+  if (req.method === 'GET') {
+    if (p === '/api/admin/atraiter') {
+      await expirerParrainages(env);
+      const items = [];
+      const add = (niveau, cle, titre, detail, c, date) => items.push({ niveau, cle, titre, detail, compte_id: c ? c.compte_id : null, nom: c ? c.nom : '', date: date || '' });
+      const dems = await all("SELECT d.id, d.compte_id, d.commerce, d.statut, d.created_at, c.nom, (SELECT valeur FROM dossier x WHERE x.compte_id = d.compte_id AND x.cle = '_termine') termine, (SELECT MAX(created_at) FROM journal j WHERE j.compte_id = d.compte_id AND j.type = 'site_statut' AND j.detail = 'apercu') apercu_le, (SELECT type FROM retours_apercu r WHERE r.demande_id = d.id AND r.type = 'valide' LIMIT 1) valide FROM demandes d JOIN comptes c ON c.id = d.compte_id WHERE d.id IN (SELECT MAX(id) FROM demandes GROUP BY compte_id) AND d.statut IN ('nouvelle','en_creation','apercu')");
+      for (const d of dems) {
+        const c = { compte_id: d.compte_id, nom: d.nom }, nomC = d.commerce || d.nom;
+        if (d.statut === 'nouvelle') {
+          if (d.termine) { const pv = joursOuvres(d.termine, DELAI_JOURS_OUVRES); add(pv < today ? 'urgent' : 'normal', 'dossier_complet', 'Dossier complet : créer le site de ' + nomC, (pv < today ? 'En retard : l’aperçu était promis pour le ' : 'Aperçu à livrer avant le ') + pv.split('-').reverse().join('/'), c, d.termine); }
+          else add('normal', 'nouvelle', 'Nouvelle demande : ' + nomC, 'Dossier du client pas encore complet. Contactez-le si besoin.', c, d.created_at);
+        } else if (d.statut === 'en_creation') {
+          if (d.termine) { const pv = joursOuvres(d.termine, DELAI_JOURS_OUVRES); add(pv < today ? 'urgent' : 'normal', 'creation', 'Site en création : ' + nomC, (pv < today ? 'En retard : aperçu promis le ' : 'Aperçu à livrer avant le ') + pv.split('-').reverse().join('/'), c, d.termine); }
+        } else if (d.statut === 'apercu') {
+          if (d.valide) add('urgent', 'mettre_en_ligne', 'Aperçu validé : mettre en ligne ' + nomC, 'Le client a validé son aperçu.', c, d.apercu_le);
+          else if (d.apercu_le) {
+            const j = ecartJours(d.apercu_le, today);
+            if (j >= 15) add('urgent', 'relance15', 'Aperçu sans réponse depuis ' + j + ' jours : ' + nomC, 'Délai de 15 jours dépassé (CGV article 6) : voir la clause après relance.', c, d.apercu_le);
+            else if (j >= 5) add('normal', 'relance', 'Relancer le client : ' + nomC, 'Aperçu envoyé il y a ' + j + ' jours, sans réponse.', c, d.apercu_le);
+          }
+        }
+      }
+      for (const r of await all("SELECT r.id, r.compte_id, r.message, r.created_at, c.nom, d.commerce FROM retours_apercu r JOIN comptes c ON c.id = r.compte_id LEFT JOIN demandes d ON d.id = r.demande_id WHERE r.type = 'changements' AND r.statut = 'a_traiter'")) add('urgent', 'ajustements', 'Ajustements demandés : ' + (r.commerce || r.nom), r.message, { compte_id: r.compte_id, nom: r.nom }, r.created_at);
+      for (const m of await all("SELECT m.id, m.compte_id, m.type, m.description, m.created_at, c.nom FROM modifs m JOIN comptes c ON c.id = m.compte_id WHERE m.statut = 'demandee' ORDER BY m.id")) add('normal', 'modif', 'Modification demandée (' + m.type + ')', m.description, { compte_id: m.compte_id, nom: m.nom }, m.created_at);
+      for (const r of await all("SELECT r.compte_id, r.motif, r.effet, r.created_at, c.nom FROM resiliations r JOIN comptes c ON c.id = r.compte_id WHERE r.statut = 'demandee'")) add('urgent', 'resiliation', 'Résiliation demandée', 'Motif : ' + (r.motif || 'non précisé') + '. Prend effet le ' + r.effet.split('-').reverse().join('/') + '.', { compte_id: r.compte_id, nom: r.nom }, r.created_at);
+      for (const x of await all("SELECT p.compte_id, p.sujet, p.created_at, c.nom FROM plaintes p JOIN comptes c ON c.id = p.compte_id WHERE p.statut != 'resolue'")) add('urgent', 'plainte', 'Réclamation ouverte', x.sujet, { compte_id: x.compte_id, nom: x.nom }, x.created_at);
+      for (const a of await all("SELECT a.compte_id, c.nom FROM abonnements a JOIN comptes c ON c.id = a.compte_id WHERE a.statut = 'impaye'")) add('urgent', 'impaye', 'Impayé', 'L’abonnement est en impayé : relancer le client.', { compte_id: a.compte_id, nom: a.nom }, '');
+      for (const s of await all("SELECT s.compte_id, s.rappel_le, s.motif, c.nom FROM suivi s JOIN comptes c ON c.id = s.compte_id WHERE s.rappel_le IS NOT NULL AND s.rappel_le != '' AND s.rappel_le <= ?", today)) add(s.rappel_le < today ? 'urgent' : 'normal', 'rappel', 'À rappeler', s.motif || 'Rappel prévu le ' + s.rappel_le.split('-').reverse().join('/'), { compte_id: s.compte_id, nom: s.nom }, s.rappel_le);
+      for (const t of await all("SELECT t.id, t.compte_id, t.titre, t.detail, t.echeance, c.nom FROM taches t LEFT JOIN comptes c ON c.id = t.compte_id WHERE t.fait = 0 AND (t.echeance IS NULL OR t.echeance = '' OR t.echeance <= ?) ORDER BY t.id", today)) { add(t.echeance && t.echeance < today ? 'urgent' : 'normal', 'tache', t.titre, t.detail || '', t.compte_id ? { compte_id: t.compte_id, nom: t.nom } : null, t.echeance || ''); }
+      for (const a of await all("SELECT a.compte_id, a.note, a.commerce, c.nom, a.created_at FROM avis a JOIN comptes c ON c.id = a.compte_id WHERE a.statut = 'en_attente'")) add('normal', 'avis', 'Avis à modérer (' + a.note + '/5)', a.commerce || '', { compte_id: a.compte_id, nom: a.nom }, a.created_at);
+      const ord = { urgent: 0, normal: 1 };
+      items.sort((x, y) => ord[x.niveau] - ord[y.niveau]);
+      return json({ ok: true, aujourdhui: today, urgents: items.filter((i) => i.niveau === 'urgent').length, items });
+    }
+    if (p === '/api/admin/taches') {
+      const cid = num(url.searchParams.get('compte_id'));
+      const rows = cid ? await all('SELECT id, compte_id, titre, detail, echeance, fait, created_at, fait_at FROM taches WHERE compte_id = ? ORDER BY fait, id DESC LIMIT 200', cid)
+        : await all('SELECT t.id, t.compte_id, t.titre, t.detail, t.echeance, t.fait, t.created_at, t.fait_at, c.nom FROM taches t LEFT JOIN comptes c ON c.id = t.compte_id ORDER BY t.fait, t.id DESC LIMIT 300');
+      return json({ ok: true, taches: rows });
+    }
+    if (p === '/api/admin/parcours') {
+      const id = num(url.searchParams.get('compte_id'));
+      if (!(await client(id))) return json({ ok: false }, 404);
+      const d = await one('SELECT id, statut FROM demandes WHERE compte_id = ? ORDER BY id DESC LIMIT 1', id);
+      const dos = await dossierDe(env, id), code = await codeDe(env, id);
+      return json({ ok: true, dossier: dos, manquants: manquants(dos).map((k) => DOSSIER_LIBELLES[k]), fichiers: await all('SELECT id, categorie, nom, mime, taille, created_at FROM dossier_fichiers WHERE compte_id = ? ORDER BY id', id),
+        retours: await all('SELECT id, type, message, statut, created_at FROM retours_apercu WHERE compte_id = ? ORDER BY id DESC LIMIT 20', id),
+        resiliations: await all('SELECT id, motif, message, effet, decale, statut, created_at FROM resiliations WHERE compte_id = ? ORDER BY id DESC LIMIT 10', id),
+        suivi: (await one('SELECT rappel_le, motif FROM suivi WHERE compte_id = ?', id)) || { rappel_le: '', motif: '' },
+        parrainage: { code, filleuls: await all('SELECT p.statut, p.created_at, c.nom, c.id compte_id FROM parrainages p JOIN comptes c ON c.id = p.filleul_id WHERE p.parrain_id = ? ORDER BY p.id DESC', id), parrain: await one('SELECT p.code, p.statut, p.parrain_id, c.nom FROM parrainages p JOIN comptes c ON c.id = p.parrain_id WHERE p.filleul_id = ?', id), credits: await all('SELECT id, mois, origine, utilise_at, expire_at, created_at FROM credits WHERE compte_id = ? ORDER BY id DESC', id) },
+        avis: await one('SELECT id, note, commentaire, statut FROM avis WHERE compte_id = ?', id), demande: d });
+    }
+    if (p === '/api/admin/fichier') { const id = num(url.searchParams.get('id')); return id ? envoiFichier(env, id, null) : json({ ok: false }, 400); }
+    if (p === '/api/admin/avis') return json({ ok: true, avis: await all('SELECT id, compte_id, note, commentaire, nom, commerce, statut, created_at, publie_at FROM avis ORDER BY id DESC LIMIT 200') });
+    if (p === '/api/admin/visites') {
+      return json({ ok: true, jours: await all("SELECT jour, SUM(n) n FROM vues WHERE jour >= date('now','-30 days') GROUP BY jour ORDER BY jour"), pages: await all("SELECT page, SUM(n) n FROM vues WHERE jour >= date('now','-30 days') GROUP BY page ORDER BY n DESC LIMIT 15"),
+        total30: ((await one("SELECT COALESCE(SUM(n),0) n FROM vues WHERE jour >= date('now','-30 days')")) || {}).n || 0, total7: ((await one("SELECT COALESCE(SUM(n),0) n FROM vues WHERE jour >= date('now','-7 days')")) || {}).n || 0 });
+    }
+    if (p === '/api/admin/sauvegarde') {
+      const lourd = url.searchParams.get('medias') === '1', tables = {};
+      for (const t of TABLES_SAUVEGARDE.concat(lourd ? TABLES_LOURDES : [])) {
+        try { tables[t] = await all('SELECT * FROM ' + t + ' LIMIT 100000'); } catch (_) { tables[t] = null; }
+      }
+      await log(env, null, me.id, 'sauvegarde', lourd ? 'avec fichiers' : 'données');
+      const res = new Response(JSON.stringify({ ok: true, version: 2, genere_le: new Date().toISOString(), contient_fichiers: lourd, tables }), { headers: { 'content-type': 'application/json; charset=utf-8', 'content-disposition': 'attachment; filename="sauvegarde-devanture-web-' + today + '.json"', 'cache-control': 'no-store', ...SEC } });
+      return res;
+    }
+    return null;
+  }
+  if (req.method !== 'POST') return null;
+  const { b, err } = await readJson(req, url, 4000); if (err) return err;
+  if (p === '/api/admin/tache') {
+    const titre = txt(b.titre, 140), cid = num(b.compte_id) || null;
+    if (!titre) return json({ ok: false, error: 'titre' }, 422);
+    if (cid && !(await client(cid))) return json({ ok: false }, 404);
+    const ech = typeof b.echeance === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(b.echeance) ? b.echeance : null;
+    const r = await env.DB.prepare('INSERT INTO taches (compte_id, titre, detail, echeance) VALUES (?,?,?,?)').bind(cid, titre, txt(b.detail, 800), ech).run();
+    return json({ ok: true, id: r.meta.last_row_id });
+  }
+  if (p === '/api/admin/tache-fait') {
+    await env.DB.prepare("UPDATE taches SET fait = ?, fait_at = CASE WHEN ? = 1 THEN datetime('now') ELSE NULL END WHERE id = ?").bind(b.fait ? 1 : 0, b.fait ? 1 : 0, num(b.id)).run();
+    return json({ ok: true });
+  }
+  if (p === '/api/admin/tache-suppr') { await env.DB.prepare('DELETE FROM taches WHERE id = ?').bind(num(b.id)).run(); return json({ ok: true }); }
+  if (p === '/api/admin/suivi') {
+    const cid = num(b.compte_id); if (!(await client(cid))) return json({ ok: false }, 404);
+    const r = typeof b.rappel_le === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(b.rappel_le) ? b.rappel_le : '';
+    await env.DB.prepare("INSERT INTO suivi (compte_id, rappel_le, motif, updated_at) VALUES (?,?,?,datetime('now')) ON CONFLICT(compte_id) DO UPDATE SET rappel_le = excluded.rappel_le, motif = excluded.motif, updated_at = excluded.updated_at").bind(cid, r, txt(b.motif, 200)).run();
+    return json({ ok: true });
+  }
+  if (p === '/api/admin/retour-traite') {
+    const r = await one('SELECT id, compte_id, type, statut FROM retours_apercu WHERE id = ?', num(b.id)); if (!r) return json({ ok: false }, 404);
+    await env.DB.prepare("UPDATE retours_apercu SET statut = 'traite', traite_at = datetime('now') WHERE id = ?").bind(r.id).run();
+    if (r.type === 'changements' && r.statut === 'a_traiter') await notifier(env, r.compte_id, 'Ajustements effectués', 'Vos ajustements ont été appliqués. Regardez à nouveau l’aperçu, puis validez-le ou demandez d’autres changements.');
+    await log(env, r.compte_id, me.id, 'retour_traite', r.type);
+    return json({ ok: true });
+  }
+  if (p === '/api/admin/resiliation-statut') {
+    if (!['traitee', 'refusee', 'demandee'].includes(b.statut)) return json({ ok: false }, 422);
+    const r = await one('SELECT id, compte_id FROM resiliations WHERE id = ?', num(b.id)); if (!r) return json({ ok: false }, 404);
+    await env.DB.prepare("UPDATE resiliations SET statut = ?, traite_at = CASE WHEN ? = 'demandee' THEN NULL ELSE datetime('now') END WHERE id = ?").bind(b.statut, b.statut, r.id).run();
+    await log(env, r.compte_id, me.id, 'resiliation_' + b.statut, '');
+    return json({ ok: true });
+  }
+  if (p === '/api/admin/avis-statut') {
+    if (!['publie', 'refuse', 'en_attente'].includes(b.statut)) return json({ ok: false }, 422);
+    await env.DB.prepare("UPDATE avis SET statut = ?, publie_at = CASE WHEN ? = 'publie' THEN datetime('now') ELSE NULL END WHERE id = ?").bind(b.statut, b.statut, num(b.id)).run();
+    return json({ ok: true });
+  }
+  if (p === '/api/admin/credit-utilise') {
+    await env.DB.prepare("UPDATE credits SET utilise_at = CASE WHEN ? = 1 THEN datetime('now') ELSE NULL END WHERE id = ?").bind(b.utilise ? 1 : 0, num(b.id)).run();
+    return json({ ok: true });
+  }
+  if (p === '/api/admin/parrain-appliquer') {
+    const cid = num(b.compte_id); if (!(await client(cid))) return json({ ok: false }, 404);
+    const r = await appliquerParrain(env, cid, b.code);
+    return json(r, r.ok ? 200 : 422);
+  }
+  return null;
+}
+
 export default {
   async fetch(req, env) {
     const url = new URL(req.url);
@@ -812,6 +1266,8 @@ export default {
     if (p === '/api/mot-de-passe-oublie') return oubli(req, env, url);
     if (p === '/api/reinitialiser') return reinitialiser(req, env, url);
     if (p === '/api/demande') return demande(req, env, url);
+    if (p === '/api/avis' && req.method === 'GET') return avisPublics(req, env);
+    if (p === '/api/vue') return vue(req, env, url);
     if (p === '/api/reservation') return reservation(req, env, url);
     if (p === '/api/inscription/config') return inscriptionConfig(env);
     if (p === '/api/inscription/code') return inscriptionCode(req, env, url);

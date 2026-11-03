@@ -334,6 +334,7 @@
       $('#c-n').textContent = tot;
       $('#c-n2').textContent = tot > 1 ? 'adresses mail pro' : 'adresse mail pro';
       $('#c-m').textContent = m.toLocaleString('fr-FR');
+      var tt = (Math.round(m * 1.2 * 100) / 100).toLocaleString('fr-FR'); var c1 = $('#c-ttc'); if (c1) c1.textContent = tt; var c2 = $('#c-ttc2'); if (c2) c2.textContent = tt + ' €';
       $('#c-basel').textContent = pro ? 'Formule Pro (1 mail et réservation inclus)' : 'Formule Essentiel';
       $('#c-base').textContent = base + ' €';
       $('#c-maill').textContent = pro ? 'Mails en plus de la 1re' : 'Options mail';
@@ -470,6 +471,7 @@
   }
   if (sf) {
     wire(sf);
+    try { var pq = new URLSearchParams(location.search).get('parrain'); if (pq && sf.elements.parrain) sf.elements.parrain.value = pq.slice(0, 9).toUpperCase(); } catch (_) {}
     var sbad = $('#s-bad'), sbtn = sf.querySelector('button[type=submit]');
     sf.addEventListener('submit', function (e) {
       e.preventDefault(); sbad.classList.remove('on');
@@ -479,7 +481,7 @@
       var cbox = $('#codebox'), cin = sf.elements.code, lbl = sbtn.querySelector('.lbl');
       var create = function () {
         busy(sbtn, true);
-        var o = { nom: sf.elements.nom.value.trim(), email: sf.elements.email.value.trim(), password: sf.elements.password.value, cgv: sf.elements.cgv.checked, site_web_url: sf.elements.site_web_url.value, code: cin ? cin.value.trim() : '' };
+        var o = { nom: sf.elements.nom.value.trim(), email: sf.elements.email.value.trim(), password: sf.elements.password.value, cgv: sf.elements.cgv.checked, site_web_url: sf.elements.site_web_url.value, code: cin ? cin.value.trim() : '', parrain: sf.elements.parrain ? sf.elements.parrain.value.trim() : '' };
         api('/api/inscription', 'POST', o).then(function (r) { busy(sbtn, false); done(r); }).catch(function () { busy(sbtn, false); bad(sbad, 'Connexion impossible pour le moment. Vérifiez votre réseau puis réessayez.'); });
       };
       var sendCode = function (again) {
@@ -506,7 +508,7 @@
       }
       return;
       function done(r) {
-        if (r.s === 200 && r.j.ok) { location.href = NEXT; }
+        if (r.s === 200 && r.j.ok) { try { if (r.j.parrain) sessionStorage.setItem('dw-parrain', r.j.parrain); } catch (_) {} location.href = NEXT; }
         else if ((r.s === 422 || r.s === 409) && r.j.errors) {
           Object.keys(r.j.errors).forEach(function (k) { var f = sf.elements[k]; if (f) setErr(f, r.j.errors[k]); });
           bad(sbad, r.s === 409 ? 'Un compte existe déjà avec cette adresse. Connectez-vous.' : 'Certains champs ne sont pas valides. Vérifiez les messages en rouge.');
@@ -574,6 +576,7 @@
     api('/api/moi', 'GET').then(function (r) {
       if (r.s === 200 && r.j.ok) {
         df.style.visibility = '';
+        try { var pr = sessionStorage.getItem('dw-parrain'); if (pr) { sessionStorage.removeItem('dw-parrain'); var PM = { ok: 'Code de parrainage enregistré : un mois offert au démarrage de votre abonnement.', inconnu: 'Ce code de parrainage n’existe pas. Vous pourrez le ressaisir dans votre espace, rubrique Parrainage.', inactif: 'Ce code n’est pas utilisable pour le moment. Vous pourrez le ressaisir plus tard dans votre espace, rubrique Parrainage.', deja: 'Un code de parrainage est déjà enregistré.', soi: 'Vous ne pouvez pas utiliser votre propre code.', client: 'Les codes sont réservés aux nouveaux clients.' }; setTimeout(function () { toast(PM[pr] || 'Le code de parrainage n’a pas pu être appliqué.'); }, 700); } } catch (_) {}
         if (!df.elements.nom.value) df.elements.nom.value = r.j.nom || '';
         if (!df.elements.email.value) df.elements.email.value = r.j.email || '';
         var who = document.createElement('p'); who.className = 'sub'; who.style.marginBottom = '14px';
@@ -584,4 +587,19 @@
       } else location.replace('/inscription' + location.search);
     }).catch(function () { df.style.visibility = ''; });
   }
+  /* avis publiés : la section n'apparaît que s'il existe de vrais avis */
+  var al = $('#avis-liste');
+  if (al) fetch('/api/avis').then(function (r) { return r.json(); }).then(function (j) {
+    if (!j || !j.ok || !j.nb) return;
+    $('#avis').hidden = false;
+    $('#avis-moy').textContent = j.moyenne.toLocaleString('fr-FR') + ' sur 5 · ' + j.nb + ' avis de clients';
+    j.avis.forEach(function (a) {
+      var f = document.createElement('figure'); f.className = 'avis-c';
+      var st = document.createElement('p'); st.className = 'st'; st.setAttribute('role', 'img'); st.setAttribute('aria-label', a.note + ' sur 5'); st.textContent = '★★★★★'.slice(0, a.note) + '☆☆☆☆☆'.slice(0, 5 - a.note); f.appendChild(st);
+      if (a.commentaire) { var q = document.createElement('blockquote'); q.textContent = '« ' + a.commentaire + ' »'; f.appendChild(q); }
+      var c = document.createElement('figcaption'), b = document.createElement('b'); b.textContent = a.nom; c.appendChild(b); if (a.commerce) c.appendChild(document.createTextNode(', ' + a.commerce)); f.appendChild(c); al.appendChild(f);
+    });
+  }).catch(function () {});
+  /* mesure de fréquentation : un compteur par page et par jour, sans cookie ni identifiant, "Ne pas me suivre" respecté */
+  try { if (navigator.doNotTrack !== '1' && !/^\/(admin|espace)/.test(location.pathname)) fetch('/api/vue', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ p: location.pathname }), keepalive: true }).catch(function () {}); } catch (_) {}
 })();
