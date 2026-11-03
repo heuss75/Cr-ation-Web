@@ -205,8 +205,20 @@ input:focus,select:focus,textarea:focus{border-color:var(--ink);outline:none}
 .incl b{display:block}
 .incl span{color:var(--muted);font-size:15px}
 .note{margin-top:18px;padding:18px 20px;border-radius:16px;background:var(--soft);font-size:15px;display:grid;gap:8px}
-.steps{counter-reset:s;display:grid;gap:0;margin-top:36px;grid-template-columns:minmax(0,1fr)}
-@media(min-width:820px){.steps{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:56px}}
+.steps{counter-reset:s;display:grid;gap:0;margin-top:36px;grid-template-columns:minmax(0,1fr);max-width:820px}
+.bn-grid{display:grid;gap:16px;margin-top:34px;grid-template-columns:minmax(0,1fr)}
+@media(min-width:640px){.bn-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:1000px){.bn-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.bn{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:24px;display:flex;flex-direction:column;gap:8px;transition:transform .2s,box-shadow .2s,border-color .2s}
+.bn:hover{transform:translateY(-3px);box-shadow:0 14px 34px rgba(0,0,0,.08);border-color:var(--ink)}
+.bi{width:48px;height:48px;border-radius:14px;background:var(--ink);color:var(--bg,#fff);display:grid;place-items:center;margin-bottom:6px}
+.bi .ic{width:24px;height:24px}
+.bn h3{font:600 1.15rem/1.25 var(--display);letter-spacing:-.015em}
+.bn h3 em{font:600 11px var(--mono);font-style:normal;text-transform:uppercase;letter-spacing:.06em;background:color-mix(in srgb,var(--ink) 10%,transparent);border-radius:99px;padding:3px 9px;margin-left:6px;vertical-align:middle;white-space:nowrap}
+.bn p{color:var(--muted);font-size:15px;line-height:1.55}
+.bn-end{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px;justify-content:center}
+.steps,.steps{grid-template-columns:minmax(0,1fr)!important;max-width:820px}
+
 .steps li{display:grid;grid-template-columns:44px minmax(0,1fr);gap:14px;padding:22px 0;border-top:1px solid var(--line)}
 .steps li::before{counter-increment:s;content:counter(s,decimal-leading-zero);font:500 14px var(--mono);color:var(--muted);padding-top:4px}
 .steps b{display:block;font:600 1.2rem/1.2 var(--display);letter-spacing:-.015em;margin-bottom:4px}
@@ -432,7 +444,7 @@ footer span.l{display:flex;gap:20px;flex-wrap:wrap}
 
     <section class="wrap" aria-label="Nos engagements">
       <div class="proof">
-        <div><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg><span>Livraison sous<br><b>5 jours ouvrés</b></span></div>
+        <div><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg><span>Mise en ligne<br><b>express</b></span></div>
         <div><svg class="ic" aria-hidden="true"><use href="#i-euro"/></svg><span><b>Dès 60 € HT/mois</b> (72 € TTC)<br>(engagement 12 mois)</span></div>
         <div><svg class="ic" aria-hidden="true"><use href="#i-pencil"/></svg><span><b>1 modification</b><br>par mois incluse</span></div>
         <div><svg class="ic" aria-hidden="true"><use href="#i-headset"/></svg><span>Un accompagnement<br><b>simple et humain</b></span></div>
@@ -532,7 +544,7 @@ footer span.l{display:flex;gap:20px;flex-wrap:wrap}
   <section class="sec" id="etapes">
     <p class="eyebrow">Comment ça marche</p>
     <h2>De la commande à la mise en ligne en 8 étapes</h2>
-    <p class="lede">Livraison sous 5 jours ouvrés après réception de tous vos contenus. Le délai est affiché dans votre espace client.</p>
+    <p class="lede">Un parcours simple et rapide, que vous suivez pas à pas dans votre espace client.</p>
     <ol class="steps">
       <li><div><b>Vous créez votre compte</b><span>Un e-mail et un mot de passe : le compte est nécessaire pour faire une demande.</span></div></li>
       <li><div><b>Vous regardez les exemples ou nous communiquez vos envies</b><span>Vous voyez de vrais sites et la grille de prix, ou vous nous décrivez ce que vous imaginez.</span></div></li>
@@ -546,43 +558,11 @@ footer span.l{display:flex;gap:20px;flex-wrap:wrap}
   </section>
 
   <section class="sec" id="apres">
-    <p class="eyebrow">Après la livraison</p>
-    <h2>Vous suivez tout, vous savez quoi faire ensuite</h2>
-    <div class="after-grid">
-      <div class="card">
-        <span class="tag">Exemple d’espace client</span>
-        <h3>Où en est ma commande ?</h3>
-        <ol class="track">
-          <li class="done"><span>Commande reçue</span><time>lun. 26</time></li>
-          <li class="done"><span>Contenus validés</span><time>mar. 27</time></li>
-          <li class="done"><span>Site en création</span><time>mer. 28</time></li>
-          <li class="now"><span>Aperçu prêt</span><time>ven. 30</time></li>
-          <li><span>En ligne</span><time>à venir</time></li>
-        </ol>
-        <div class="kpis">
-          <div><b>3 nov.</b><span>livraison prévue</span></div>
-          <div><b>1 sur 1</b><span>modification ce mois-ci</span></div>
-          <div><b>11 mois</b><span>d’engagement restants</span></div>
-        </div>
-        <p class="sub viewsite"><b>Votre site sera visible en cliquant sur « Voir mon site »</b> dans votre espace, une fois connecté.</p>
-      </div>
-      <div class="card">
-        <span class="tag">Guide pub</span>
-        <h3>8 chapitres, adaptés à votre métier</h3>
-        <p class="sub">Cases à cocher et modèles à copier, pré-remplis avec votre nom, votre adresse et le lien de votre site.</p>
-        <ol class="chap">
-          <li><em>1</em>Les 10 premiers jours<small>checklist</small></li>
-          <li><em>2</em>Fiche Google Business<small>pas à pas</small></li>
-          <li><em>3</em>Avis clients<small>message et QR code</small></li>
-          <li><em>4</em>Réseaux sociaux<small>modèles de posts</small></li>
-          <li><em>5</em>Supports papier<small>à imprimer</small></li>
-          <li><em>6</em>Publicité en ligne<small>pas à pas</small></li>
-          <li><em>7</em>Référencement local<small>checklist</small></li>
-          <li><em>8</em>Suivre ses résultats<small>exemples</small></li>
-        </ol>
-        <p class="sub" style="margin-top:14px">Le guide est une aide. Aucun résultat de visites, de classement ou de ventes n’est promis.</p>
-      </div>
-    </div>
+    <p class="eyebrow">Votre site</p>
+    <h2>Un site qui travaille pour vous, pendant que vous travaillez</h2>
+    <p class="lede">Plus qu’une page sur internet : une vitrine soignée, un espace client pour tout suivre, et une équipe derrière. Voici ce que vous avez, concrètement.</p>
+    <div class="bn-grid"><article class="bn"><span class="bi"><svg class="ic" aria-hidden="true"><use href="#i-globe"/></svg></span><h3>Une vitrine ouverte 24 h sur 24</h3><p>Pendant que vous servez vos clients, votre site répond aux autres : horaires, adresse, tarifs, bouton d’appel et itinéraire en un clic.</p></article><article class="bn"><span class="bi"><svg class="ic" aria-hidden="true"><use href="#i-monitor"/></svg></span><h3>Beau sur tous les écrans</h3><p>Téléphone, tablette, ordinateur : vos textes et vos photos sont mis en forme à la main, pour donner envie d’entrer.</p></article><article class="bn"><span class="bi"><svg class="ic" aria-hidden="true"><use href="#i-cloud"/></svg></span><h3>Votre commande, suivie en direct</h3><p>Dans votre espace client, vous voyez chaque étape : demande reçue, création, aperçu, mise en ligne. Rien à deviner.</p></article><article class="bn"><span class="bi"><svg class="ic" aria-hidden="true"><use href="#i-euro"/></svg></span><h3>Vos factures, toujours sous la main</h3><p>Toutes vos factures sont disponibles en ligne, à tout moment, en HT et en TTC, prêtes à imprimer pour votre comptable.</p></article><article class="bn"><span class="bi"><svg class="ic" aria-hidden="true"><use href="#i-pencil"/></svg></span><h3>Votre site évolue avec vous <em>Selon la formule</em></h3><p>Un prix, une photo, un horaire qui change : demandez-le à notre équipe, ou, avec la formule Pro, modifiez tout vous-même en direct.</p></article><article class="bn"><span class="bi"><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg></span><h3>Des clients qui réservent seuls <em>Pro</em></h3><p>Avec le Pro, vos clients choisissent leur prestation, leur jour et leur créneau, et vous retrouvez tout dans votre agenda.</p></article><article class="bn"><span class="bi"><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg></span><h3>Vous voyez qui passe</h3><p>Les visites de votre site s’affichent dans votre tableau de bord : vous savez si votre vitrine attire du monde.</p></article><article class="bn"><span class="bi"><svg class="ic" aria-hidden="true"><use href="#i-book"/></svg></span><h3>Un guide pour faire venir vos clients</h3><p>Un guide simple et adapté à votre métier vous accompagne après la mise en ligne, pour que votre site serve vraiment.</p></article><article class="bn"><span class="bi"><svg class="ic" aria-hidden="true"><use href="#i-headset"/></svg></span><h3>Une vraie équipe à vos côtés</h3><p>Une question, une modification, un souci ? Vous écrivez depuis votre espace, une vraie personne vous répond.</p></article></div>
+    <p class="bn-end"><a class="btn" href="/commander">Créer mon site<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a><a class="btn ghost" href="#prix">Voir les formules</a></p>
   </section>
 
   <section class="sec" id="avis" hidden aria-labelledby="avis-t">

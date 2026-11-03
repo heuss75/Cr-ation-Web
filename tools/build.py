@@ -331,7 +331,7 @@ offre_body = phead("Offre et prix", "Deux formules, tout compris",
   <ol class="tline">
     <li><span class="when">Jour 0</span><div><b>Vous faites votre demande</b><span class="d">Sans engagement ni paiement. Nous vous répondons pour valider les détails.</span></div></li>
     <li><span class="when">Validation</span><div><b>Vous acceptez les conditions et réglez le premier mois</b><span class="d">Le contrat est formé à ce moment-là.</span></div></li>
-    <li><span class="when">+ 5 jours ouvrés</span><div><b>Votre aperçu est prêt</b><span class="d">Le délai commence quand tous vos contenus sont reçus. Vous demandez vos ajustements, puis vous validez.</span></div></li>
+    <li><span class="when">Création</span><div><b>Votre aperçu est prêt</b><span class="d">Dès que nous avons tous vos contenus, nous créons votre site rapidement. Vous demandez vos ajustements, puis vous validez.</span></div></li>
     <li><span class="when">Mise en ligne</span><div><b>Votre site est en ligne</b><span class="d">Nous branchons votre nom de domaine. Les 12 mois d’engagement démarrent. Vous recevez le guide pub.</span></div></li>
     <li><span class="when">Chaque mois</span><div><b>Vous modifiez ce que vous voulez</b><span class="d">Un texte, une photo ou un bloc, depuis votre espace client, avec retour en arrière possible.</span></div></li>
     <li><span class="when">Mois 10</span><div><b>Vous recevez un rappel</b><span class="d">60 jours avant l’échéance, pour décider : continuer, ou résilier avec 30 jours de préavis.</span></div></li>
@@ -374,7 +374,7 @@ for cat, qid, q, a in FAQ:
                  % (qid, cat, html.escape(q), label, a))
 chips = '<button type="button" class="chip" data-cat="all" aria-pressed="true">Toutes</button>' + "".join(
     '<button type="button" class="chip" data-cat="%s" aria-pressed="false">%s</button>' % (c, l) for c, l in CATS)
-faq_body = phead("FAQ", "Questions fréquentes", "Prix, délais, modifications, nom de domaine, résiliation, données : les réponses, classées par thème.") + """
+faq_body = phead("FAQ", "Questions fréquentes", "Prix, modifications, nom de domaine, résiliation, données : les réponses, classées par thème.") + """
 <div class="wrap">
   <div class="faqtools">
     <div class="fsearch">""" + icon("search") + """<input type="search" id="qfilter" placeholder="Filtrer les questions : domaine, prix, résiliation…" aria-label="Filtrer les questions" autocomplete="off"></div>
@@ -397,7 +397,7 @@ ld = {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [
     {"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": BeautifulSoup(a, "html.parser").get_text(" ", strip=True)}}
     for _, _, q, a in FAQ]}
 ldjs = '<script type="application/ld+json">%s</script>\n' % json.dumps(ld, ensure_ascii=False).replace("</", "<\\/")
-page("faq", "FAQ", "Les réponses aux questions fréquentes : prix, délais, modifications, nom de domaine, résiliation, données personnelles.", faq_body, cur="faq", head_extra=ldjs)
+page("faq", "FAQ", "Les réponses aux questions fréquentes : prix, modifications, nom de domaine, résiliation, données personnelles.", faq_body, cur="faq", head_extra=ldjs)
 
 # ------------------------------------------------------------------ commander
 def field(name, label, kind="text", req=False, auto="", hint="", extra="", ph=""):
@@ -425,18 +425,21 @@ cmd_body = phead("Demande", "Demandez votre site", "Quelques informations suffis
     """ + field("commerce", "Nom de votre commerce", req=True, auto="organization", extra=' minlength="2" maxlength="80"') + """
   </div>
   <div class="fgrid two">
-    <div class="field"><label for="f-activite">Votre activité</label>
-      <select id="f-activite" name="activite" data-req aria-required="true" aria-describedby="activite-e">
-        <option value="">Choisir…</option><option value="coiffeur">Coiffeur</option><option value="restaurant">Restaurant</option><option value="artisan">Artisan du bâtiment</option><option value="therapeute">Thérapeute, bien-être</option><option value="coach">Coach sportif</option><option value="boutique">Boutique de quartier</option><option value="autre">Autre</option>
-      </select><p class="errmsg" id="activite-e" role="alert"></p></div>
-    """ + field("ville", "Ville", req=True, auto="address-level2", extra=' minlength="2" maxlength="60"') + """
+    <div class="field"><label for="f-metier">Votre activité</label>
+      <div class="cb"><input id="f-metier" name="metier" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="cb-metier" aria-describedby="metier-e metier-h" autocomplete="off" data-req aria-required="true" minlength="2" maxlength="60" placeholder="Ex. : coiffeur, boulangerie, plombier…" data-cb="metiers"><ul id="cb-metier" class="cbl" role="listbox" hidden></ul></div>
+      <small class="h" id="metier-h">Tapez quelques lettres : plus de 250 métiers proposés. Le vôtre n’y est pas ? Décrivez-le avec vos mots.</small>
+      <input type="hidden" name="activite" value="autre"><p class="errmsg" id="metier-e" role="alert"></p></div>
+    <div class="field"><label for="f-ville">Ville</label>
+      <div class="cb"><input id="f-ville" name="ville" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="cb-ville" aria-describedby="ville-e ville-h" autocomplete="off" data-req aria-required="true" minlength="2" maxlength="60" placeholder="Ex. : Lyon, Paris 15e Arrondissement…" data-cb="villes"><ul id="cb-ville" class="cbl" role="listbox" hidden></ul></div>
+      <small class="h" id="ville-h">Toutes les villes de France, avec leurs arrondissements : tapez les premières lettres.</small><p class="errmsg" id="ville-e" role="alert"></p></div>
   </div>
   <div class="field"><label for="f-formule">Formule</label>
     <select id="f-formule" name="formule" data-req aria-required="true" aria-describedby="formule-e"><option value="essentiel">Essentiel · 60 € HT (72 € TTC) par mois</option><option value="pro">Pro · 100 € HT (120 € TTC) par mois (réservation en ligne)</option></select><p class="errmsg" id="formule-e" role="alert"></p></div>
   <div class="fgrid two">
     """ + field("domaine", "Nom de domaine souhaité", hint="Par exemple : maisonolive ou maisonolive.fr. Nous vérifions la disponibilité.", extra=' maxlength="70" autocapitalize="none" spellcheck="false"') + """
-    <div class="field"><label for="f-mails">Adresses mail pro <span class="opt">(4 € HT (4,80 € TTC) par mois chacune, la 1ʳᵉ incluse en Pro)</span></label>
-      <select id="f-mails" name="mails" aria-describedby="mails-e"><option value="0">Aucune</option><option value="1">1 adresse</option><option value="2">2 adresses</option><option value="3">3 adresses</option><option value="4">4 adresses</option><option value="5">5 adresses</option></select><p class="errmsg" id="mails-e" role="alert"></p></div>
+    <div class="field"><label for="f-mails">Adresses mail pro <span class="opt">(facultatif)</span></label>
+      <select id="f-mails" name="mails" aria-describedby="mails-e mails-h"><option value="0">Aucune</option><option value="1">1 adresse</option><option value="2">2 adresses</option><option value="3">3 adresses</option><option value="4">4 adresses</option><option value="5">5 adresses</option></select>
+      <small class="h" id="mails-h">4 € HT (4,80 € TTC) par mois et par adresse, la 1ʳᵉ incluse avec le Pro.</small><p class="errmsg" id="mails-e" role="alert"></p></div>
   </div>
   <div class="field"><label for="f-message">Un mot sur votre projet <span class="opt">(facultatif)</span></label>
     <textarea id="f-message" name="message" maxlength="1000" aria-describedby="message-e message-h" placeholder="Votre activité, ce que vous attendez du site, vos échéances…"></textarea>
@@ -451,7 +454,7 @@ cmd_body = phead("Demande", "Demandez votre site", "Quelques informations suffis
   <h2 style="margin:0;max-width:18ch">Merci, c’est bien reçu.</h2>
   <p>Votre numéro de demande :</p>
   <p><span class="ref" id="d-ref">—</span> <button type="button" class="cbtn" id="d-ref-btn" data-copy="">""" + icon("copy") + """<span class="lbl">Copier</span></button></p>
-  <p>Gardez-le pour toute question. Nous vous répondons sous 2 jours ouvrés pour valider les détails. <strong>Aucun paiement n’a été demandé.</strong></p>
+  <p>Gardez-le pour toute question. Nous vous répondons rapidement pour valider les détails. <strong>Aucun paiement n’a été demandé.</strong></p>
   <p style="display:flex;gap:12px;flex-wrap:wrap"><a class="btn" href="/espace">Mon espace</a><a class="btn ghost" href="/offre">Voir l’abonnement</a></p>
 </div>
 </div>
@@ -581,9 +584,11 @@ ADMIN_HTML = """<!doctype html>
 <button type="button" id="n-abo">""" + _ic("M17 1l4 4-4 4M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 0 1-4 4H3") + """Abonnements</button>
 <button type="button" id="n-rev">""" + _ic("M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6") + """Revenus</button>
 <button type="button" id="n-com">""" + _ic("M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM22 6l-10 7L2 6") + """Communication</button>
+<button type="button" id="n-parr">""" + _ic("M16 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 18.5V20M10 12a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM20 20v-1.5a3.5 3.5 0 0 0-2.5-3.3M15.5 5.2a3.5 3.5 0 0 1 0 6.6") + """Parrainage</button>
 <button type="button" id="n-avis">""" + _ic("M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z") + """Avis</button>
 <button type="button" id="n-outils">""" + _ic("M3 3v18h18M7 15l4-4 3 3 5-6") + """Visites et sauvegarde</button>
 <button type="button" id="n-mdp">""" + _ic("M21 2l-2 2m-7.6 7.6a5.5 5.5 0 1 1-7.8 7.8 5.5 5.5 0 0 1 7.8-7.8zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4") + """Mot de passe</button>
+<button type="button" id="n-lit">""" + _ic("M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z") + """Litiges<span class="cnt" id="c-lit"></span></button>
 </nav>
 <div class="sp"></div>
 <nav class="nav"><a href="/" target="_blank" rel="noopener">""" + _ic("M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3") + """Voir le site</a>

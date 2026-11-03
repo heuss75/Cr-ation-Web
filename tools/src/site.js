@@ -235,7 +235,7 @@
   }
   function suggestions() {
     return '<p class="sempty">Essayez : </p><div class="sugg">' +
-      ['prix', 'modification', 'nom de domaine', 'résilier', 'délai', 'mail pro', 'cookies'].map(function (s) {
+      ['prix', 'modification', 'nom de domaine', 'résilier', 'mail pro', 'cookies'].map(function (s) {
         return '<button type="button" class="chip" data-q="' + esc(s) + '">' + esc(s) + '</button>';
       }).join('') + '</div>';
   }
@@ -393,6 +393,71 @@
   }
   function busy(btn, on) { btn.disabled = on; btn.classList.toggle('busy', on); }
 
+
+  /* ----- saisie assistée : métiers et villes (liste chargée à la première utilisation) ----- */
+  var NORM = function (t) { return String(t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[’'\-_,.]/g, ' ').replace(/\s+/g, ' ').trim(); };
+  var GRANDES = 'paris marseille lyon toulouse nice nantes montpellier strasbourg bordeaux lille rennes reims saint etienne le havre toulon grenoble dijon angers nimes villeurbanne clermont ferrand le mans aix en provence brest tours amiens limoges annecy perpignan boulogne billancourt metz besancon orleans rouen mulhouse caen nancy saint denis argenteuil roubaix tourcoing montreuil avignon dunkerque poitiers pau calais la rochelle cannes antibes ajaccio bastia'.split(' ');
+  var DATA = {};
+  function loadList(kind) {
+    if (DATA[kind]) return DATA[kind];
+    DATA[kind] = fetch('/assets/' + kind + '.json').then(function (r) { if (!r.ok) throw new Error('liste'); return r.json(); }).then(function (a) {
+      return a.map(function (x) { var p = Array.isArray(x) ? x : x.split('|'); return { label: p[0], extra: p[1] || '', cat: Array.isArray(x) ? x[1] : '', n: NORM(p[0]) }; });
+    }).catch(function () { DATA[kind] = null; return []; });
+    return DATA[kind];
+  }
+  function suggest(list, q, kind) {
+    var nq = NORM(q); if (!nq) return [];
+    var starts = [], inside = [];
+    for (var i = 0; i < list.length; i++) {
+      var it = list[i], k = it.n.indexOf(nq);
+      if (k === 0) starts.push(it); else if (k > 0 && (it.n.charAt(k - 1) === ' ')) inside.push(it);
+      if (starts.length > 400 && kind === 'villes') break;
+    }
+    var big = function (it) { var f = it.n.split(' ')[0]; return GRANDES.indexOf(f) >= 0 && it.n.split(' ').length <= 3 ? 0 : 1; };
+    starts.sort(function (a, b) { return (big(a) - big(b)) || (a.n.length - b.n.length) || (a.n < b.n ? -1 : 1); });
+    inside.sort(function (a, b) { return (a.n.length - b.n.length) || (a.n < b.n ? -1 : 1); });
+    return starts.concat(inside).slice(0, 8);
+  }
+  function combobox(input, kind, onPick) {
+    var ul = document.getElementById(input.getAttribute('aria-controls')), cur = [], idx = -1, seq = 0;
+    function close() { ul.hidden = true; input.setAttribute('aria-expanded', 'false'); input.removeAttribute('aria-activedescendant'); idx = -1; }
+    function paint() {
+      ul.textContent = '';
+      cur.forEach(function (it, i) {
+        var li = document.createElement('li'); li.setAttribute('role', 'option'); li.id = ul.id + '-' + i; li.setAttribute('aria-selected', i === idx ? 'true' : 'false');
+        var b = document.createElement('span'); b.textContent = it.label; li.appendChild(b);
+        if (kind === 'villes' && it.extra) { var s2 = document.createElement('small'); s2.textContent = it.extra; li.appendChild(s2); }
+        li.addEventListener('mousedown', function (e) { e.preventDefault(); pick(it); });
+        ul.appendChild(li);
+      });
+      ul.hidden = !cur.length; input.setAttribute('aria-expanded', cur.length ? 'true' : 'false');
+      if (idx >= 0) input.setAttribute('aria-activedescendant', ul.id + '-' + idx); else input.removeAttribute('aria-activedescendant');
+    }
+    function pick(it) { input.value = it.label; close(); if (onPick) onPick(it); input.dispatchEvent(new Event('input', { bubbles: true })); }
+    function update() { var my = ++seq; loadList(kind).then(function (list) { if (my !== seq) return; cur = suggest(list, input.value, kind); idx = -1; paint(); }); }
+    input.addEventListener('input', update);
+    input.addEventListener('focus', function () { loadList(kind); if (input.value) update(); });
+    input.addEventListener('blur', function () { setTimeout(close, 120); });
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowDown') { if (ul.hidden) { update(); } else if (cur.length) { idx = (idx + 1) % cur.length; paint(); } e.preventDefault(); }
+      else if (e.key === 'ArrowUp') { if (cur.length) { idx = (idx - 1 + cur.length) % cur.length; paint(); } e.preventDefault(); }
+      else if (e.key === 'Enter') { if (!ul.hidden && idx >= 0) { e.preventDefault(); pick(cur[idx]); } }
+      else if (e.key === 'Escape') { if (!ul.hidden) { close(); e.stopPropagation(); } }
+    });
+  }
+  function catDe(label) {
+    var n = NORM(label); if (!DATA.metiers_ok) return 'autre';
+    var f = DATA.metiers_ok.filter(function (x) { return x.n === n; })[0]; return f ? f.cat : 'autre';
+  }
+  (function () {
+    var m = document.getElementById('f-metier'), v = document.getElementById('f-ville'); if (!m || !v) return;
+    var hid = m.form.elements.activite;
+    loadList('metiers').then(function (l) { DATA.metiers_ok = l; });
+    combobox(m, 'metiers', function (it) { hid.value = it.cat || 'autre'; });
+    m.addEventListener('input', function () { hid.value = catDe(m.value); });
+    combobox(v, 'villes');
+  })();
+
   var df = $('#demande');
   if (df) {
     wire(df);
@@ -407,7 +472,7 @@
       var v = vals();
       $('#cf-nom').textContent = v.nom; $('#cf-mail').textContent = v.email;
       $('#cf-com').textContent = v.commerce + ' (' + v.ville + ')';
-      $('#cf-act').textContent = df.elements.activite.options[df.elements.activite.selectedIndex].text;
+      $('#cf-act').textContent = df.elements.metier.value.trim();
       $('#cf-formule').textContent = df.elements.formule.options[df.elements.formule.selectedIndex].text;
       $('#cf-mails').textContent = v.mails ? v.mails + ' adresse(s) mail pro' : 'aucune';
       if (cdlg.showModal) cdlg.showModal(); else cdlg.setAttribute('open', '');

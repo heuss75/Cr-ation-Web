@@ -25,7 +25,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,700&family=Playfair+Display:ital,wght@1,600&family=Geist+Mono:wght@400;500&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@600;800&family=Caveat:wght@600;700&family=Barlow+Condensed:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Anton&family=Fraunces:opsz,wght@9..144,500;9..144,700&display=swap">
-<link rel="stylesheet" href="/assets/site.css?v=f05d07ee">
+<link rel="stylesheet" href="/assets/site.css?v=b7306e92">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
@@ -122,18 +122,21 @@
     <div class="field"><label for="f-commerce">Nom de votre commerce</label><input id="f-commerce" name="commerce" type="text" autocomplete="organization" data-req aria-required="true" aria-describedby="commerce-e" minlength="2" maxlength="80"><p class="errmsg" id="commerce-e" role="alert"></p></div>
   </div>
   <div class="fgrid two">
-    <div class="field"><label for="f-activite">Votre activité</label>
-      <select id="f-activite" name="activite" data-req aria-required="true" aria-describedby="activite-e">
-        <option value="">Choisir…</option><option value="coiffeur">Coiffeur</option><option value="restaurant">Restaurant</option><option value="artisan">Artisan du bâtiment</option><option value="therapeute">Thérapeute, bien-être</option><option value="coach">Coach sportif</option><option value="boutique">Boutique de quartier</option><option value="autre">Autre</option>
-      </select><p class="errmsg" id="activite-e" role="alert"></p></div>
-    <div class="field"><label for="f-ville">Ville</label><input id="f-ville" name="ville" type="text" autocomplete="address-level2" data-req aria-required="true" aria-describedby="ville-e" minlength="2" maxlength="60"><p class="errmsg" id="ville-e" role="alert"></p></div>
+    <div class="field"><label for="f-metier">Votre activité</label>
+      <div class="cb"><input id="f-metier" name="metier" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="cb-metier" aria-describedby="metier-e metier-h" autocomplete="off" data-req aria-required="true" minlength="2" maxlength="60" placeholder="Ex. : coiffeur, boulangerie, plombier…" data-cb="metiers"><ul id="cb-metier" class="cbl" role="listbox" hidden></ul></div>
+      <small class="h" id="metier-h">Tapez quelques lettres : plus de 250 métiers proposés. Le vôtre n’y est pas ? Décrivez-le avec vos mots.</small>
+      <input type="hidden" name="activite" value="autre"><p class="errmsg" id="metier-e" role="alert"></p></div>
+    <div class="field"><label for="f-ville">Ville</label>
+      <div class="cb"><input id="f-ville" name="ville" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="cb-ville" aria-describedby="ville-e ville-h" autocomplete="off" data-req aria-required="true" minlength="2" maxlength="60" placeholder="Ex. : Lyon, Paris 15e Arrondissement…" data-cb="villes"><ul id="cb-ville" class="cbl" role="listbox" hidden></ul></div>
+      <small class="h" id="ville-h">Toutes les villes de France, avec leurs arrondissements : tapez les premières lettres.</small><p class="errmsg" id="ville-e" role="alert"></p></div>
   </div>
   <div class="field"><label for="f-formule">Formule</label>
     <select id="f-formule" name="formule" data-req aria-required="true" aria-describedby="formule-e"><option value="essentiel">Essentiel · 60 € HT (72 € TTC) par mois</option><option value="pro">Pro · 100 € HT (120 € TTC) par mois (réservation en ligne)</option></select><p class="errmsg" id="formule-e" role="alert"></p></div>
   <div class="fgrid two">
     <div class="field"><label for="f-domaine">Nom de domaine souhaité <span class="opt">(facultatif)</span></label><input id="f-domaine" name="domaine" type="text" aria-describedby="domaine-e domaine-h" maxlength="70" autocapitalize="none" spellcheck="false"><small class="h" id="domaine-h">Par exemple : maisonolive ou maisonolive.fr. Nous vérifions la disponibilité.</small><p class="errmsg" id="domaine-e" role="alert"></p></div>
-    <div class="field"><label for="f-mails">Adresses mail pro <span class="opt">(4 € HT (4,80 € TTC) par mois chacune, la 1ʳᵉ incluse en Pro)</span></label>
-      <select id="f-mails" name="mails" aria-describedby="mails-e"><option value="0">Aucune</option><option value="1">1 adresse</option><option value="2">2 adresses</option><option value="3">3 adresses</option><option value="4">4 adresses</option><option value="5">5 adresses</option></select><p class="errmsg" id="mails-e" role="alert"></p></div>
+    <div class="field"><label for="f-mails">Adresses mail pro <span class="opt">(facultatif)</span></label>
+      <select id="f-mails" name="mails" aria-describedby="mails-e mails-h"><option value="0">Aucune</option><option value="1">1 adresse</option><option value="2">2 adresses</option><option value="3">3 adresses</option><option value="4">4 adresses</option><option value="5">5 adresses</option></select>
+      <small class="h" id="mails-h">4 € HT (4,80 € TTC) par mois et par adresse, la 1ʳᵉ incluse avec le Pro.</small><p class="errmsg" id="mails-e" role="alert"></p></div>
   </div>
   <div class="field"><label for="f-message">Un mot sur votre projet <span class="opt">(facultatif)</span></label>
     <textarea id="f-message" name="message" maxlength="1000" aria-describedby="message-e message-h" placeholder="Votre activité, ce que vous attendez du site, vos échéances…"></textarea>
@@ -148,7 +151,7 @@
   <h2 style="margin:0;max-width:18ch">Merci, c’est bien reçu.</h2>
   <p>Votre numéro de demande :</p>
   <p><span class="ref" id="d-ref">—</span> <button type="button" class="cbtn" id="d-ref-btn" data-copy=""><svg class="ic" aria-hidden="true"><use href="#i-copy"/></svg><span class="lbl">Copier</span></button></p>
-  <p>Gardez-le pour toute question. Nous vous répondons sous 2 jours ouvrés pour valider les détails. <strong>Aucun paiement n’a été demandé.</strong></p>
+  <p>Gardez-le pour toute question. Nous vous répondons rapidement pour valider les détails. <strong>Aucun paiement n’a été demandé.</strong></p>
   <p style="display:flex;gap:12px;flex-wrap:wrap"><a class="btn" href="/espace">Mon espace</a><a class="btn ghost" href="/offre">Voir l’abonnement</a></p>
 </div>
 </div>
@@ -207,7 +210,7 @@
   </form>
 </dialog>
 
-<script>window.SITE={v:"f05d07ee",email:""};</script>
-<script src="/assets/site.js?v=f05d07ee" defer></script>
+<script>window.SITE={v:"b7306e92",email:""};</script>
+<script src="/assets/site.js?v=b7306e92" defer></script>
 </body>
 </html>

@@ -109,8 +109,8 @@ def mk(E):
 <p>L’abonnement est conclu pour une durée initiale de <strong>12 mois</strong> à compter de la mise en ligne du site. Il est ensuite reconduit tacitement par périodes successives de 12 mois, sauf résiliation par le Client dans les conditions de l’article 17.</p>
 <p>L’Éditeur adresse au Client un rappel écrit au plus tard 60 jours avant chaque échéance. Si le Client est une personne non professionnelle au sens de l’article L215-1 du Code de la consommation, ce rappel est envoyé entre trois mois et un mois avant la fin de la période de non-reconduction, et mentionne la possibilité de ne pas reconduire.</p>
 
-<h2 id="art-6">Article 6. Délai de livraison et mise en ligne</h2>
-<p>Le site est livré sous <strong>5 jours ouvrés à compter de la réception de tous les contenus nécessaires</strong> (textes, photos, horaires, tarifs, coordonnées, choix du nom de domaine). Ce délai est indicatif et se décompte à partir d’un dossier complet : tout retard du Client à fournir ou valider les éléments suspend le délai d’autant.</p>
+<h2 id="art-6">Article 6. Livraison et mise en ligne</h2>
+<p>L’Éditeur crée le site <strong>rapidement, à compter de la réception de tous les contenus nécessaires</strong> (textes, photos, horaires, tarifs, coordonnées, choix du nom de domaine). La création commence à partir d’un dossier complet : tout retard du Client à fournir ou valider les éléments décale d’autant la livraison.</p>
 <p>Un aperçu est mis à disposition du Client, qui formule ses demandes d’ajustement avant de valider. Le site est mis en ligne après la validation du Client. À défaut de réponse du Client dans un délai de 15 jours après l’envoi de l’aperçu et d’une relance, la période d’abonnement et la facturation débutent à la date de cette relance.</p>
 
 <h2 id="art-7">Article 7. Obligations du Client</h2>
@@ -142,7 +142,7 @@ def mk(E):
 <h2 id="art-11b">Article 11 bis. Formule Pro : réservation en ligne</h2>
 <p>La formule Pro comprend un module de réservation en ligne intégré au site du Client : le visiteur choisit une prestation, un jour et un créneau disponible, et laisse ses coordonnées. Un créneau réservé n’est plus proposé. Les réservations sont consultables dans l’agenda de l’espace client.</p>
 <ul>
-<li>L’Éditeur paramètre, à partir des informations fournies par le Client, les prestations, leurs durées et les horaires d’ouverture ; l’activation de la réservation intervient dans les 2 jours ouvrés suivant la validation du site. Les modifications ultérieures des prestations et horaires comptent comme une modification au sens de l’article 9.</li>
+<li>L’Éditeur paramètre, à partir des informations fournies par le Client, les prestations, leurs durées et les horaires d’ouverture ; l’activation de la réservation intervient rapidement après la validation du site. Les modifications ultérieures des prestations et horaires comptent comme une modification au sens de l’article 9.</li>
 <li>Ne sont pas compris : le paiement ou l’acompte en ligne, les rappels par SMS, la synchronisation avec un agenda externe et toute fonctionnalité non décrite ci-dessus, qui peuvent faire l’objet d’un devis.</li>
 <li>Le Client reste responsable de l’honneur des rendez-vous, de ses conditions d’annulation et de l’information de ses propres clients. Pour les données personnelles de ces clients (nom, téléphone), le Client est responsable de traitement et l’Éditeur son sous-traitant, comme prévu à l’article 14.</li>
 <li>Le Client peut passer de la formule Essentiel à la formule Pro à tout moment, avec effet au début du mois suivant ; une nouvelle période d’engagement de 12 mois court alors à compter de ce changement. Le passage du Pro à l’Essentiel n’est possible qu’à l’échéance de la période en cours.</li>
