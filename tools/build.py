@@ -651,46 +651,15 @@ nf = """<div class="wrap"><div class="notfound"><p class="crumb">Erreur 404</p><
 <p style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap"><a class="btn" href="/">Retour à l’accueil</a><button type="button" class="btn ghost" data-search>""" + icon("search") + """Rechercher</button></p></div></div>"""
 page("404", "Page introuvable", "Cette page n’existe pas.", nf)
 
-# ------------------------------------------------------------------ démo réservation
-SERVICES = [("coupe-femme", "Coupe femme", "1 h", "38 €"), ("coupe-homme", "Coupe homme", "30 min", "24 €"),
-            ("couleur", "Couleur", "1 h 30", "70 €"), ("brushing", "Brushing", "30 min", "20 €")]
-svc_html = "".join('<label class="svc"><input type="radio" name="svc" value="%s"%s><span><b>%s</b><small>%s · %s</small></span></label>'
-                   % (k, " checked" if i == 0 else "", n, d, p) for i, (k, n, d, p) in enumerate(SERVICES))
-resa_body = phead("Démo", "Réservation en ligne", "Voici ce que vos clients voient avec la formule Pro. Essayez : choisissez une prestation, un jour, un créneau. Le créneau pris n’est plus proposé aux suivants.") + """
+# ------------------------------------------------------------------ démo réservation (renvoi vers le site d'exemple du client)
+resa_body = phead("Réservation en ligne", "La réservation se trouve sur le site de votre client",
+    "Avec la formule Pro, l’outil de réservation fait partie du site du commerçant : ses clients réservent sur son site, et lui gère son planning et ses statistiques depuis ce même site, avec un accès protégé. Rien ne passe par Devanture Web.") + """
 <div class="wrap" style="padding-bottom:72px">
-<div class="alert warn on" style="display:flex;margin-bottom:18px" role="note">""" + icon("help") + """<span><b>Démonstration.</b> Ne saisissez pas de vraies données : un prénom fictif suffit. Les réservations de test sont supprimées au bout de 24 heures. Le salon « Atelier Capucine » est imaginaire.</span></div>
-<div class="tabs2" role="tablist" aria-label="Vue">
-  <button type="button" role="tab" id="t-client" aria-selected="true" aria-controls="p-client">Vue de votre client</button>
-  <button type="button" role="tab" id="t-agenda" aria-selected="false" aria-controls="p-agenda" tabindex="-1">Votre agenda (exemple)</button>
+<div class="grid2" style="display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
+  <div class="card"><h3>Ce que voient les clients du restaurant</h3><p>Réservation en 4 étapes : type de table, nombre de convives, date, midi ou soir, horaires libres. Les créneaux déjà pris sont barrés.</p><p style="margin-top:14px"><a class="btn" href="/exemples/bistro-reservation-client">Voir l’espace réservation client""" + icon("arrow") + """</a></p></div>
+  <div class="card"><h3>Ce que voit le restaurateur</h3><p>Planning du midi et du soir, liste du jour, nombre de réservations et de personnes, statistiques par jour, par période et par tranche horaire.</p><p style="margin-top:14px"><a class="btn" href="/exemples/bistro-reservation-interne">Voir l’espace réservation interne""" + icon("arrow") + """</a></p></div>
 </div>
-<div id="p-client" role="tabpanel" aria-labelledby="t-client" class="resa">
-  <form id="resa" novalidate>
-    <fieldset class="rstep"><legend><span class="n">1</span> Prestation</legend><div class="svcs">""" + svc_html + """</div></fieldset>
-    <fieldset class="rstep"><legend><span class="n">2</span> Jour</legend><div class="days" id="r-days" role="group" aria-label="Jours disponibles"></div></fieldset>
-    <fieldset class="rstep"><legend><span class="n">3</span> Créneau</legend><p class="sub" id="r-slot-help">Choisissez d’abord un jour.</p><div class="slots" id="r-slots" role="group" aria-label="Créneaux disponibles"></div></fieldset>
-    <fieldset class="rstep"><legend><span class="n">4</span> Vos coordonnées</legend>
-      <div class="fgrid two">
-        <div class="field"><label for="r-nom">Prénom</label><input id="r-nom" name="nom" type="text" maxlength="40" autocomplete="given-name" aria-describedby="r-nom-e"><p class="errmsg" id="r-nom-e" role="alert"></p></div>
-        <div class="field"><label for="r-tel">Téléphone <span class="opt">(facultatif)</span></label><input id="r-tel" name="tel" type="tel" maxlength="20" autocomplete="tel" aria-describedby="r-tel-e"><p class="errmsg" id="r-tel-e" role="alert"></p></div>
-      </div>
-      <div class="hp" aria-hidden="true"><label>Ne pas remplir<input type="text" name="site_web_url" tabindex="-1" autocomplete="off"></label></div>
-    </fieldset>
-    <div class="alert bad" id="r-bad" role="alert" tabindex="-1">""" + icon("x") + """<span></span></div>
-    <p class="rsum" id="r-sum" aria-live="polite"></p>
-    <button class="btn" id="r-send" type="submit"><span class="lbl">Réserver ce créneau</span>""" + icon("loader", "ic spin") + """</button>
-  </form>
-  <div class="done" id="r-done" aria-live="polite">
-    <p class="eyebrow">Réservation enregistrée</p>
-    <h2 style="margin:0;max-width:20ch" id="r-done-t">C’est réservé.</h2>
-    <p id="r-done-p"></p>
-    <p>Numéro : <span class="ref" id="r-ref">—</span></p>
-    <p style="display:flex;gap:12px;flex-wrap:wrap"><button type="button" class="btn" id="r-again">Réserver un autre créneau</button><button type="button" class="btn ghost" id="r-see">Voir dans l’agenda</button></p>
-  </div>
-</div>
-<div id="p-agenda" role="tabpanel" aria-labelledby="t-agenda" class="resa" hidden>
-  <p class="sub">Exemple de ce que vous voyez dans votre espace client : les rendez-vous du jour, triés par heure. Les lignes en gris sont fictives ; votre réservation de test s’ajoute en haut quand vous en faites une.</p>
-  <ol class="agenda" id="ag-list"></ol>
-</div>
+<p class="sub" style="margin-top:22px">Les deux espaces font partie du site d’exemple « Le Bistro du Marché » (<a href="/exemples/bistro">ouvrir le site complet</a>). Tout y est fictif.</p>
 <div class="cta-band">
   <h2>La réservation fait gagner du temps</h2>
   <p>Fini les appels manqués : vos clients réservent seuls, à toute heure. Disponible avec la formule Pro, à 100 € HT par mois.</p>
@@ -698,8 +667,7 @@ resa_body = phead("Démo", "Réservation en ligne", "Voici ce que vos clients vo
 </div>
 </div>
 """
-page("reservation-demo", "Démo de réservation", "Essayez la réservation en ligne de la formule Pro : choix de la prestation, du jour et du créneau.", resa_body, cur="offre",
-     page_js='<script src="/assets/booking.js?v=%s" defer></script>\n' % VER)
+page("reservation-demo", "Réservation en ligne", "La réservation en ligne fait partie du site du commerçant : voyez l’exemple du restaurant, côté clients et côté restaurateur.", resa_body, cur="offre")
 
 # ------------------------------------------------------------------ index de recherche
 PAGES = [("index", "Accueil"), ("offre", "Offre et prix"), ("faq", "FAQ"), ("commander", "Commander"), ("inscription", "Inscription"), ("connexion", "Connexion"),

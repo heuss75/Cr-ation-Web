@@ -87,10 +87,20 @@
     out.appendChild(h('div', { class: 'dgrid' }, h('div', { class: 'dleft' }, site, avanc, h('div', { class: 'two' }, tiles, stats)), h('div', { class: 'dright' }, abo, act)));
     main.appendChild(out);
   }
+  function resaUrls() {
+    var d = D(), u = d && d.site_url; if (!u || !enLigne()) return null;
+    if (u === '/exemples/bistro') return { client: u + '-reservation-client', interne: u + '-reservation-interne' };
+    if (u.indexOf('/exemples/') === 0) return null;
+    var base = u.replace(/\/+$/, ''); return { client: base + '/reservation', interne: base + '/reservation/gestion' };
+  }
   function vResa() {
-    main.appendChild(head('Réservations', 'Les réservations de vos clients'));
-    if (E.formule === 'pro') main.appendChild(h('div', { class: 'card' }, h('h2', { text: 'Outil de réservation en ligne' }), h('p', { class: 'sub', text: 'Inclus dans votre formule Pro : vos clients réservent seuls, jour et nuit, sans double réservation.' }), h('p', { class: 'empty', text: 'Aucune réservation pour le moment. Elles apparaîtront ici dès que vos clients réserveront.' })));
-    else main.appendChild(h('div', { class: 'card' }, h('h2', { text: 'Passer à la formule Pro' }), h('p', { class: 'sub', text: '100 € HT par mois' }), checks(['Outil de réservation en ligne et agenda', '3 modifications par mois', '1 adresse mail pro incluse']), h('button', { type: 'button', class: 'btn', text: 'En parler avec nous', onclick: function () { go('aide'); } })));
+    main.appendChild(head('Réservations', 'Sur votre site, pas ici'));
+    if (E.formule !== 'pro') { main.appendChild(h('div', { class: 'card' }, h('h2', { text: 'Passer à la formule Pro' }), h('p', { class: 'sub', text: '100 € HT par mois' }), checks(['Outil de réservation en ligne et agenda, sur votre site', 'Statistiques de réservations', '3 modifications par mois', '1 adresse mail pro incluse']), h('button', { type: 'button', class: 'btn', text: 'En parler avec nous', onclick: function () { go('aide'); } }))); return; }
+    var U = resaUrls();
+    main.appendChild(h('div', { class: 'card' }, h('h2', { text: 'Votre outil de réservation est sur votre site' }),
+      h('p', { class: 'sub', text: 'Vos clients réservent directement sur votre site. Vous gérez votre planning et vos statistiques (nombre de réservations et de personnes, matin, midi, soir, par jour ou par période) depuis votre site, sur une page protégée. Elles ne sont pas dans cet espace.' }),
+      U ? h('div', { class: 'tools', style: 'flex-wrap:wrap;margin-top:12px' }, h('a', { class: 'btn', href: U.interne, target: '_blank', rel: 'noopener' }, 'Ouvrir mon planning et mes statistiques ', ico('ext', 16)), h('a', { class: 'btn ghost', href: U.client, target: '_blank', rel: 'noopener' }, 'Voir la page de réservation de mes clients ', ico('ext', 16)))
+        : h('p', { class: 'empty', text: 'Les liens apparaîtront ici dès que votre site sera en ligne.' })));
   }
   function msgNode(n) { return h('div', { class: 'msg' + (n.lu ? '' : ' nl') }, h('b', { text: n.titre }), h('p', { text: n.message }), h('small', { text: dt(n.created_at) })); }
   function vSite() {
