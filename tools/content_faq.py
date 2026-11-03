@@ -14,8 +14,8 @@ CATS = [
 FAQ = [
     # ---------- Offre et prix ----------
     ("offre", "prix", "Quel est le prix exact ?",
-     "<p>Deux formules, avec un engagement de 12 mois. <strong>Essentiel : 60 € HT par mois</strong> (720 € HT sur l’année). <strong>Pro : 100 € HT par mois</strong> (1 200 € HT sur l’année), avec la réservation en ligne et une adresse mail pro incluse. Il n’y a pas de frais de création à part : le site, le nom de domaine, l’hébergement, l’espace client et le guide pub sont compris dans les deux.</p>"
-     "<p>Chaque adresse mail professionnelle supplémentaire coûte <strong>4 € HT par mois</strong>. Vous pouvez simuler votre total sur la page <a href=\"/offre\">Offre et prix</a>.</p>"),
+     "<p>Deux formules, avec un engagement de 12 mois. <strong>Essentiel : 60 € HT (72 € TTC) par mois</strong> (720 € HT (864 € TTC) sur l’année). <strong>Pro : 100 € HT (120 € TTC) par mois</strong> (1 200 € HT (240 € TTC) sur l’année), avec la réservation en ligne et une adresse mail pro incluse. Il n’y a pas de frais de création à part : le site, le nom de domaine, l’hébergement, l’espace client et le guide pub sont compris dans les deux.</p>"
+     "<p>Chaque adresse mail professionnelle supplémentaire coûte <strong>4 € HT (4,80 € TTC) par mois</strong>. Vous pouvez simuler votre total sur la page <a href=\"/offre\">Offre et prix</a>.</p>"),
     ("offre", "essentiel-pro", "Quelle différence entre Essentiel et Pro ?",
      "<p>L’<strong>Essentiel</strong> est le site vitrine complet : site sur mesure, nom de domaine, hébergement, espace client, 1 modification par mois et guide pub.</p>"
      "<p>Le <strong>Pro</strong> ajoute un <strong>outil de réservation en ligne</strong> avec un agenda, un <strong>éditeur en libre-service</strong> pour changer vous-même textes, prix, horaires et photos, <strong>3 modifications par mois réalisées par nous</strong> au lieu d’une, et inclut <strong>1 adresse mail professionnelle</strong>. Il convient aux activités qui prennent des rendez-vous : coiffeur, esthétique, bien-être, coach, garage, restaurant.</p>"
@@ -35,7 +35,7 @@ FAQ = [
     ("offre", "engagement-12", "Pourquoi un engagement de 12 mois ?",
      "<p>Le nom de domaine se renouvelle à l’année, et la création du site demande du temps de notre côté. L’engagement de 12 mois permet de garder un prix mensuel bas et fixe. Le prix ne change pas pendant l’engagement.</p>"),
     ("offre", "ht-ttc", "Les prix sont-ils hors taxes ou toutes taxes comprises ?",
-     "<p>Les prix sont indiqués <strong>hors taxes (HT)</strong>. La TVA, si elle s’applique, est ajoutée et détaillée sur chaque facture.</p>"),
+     "<p>Nous indiquons les <strong>deux</strong> : le prix hors taxes (HT) et le prix toutes taxes comprises (TTC), avec une TVA à 20 %. Par exemple, l’Essentiel est à 60 € HT, soit 72 € TTC par mois. Le détail de la TVA figure sur chaque facture.</p>"),
     ("offre", "paiement", "Comment se règle l’abonnement ?",
      "<p>Le paiement est mensuel et d’avance, par carte bancaire ou prélèvement SEPA, via un prestataire de paiement sécurisé. Nous ne conservons jamais vos coordonnées bancaires. Le premier mois est réglé à la validation de votre commande. Les modalités exactes vous sont confirmées avant tout paiement.</p>"),
 
@@ -73,7 +73,7 @@ FAQ = [
     ("domaine", "domaine-existant", "J’ai déjà un nom de domaine, puis-je le garder ?",
      "<p>En général oui : nous relions votre domaine existant à votre nouveau site. Dans ce cas, il reste chez votre hébergeur actuel et son renouvellement reste à votre charge. Précisez-le dans la demande.</p>"),
     ("domaine", "mail-pro", "Comment fonctionne l’adresse mail professionnelle ?",
-     "<p>Elle coûte 4 € HT par mois et par adresse (la première est incluse dans la formule Pro), et suit la durée de votre abonnement (par exemple prenom@votresite.fr). La boîte est de taille limitée, pour un usage professionnel normal, sans envoi de masse. Un <a href=\"/guide-messagerie\">guide d’installation de la messagerie</a> vous explique comment la configurer sur iPhone, Android, Thunderbird ou Outlook, ou la lire depuis un navigateur. Il est fourni avec la formule Pro, et avec la formule Essentiel dès l’achat d’une adresse mail pro. Si vous résiliez, les adresses sont fermées après 30 jours pour vous laisser récupérer vos mails.</p>"),
+     "<p>Elle coûte 4 € HT (4,80 € TTC) par mois et par adresse (la première est incluse dans la formule Pro), et suit la durée de votre abonnement (par exemple prenom@votresite.fr). La boîte est de taille limitée, pour un usage professionnel normal, sans envoi de masse. Un <a href=\"/guide-messagerie\">guide d’installation de la messagerie</a> vous explique comment la configurer sur iPhone, Android, Thunderbird ou Outlook, ou la lire depuis un navigateur. Il est fourni avec la formule Pro, et avec la formule Essentiel dès l’achat d’une adresse mail pro. Si vous résiliez, les adresses sont fermées après 30 jours pour vous laisser récupérer vos mails.</p>"),
 
     # ---------- Technique ----------
     ("technique", "mobile", "Mon site sera-t-il lisible sur téléphone ?",
@@ -93,7 +93,7 @@ FAQ = [
     ("contrat", "reconduction", "Que se passe-t-il à la fin des 12 mois ?",
      "<p>L’abonnement est reconduit pour 12 mois, sauf si vous nous prévenez par écrit au moins 30 jours avant la date d’échéance. Vous recevez un rappel 60 jours avant. Le détail figure dans les <a href=\"/cgv\">conditions générales de vente</a>.</p>"),
     ("contrat", "resilier", "Comment résilier ?",
-     "<p>Par écrit (e-mail ou courrier), avec un préavis de 30 jours avant l’échéance des 12 mois. Un bouton de résiliation sera aussi proposé dans votre espace client.</p>"),
+     "<p>Par écrit (e-mail ou courrier), avec un préavis de 30 jours avant l’échéance des 12 mois. Un bouton de demande de résiliation est aussi proposé dans votre espace client, rubrique « Abonnement ».</p>"),
     ("contrat", "avant-terme", "Puis-je arrêter avant la fin des 12 mois ?",
      "<p>L’abonnement est un engagement de 12 mois : les mensualités restantes restent dues, sauf manquement grave de notre part. C’est le prix de la mensualité basse.</p>"),
     ("contrat", "fin-site", "Que devient mon site après la résiliation ?",

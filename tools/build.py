@@ -214,6 +214,12 @@ def page(slug, title, desc, body, cur=None, page_js="", head_extra="", mainclass
 <meta property="og:description" content="%(d)s">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="fr_FR">
+<meta property="og:site_name" content="Devanture Web">
+<meta property="og:image" content="%(base)s/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Devanture Web : le site de votre commerce, clé en main">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="%(base)s%(path)s">
 <script>%(init)s</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -273,13 +279,13 @@ hm = hm.replace("<h2>Ce qu’on nous demande souvent</h2>",
                 '<h2>Ce qu’on nous demande souvent</h2>\n    <p class="lede">Les réponses rapides. Les autres sont dans la <a href="/faq">FAQ complète</a>.</p>', 1)
 home_body = hm.replace("</main>", "")
 home_body = re.sub(r"^\s*<span id=\"haut\"></span>", "", home_body)
-page("index", "Accueil", "Votre commerce mérite d’être vu, même en ligne. Un joli site vitrine fait sur mesure : nom de domaine, hébergement, espace client et guide pub inclus. Dès 60 € HT par mois, avec réservation en ligne en formule Pro.",
+page("index", "Accueil", "Votre commerce mérite d’être vu, même en ligne. Un joli site vitrine fait sur mesure : nom de domaine, hébergement, espace client et guide pub inclus. Dès 60 € HT (72 € TTC) par mois, avec réservation en ligne en formule Pro.",
      home_body, cur="home", page_js='<script src="/assets/demo.js?v=%s" defer></script>\n' % VER,
      full_title="%s | Site vitrine pour commerçants" % SITE_NAME)
 
 # ------------------------------------------------------------------ offre
 offre_body = phead("Offre et prix", "Deux formules, tout compris",
-                   "Essentiel à 60 € HT par mois, Pro à 100 € HT par mois avec réservation en ligne et agenda. 12 mois d’engagement. Domaine, hébergement, espace client et guide pub compris.",
+                   "Essentiel à 60 € HT (72 € TTC) par mois, Pro à 100 € HT (120 € TTC) par mois avec réservation en ligne et agenda. 12 mois d’engagement. Domaine, hébergement, espace client et guide pub compris.",
                    '<div class="meta"><span>Mis à jour le <time datetime="%s">%s</time></span></div>' % (UPDATED_ISO, UPDATED_HUMAN)) + """
 <div class="wrap">
 <section class="sec" id="simulateur" style="padding-top:8px;padding-bottom:20px">
@@ -294,27 +300,28 @@ offre_body = phead("Offre et prix", "Deux formules, tout compris",
       <label for="mails" class="lab" style="display:block;margin-top:18px;font:500 11.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">Adresses mail professionnelles</label>
       <p style="font:700 1.6rem var(--display);margin:8px 0 6px"><span id="c-n">0</span> <span id="c-n2" style="font-weight:600;color:var(--muted);font-size:1rem">adresse mail pro</span></p>
       <input type="range" id="mails" min="0" max="10" step="1" value="0" aria-describedby="c-help">
-      <p id="c-help" class="sub">De 0 à 10 adresses. Chaque adresse coûte 4 € HT par mois ; la première est incluse dans la formule Pro.</p>
+      <p id="c-help" class="sub">De 0 à 10 adresses. Chaque adresse coûte 4 € HT (4,80 € TTC) par mois ; la première est incluse dans la formule Pro.</p>
     </div>
     <div class="out" aria-live="polite">
-      <div class="big-n"><span id="c-m">60</span> €<small>HT par mois</small></div>
+      <div class="big-n"><span id="c-m">60</span> €<small>HT par mois, soit <b id="c-ttc">72</b> € TTC</small></div>
       <div class="row2"><span id="c-basel">Formule Essentiel</span><b id="c-base">60 €</b></div>
       <div class="row2"><span id="c-maill">Options mail</span><b id="c-mail">0 €</b></div>
+      <div class="row2"><span>Total TTC par mois (TVA 20 %)</span><b id="c-ttc2">72 €</b></div>
     </div>
   </div>
-  <p class="sub" style="margin-top:12px">Montants hors taxes. La TVA, si elle s’applique, est ajoutée sur la facture.</p>
+  <p class="sub" style="margin-top:12px">Les prix sont indiqués hors taxes (HT) et toutes taxes comprises (TTC, TVA à 20 %). Le détail figure sur chaque facture.</p>
 </section>
 
 <section class="sec" id="contenu-offre" style="padding-top:40px;padding-bottom:20px">
   <p class="eyebrow">Ce que comprend l’abonnement</p>
   <h2>Inclus, en option, non inclus</h2>
   <div class="cmp">
-    <div class="card"><span class="tag">Inclus</span><h3>Essentiel · 60 € HT</h3><ul>
-      <li>Site vitrine sur mesure</li><li>Adapté au téléphone, tablette et ordinateur</li><li>Nom de domaine réservé et renouvelé chaque année</li><li>Hébergement et certificat HTTPS</li><li>Logo simple créé pour vous si vous n’en avez pas</li><li>Espace client de suivi</li><li>1 modification par mois, réalisée par nous sur demande</li><li>Relecture avant mise en ligne</li><li>Guide pub, 8 chapitres</li><li>Guide d’installation de la messagerie, fourni avec l’achat d’une adresse mail pro (4 € HT par mois)</li></ul></div>
-    <div class="card pro"><span class="tag">En plus, avec le Pro</span><h3>Pro · 100 € HT</h3><ul>
+    <div class="card"><span class="tag">Inclus</span><h3>Essentiel · 60 € HT (72 € TTC)</h3><ul>
+      <li>Site vitrine sur mesure</li><li>Adapté au téléphone, tablette et ordinateur</li><li>Nom de domaine réservé et renouvelé chaque année</li><li>Hébergement et certificat HTTPS</li><li>Logo simple créé pour vous si vous n’en avez pas</li><li>Espace client de suivi</li><li>1 modification par mois, réalisée par nous sur demande</li><li>Relecture avant mise en ligne</li><li>Guide pub, 8 chapitres</li><li>Guide d’installation de la messagerie, fourni avec l’achat d’une adresse mail pro (4 € HT (4,80 € TTC) par mois)</li></ul></div>
+    <div class="card pro"><span class="tag">En plus, avec le Pro</span><h3>Pro · 100 € HT (120 € TTC)</h3><ul>
       <li>Tout l’Essentiel</li><li>Éditeur en libre-service : textes, prix, horaires, photos</li><li>3 modifications par mois réalisées par nous</li><li>Outil de réservation en ligne : prestation, jour, créneau</li><li>Agenda dans l’espace client</li><li>1 adresse mail pro incluse, avec le guide d’installation de la messagerie</li><li>Prestations, durées et horaires paramétrés par nous</li></ul></div>
     <div class="card no"><span class="tag">Non inclus</span><h3>À prévoir à part</h3><ul>
-      <li>Publicité faite pour vous</li><li>Référencement payant</li><li>Logo élaboré et charte graphique</li><li>Boutique en ligne et paiement en ligne</li><li>Rappels par SMS</li><li>Refonte complète du design</li><li>Séance photo</li></ul><p class="sub" style="margin-top:12px">Mail pro supplémentaire : 4 € HT par mois et par adresse.</p></div>
+      <li>Publicité faite pour vous</li><li>Référencement payant</li><li>Logo élaboré et charte graphique</li><li>Boutique en ligne et paiement en ligne</li><li>Rappels par SMS</li><li>Refonte complète du design</li><li>Séance photo</li></ul><p class="sub" style="margin-top:12px">Mail pro supplémentaire : 4 € HT (4,80 € TTC) par mois et par adresse.</p></div>
   </div>
 </section>
 
@@ -356,7 +363,7 @@ offre_body = phead("Offre et prix", "Deux formules, tout compris",
 <div style="height:72px"></div>
 </div>
 """
-page("offre", "Offre et prix", "Les formules Essentiel (60 € HT par mois) et Pro (100 € HT par mois, avec réservation en ligne) en détail, 12 mois d’engagement, avec simulateur de prix.",
+page("offre", "Offre et prix", "Les formules Essentiel (60 € HT (72 € TTC) par mois) et Pro (100 € HT (120 € TTC) par mois, avec réservation en ligne) en détail, 12 mois d’engagement, avec simulateur de prix.",
      offre_body, cur="offre")
 
 # ------------------------------------------------------------------ FAQ
@@ -425,10 +432,10 @@ cmd_body = phead("Demande", "Demandez votre site", "Quelques informations suffis
     """ + field("ville", "Ville", req=True, auto="address-level2", extra=' minlength="2" maxlength="60"') + """
   </div>
   <div class="field"><label for="f-formule">Formule</label>
-    <select id="f-formule" name="formule" data-req aria-required="true" aria-describedby="formule-e"><option value="essentiel">Essentiel · 60 € HT par mois</option><option value="pro">Pro · 100 € HT par mois (réservation en ligne)</option></select><p class="errmsg" id="formule-e" role="alert"></p></div>
+    <select id="f-formule" name="formule" data-req aria-required="true" aria-describedby="formule-e"><option value="essentiel">Essentiel · 60 € HT (72 € TTC) par mois</option><option value="pro">Pro · 100 € HT (120 € TTC) par mois (réservation en ligne)</option></select><p class="errmsg" id="formule-e" role="alert"></p></div>
   <div class="fgrid two">
     """ + field("domaine", "Nom de domaine souhaité", hint="Par exemple : maisonolive ou maisonolive.fr. Nous vérifions la disponibilité.", extra=' maxlength="70" autocapitalize="none" spellcheck="false"') + """
-    <div class="field"><label for="f-mails">Adresses mail pro <span class="opt">(4 € HT par mois chacune, la 1ʳᵉ incluse en Pro)</span></label>
+    <div class="field"><label for="f-mails">Adresses mail pro <span class="opt">(4 € HT (4,80 € TTC) par mois chacune, la 1ʳᵉ incluse en Pro)</span></label>
       <select id="f-mails" name="mails" aria-describedby="mails-e"><option value="0">Aucune</option><option value="1">1 adresse</option><option value="2">2 adresses</option><option value="3">3 adresses</option><option value="4">4 adresses</option><option value="5">5 adresses</option></select><p class="errmsg" id="mails-e" role="alert"></p></div>
   </div>
   <div class="field"><label for="f-message">Un mot sur votre projet <span class="opt">(facultatif)</span></label>
@@ -476,6 +483,7 @@ signup_body = phead("Inscription", "Créez votre compte", "Un compte est nécess
   """ + pwfield("password", "Votre mot de passe (8 caractères minimum)", "new-password") + """
   """ + pwfield("password2", "Confirmez votre mot de passe", "new-password") + """
   """ + HP + """
+  <div class="field"><label for="f-parrain">Code de parrainage <span class="opt">(facultatif)</span></label><input id="f-parrain" name="parrain" type="text" maxlength="9" autocomplete="off" autocapitalize="characters" placeholder="DW-XXXXX" aria-describedby="parrain-h"><p class="hint" id="parrain-h">Un commerçant vous a parlé de nous ? Saisissez son code : un mois offert pour vous deux au démarrage de votre abonnement.</p></div>
   <div class="field codebox" id="codebox" hidden>
     <label for="f-code">Code de vérification</label>
     <input id="f-code" name="code" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" maxlength="6" aria-describedby="code-e code-h" placeholder="123456">
@@ -564,7 +572,8 @@ ADMIN_HTML = """<!doctype html>
 <aside class="side">
 <div class="brand"><i><svg width="22" height="22" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 20 12 8h40l4 12"/><path d="M8 20a6 6 0 0 0 12 0 6 6 0 0 0 12 0 6 6 0 0 0 12 0 6 6 0 0 0 12 0"/><path d="M12 33v23h40V33"/><path d="M26 56V42h12v14"/><path d="M41 38l11 4.5-4.6 1.8-1.8 4.7z" fill="#17C26E" stroke="#17C26E" stroke-width="1.5"/></svg></i><div><b>Devanture Web</b><small>Espace administrateur</small></div></div>
 <nav class="nav" aria-label="Administration">
-<button type="button" id="n-stats" aria-current="page">""" + _ic("M3 3v18h18M7 15l4-4 3 3 5-6") + """Tableau de bord</button>
+<button type="button" id="n-today" aria-current="page">""" + _ic("M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11") + """À traiter<span class="cnt" id="c-today"></span></button>
+<button type="button" id="n-stats">""" + _ic("M3 3v18h18M7 15l4-4 3 3 5-6") + """Tableau de bord</button>
 <button type="button" id="n-clients">""" + _ic("M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8") + """Clients</button>
 <button type="button" id="n-dem">""" + _ic("M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 13h8M8 17h5") + """Demandes de site<span class="cnt" id="c-dem"></span></button>
 <button type="button" id="n-crea">""" + _ic("M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z") + """Sites en création<span class="cnt" id="c-crea"></span></button>
@@ -572,6 +581,8 @@ ADMIN_HTML = """<!doctype html>
 <button type="button" id="n-abo">""" + _ic("M17 1l4 4-4 4M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 0 1-4 4H3") + """Abonnements</button>
 <button type="button" id="n-rev">""" + _ic("M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6") + """Revenus</button>
 <button type="button" id="n-com">""" + _ic("M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM22 6l-10 7L2 6") + """Communication</button>
+<button type="button" id="n-avis">""" + _ic("M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z") + """Avis</button>
+<button type="button" id="n-outils">""" + _ic("M3 3v18h18M7 15l4-4 3 3 5-6") + """Visites et sauvegarde</button>
 <button type="button" id="n-mdp">""" + _ic("M21 2l-2 2m-7.6 7.6a5.5 5.5 0 1 1-7.8 7.8 5.5 5.5 0 0 1 7.8-7.8zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4") + """Mot de passe</button>
 </nav>
 <div class="sp"></div>
@@ -662,7 +673,7 @@ resa_body = phead("Réservation en ligne", "La réservation se trouve sur le sit
 <p class="sub" style="margin-top:22px">Les deux espaces font partie du site d’exemple « Le Bistro du Marché » (<a href="/exemples/bistro">ouvrir le site complet</a>). Tout y est fictif.</p>
 <div class="cta-band">
   <h2>La réservation fait gagner du temps</h2>
-  <p>Fini les appels manqués : vos clients réservent seuls, à toute heure. Disponible avec la formule Pro, à 100 € HT par mois.</p>
+  <p>Fini les appels manqués : vos clients réservent seuls, à toute heure. Disponible avec la formule Pro, à 100 € HT (120 € TTC) par mois.</p>
   <a class="btn" href="/inscription?formule=pro">Choisir le Pro""" + icon("arrow") + """</a>
 </div>
 </div>

@@ -35,14 +35,14 @@
     filter: 'M22 3H2l8 9.5V19l4 2v-8.5z'
   };
   function ico(n, size, color) { return s('svg', { width: size || 20, height: size || 20, viewBox: '0 0 24 24', fill: 'none', stroke: color || 'currentColor', 'stroke-width': 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-hidden': 'true' }, s('path', { d: IC[n] })); }
-  var LBL = { nouvelle: 'À traiter', en_creation: 'En création', apercu: 'Aperçu envoyé', en_ligne: 'En ligne', abandonnee: 'Abandonnée', actif: 'Actif', impaye: 'Impayé', suspendu: 'Suspendu', resilie: 'Résilié', ouverte: 'Ouverte', en_cours: 'En cours', resolue: 'Résolue', essentiel: 'Essentiel', pro: 'Pro' };
+  var LBL = { nouvelle: 'À traiter', en_creation: 'En création', apercu: 'Aperçu envoyé', en_ligne: 'En ligne', abandonnee: 'Abandonnée', hesite: 'Hésite', a_rappeler: 'À rappeler', plus_tard: 'Reviendra plus tard', sans_reponse: 'Sans réponse', trop_cher: 'Trouve ça trop cher', concurrent: 'Parti chez un concurrent', refusee: 'A refusé', actif: 'Actif', impaye: 'Impayé', suspendu: 'Suspendu', resilie: 'Résilié', ouverte: 'Ouverte', en_cours: 'En cours', resolue: 'Résolue', essentiel: 'Essentiel', pro: 'Pro' };
   var lab = function (k) { return LBL[k] || k || '—'; };
   var COL = { pri: '#4f46e5', sky: '#0ea5e9', ok: '#10b981', warn: '#f59e0b', bad: '#ef4444', gray: '#94a3b8', pur: '#7c3aed' };
   var eur = function (n) { return (Math.round((n || 0) * 10) / 10).toLocaleString('fr-FR') + ' €'; };
   var num = function (n) { return (n || 0).toLocaleString('fr-FR'); };
   function dt(x) { if (!x) return '—'; var d = new Date(x.replace(' ', 'T') + 'Z'); return isNaN(d) ? x : d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }) + ' ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }); }
   function dOnly(x) { if (!x) return '—'; var d = new Date(x + 'T12:00:00Z'); return isNaN(d) ? x : d.toLocaleDateString('fr-FR'); }
-  function pillFor(k) { var c = { en_ligne: 'ok', actif: 'ok', resolue: 'ok', apercu: 'pri', en_creation: 'pri', en_cours: 'warn', nouvelle: 'warn', ouverte: 'bad', impaye: 'bad', abandonnee: '', resilie: 'bad', suspendu: 'warn' }[k]; return h('span', { class: 'pill ' + (c || ''), text: lab(k) }); }
+  function pillFor(k) { var c = { en_ligne: 'ok', actif: 'ok', resolue: 'ok', apercu: 'pri', en_creation: 'pri', en_cours: 'warn', nouvelle: 'warn', ouverte: 'bad', impaye: 'bad', abandonnee: '', hesite: 'warn', a_rappeler: 'warn', plus_tard: 'warn', sans_reponse: '', trop_cher: '', concurrent: '', refusee: 'bad', resilie: 'bad', suspendu: 'warn' }[k]; return h('span', { class: 'pill ' + (c || ''), text: lab(k) }); }
   var main = $('#main'), toast = $('#toast');
   function flash(t, bad) { toast.textContent = t; toast.className = 'toast on' + (bad ? ' bad' : ''); clearTimeout(flash.t); flash.t = setTimeout(function () { toast.className = 'toast'; }, 3800); }
 
@@ -96,7 +96,7 @@
       var dc = h('div', { class: 'card' }, h('h2', { text: 'Demandes de site (' + r.j.demandes.length + ')' }));
       if (!r.j.demandes.length) dc.appendChild(h('p', { class: 'empty', text: 'Aucune demande.' }));
       r.j.demandes.forEach(function (d) {
-        var sl = sel(['nouvelle', 'en_creation', 'apercu', 'en_ligne', 'abandonnee'], d.statut);
+        var sl = sel(STATUTS_SITE, d.statut);
         sl.addEventListener('change', function () { api('/api/admin/demande', 'POST', { id: d.id, statut: sl.value }).then(function (x) { flash(x.j.ok ? 'Statut du site mis à jour.' : 'Échec de la mise à jour.', !x.j.ok); if (x.j.ok) loadAll(); }); });
         dc.appendChild(h('div', { class: 'row' }, h('div', null, h('b', { text: d.commerce }), h('div', { class: 'sub', text: [d.ref, lab(d.formule), d.activite, d.ville, d.domaine && ('domaine : ' + d.domaine), d.mails ? d.mails + ' mail(s) pro' : '', d.tel, dt(d.created_at)].filter(Boolean).join(' · ') }), d.message ? h('div', { class: 'sub', text: d.message }) : null), sl));
       });
@@ -159,7 +159,7 @@
         h('div', { class: 'cf-act' }, h('button', { type: 'button', class: 'btn sm ghost iconbtn', 'aria-label': 'Client précédent', text: '‹', disabled: ids[ix - 1] ? null : 'disabled', onclick: function () { nav(-1); } }), h('button', { type: 'button', class: 'btn sm ghost iconbtn', 'aria-label': 'Client suivant', text: '›', disabled: ids[ix + 1] ? null : 'disabled', onclick: function () { nav(1); } }),
           ib('Se connecter à sa place', 'users', function () { impersonate(c.id); }), ib('Paramètres', 'key', function () { setTab('param'); }))));
       /* onglets */
-      var TABS = [['apercu', 'Aperçu', 'home'], ['site', 'Site', 'globe'], ['abo', 'Abonnement', 'card'], ['modifs', 'Modifications', 'repeat'], ['dem', 'Demandes', 'file'], ['msg', 'Messages', 'msg'], ['fact', 'Factures', 'euro'], ['jr', 'Journal & Logs', 'alert'], ['param', 'Paramètres', 'key']];
+      var TABS = [['apercu', 'Aperçu', 'home'], ['site', 'Site', 'globe'], ['suivi', 'Suivi & notes', 'check'], ['abo', 'Abonnement', 'card'], ['modifs', 'Modifications', 'repeat'], ['dem', 'Demandes', 'file'], ['msg', 'Messages', 'msg'], ['fact', 'Factures', 'euro'], ['jr', 'Journal & Logs', 'alert'], ['param', 'Paramètres', 'key']];
       var cnt = { modifs: 0, dem: dm.filter(function (x) { return ['nouvelle', 'en_creation', 'apercu'].indexOf(x.statut) >= 0; }).length, msg: pl.filter(function (x) { return x.statut !== 'resolue'; }).length }, tabs = h('div', { class: 'cf-tabs', role: 'tablist' }), tb = {};
       TABS.forEach(function (t) { var b = h('button', { type: 'button', role: 'tab', 'aria-selected': TAB === t[0] ? 'true' : 'false', onclick: function () { setTab(t[0]); } }, ico(t[2], 17), t[1]); tb[t[0]] = b; if (cnt[t[0]]) b.appendChild(h('span', { class: 'cnt', text: String(cnt[t[0]]) })); tabs.appendChild(b); });
       main.appendChild(tabs);
@@ -192,7 +192,7 @@
           q('Se connecter à sa place', 'users', '', function () { impersonate(c.id); })));
       };
       var tools = function () {
-        var sa = sel(['actif', 'impaye', 'suspendu', 'resilie'], st || 'actif'), ss = d ? sel(['nouvelle', 'en_creation', 'apercu', 'en_ligne', 'abandonnee'], d.statut) : null;
+        var sa = sel(['actif', 'impaye', 'suspendu', 'resilie'], st || 'actif'), ss = d ? sel(STATUTS_SITE, d.statut) : null;
         sa.disabled = !ab; sa.addEventListener('change', function () { api('/api/admin/abonnement', 'POST', { compte_id: c.id, formule: ab.formule, statut: sa.value, mails_sup: ab.mails_sup, motif: sa.value === 'resilie' ? 'Résilié par l’administrateur' : '' }).then(function (x) { flash(x.j.ok ? 'Statut du compte mis à jour.' : 'Échec.', !x.j.ok); if (x.j.ok) loadAll().then(function () { detail(c.id, TAB); }); }); });
         if (ss) ss.addEventListener('change', function () { api('/api/admin/demande', 'POST', { id: d.id, statut: ss.value }).then(function (x) { flash(x.j.ok ? 'Statut du site mis à jour.' : 'Échec.', !x.j.ok); if (x.j.ok) loadAll().then(function () { detail(c.id, TAB); }); }); });
         var sus = d ? h('label', { class: 'cf-sw' }, h('span', { text: 'Suspendre le site' }), h('input', { type: 'checkbox', checked: d.suspendu ? '' : null, onchange: function (e) { api('/api/admin/site', 'POST', { id: d.id, suspendu: e.target.checked }).then(function (x) { flash(x.j.ok ? (e.target.checked ? 'Site suspendu.' : 'Site réactivé.') : 'Échec.', !x.j.ok); if (x.j.ok) loadAll(); }); } })) : null;
@@ -227,6 +227,7 @@
       var show = {
         apercu: function () { body.appendChild(h('div', { class: 'cf-g3' }, infoCard(), siteCard(), aboCard())); body.appendChild(h('div', { class: 'cf-g3' }, quick(), tools(), summaryCard())); body.appendChild(h('div', { class: 'cf-g2' }, card('Journal & Logs', 'alert', h('button', { type: 'button', class: 'btn sm ghost', text: 'Tout voir', onclick: function () { setTab('jr'); } }), jrnl(5)), activity())); },
         site: function () { body.appendChild(siteCard()); body.appendChild(P.dem); },
+        suivi: function () { suiviTab(body, c, d, card, setTab); },
         abo: function () { body.appendChild(h('div', { class: 'cf-g2' }, aboCard(), P.abo)); },
         modifs: function () { var box = card('Modifications demandées', 'repeat', null, h('div', { class: 'cf-ml' })); body.appendChild(box); api('/api/admin/compte-plus?id=' + c.id).then(function (x) { var l = box.querySelector('.cf-ml'); if (!x.j.ok) return; if (!x.j.modifs.length) l.appendChild(h('p', { class: 'empty', text: 'Aucune modification demandée.' })); x.j.modifs.forEach(function (m) { l.appendChild(h('div', { class: 'row' }, h('div', null, h('b', { text: m.type }), h('div', { class: 'sub', text: m.description }), h('small', { class: 'sub', text: dt(m.created_at) })), h('button', { type: 'button', class: 'btn sm ghost', text: m.statut === 'faite' ? 'Marquer à faire' : 'Marquer faite', onclick: function () { api('/api/admin/modif-statut', 'POST', { id: m.id, statut: m.statut === 'faite' ? 'demandee' : 'faite' }).then(function () { detail(c.id, 'modifs'); }); } }))); }); }); },
         dem: function () { body.appendChild(P.dem); },
@@ -722,7 +723,7 @@
       du.addEventListener('change', function () { F.du = du.value; }); au.addEventListener('change', function () { F.au = au.value; });
       panel.appendChild(h('div', { class: 'fgrid' },
         fSelect('formule', 'Formule', yes(['essentiel', 'pro'])), fSelect('abo', 'Abonnement', yes(['actif', 'impaye', 'suspendu', 'resilie']).concat([['aucun', 'Aucun abonnement']])),
-        fSelect('site', 'Statut du site', yes(['nouvelle', 'en_creation', 'apercu', 'en_ligne', 'abandonnee']).concat([['aucune', 'Aucune demande']])),
+        fSelect('site', 'Statut du site', yes(STATUTS_SITE).concat([['aucune', 'Aucune demande']])),
         fSelect('plaintes', 'Plaintes', [['ouvertes', 'Avec plainte ouverte'], ['avec', 'Avec au moins une plainte'], ['aucune', 'Aucune plainte']]),
         fSelect('activite', 'Activité', distinct(all, 'activite')), fSelect('ville', 'Ville', distinct(all, 'ville')),
         fSelect('connexion', 'Dernière connexion', [['1', 'Dans les 24 h'], ['7', 'Dans les 7 jours'], ['30', 'Dans les 30 jours'], ['jamais', 'Jamais connecté']]),
@@ -800,7 +801,7 @@
       }
       var fs = function (key, label, opts) { var e = h('select', { 'aria-label': label }); e.appendChild(h('option', { value: '', text: 'Tous' })); opts.forEach(function (o) { e.appendChild(h('option', { value: o[0], text: o[1] })); }); e.value = COMM.f[key] || ''; e.addEventListener('change', function () { COMM.f[key] = e.value; COMM.sel = {}; applyF(all, COMM.f).forEach(function (c) { COMM.sel[c.compte_id] = true; }); drawList(); }); return h('label', null, label, e); };
       var yes = function (a) { return a.map(function (x) { return [x, lab(x)]; }); };
-      var filt = h('div', { class: 'fgrid' }, fs('formule', 'Formule', yes(['essentiel', 'pro'])), fs('abo', 'Abonnement', yes(['actif', 'impaye', 'suspendu', 'resilie']).concat([['aucun', 'Aucun abonnement']])), fs('site', 'Statut du site', yes(['nouvelle', 'en_creation', 'apercu', 'en_ligne', 'abandonnee']).concat([['aucune', 'Aucune demande']])), fs('plaintes', 'Plaintes', [['ouvertes', 'Avec plainte ouverte'], ['avec', 'Avec au moins une plainte'], ['aucune', 'Aucune plainte']]), fs('activite', 'Activité', distinct(all, 'activite')), fs('ville', 'Ville', distinct(all, 'ville')), fs('connexion', 'Dernière connexion', [['7', 'Dans les 7 jours'], ['30', 'Dans les 30 jours'], ['jamais', 'Jamais connecté']]));
+      var filt = h('div', { class: 'fgrid' }, fs('formule', 'Formule', yes(['essentiel', 'pro'])), fs('abo', 'Abonnement', yes(['actif', 'impaye', 'suspendu', 'resilie']).concat([['aucun', 'Aucun abonnement']])), fs('site', 'Statut du site', yes(STATUTS_SITE).concat([['aucune', 'Aucune demande']])), fs('plaintes', 'Plaintes', [['ouvertes', 'Avec plainte ouverte'], ['avec', 'Avec au moins une plainte'], ['aucune', 'Aucune plainte']]), fs('activite', 'Activité', distinct(all, 'activite')), fs('ville', 'Ville', distinct(all, 'ville')), fs('connexion', 'Dernière connexion', [['7', 'Dans les 7 jours'], ['30', 'Dans les 30 jours'], ['jamais', 'Jamais connecté']]));
       holder.appendChild(h('div', { class: 'card' }, h('div', { class: 'tbar' }, h('div', null, h('h2', { text: '1. Qui reçoit le message ?' }), h('p', { class: 'sub', text: 'Choisissez un filtre, puis cochez ou décochez les clients à la main.' })), cnt), filt,
         h('div', { class: 'tools', style: 'margin-bottom:10px' }, h('button', { type: 'button', class: 'btn ghost sm', text: 'Tout cocher (liste affichée)', onclick: function () { visible().forEach(function (c) { COMM.sel[c.compte_id] = true; }); drawList(); } }), h('button', { type: 'button', class: 'btn ghost sm', text: 'Tout décocher', onclick: function () { COMM.sel = {}; drawList(); } }), h('button', { type: 'button', class: 'btn ghost sm', text: 'Réinitialiser les filtres', onclick: function () { COMM.f = {}; COMM.sel = {}; all.forEach(function (c) { COMM.sel[c.compte_id] = true; }); commView(); } })), listBox));
       var sj = h('input', { type: 'text', maxlength: '150', value: COMM.sujet, placeholder: 'Ex. : Nouveauté sur votre espace' }), co = h('textarea', { maxlength: '8000', style: 'min-height:200px', placeholder: 'Bonjour {prenom},\n\n…' });
@@ -832,11 +833,148 @@
     });
   }
 
+  /* ===== À traiter, tâches, suivi, avis, visites, sauvegarde ===== */
+  var STATUTS_SITE = ['nouvelle', 'en_creation', 'apercu', 'en_ligne', 'hesite', 'a_rappeler', 'plus_tard', 'sans_reponse', 'trop_cher', 'concurrent', 'refusee', 'abandonnee'];
+  var fd = function (iso) { return iso ? dOnly(String(iso).slice(0, 10)) : '—'; };
+  var NIV = { urgent: ['Urgent', 'bad'], normal: ['À faire', 'warn'] };
+  var CLE_ICO = { dossier_complet: 'file', nouvelle: 'file', creation: 'repeat', mettre_en_ligne: 'globe', ajustements: 'alert', relance: 'msg', relance15: 'alert', modif: 'repeat', resiliation: 'out', plainte: 'alert', impaye: 'euro', rappel: 'msg', tache: 'check', avis: 'trend' };
+  function taskRow(t, after) {
+    var cb = h('input', { type: 'checkbox', checked: t.fait ? '' : null, 'aria-label': 'Marquer comme fait : ' + t.titre });
+    cb.addEventListener('change', function () { api('/api/admin/tache-fait', 'POST', { id: t.id, fait: cb.checked }).then(function (x) { if (!x.j.ok) { flash('Échec.', true); cb.checked = !cb.checked; } else after(); }); });
+    return h('li', { class: 'task' + (t.fait ? ' done' : '') }, h('label', null, cb, h('span', null, h('b', { text: t.titre }), t.detail ? h('small', { text: t.detail }) : null, h('small', { class: 'meta', text: [t.nom || null, t.echeance ? 'pour le ' + fd(t.echeance) : null, t.fait && t.fait_at ? 'fait le ' + fd(t.fait_at) : null].filter(Boolean).join(' · ') }))),
+      h('button', { type: 'button', class: 'btn sm ghost', text: 'Supprimer', 'aria-label': 'Supprimer la tâche ' + t.titre, onclick: function () { api('/api/admin/tache-suppr', 'POST', { id: t.id }).then(function () { after(); }); } }));
+  }
+  function taskForm(compteId, after) {
+    var ti = h('input', { type: 'text', maxlength: '140', placeholder: 'Ex. : rappeler pour les photos', 'aria-label': 'Titre de la tâche' }), de = h('textarea', { rows: '2', maxlength: '800', placeholder: 'Détails, information interne (facultatif)', 'aria-label': 'Détails' }), ec = h('input', { type: 'date', 'aria-label': 'Pour le (facultatif)' });
+    var cs = null;
+    if (compteId === undefined) { cs = h('select', { 'aria-label': 'Client concerné' }, h('option', { value: '', text: 'Aucun client en particulier' })); D.comptes.slice().sort(function (a, b) { return String(a.nom).localeCompare(b.nom); }).forEach(function (c) { cs.appendChild(h('option', { value: c.id, text: c.nom })); }); }
+    var go2 = function () { if (!ti.value.trim()) { flash('Donnez un titre à la tâche.', true); ti.focus(); return; } api('/api/admin/tache', 'POST', { titre: ti.value, detail: de.value, echeance: ec.value || null, compte_id: compteId === undefined ? (cs.value || null) : compteId }).then(function (x) { if (x.j.ok) { flash('Tâche ajoutée.'); after(); } else flash('Impossible d’ajouter la tâche.', true); }); };
+    ti.addEventListener('keydown', function (e) { if (e.key === 'Enter') go2(); });
+    return h('div', { class: 'form tform' }, h('label', { class: 'wide' }, 'Nouvelle tâche', ti), h('label', { class: 'wide' }, 'Information interne', de), h('label', null, 'Pour le (facultatif)', ec), cs ? h('label', null, 'Client', cs) : null, h('div', { class: 'wide' }, h('button', { type: 'button', class: 'btn', text: 'Ajouter', onclick: go2 })));
+  }
+  function updToday() { return api('/api/admin/atraiter').then(function (r) { var b = $('#c-today'); if (b) b.textContent = r.j.ok && r.j.urgents ? String(r.j.urgents) : ''; return r; }); }
+  function todayView() {
+    main.textContent = ''; main.appendChild(head('À traiter aujourd’hui', new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }), []));
+    var box = h('div'); main.appendChild(box); box.appendChild(h('p', { class: 'empty', text: 'Chargement…' }));
+    updToday().then(function (r) {
+      box.textContent = '';
+      if (!r.j.ok) { box.appendChild(h('p', { class: 'empty', text: 'Impossible de charger la liste.' })); return; }
+      var items = r.j.items, ur = items.filter(function (i) { return i.niveau === 'urgent'; }), no = items.filter(function (i) { return i.niveau !== 'urgent'; });
+      box.appendChild(h('div', { class: 'cf-g3', style: 'margin-bottom:16px' }, [[ur.length, 'urgent' + (ur.length > 1 ? 's' : ''), ur.length ? 'bad' : 'ok'], [no.length, 'à faire', no.length ? 'warn' : 'ok'], [items.length, 'au total', '']].map(function (k) { return h('div', { class: 'card kpi2' }, h('b', { class: k[2], text: String(k[0]) }), h('span', { text: k[1] })); })));
+      var list = function (title, arr) {
+        if (!arr.length) return null;
+        return h('div', { class: 'card', style: 'margin-bottom:16px' }, h('h2', { text: title + ' (' + arr.length + ')' }), h('ul', { class: 'todol' }, arr.map(function (i) {
+          var open2 = function () { if (i.compte_id) { mark('clients'); top(function () { detail(i.compte_id, i.cle === 'avis' || i.cle === 'dossier_complet' || i.cle === 'ajustements' || i.cle === 'resiliation' || i.cle === 'rappel' || i.cle === 'tache' || i.cle === 'nouvelle' || i.cle === 'creation' || i.cle === 'mettre_en_ligne' ? 'suivi' : 'apercu'); }); } };
+          return h('li', null, h('span', { class: 'cf-ji ' + (i.niveau === 'urgent' ? 'bad' : 'warn') }, ico(CLE_ICO[i.cle] || 'alert', 16)), h('div', { class: 'tt' }, h('b', { text: i.titre }), i.detail ? h('small', { text: i.detail }) : null, h('small', { class: 'meta', text: [i.nom, i.date ? fd(i.date) : null].filter(Boolean).join(' · ') })),
+            i.compte_id ? h('button', { type: 'button', class: 'btn sm', text: 'Ouvrir', 'aria-label': 'Ouvrir la fiche de ' + i.nom, onclick: open2 }) : null);
+        })));
+      };
+      if (!items.length) box.appendChild(h('div', { class: 'card' }, h('h2', { text: 'Tout est à jour' }), h('p', { class: 'sub', text: 'Rien à traiter pour le moment. Profitez-en pour prospecter ou ajouter une tâche ci-dessous.' })));
+      [list('Urgent', ur), list('À faire', no)].forEach(function (n) { if (n) box.appendChild(n); });
+      var tasks = h('div', { class: 'card' }, h('h2', { text: 'Toutes mes tâches' }));
+      var tl = h('div'); tasks.appendChild(tl); tasks.appendChild(taskForm(undefined, function () { todayView(); }));
+      box.appendChild(tasks);
+      api('/api/admin/taches').then(function (x) { var l = x.j.taches || []; tl.appendChild(l.length ? h('ul', { class: 'tasks' }, l.map(function (t) { return taskRow(t, function () { todayView(); }); })) : h('p', { class: 'empty', text: 'Aucune tâche. Ajoutez-en une ci-dessous.' })); });
+    });
+  }
+
+  function suiviTab(body, c, d, card, setTab) {
+    var box = h('div'); body.appendChild(box); box.appendChild(h('p', { class: 'empty', text: 'Chargement…' }));
+    var redo = function () { loadAll().then(function () { updToday(); setTab('suivi'); }); };
+    Promise.all([api('/api/admin/parcours?compte_id=' + c.id), api('/api/admin/taches?compte_id=' + c.id)]).then(function (rr) {
+      var P2 = rr[0].j, T = rr[1].j.taches || []; box.textContent = '';
+      if (!P2.ok) { box.appendChild(h('p', { class: 'empty', text: 'Impossible de charger ce suivi.' })); return; }
+      var g = function (kids) { return h('div', { class: 'cf-g2' }, kids); };
+      /* tâches */
+      var tl = T.length ? h('ul', { class: 'tasks' }, T.map(function (t) { return taskRow(t, function () { setTab('suivi'); }); })) : h('p', { class: 'empty', text: 'Aucune tâche pour ce client.' });
+      var cTasks = card('Notes et tâches', 'check', null, h('div', null, h('p', { class: 'sub', text: 'Ce que vous devez faire ou retenir pour ce client. Cochez quand c’est fait. Seul vous voyez ces notes.' }), tl, taskForm(c.id, function () { setTab('suivi'); })));
+      /* suivi commercial */
+      var ss = d ? sel(STATUTS_SITE, d.statut) : null, ra = h('input', { type: 'date', value: P2.suivi.rappel_le || '', 'aria-label': 'Date du rappel' }), rm = h('input', { type: 'text', maxlength: '200', value: P2.suivi.motif || '', placeholder: 'Ex. : veut réfléchir, rappeler après les vacances', 'aria-label': 'Note de rappel' });
+      var cSuivi = card('Suivi commercial', 'trend', null, h('div', null, h('p', { class: 'sub', text: 'Où en est ce prospect ? Choisissez un statut, et programmez un rappel si besoin : il apparaîtra dans « À traiter aujourd’hui ».' }),
+        h('div', { class: 'form' }, ss ? h('label', { class: 'wide' }, 'Statut du prospect', ss) : h('p', { class: 'sub', text: 'Aucune demande de site pour le moment.' }), h('label', null, 'Rappeler le', ra), h('label', null, 'Note', rm)),
+        h('button', { type: 'button', class: 'btn', text: 'Enregistrer le suivi', onclick: function () {
+          var p1 = d && ss.value !== d.statut ? api('/api/admin/demande', 'POST', { id: d.id, statut: ss.value }) : Promise.resolve({ j: { ok: true } });
+          p1.then(function (x) { if (!x.j.ok) { flash('Échec du changement de statut.', true); return; } return api('/api/admin/suivi', 'POST', { compte_id: c.id, rappel_le: ra.value, motif: rm.value }).then(function (y) { flash(y.j.ok ? 'Suivi enregistré.' : 'Échec.', !y.j.ok); if (y.j.ok) redo(); }); });
+        } })));
+      box.appendChild(g([cTasks, cSuivi]));
+      /* dossier */
+      var dos = P2.dossier || {}, labs = { description: 'Présentation', horaires: 'Horaires', adresse_pub: 'Adresse', tel_pub: 'Téléphone', email_pub: 'E-mail', services: 'Prestations et tarifs', reseaux: 'Réseaux', couleurs: 'Couleurs et style', slogan: 'Slogan', domaine_choisi: 'Domaine souhaité', remarques: 'Remarques' };
+      var kvs = Object.keys(labs).map(function (k) { return dos[k] ? h('div', null, h('dt', { text: labs[k] }), h('dd', { style: 'white-space:pre-wrap', text: dos[k] })) : null; }).filter(Boolean);
+      var fl = (P2.fichiers || []).map(function (f) { var img = /^image\//.test(f.mime); return h('li', { class: 'fich' }, img ? h('img', { src: '/api/admin/fichier?id=' + f.id, alt: f.nom, width: '56', height: '56', loading: 'lazy' }) : h('span', { class: 'fico', text: 'PDF' }), h('div', null, h('b', { text: f.nom }), h('small', { text: f.categorie + ' · ' + Math.max(1, Math.round(f.taille / 1024)) + ' Ko' })), h('a', { class: 'btn sm ghost', href: '/api/admin/fichier?id=' + f.id, target: '_blank', rel: 'noopener', text: 'Ouvrir' }), h('a', { class: 'btn sm ghost', href: '/api/admin/fichier?id=' + f.id, download: f.nom, text: 'Télécharger' })); });
+      var cDos = card('Dossier du client', 'file', dos._termine ? h('span', { class: 'pill ok', text: 'Complet le ' + fd(dos._termine) }) : h('span', { class: 'pill warn', text: P2.manquants.length ? 'Il manque : ' + P2.manquants.join(', ') : 'Pas encore terminé' }),
+        h('div', null, kvs.length ? h('dl', { class: 'cf-kv' }, kvs) : h('p', { class: 'empty', text: 'Le client n’a rien rempli pour le moment.' }), h('h3', { style: 'margin-top:14px', text: 'Fichiers (' + fl.length + ')' }), fl.length ? h('ul', { class: 'fichs' }, fl) : h('p', { class: 'empty', text: 'Aucun fichier.' })));
+      /* aperçu */
+      var rt = P2.retours || [];
+      var cRet = card('Retours sur l’aperçu', 'alert', null, rt.length ? h('ul', { class: 'tasks' }, rt.map(function (r) { return h('li', { class: 'task' }, h('div', { style: 'flex:1' }, h('b', { text: r.type === 'valide' ? 'Aperçu validé par le client' : 'Ajustements demandés' }), r.message ? h('small', { style: 'white-space:pre-wrap', text: r.message }) : null, h('small', { class: 'meta', text: fd(r.created_at) + (r.statut === 'traite' ? ' · traité' : '') })),
+        r.statut === 'a_traiter' ? h('button', { type: 'button', class: 'btn sm', text: r.type === 'valide' ? 'Marquer vu' : 'Marquer comme traité', onclick: function () { api('/api/admin/retour-traite', 'POST', { id: r.id }).then(function (x) { flash(x.j.ok ? (r.type === 'valide' ? 'Noté.' : 'Marqué traité : le client est prévenu.') : 'Échec.', !x.j.ok); if (x.j.ok) redo(); }); } }) : null); })) : h('p', { class: 'empty', text: 'Aucun retour pour le moment.' }));
+      box.appendChild(g([cDos, cRet]));
+      /* résiliation */
+      var rs = P2.resiliations || [], MO = { prix: 'Le prix', plus_besoin: 'N’en a plus besoin', insatisfait: 'Insatisfait', fermeture: 'Ferme son commerce', autre: 'Autre' };
+      var cRes = card('Demandes de résiliation', 'out', null, rs.length ? h('ul', { class: 'tasks' }, rs.map(function (r) {
+        var set = function (st, msg) { return h('button', { type: 'button', class: 'btn sm ' + (st === 'traitee' ? '' : 'ghost'), text: msg, onclick: function () { api('/api/admin/resiliation-statut', 'POST', { id: r.id, statut: st }).then(function (x) { flash(x.j.ok ? 'Mis à jour.' : 'Échec.', !x.j.ok); if (x.j.ok) redo(); }); } }); };
+        return h('li', { class: 'task' }, h('div', { style: 'flex:1' }, h('b', { text: (MO[r.motif] || 'Motif non précisé') + ' · effet le ' + fd(r.effet) + (r.decale ? ' (préavis dépassé, décalée d’un an)' : '') }), r.message ? h('small', { style: 'white-space:pre-wrap', text: r.message }) : null, h('small', { class: 'meta', text: 'Demandée le ' + fd(r.created_at) + ' · ' + ({ demandee: 'à traiter', traitee: 'traitée', refusee: 'refusée', annulee: 'annulée par le client' }[r.statut] || r.statut) })),
+          r.statut === 'demandee' ? h('span', { class: 'tools' }, set('traitee', 'Marquer traitée'), set('refusee', 'Refuser')) : r.statut === 'traitee' || r.statut === 'refusee' ? set('demandee', 'Remettre à traiter') : null);
+      })) : h('p', { class: 'empty', text: 'Aucune demande de résiliation. La résiliation de l’abonnement se fait dans l’onglet Abonnement : la demande du client sera alors marquée traitée automatiquement.' }));
+      /* avis */
+      var av = P2.avis, cAvis = card('Avis du client', 'trend', av ? h('span', { class: 'pill ' + (av.statut === 'publie' ? 'ok' : av.statut === 'refuse' ? 'bad' : 'warn'), text: { publie: 'Publié', refuse: 'Refusé', en_attente: 'À modérer' }[av.statut] }) : null,
+        av ? h('div', null, h('p', { class: 'stars', 'aria-label': av.note + ' sur 5', text: '★★★★★'.slice(0, av.note) + '☆☆☆☆☆'.slice(0, 5 - av.note) }), av.commentaire ? h('p', { style: 'white-space:pre-wrap', text: '« ' + av.commentaire + ' »' }) : h('p', { class: 'sub', text: 'Pas de commentaire.' }),
+          h('div', { class: 'tools' }, [['publie', 'Publier', ''], ['refuse', 'Refuser', 'ghost'], ['en_attente', 'Remettre en attente', 'ghost']].filter(function (b) { return b[0] !== av.statut; }).map(function (b) { return h('button', { type: 'button', class: 'btn sm ' + b[2], text: b[1], onclick: function () { api('/api/admin/avis-statut', 'POST', { id: av.id, statut: b[0] }).then(function (x) { flash(x.j.ok ? 'Avis mis à jour.' : 'Échec.', !x.j.ok); if (x.j.ok) redo(); }); } }); }))) : h('p', { class: 'empty', text: 'Aucun avis pour le moment.' }));
+      box.appendChild(g([cRes, cAvis]));
+      /* parrainage */
+      var pa = P2.parrainage, ci = h('input', { type: 'text', maxlength: '9', placeholder: 'DW-XXXXX', 'aria-label': 'Code de parrainage à appliquer', autocapitalize: 'characters' });
+      var ST = { en_attente: 'En attente', valide: 'Validé', expire: 'Expiré' };
+      var cPar = card('Parrainage', 'users', null, h('div', null, h('p', null, 'Code de ce client : ', h('b', { class: 'codep', text: pa.code })),
+        pa.parrain ? h('p', { class: 'sub', text: 'Parrainé par ' + pa.parrain.nom + ' (code ' + pa.parrain.code + ') · ' + ST[pa.parrain.statut] }) : h('div', { class: 'form' }, h('label', { class: 'wide' }, 'Appliquer un code reçu par ce client (par téléphone, par exemple)', ci), h('div', { class: 'wide' }, h('button', { type: 'button', class: 'btn sm', text: 'Appliquer le code', onclick: function () { api('/api/admin/parrain-appliquer', 'POST', { compte_id: c.id, code: ci.value }).then(function (x) { var M = { inconnu: 'Code inconnu.', soi: 'C’est son propre code.', deja: 'Déjà parrainé.', client: 'Déjà client : un code est réservé aux nouveaux clients.', inactif: 'Le parrain n’a pas d’abonnement actif.' }; flash(x.j.ok ? 'Code appliqué.' : (M[x.j.error] || 'Échec.'), !x.j.ok); if (x.j.ok) redo(); }); } }))),
+        h('h3', { style: 'margin-top:12px', text: 'Filleuls (' + pa.filleuls.length + ')' }), pa.filleuls.length ? h('ul', { class: 'tasks' }, pa.filleuls.map(function (f) { return h('li', { class: 'task' }, h('div', { style: 'flex:1' }, h('b', { text: f.nom }), h('small', { class: 'meta', text: 'Depuis le ' + fd(f.created_at) })), h('span', { class: 'pill ' + (f.statut === 'valide' ? 'ok' : f.statut === 'expire' ? 'bad' : 'warn'), text: ST[f.statut] })); })) : h('p', { class: 'empty', text: 'Aucun filleul.' }),
+        h('h3', { style: 'margin-top:12px', text: 'Mois offerts' }), pa.credits.length ? h('ul', { class: 'tasks' }, pa.credits.map(function (cr) {
+          var exp = !cr.utilise_at && cr.expire_at && cr.expire_at.slice(0, 10) < new Date().toISOString().slice(0, 10);
+          return h('li', { class: 'task' + (cr.utilise_at || exp ? ' done' : '') }, h('div', { style: 'flex:1' }, h('b', { text: '1 mois offert (' + (cr.origine === 'filleul' ? 'bienvenue' : 'parrainage') + ')' }), h('small', { class: 'meta', text: cr.utilise_at ? 'Utilisé le ' + fd(cr.utilise_at) : exp ? 'Expiré le ' + fd(cr.expire_at) : 'Valable jusqu’au ' + fd(cr.expire_at) })), exp ? null : h('button', { type: 'button', class: 'btn sm ' + (cr.utilise_at ? 'ghost' : ''), text: cr.utilise_at ? 'Remettre disponible' : 'Marquer utilisé (déduit d’une facture)', onclick: function () { api('/api/admin/credit-utilise', 'POST', { id: cr.id, utilise: !cr.utilise_at }).then(function (x) { if (x.j.ok) redo(); }); } }));
+        })) : h('p', { class: 'empty', text: 'Aucun mois offert.' })));
+      box.appendChild(cPar);
+    });
+  }
+
+  function avisView() {
+    main.textContent = ''; main.appendChild(head('Avis clients', 'Relisez, publiez ou refusez. Seuls les avis publiés apparaissent sur la page d’accueil.', []));
+    var box = h('div', { class: 'card' }); main.appendChild(box); box.appendChild(h('p', { class: 'empty', text: 'Chargement…' }));
+    api('/api/admin/avis').then(function (r) {
+      box.textContent = ''; var l = r.j.avis || [];
+      if (!l.length) { box.appendChild(h('p', { class: 'empty', text: 'Aucun avis pour le moment. Les clients sont invités à en donner un quand leur site passe en ligne.' })); return; }
+      box.appendChild(h('ul', { class: 'tasks' }, l.map(function (a) {
+        var set = function (st, t, cls) { return h('button', { type: 'button', class: 'btn sm ' + (cls || ''), text: t, onclick: function () { api('/api/admin/avis-statut', 'POST', { id: a.id, statut: st }).then(function (x) { flash(x.j.ok ? 'Avis mis à jour.' : 'Échec.', !x.j.ok); if (x.j.ok) { updToday(); avisView(); } }); } }); };
+        return h('li', { class: 'task' }, h('div', { style: 'flex:1' }, h('b', { text: ('★★★★★'.slice(0, a.note) + '☆☆☆☆☆'.slice(0, 5 - a.note)) + '  ' + a.nom + (a.commerce ? ', ' + a.commerce : '') }), a.commentaire ? h('small', { style: 'white-space:pre-wrap', text: '« ' + a.commentaire + ' »' }) : null, h('small', { class: 'meta', text: fd(a.created_at) })),
+          h('span', { class: 'pill ' + (a.statut === 'publie' ? 'ok' : a.statut === 'refuse' ? 'bad' : 'warn'), text: { publie: 'Publié', refuse: 'Refusé', en_attente: 'À modérer' }[a.statut] }),
+          h('span', { class: 'tools' }, a.statut !== 'publie' ? set('publie', 'Publier') : null, a.statut !== 'refuse' ? set('refuse', 'Refuser', 'ghost') : null));
+      })));
+    });
+  }
+
+  function outilsView() {
+    main.textContent = ''; main.appendChild(head('Visites et sauvegarde', 'La fréquentation du site, et une copie de vos données.', []));
+    var vis = h('div', { class: 'card' }, h('h2', { text: 'Visites du site public (30 derniers jours)' }), h('p', { class: 'empty', text: 'Chargement…' })); main.appendChild(vis);
+    api('/api/admin/visites').then(function (r) {
+      vis.textContent = ''; vis.appendChild(h('h2', { text: 'Visites du site public (30 derniers jours)' })); var j = r.j; if (!j.ok) { vis.appendChild(h('p', { class: 'empty', text: 'Impossible de charger les visites.' })); return; }
+      vis.appendChild(h('p', { class: 'sub', text: 'Chaque page vue est comptée une fois, sans cookie et sans aucune donnée personnelle. Les visiteurs qui refusent le suivi (« Ne pas me suivre ») et les robots ne sont pas comptés, donc les chiffres sont un peu inférieurs à la réalité.' }));
+      vis.appendChild(h('div', { class: 'cf-g3', style: 'margin:12px 0' }, [[j.total7, 'pages vues sur 7 jours'], [j.total30, 'pages vues sur 30 jours'], [j.jours.length ? Math.round(j.total30 / 30 * 10) / 10 : 0, 'par jour en moyenne']].map(function (k) { return h('div', { class: 'card kpi2' }, h('b', { text: num(k[0]) }), h('span', { text: k[1] })); })));
+      if (!j.pages.length) { vis.appendChild(h('p', { class: 'empty', text: 'Aucune visite enregistrée pour le moment.' })); return; }
+      var max = Math.max.apply(null, j.jours.map(function (x) { return x.n; }).concat([1]));
+      vis.appendChild(h('div', { class: 'vbars', role: 'img', 'aria-label': 'Pages vues par jour' }, j.jours.map(function (x) { return h('i', { style: 'height:' + Math.max(4, Math.round(x.n / max * 100)) + '%', title: fd(x.jour) + ' : ' + x.n }); })));
+      vis.appendChild(h('div', { class: 'tablewrap' }, h('table', null, h('thead', null, h('tr', null, h('th', { text: 'Page' }), h('th', { class: 'n', text: 'Pages vues' }))), h('tbody', null, j.pages.map(function (p) { return h('tr', null, h('td', { text: p.page }), h('td', { class: 'n', text: num(p.n) })); })))));
+    });
+    var sv = h('div', { class: 'card', style: 'margin-top:16px' }, h('h2', { text: 'Sauvegarde des données' }), h('p', { class: 'sub', text: 'Téléchargez une copie de toutes vos données (clients, demandes, abonnements, tâches, avis…). Faites-le régulièrement, par exemple chaque semaine, et gardez le fichier en lieu sûr.' }),
+      h('div', { class: 'warnbox', style: 'margin:10px 0' }, h('div', null, h('b', { text: 'Ce fichier est confidentiel.' }), h('div', { text: 'Il contient les données de vos clients et les mots de passe chiffrés. Ne l’envoyez à personne et ne le laissez pas sur un ordinateur partagé.' }))));
+    var msg = h('p', { class: 'sub', role: 'status' });
+    var dl = function (lourd) { msg.textContent = 'Préparation de la sauvegarde…'; fetch('/api/admin/sauvegarde' + (lourd ? '?medias=1' : ''), { credentials: 'same-origin' }).then(function (r) { if (!r.ok) throw new Error('http'); return r.blob(); }).then(function (b) { var a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'sauvegarde-devanture-web-' + new Date().toISOString().slice(0, 10) + (lourd ? '-avec-fichiers' : '') + '.json'; document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000); msg.textContent = 'Sauvegarde téléchargée (' + Math.max(1, Math.round(b.size / 1024)) + ' Ko) le ' + new Date().toLocaleString('fr-FR') + '.'; }).catch(function () { msg.textContent = 'La sauvegarde a échoué. Réessayez dans un instant.'; }); };
+    sv.appendChild(h('div', { class: 'tools', style: 'flex-wrap:wrap;gap:10px' }, h('button', { type: 'button', class: 'btn', text: 'Télécharger la sauvegarde', onclick: function () { dl(false); } }), h('button', { type: 'button', class: 'btn ghost', text: 'Avec les fichiers des clients (plus lourd)', onclick: function () { dl(true); } })));
+    sv.appendChild(msg); sv.appendChild(h('p', { class: 'sub', text: 'En plus de cette copie, Cloudflare garde un historique récent de la base de données, qui permet de revenir en arrière depuis son tableau de bord en cas de fausse manipulation.' }));
+    main.appendChild(sv);
+  }
+
   /* ===== navigation latérale ===== */
-  var navb = { stats: $('#n-stats'), clients: $('#n-clients'), dem: $('#n-dem'), crea: $('#n-crea'), ligne: $('#n-ligne'), abo: $('#n-abo'), rev: $('#n-rev'), com: $('#n-com'), mdp: $('#n-mdp') };
+  var navb = { today: $('#n-today'), avis: $('#n-avis'), outils: $('#n-outils'), stats: $('#n-stats'), clients: $('#n-clients'), dem: $('#n-dem'), crea: $('#n-crea'), ligne: $('#n-ligne'), abo: $('#n-abo'), rev: $('#n-rev'), com: $('#n-com'), mdp: $('#n-mdp') };
   function mark(k) { Object.keys(navb).forEach(function (x) { if (x === k) navb[x].setAttribute('aria-current', 'page'); else navb[x].removeAttribute('aria-current'); }); }
   function go(k, fn) { navb[k].addEventListener('click', function () { mark(k); top(fn); }); }
-  go('stats', showStats); go('clients', clientsView); go('dem', pageDem); go('crea', pageCrea); go('ligne', pageLigne); go('abo', pageAbo); go('rev', revenuePage); go('com', commView); go('mdp', motDePasse);
+  go('today', todayView); go('avis', avisView); go('outils', outilsView); go('stats', showStats); go('clients', clientsView); go('dem', pageDem); go('crea', pageCrea); go('ligne', pageLigne); go('abo', pageAbo); go('rev', revenuePage); go('com', commView); go('mdp', motDePasse);
   $('#n-out').addEventListener('click', function () { api('/api/deconnexion', 'POST').then(function () { location.href = '/connexion'; }); });
 
   api('/api/moi').then(function (r) {
@@ -844,6 +982,6 @@
     if (r.s === 401) { gate.textContent = ''; gate.appendChild(h('h1', { text: 'Espace administrateur' })); gate.appendChild(h('p', { text: 'Connectez-vous avec votre compte administrateur.' })); gate.appendChild(h('a', { class: 'btn', href: '/connexion', text: 'Se connecter' })); return; }
     if (!r.j.admin) { gate.textContent = ''; gate.appendChild(h('h1', { text: 'Accès refusé' })); gate.appendChild(h('p', { text: 'Cet espace est réservé à l’administrateur.' })); gate.appendChild(h('a', { class: 'btn', href: '/', text: 'Retour au site' })); return; }
     gate.hidden = true; $('#app').hidden = false; main.appendChild(h('p', { class: 'empty', text: 'Chargement…' }));
-    loadAll().then(function () { updBadges(); top(showStats); }).catch(function () { main.textContent = ''; main.appendChild(h('p', { class: 'empty', text: 'Impossible de charger les données. Réessayez dans un instant.' })); });
+    loadAll().then(function () { updBadges(); mark('today'); top(todayView); }).catch(function () { main.textContent = ''; main.appendChild(h('p', { class: 'empty', text: 'Impossible de charger les données. Réessayez dans un instant.' })); });
   }).catch(function () { $('#gate').textContent = 'Connexion impossible pour le moment.'; });
 })();

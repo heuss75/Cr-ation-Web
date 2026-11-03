@@ -72,7 +72,7 @@ def mk(E):
         lede="Les règles de l’abonnement, en clair : prix, durée de 12 mois, modifications, nom de domaine, résiliation.",
         notice="Ces conditions s’appliquent aux commandes passées par des professionnels. Elles seront complétées à l’ouverture du paiement en ligne.",
         body="""
-<div class="callout"><strong>En résumé.</strong> Un site vitrine, un nom de domaine, un hébergement, un espace client et un guide pub avec un engagement de <strong>12 mois</strong>, en deux formules : <strong>Essentiel à 60 € HT par mois</strong> et <strong>Pro à 100 € HT par mois</strong> (réservation en ligne et une adresse mail pro incluses). Une modification par mois est comprise. Chaque adresse mail pro supplémentaire coûte 4 € HT par mois. Ce résumé n’a pas de valeur contractuelle : seuls les articles ci-dessous s’appliquent.</div>
+<div class="callout"><strong>En résumé.</strong> Un site vitrine, un nom de domaine, un hébergement, un espace client et un guide pub avec un engagement de <strong>12 mois</strong>, en deux formules : <strong>Essentiel à 60 € HT (72 € TTC) par mois</strong> et <strong>Pro à 100 € HT (120 € TTC) par mois</strong> (réservation en ligne et une adresse mail pro incluses). Une modification par mois est comprise. Chaque adresse mail pro supplémentaire coûte 4 € HT (4,80 € TTC) par mois. Ce résumé n’a pas de valeur contractuelle : seuls les articles ci-dessous s’appliquent.</div>
 
 <h2 id="art-1">Article 1. Objet et champ d’application</h2>
 <p>Les présentes conditions générales de vente (« CGV ») régissent la vente de l’abonnement « %(NAME)s » proposé par %(NOM)s (%(STATUT)s, SIRET %(SIRET)s, %(ADRESSE)s), ci-après « l’Éditeur », à toute personne agissant pour les besoins de son activité professionnelle, ci-après « le Client ».</p>
@@ -97,11 +97,11 @@ def mk(E):
 
 <h2 id="art-4">Article 4. Prix et paiement</h2>
 <ul>
-<li>Formule Essentiel : <strong>60 € HT par mois</strong>.</li>
-<li>Formule Pro : <strong>100 € HT par mois</strong>.</li>
-<li>Adresse mail professionnelle : <strong>4 € HT par mois et par adresse</strong> (la première est incluse dans la formule Pro).</li>
+<li>Formule Essentiel : <strong>60 € HT (72 € TTC) par mois</strong>.</li>
+<li>Formule Pro : <strong>100 € HT (120 € TTC) par mois</strong>.</li>
+<li>Adresse mail professionnelle : <strong>4 € HT (4,80 € TTC) par mois et par adresse</strong> (la première est incluse dans la formule Pro).</li>
 </ul>
-<p>Les prix sont exprimés en euros, hors taxes. %(TVA)s La TVA applicable, le cas échéant, figure sur chaque facture. Le prix de l’abonnement ne change pas pendant la durée de l’engagement en cours.</p>
+<p>Les prix sont exprimés en euros, hors taxes (HT) et toutes taxes comprises (TTC, TVA à 20 %%). %(TVA)s Le détail de la TVA figure sur chaque facture. Le prix de l’abonnement ne change pas pendant la durée de l’engagement en cours.</p>
 <p>Le paiement est mensuel et d’avance, par carte bancaire ou prélèvement SEPA, par l’intermédiaire d’un prestataire de paiement sécurisé. L’Éditeur ne conserve pas les données de carte bancaire. Une facture est mise à disposition dans l’espace client.</p>
 <p>En cas de retard de paiement, des pénalités de retard sont dues de plein droit, au taux de trois fois le taux d’intérêt légal, à compter de la date d’échéance et sans mise en demeure préalable, ainsi qu’une indemnité forfaitaire pour frais de recouvrement de 40 € (articles L441-10 et D441-5 du Code de commerce). L’Éditeur peut en outre suspendre le site après mise en demeure restée sans effet pendant 8 jours.</p>
 
@@ -137,7 +137,7 @@ def mk(E):
 <p>À la fin de l’abonnement, et sous réserve du paiement de toutes les sommes dues, le Client peut demander le transfert de son nom de domaine ; l’Éditeur lui remet le code de transfert dans un délai raisonnable. Si le Client utilise un nom de domaine qu’il possédait déjà, ce nom reste chez son prestataire d’origine et son renouvellement reste à sa charge.</p>
 
 <h2 id="art-11">Article 11. Adresse mail professionnelle (option)</h2>
-<p>Chaque adresse est facturée 4 € HT par mois, sauf la première adresse de la formule Pro qui est incluse, et suit la durée de l’abonnement. Un guide d’installation de la messagerie est fourni avec la formule Pro, et avec la formule Essentiel à l’achat d’une adresse mail pro. La boîte est de taille limitée, pour un usage professionnel normal ; l’envoi de messages en masse ou non sollicités est interdit. En cas de fin d’abonnement, les adresses sont fermées 30 jours après la date de fin, pour permettre au Client de récupérer ses messages.</p>
+<p>Chaque adresse est facturée 4 € HT (4,80 € TTC) par mois, sauf la première adresse de la formule Pro qui est incluse, et suit la durée de l’abonnement. Un guide d’installation de la messagerie est fourni avec la formule Pro, et avec la formule Essentiel à l’achat d’une adresse mail pro. La boîte est de taille limitée, pour un usage professionnel normal ; l’envoi de messages en masse ou non sollicités est interdit. En cas de fin d’abonnement, les adresses sont fermées 30 jours après la date de fin, pour permettre au Client de récupérer ses messages.</p>
 
 <h2 id="art-11b">Article 11 bis. Formule Pro : réservation en ligne</h2>
 <p>La formule Pro comprend un module de réservation en ligne intégré au site du Client : le visiteur choisit une prestation, un jour et un créneau disponible, et laisse ses coordonnées. Un créneau réservé n’est plus proposé. Les réservations sont consultables dans l’agenda de l’espace client.</p>
@@ -168,7 +168,7 @@ def mk(E):
 <p>Aucune partie ne peut être tenue responsable d’un manquement dû à un cas de force majeure au sens de l’article 1218 du Code civil, notamment une panne générale de réseau ou d’un hébergeur, une cyberattaque d’envergure ou une décision d’autorité publique.</p>
 
 <h2 id="art-17">Article 17. Résiliation</h2>
-<p><strong>Par le Client.</strong> Le Client peut résilier à l’échéance de chaque période de 12 mois, par écrit (e-mail ou courrier) avec un préavis d’au moins 30 jours avant cette échéance. Un bouton de résiliation sera proposé dans l’espace client. Pendant la période d’engagement en cours, les mensualités restantes demeurent dues et ne donnent lieu à aucun remboursement.</p>
+<p><strong>Par le Client.</strong> Le Client peut résilier à l’échéance de chaque période de 12 mois, par écrit (e-mail ou courrier) avec un préavis d’au moins 30 jours avant cette échéance. Un bouton de demande de résiliation est proposé dans l’espace client, rubrique « Abonnement ». Pendant la période d’engagement en cours, les mensualités restantes demeurent dues et ne donnent lieu à aucun remboursement.</p>
 <p><strong>Pour manquement.</strong> Chaque partie peut résilier le contrat en cas de manquement grave de l’autre partie non réparé 15 jours après une mise en demeure par écrit. Si le manquement est le fait de l’Éditeur, les sommes versées pour la période non consommée sont remboursées au prorata.</p>
 <p><strong>Effets.</strong> À la fin du contrat, le site est mis hors ligne, les accès sont fermés, et les articles 10 (transfert du domaine), 11 (fermeture du mail) et 13 (récupération des contenus) s’appliquent.</p>
 
@@ -206,6 +206,11 @@ def mk(E):
 <tr><td>Abonnement</td><td>Identité, coordonnées, contenus du site, factures, historique des modifications</td><td>Exécuter le contrat, facturer, assurer le support</td><td>Exécution du contrat ; obligation légale (comptabilité)</td></tr>
 <tr><td>Navigation sur ce site</td><td>Adresse IP, type de navigateur, pages demandées (journaux techniques de l’hébergeur)</td><td>Sécurité, prévention des abus, bon fonctionnement</td><td>Intérêt légitime</td></tr>
 <tr><td>Démonstration de réservation</td><td>Prénom (fictif conseillé), téléphone (facultatif), créneau choisi, empreinte irréversible de l’adresse IP</td><td>Montrer le fonctionnement de la réservation et éviter les abus</td><td>Intérêt légitime</td></tr>
+<tr><td>Dossier de création de votre site</td><td>Informations sur votre commerce (présentation, horaires, adresse, téléphone, tarifs), logo, photos et documents que vous déposez dans votre espace</td><td>Créer et mettre à jour votre site</td><td>Exécution du contrat</td></tr>
+<tr><td>Avis</td><td>Note, commentaire, prénom, initiale du nom et nom du commerce</td><td>Recueillir votre retour ; publier votre avis sur ce site, uniquement si vous le demandez</td><td>Consentement (case à cocher, retirable sur simple demande)</td></tr>
+<tr><td>Parrainage</td><td>Code de parrainage, lien entre parrain et filleul, mois offerts</td><td>Gérer le parrainage et appliquer les mois offerts</td><td>Exécution du contrat</td></tr>
+<tr><td>Demande de résiliation</td><td>Motif, message, date d’effet</td><td>Traiter votre demande et améliorer le service</td><td>Exécution du contrat</td></tr>
+<tr><td>Mesure de fréquentation</td><td>Date, page visitée et nombre de visites. Aucun cookie, aucune adresse IP, aucun identifiant n’est enregistré ; l’option « Ne pas me suivre » est respectée</td><td>Savoir quelles pages sont consultées</td><td>Intérêt légitime (mesure anonyme strictement limitée à l’audience)</td></tr>
 <tr><td>Anti-abus du formulaire</td><td>Empreinte irréversible de l’adresse IP</td><td>Limiter les envois automatisés</td><td>Intérêt légitime</td></tr>
 <tr><td>Suivi de campagne (si accepté)</td><td>Paramètres UTM de l’adresse visitée, site d’origine, page d’arrivée</td><td>Savoir quelle annonce ou quel lien a amené la demande</td><td>Consentement</td></tr>
 </tbody></table></div>
@@ -218,6 +223,9 @@ def mk(E):
 <li>Factures et pièces comptables : 10 ans (obligation légale).</li>
 <li>Journaux techniques : selon la politique de l’hébergeur, en principe quelques semaines.</li>
 <li>Paramètres UTM : 30 jours dans votre navigateur.</li>
+<li>Dossier de création : pendant la durée du contrat, puis supprimé au plus tard 30 jours après la fin de l’abonnement, sauf demande de récupération de votre part.</li>
+<li>Avis publiés : tant que vous ne demandez pas leur retrait.</li>
+<li>Compteurs de visites : 13 mois au plus.</li>
 <li>Réservations de la page de démonstration : supprimées automatiquement au bout de 24 heures.</li>
 </ul>
 
@@ -257,7 +265,7 @@ def mk(E):
         desc="Ce que ce site enregistre dans votre navigateur et comment gérer vos choix.",
         lede="Ce que le site enregistre dans votre navigateur, ce qui demande votre accord, et comment changer d’avis.",
         body="""
-<div class="callout"><strong>En résumé.</strong> Ce site n’utilise ni publicité ni outil de mesure d’audience tiers. Seul le suivi des campagnes (UTM) est optionnel et ne démarre qu’avec votre accord.</div>
+<div class="callout"><strong>En résumé.</strong> Ce site n’utilise ni publicité ni outil de mesure d’audience tiers : la fréquentation est comptée par nos soins, sans cookie ni identifiant. Seul le suivi des campagnes (UTM) est optionnel et ne démarre qu’avec votre accord.</div>
 <p><button type="button" class="btn sm" data-cookies>Gérer mes choix maintenant</button></p>
 
 <h2 id="quoi">1. Ce que nous enregistrons</h2>

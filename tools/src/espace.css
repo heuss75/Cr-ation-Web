@@ -167,3 +167,46 @@ ul.list{margin:10px 0 0;padding-left:20px;display:grid;gap:8px;line-height:1.5}
 .invoice .inv-t{min-width:0;width:100%;table-layout:auto;margin:0}.invoice .inv-t th,.invoice .inv-t td{padding-left:6px;padding-right:6px}
 .invoice{overflow:hidden}.gcard + .card .btn,a.btn{text-decoration:none}
 .invoice table.inv-t{min-width:0!important;width:100%!important;max-width:100%;table-layout:fixed}.invoice .inv-t th:first-child{width:40%}.invoice .inv-t th,.invoice .inv-t td{white-space:normal}.invoice .inv-t .n{white-space:nowrap}
+
+/* ===== Parcours, dossier, résiliation, parrainage, avis ===== */
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.err{color:var(--bad);font-weight:600;font-size:13.5px;margin:8px 0 0}
+.frise{list-style:none;margin:14px 0 0;padding:0}
+.frise li{display:flex;gap:14px;position:relative;padding:0 0 20px}
+.frise li:last-child{padding-bottom:0}
+.frise li:not(:last-child):before{content:"";position:absolute;left:13px;top:28px;bottom:0;width:2px;background:var(--line)}
+.frise li.fait:not(:last-child):before{background:var(--ink)}
+.frise li>i{flex:none;width:28px;height:28px;border-radius:50%;border:2px solid var(--line);background:var(--card);display:grid;place-items:center;color:var(--card)}
+.frise li.fait>i{background:var(--ink);border-color:var(--ink)}
+.frise li.cours>i{border-color:var(--ok);box-shadow:0 0 0 4px #17c26e33;background:var(--ok)}
+.frise li b{display:block;font-size:15px}
+.frise li p{margin:2px 0 0;color:var(--mut);font-size:14px}
+.frise li small{display:inline-block;margin-top:4px;font-weight:700;font-size:12.5px;color:var(--ink)}
+.frise li.avenir b{color:var(--mut)}
+.todo-i{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:12px 0;border-top:1px solid var(--line)}
+.todo-i:first-of-type{border-top:0}.todo-i p{margin:2px 0 0}
+.howto{margin:8px 0 0;padding-left:20px;color:var(--mut);display:grid;gap:6px;font-size:14.5px}
+.reqs{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:6px}
+.reqs li{display:flex;gap:10px;align-items:center;font-size:14.5px;color:var(--mut)}
+.reqs li.ok{color:var(--ink)}.reqs li i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;border:1.5px solid var(--line);font-size:12px;font-weight:800}
+.reqs li.ok i{background:var(--ok);border-color:var(--ok);color:#06210f}
+.form.dos{grid-template-columns:1fr}
+.form .hint{display:block;font-weight:500;color:var(--mut);margin:2px 0 6px;font-size:13px}
+.fcat{border-top:1px solid var(--line);padding:14px 0 4px}.fcat h4{margin:0 0 2px}
+.flist{list-style:none;margin:10px 0;padding:0;display:grid;gap:8px}
+.flist li{display:flex;gap:12px;align-items:center;padding:8px;border:1px solid var(--line);border-radius:12px}
+.flist li>div{flex:1;min-width:0}.flist b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.flist small{color:var(--mut)}
+.flist img,.fico{width:48px;height:48px;border-radius:8px;object-fit:cover;background:var(--soft)}
+.fico{display:grid;place-items:center;font:800 12px system-ui;color:var(--mut)}
+.upl{position:relative;display:inline-block;cursor:pointer}.upl input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%}
+.upl:focus-within .btn{outline:3px solid var(--ok);outline-offset:2px}
+.chk{display:flex;gap:10px;align-items:flex-start;font-size:14px;margin:12px 0;cursor:pointer}.chk input{margin-top:3px;flex:none;width:18px;height:18px}
+.btn.danger{background:var(--bad);color:#fff}
+.stars{display:flex;gap:4px;margin:10px 0}.stars button{background:none;border:0;font-size:34px;line-height:1;color:var(--line);cursor:pointer;padding:2px}
+.stars button.on{color:#E9A100}.stars button:focus-visible{outline:3px solid var(--ok);outline-offset:2px;border-radius:8px}
+.stars.ro{font-size:26px;color:#E9A100;letter-spacing:2px;margin:0 0 6px}
+.mdl{position:fixed;inset:0;background:#0009;display:grid;place-items:center;z-index:80;padding:16px}
+.mdl-box{background:var(--card);color:var(--ink);border-radius:20px;max-width:520px;width:100%;max-height:92vh;overflow:auto;padding:26px;position:relative;outline:0}
+.mdl-x{position:absolute;top:10px;right:12px;border:0;background:none;font-size:28px;line-height:1;cursor:pointer;color:var(--mut)}
+.code{font:800 2rem/1.1 ui-monospace,Menlo,monospace;letter-spacing:.12em;background:var(--soft);padding:14px 18px;border-radius:14px;display:inline-block;margin:8px 0 4px}
+.avf textarea,.form textarea{width:100%}
