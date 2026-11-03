@@ -314,7 +314,7 @@ offre_body = phead("Offre et prix", "Deux formules, tout compris",
     <div class="card pro"><span class="tag">En plus, avec le Pro</span><h3>Pro · 100 € HT</h3><ul>
       <li>Tout l’Essentiel</li><li>Éditeur en libre-service : textes, prix, horaires, photos</li><li>3 modifications par mois réalisées par nous</li><li>Outil de réservation en ligne : prestation, jour, créneau</li><li>Agenda dans l’espace client</li><li>1 adresse mail pro incluse, avec le guide d’installation de la messagerie</li><li>Prestations, durées et horaires paramétrés par nous</li></ul></div>
     <div class="card no"><span class="tag">Non inclus</span><h3>À prévoir à part</h3><ul>
-      <li>Publicité faite pour vous</li><li>Référencement payant</li><li>Logo élaboré et charte graphique</li><li>Boutique en ligne et paiement en ligne (peut-être bientôt)</li><li>Rappels par SMS</li><li>Refonte complète du design</li><li>Séance photo</li></ul><p class="sub" style="margin-top:12px">Mail pro supplémentaire : 4 € HT par mois et par adresse.</p></div>
+      <li>Publicité faite pour vous</li><li>Référencement payant</li><li>Logo élaboré et charte graphique</li><li>Boutique en ligne et paiement en ligne</li><li>Rappels par SMS</li><li>Refonte complète du design</li><li>Séance photo</li></ul><p class="sub" style="margin-top:12px">Mail pro supplémentaire : 4 € HT par mois et par adresse.</p></div>
   </div>
 </section>
 
@@ -548,6 +548,7 @@ ADMIN_HTML = """<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Administration | Devanture Web</title>
+<meta name="description" content="Espace d’administration Devanture Web (accès réservé).">
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <meta name="robots" content="noindex, nofollow">
@@ -592,6 +593,7 @@ ESPACE_HTML = """<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Mon espace | Devanture Web</title>
+<meta name="description" content="Votre espace client Devanture Web : site, modifications, abonnement et messages.">
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <meta name="robots" content="noindex, nofollow">

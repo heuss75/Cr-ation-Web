@@ -13,6 +13,7 @@ const TYPES = {
 const SEC = {
   'x-content-type-options': 'nosniff', 'referrer-policy': 'strict-origin-when-cross-origin', 'x-frame-options': 'SAMEORIGIN',
   'permissions-policy': 'camera=(), microphone=(), geolocation=()', 'strict-transport-security': 'max-age=31536000',
+  'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'",
 };
 const FORMULES = ['essentiel', 'pro'];
 // Démo de réservation : mardi au samedi, 9h-12h et 14h-18h, créneaux de 30 min (mêmes règles que tools/src/booking.js)
@@ -78,6 +79,8 @@ async function demande(req, env, url) {
   try {
     const c = await env.DB.prepare("SELECT COUNT(*) AS n FROM demandes WHERE ip_hash = ? AND created_at > datetime('now','-1 hour')").bind(iph).first();
     if (c && c.n >= 5) return json({ ok: false }, 429);
+    const deja = await env.DB.prepare("SELECT ref FROM demandes WHERE compte_id = ? AND statut != 'abandonnee' ORDER BY id DESC LIMIT 1").bind(user.id).first();
+    if (deja) return json({ ok: false, error: 'deja', ref: deja.ref }, 409);
     let utm = '';
     if (b.utm && typeof b.utm === 'object') {
       const o = {};
@@ -154,7 +157,14 @@ async function inscriptionCode(req, env, url) {
     await env.DB.prepare("DELETE FROM essais WHERE at < datetime('now','-1 day')").run();
     const c = await env.DB.prepare("SELECT COUNT(*) AS n FROM essais WHERE ip_hash = ? AND at > datetime('now','-1 hour')").bind(iph).first();
     if (c && c.n >= 8) return json({ ok: false }, 429);
-    if (await env.DB.prepare('SELECT id FROM comptes WHERE email = ?').bind(email).first()) return json({ ok: false, errors: { email: 'Un compte existe déjà avec cette adresse : connectez-vous.' } }, 409);
+    if (await env.DB.prepare('SELECT id FROM comptes WHERE email = ?').bind(email).first()) {
+      // Même réponse qu'un envoi réussi (pas de fuite sur les adresses inscrites) ; la personne est prévenue par e-mail.
+      await env.DB.prepare('INSERT INTO essais (ip_hash) VALUES (?)').bind(iph).run();
+      await envoyerMail(env, email, 'Vous avez déjà un compte Devanture Web',
+        'Bonjour,\n\nUne inscription vient d’être demandée avec cette adresse, mais vous avez déjà un compte Devanture Web. Connectez-vous : ' + url.origin + '/connexion\n(mot de passe oublié : ' + url.origin + '/mot-de-passe-oublie)\n\nSi vous n’êtes pas à l’origine de cette demande, ignorez ce message.\n\nDevanture Web',
+        '<div style="font-family:system-ui,sans-serif;max-width:480px;margin:auto;padding:24px"><p>Une inscription vient d’être demandée avec cette adresse, mais vous avez déjà un compte Devanture Web.</p><p><a href="' + url.origin + '/connexion">Me connecter</a> · <a href="' + url.origin + '/mot-de-passe-oublie">Mot de passe oublié</a></p><p style="color:#666;font-size:13px">Si vous n’êtes pas à l’origine de cette demande, ignorez ce message.</p></div>');
+      return json({ ok: true });
+    }
     const ex = await env.DB.prepare("SELECT 1 AS x FROM codes_mail WHERE email = ? AND created_at > datetime('now','-30 seconds')").bind(email).first();
     if (ex) return json({ ok: false, error: 'attente' }, 429);
     await env.DB.prepare('INSERT INTO essais (ip_hash) VALUES (?)').bind(iph).run();
@@ -298,6 +308,7 @@ async function motDePasse(req, env, url) {
 
 // ---------- Espace client et communication ----------
 const MOIS_QUOTA = { essentiel: 1, pro: 3 };
+const ABO_BLOQUE = ['impaye', 'suspendu', 'resilie']; // pas de nouvelle modification tant que l'abonnement n'est pas régularisé
 const premierDuMois = () => new Date().toISOString().slice(0, 7) + '-01';
 async function espace(req, env, url, p) {
   let u;
@@ -309,12 +320,12 @@ async function espace(req, env, url, p) {
   try {
     if (p === '/api/espace/editeur' || p === '/api/espace/contenu' || p === '/api/espace/media') return await espaceEdit(req, env, url, p, u, lecture);
     if (p === '/api/espace' && req.method === 'GET') {
-      const compte = await one('SELECT nom, email, created_at FROM comptes WHERE id = ?', u.id);
+      const compte = await one('SELECT nom, email, created_at, opt_out FROM comptes WHERE id = ?', u.id);
       const demandes = await all('SELECT id, ref, created_at, commerce, activite, ville, domaine, mails, tel, formule, statut, suspendu, site_url FROM demandes WHERE compte_id = ? ORDER BY id DESC', u.id);
       const abo = await one('SELECT formule, statut, mails_sup, debut, fin FROM abonnements WHERE compte_id = ?', u.id);
       const formule = abo ? abo.formule : (demandes[0] ? demandes[0].formule : 'essentiel');
       const used = await one('SELECT COUNT(*) n FROM modifs WHERE compte_id = ? AND created_at >= ?', u.id, premierDuMois());
-      return json({ ok: true, lecture, compte, demandes, abonnement: abo, formule, quota: MOIS_QUOTA[formule] || 1, utilisees: used ? used.n : 0,
+      return json({ ok: true, lecture, compte, demandes, abonnement: abo, formule, quota: MOIS_QUOTA[formule] || 1, utilisees: used ? used.n : 0, prix: PRIX, prix_mail: PRIX_MAIL,
         notifications: await all('SELECT id, titre, message, lu, created_at FROM notifications WHERE compte_id = ? ORDER BY id DESC LIMIT 40', u.id),
         modifs: await all('SELECT id, type, description, statut, created_at FROM modifs WHERE compte_id = ? ORDER BY id DESC LIMIT 30', u.id),
         plaintes: await all('SELECT id, sujet, statut, created_at FROM plaintes WHERE compte_id = ? ORDER BY id DESC LIMIT 20', u.id) });
@@ -329,9 +340,11 @@ async function espace(req, env, url, p) {
     }
     if (p === '/api/espace/modif') {
       const d = await one("SELECT id, statut, suspendu, formule FROM demandes WHERE compte_id = ? ORDER BY id DESC LIMIT 1", u.id);
-      if (!d || d.suspendu) return json({ ok: false, error: 'suspendu' }, 403);
+      if (!d) return json({ ok: false, error: 'aucune-demande' }, 404);
+      if (d.suspendu) return json({ ok: false, error: 'suspendu' }, 403);
       if (!['apercu', 'en_ligne'].includes(d.statut)) return json({ ok: false, error: 'pas-en-ligne' }, 409);
-      const abo = await one('SELECT formule FROM abonnements WHERE compte_id = ?', u.id);
+      const abo = await one('SELECT formule, statut FROM abonnements WHERE compte_id = ?', u.id);
+      if (abo && ABO_BLOQUE.includes(abo.statut)) return json({ ok: false, error: 'abonnement' }, 403);
       const quota = MOIS_QUOTA[abo ? abo.formule : d.formule] || 1;
       const used = await one('SELECT COUNT(*) n FROM modifs WHERE compte_id = ? AND created_at >= ?', u.id, premierDuMois());
       if (used.n >= quota) return json({ ok: false, error: 'quota' }, 409);
@@ -339,6 +352,11 @@ async function espace(req, env, url, p) {
       if (desc.length < 5) return json({ ok: false, error: 'vide' }, 422);
       await env.DB.prepare('INSERT INTO modifs (compte_id, type, description) VALUES (?,?,?)').bind(u.id, type, desc).run();
       await log(env, u.id, null, 'modification', type);
+      return json({ ok: true });
+    }
+    if (p === '/api/espace/opt-out') {
+      await env.DB.prepare('UPDATE comptes SET opt_out = ? WHERE id = ?').bind(b.opt_out ? 1 : 0, u.id).run();
+      await log(env, u.id, null, 'opt-out', b.opt_out ? 'oui' : 'non');
       return json({ ok: true });
     }
     if (p === '/api/espace/plainte') {
@@ -359,6 +377,19 @@ async function envoyerMail(env, to, subject, text, html) {
     const r = await fetch('https://api.resend.com/emails', { method: 'POST', headers: { authorization: 'Bearer ' + env.RESEND_API_KEY, 'content-type': 'application/json' }, body: JSON.stringify({ from: env.MAIL_FROM, to: [to], subject, text, html }) });
     return r.ok;
   } catch (_) { return false; }
+}
+async function unsubTok(env, id) { return (await sha((env.UNSUB_SECRET || env.RESEND_API_KEY || 'dev') + '|unsub|' + id)).slice(0, 32); }
+async function desinscription(req, env, url) {
+  const t = url.searchParams.get('t') || '', m = t.match(/^(\d{1,9})\.([0-9a-f]{32})$/);
+  const page = (titre, corps) => new Response('<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Désinscription | Devanture Web</title></head><body style="font-family:system-ui,sans-serif;max-width:480px;margin:12vh auto;padding:0 20px;line-height:1.5"><h1 style="font-size:22px">' + titre + '</h1>' + corps + '</body></html>', { headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', ...SEC } });
+  if (!m || !same(unhex(await unsubTok(env, m[1])), unhex(m[2]))) return page('Lien invalide', '<p>Ce lien de désinscription n’est pas valide.</p>');
+  if (req.method === 'POST') {
+    await env.DB.prepare("UPDATE comptes SET opt_out = 1 WHERE id = ? AND role != 'admin'").bind(parseInt(m[1], 10)).run();
+    await log(env, parseInt(m[1], 10), null, 'opt-out', 'lien e-mail');
+    return page('C’est noté', '<p>Vous ne recevrez plus nos e-mails de communication. Les messages liés à votre compte (code, mot de passe) continuent d’être envoyés.</p>');
+  }
+  if (req.method !== 'GET') return new Response('Méthode non autorisée', { status: 405 });
+  return page('Ne plus recevoir nos e-mails ?', '<p>Confirmez pour ne plus recevoir les e-mails de communication de Devanture Web.</p><form method="post"><button style="font:inherit;padding:10px 18px;border-radius:8px;border:0;background:#111;color:#fff;cursor:pointer">Me désinscrire</button></form>');
 }
 async function oubli(req, env, url) {
   if (req.method !== 'POST') return json({ ok: false }, 405);
@@ -438,16 +469,19 @@ async function media(env, id) {
 async function espaceEdit(req, env, url, p, u, lecture) {
   const d = await env.DB.prepare("SELECT d.id, d.site_url, d.suspendu, COALESCE(a.formule, d.formule) formule FROM demandes d LEFT JOIN abonnements a ON a.compte_id = d.compte_id WHERE d.compte_id = ? ORDER BY d.id DESC LIMIT 1").bind(u.id).first();
   if (!d || d.formule !== 'pro') return json({ ok: false, error: 'pro' }, 403);
+  const aboE = await env.DB.prepare('SELECT statut FROM abonnements WHERE compte_id = ?').bind(u.id).first();
+  const bloque = !!(aboE && ABO_BLOQUE.includes(aboE.statut));
   if (!d.site_url || !SITE_RE.test(d.site_url)) return json({ ok: false, error: 'pas-pret' }, 409);
   const champs = await champsDe(d.site_url);
   if (!champs) return json({ ok: false, error: 'pas-pret' }, 409);
   if (p === '/api/espace/editeur' && req.method === 'GET') {
     const rows = (await env.DB.prepare('SELECT cle, valeur FROM contenus WHERE compte_id = ?').bind(u.id).all()).results || [];
     const ov = {}; rows.forEach((x) => { ov[x.cle] = x.valeur; });
-    return json({ ok: true, lecture, site_url: d.site_url, suspendu: d.suspendu, champs: champs.map((c) => ({ k: c.k, type: c.type, sec: c.sec, v: c.v, val: ov[c.k] === undefined ? null : ov[c.k] })) });
+    return json({ ok: true, lecture, site_url: d.site_url, suspendu: d.suspendu, abo_bloque: bloque ? aboE.statut : null, champs: champs.map((c) => ({ k: c.k, type: c.type, sec: c.sec, v: c.v, val: ov[c.k] === undefined ? null : ov[c.k] })) });
   }
   if (req.method !== 'POST') return json({ ok: false }, 405);
   if (lecture) return json({ ok: false, error: 'lecture-seule' }, 403);
+  if (bloque) return json({ ok: false, error: 'abonnement' }, 403);
   if (d.suspendu) return json({ ok: false, error: 'suspendu' }, 403);
   if (p === '/api/espace/media') {
     const { b, err } = await readJson(req, url, 1600000); if (err) return err;
@@ -554,11 +588,13 @@ async function adminExtra(req, env, url, p, me, one, all) {
       if (!mailOk(env)) statut = notif ? 'notif_seule' : 'mail_non_configure';
       else {
         statut = 'envoye';
+        const origin = new URL(req.url).origin;
+        for (const c of dest) c.tok = await unsubTok(env, c.id);
         for (let i = 0; i < dest.length; i += 100) {
           const lot = dest.slice(i, i + 100).map((c) => {
-            const t = perso(corps, c);
-            return { from: env.MAIL_FROM, to: [c.email], subject: perso(sujet, c), text: t + '\n\n—\nPour ne plus recevoir ces messages, répondez STOP.',
-              html: '<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.55;color:#111">' + escH(t).replace(/\n/g, '<br>') + '<hr style="border:0;border-top:1px solid #ddd;margin:24px 0"><p style="font-size:12px;color:#666">Pour ne plus recevoir ces messages, répondez STOP.</p></div>' };
+            const t = perso(corps, c), lien = origin + '/desinscription?t=' + c.id + '.' + c.tok;
+            return { from: env.MAIL_FROM, to: [c.email], subject: perso(sujet, c), headers: { 'List-Unsubscribe': '<' + lien + '>', 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click' }, text: t + '\n\n—\nPour ne plus recevoir ces messages : ' + lien,
+              html: '<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.55;color:#111">' + escH(t).replace(/\n/g, '<br>') + '<hr style="border:0;border-top:1px solid #ddd;margin:24px 0"><p style="font-size:12px;color:#666"><a href="' + lien + '">Ne plus recevoir ces messages</a></p></div>' };
           });
           try {
             const r = await fetch('https://api.resend.com/emails/batch', { method: 'POST', headers: { authorization: 'Bearer ' + env.RESEND_API_KEY, 'content-type': 'application/json' }, body: JSON.stringify(lot) });
@@ -772,6 +808,7 @@ export default {
     let p = url.pathname;
     if (p.length > 1 && p.endsWith('/')) p = p.slice(0, -1);
     if (p.startsWith('/api/espace')) return espace(req, env, url, p);
+    if (p === '/desinscription') return desinscription(req, env, url);
     if (p === '/api/mot-de-passe-oublie') return oubli(req, env, url);
     if (p === '/api/reinitialiser') return reinitialiser(req, env, url);
     if (p === '/api/demande') return demande(req, env, url);

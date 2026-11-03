@@ -55,7 +55,7 @@ FAQ = [
 
     # ---------- Modifications ----------
     ("modif", "modifier", "Comment je modifie mon site ?",
-     "<p>Depuis votre espace client, avec l’éditeur : vous remplacez un texte ou une photo, vous ajoutez ou supprimez un bloc. Vous ne changez pas la mise en page, ce qui évite de casser le site. Vous pouvez tester le principe sur la <a href=\"/#modifier\">démonstration de l’accueil</a>.</p>"),
+     "<p>Depuis votre espace client, avec l’éditeur : vous remplacez un texte ou une photo, vous ajoutez ou supprimez un bloc. Vous ne changez pas la mise en page, ce qui évite de casser le site. Vous pouvez tester le principe sur la <a href=\"/#apres\">démonstration de l’accueil</a>.</p>"),
     ("modif", "une-par-mois", "Que veut dire « 1 modification par mois » ?",
      "<p>Chaque mois, vous nous demandez une modification (trois avec la formule Pro) depuis votre espace client, et nous la réalisons : remplacer un texte, remplacer une photo, ajouter un bloc ou en supprimer un. Le compteur est visible dans votre espace client. Avec le Pro, l’éditeur en libre-service vous permet en plus de changer vous-même textes, prix, horaires et photos, sans limite. Une modification non utilisée ne se cumule pas avec le mois suivant.</p>"),
     ("modif", "annuler", "Puis-je annuler une modification ?",
