@@ -5,7 +5,7 @@
 Les deux pages partagent les mêmes données (réservations déjà prises + celles faites pendant la visite,
 mémorisées dans le navigateur) : une réservation faite côté client apparaît tout de suite côté interne."""
 
-FONTS = "family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@600;700"
+FONTS = "family=DM+Sans:wght@400;500;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600"
 
 # ---------- icônes (traits) ----------
 ICONS = {
@@ -106,18 +106,18 @@ h1,h2,h3,p,ul{margin:0;padding:0}ul{list-style:none}button{font:inherit;color:in
 .toast{position:fixed;left:50%;bottom:64px;transform:translateX(-50%);background:#1c0d10;color:#fff;padding:12px 18px;border-radius:12px;font-size:14px;z-index:90;box-shadow:0 10px 30px #0005;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw}.toast.on{opacity:1}
 """
 
-BAR = """<div class="swbar"><b>Site d’exemple · Le Bistro du Marché</b><a href="/exemples/bistro-reservation-client" class="%(c)s">Espace réservation client</a><a href="/exemples/bistro-reservation-interne" class="%(i)s">Espace réservation interne</a><a href="/exemples/bistro" class="bk">← Site du restaurant</a></div>"""
+BAR = """<div class="swbar"><b>Site d’exemple · Le Bistro du Marché</b><a href="/exemples/bistro-reservation-interne" class="%(i)s">Espace réservation interne</a><a href="/exemples/bistro" class="bk">← Site du restaurant</a></div>"""
 FOOT = """<div class="demo-bar"><span>Exemple réalisé par Devanture Web · noms, chiffres et réservations fictifs · les réservations faites ici restent dans votre navigateur · sur un vrai site, l’espace interne est protégé par un mot de passe et réservé au restaurateur</span><a href="/#avant" target="_top">← Retour à l’offre</a></div><div class="toast" id="toast" role="status"></div>"""
 
 
-def shell(title, css, body, js, c="", i=""):
+def shell(title, css, body, js, c="", i="", bar=None):
     return f"""<!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>{title}</title><meta name="description" content="Démonstration du système de réservation du Bistro du Marché (exemple fictif)."><meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?{FONTS}&display=swap">
 <style>{BASE_CSS}{css}</style></head><body>
-{BAR % dict(c=c, i=i)}
+{BAR % dict(c=c, i=i) if bar is None else bar}
 {body}
 {FOOT}
 <script>(function(){{{CORE}
@@ -127,152 +127,127 @@ var tt;function toast(m){{var t=document.getElementById('toast');t.textContent=m
 
 
 # =====================================================================
-#  ESPACE RÉSERVATION CLIENT
+#  ESPACE RÉSERVATION CLIENT (externe) : mêmes couleurs et même style que le site du restaurant
 # =====================================================================
 CLIENT_CSS = r"""
-body{background:radial-gradient(1200px 500px at 50% -10%,#f1dcd6,transparent),#f8f1ee}
-.wrap{max-width:660px;margin:26px auto 0;padding:0 14px}
-.card{background:#fff;border-radius:26px;box-shadow:0 24px 60px #4a121933,0 2px 0 #fff inset;overflow:hidden}
-.hd{position:relative;height:170px;background:#4a1219;color:#fff;display:flex;align-items:center;gap:22px;padding:0 34px}
-.hd svg.bg{position:absolute;inset:0;width:100%;height:100%;opacity:.55;object-fit:cover}.hd:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#4a1219f2 15%,#4a121966 100%);z-index:1}
-.hd>*{position:relative;z-index:2}.hd .chef{color:#fff;flex:none}.hd h1{font:700 clamp(1.5rem,5vw,2.1rem)/1.1 'Playfair Display',serif}.hd p{opacity:.9;margin-top:6px}
-.body{padding:22px 26px 28px;margin-top:-16px;background:#fff;border-radius:26px 26px 0 0;position:relative;z-index:3}
-.steps{display:flex;align-items:center;gap:6px;padding-bottom:18px;border-bottom:1px solid #f1e4e0;margin-bottom:20px;overflow-x:auto}
-.st{display:flex;align-items:center;gap:8px;white-space:nowrap;font-weight:600;font-size:14px;color:#2a1519}.st i{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;border:1.5px solid #e4c9c5;font:600 15px 'DM Sans',system-ui,sans-serif;font-style:normal;color:#6b1f2b;background:#fff;flex:none}
-.st.on i,.st.done i{background:#6b1f2b;color:#fff;border-color:#6b1f2b}.st:not(.on):not(.done){font-weight:500;color:#4d3a3c}.st.sep{flex:1;min-width:14px;height:1px;background:#e8d5d1}
-h2.q{font:700 1.7rem 'Playfair Display',serif;margin:6px 0 14px}
-.types{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
-.ty{position:relative;border:1.5px solid #eadbd7;background:#fff;border-radius:16px;padding:18px 10px;text-align:center;display:grid;gap:8px;justify-items:center;align-content:center;min-height:128px;box-shadow:0 2px 8px #4a121912}
-.ty b{font:600 1.05rem/1.2 'Playfair Display',serif}.ty small{font-size:13px;color:#5a4648}.ty svg{color:#2a1519}
-.ty .ck svg{color:#fff}.ty.on{background:#f8ecec;border-color:#8a3340}.ty.on svg{color:#6b1f2b}.ty .ck{display:none;position:absolute;top:10px;right:10px;width:28px;height:28px;border-radius:50%;background:#6b1f2b;color:#fff;place-items:center}.ty.on .ck{display:grid}
-.row2{display:grid;grid-template-columns:1fr 1.15fr;gap:14px;margin-top:16px}
-.box{border:1px solid #f1e4e0;border-radius:16px;padding:14px 16px;background:#fffdfc}.box h3{font:700 1.15rem 'Playfair Display',serif;margin-bottom:8px}
-.stepper{display:flex;align-items:center;gap:8px;border:1px solid #eadbd7;border-radius:14px;padding:6px 8px;background:#fff;box-shadow:0 2px 8px #4a121910}
-.stepper>svg{color:#2a1519;margin:0 6px 0 4px}.stepper b{flex:1;text-align:center;font-size:1.35rem;font-weight:600}
-.stepper button{width:40px;height:40px;border-radius:50%;border:1px solid #e4c9c5;background:#fff;font-size:20px;line-height:1}.stepper button:disabled{opacity:.35;cursor:not-allowed}
-.sel{position:relative}.sel select{appearance:none;width:100%;border:1px solid #eadbd7;border-radius:14px;padding:13px 40px 13px 46px;font:600 15px 'DM Sans',system-ui,sans-serif;background:#fff;color:#2a1519;box-shadow:0 2px 8px #4a121910;height:54px}
-.sel>svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none}.sel>svg.r{left:auto;right:14px}
-.seg{display:grid;grid-template-columns:1fr 1fr;background:#f1ecec;border-radius:99px;padding:3px;margin:10px 0 14px}.seg button{border:0;background:transparent;border-radius:99px;padding:11px;font-weight:700;color:#3a2a2c}.seg button.on{background:#6b1f2b;color:#fff}.seg button:disabled{opacity:.4;cursor:not-allowed}
-.times{display:grid;grid-template-columns:repeat(5,1fr);gap:9px}.times button{border:1px solid #eadbd7;background:#fff;border-radius:13px;padding:13px 0;font-weight:700;font-size:15px;box-shadow:0 2px 8px #4a121910}
-.times button.on{background:#6b1f2b;color:#fff;border-color:#6b1f2b}.times button:disabled{text-decoration:line-through;color:#a99a9b;border-style:dashed;box-shadow:none;background:#faf6f5;cursor:not-allowed}
-.hint{font-size:13px;color:#6a5557;margin-top:10px;display:flex;gap:6px;align-items:center}.hint s{color:#a99a9b}
-.go{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin-top:20px;border:0;border-radius:99px;background:#5b1823;color:#fff;font:700 1.15rem 'DM Sans',system-ui,sans-serif;padding:18px;box-shadow:0 10px 24px #4a121955}.go:disabled{opacity:.45;cursor:not-allowed}
-.link{background:none;border:0;color:#6b1f2b;font-weight:700;padding:10px;margin-top:6px;width:100%}
-.f{display:grid;gap:12px}.f label{font-weight:700;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#6a5557;display:grid;gap:6px}
-.f input,.f textarea{font:500 16px 'DM Sans',system-ui,sans-serif;border:1px solid #e4d2ce;border-radius:13px;padding:13px 14px;background:#fff;color:#2a1519;width:100%;text-transform:none;letter-spacing:0}.f textarea{min-height:84px}
-.err{color:#b3261e;font-size:13.5px;min-height:18px;margin-top:6px}
-.recap{background:#f8ecec;border-radius:16px;padding:14px 16px;margin-bottom:14px;display:flex;gap:10px 22px;flex-wrap:wrap;font-weight:600}.recap span{display:flex;gap:7px;align-items:center}
-.okk{text-align:center;padding:10px 0 4px}.okk .big{width:74px;height:74px;border-radius:50%;background:#6b1f2b;color:#fff;display:grid;place-items:center;margin:4px auto 14px}
-.okk h2{font:700 1.8rem 'Playfair Display',serif}.okk .ref{display:inline-block;margin:12px 0;font:700 1.15rem monospace;background:#f8ecec;padding:8px 14px;border-radius:10px;letter-spacing:.06em}
-.okk p{color:#4d3a3c;max-width:440px;margin:6px auto}.okk .acts{display:grid;gap:10px;margin-top:18px}
-.okk .acts a{display:block;border-radius:99px;padding:15px;font-weight:700}.okk .acts a.p{background:#5b1823;color:#fff}.okk .acts a.s{box-shadow:inset 0 0 0 1.5px #c9a5a5;color:#6b1f2b}
-.note{margin:16px auto 0;max-width:620px;font-size:13.5px;color:#6a5557;text-align:center;padding:0 14px}
-@media(max-width:560px){.types{grid-template-columns:1fr}.ty{min-height:0;grid-template-columns:auto 1fr;justify-items:start;text-align:left;padding:14px 16px}.row2{grid-template-columns:1fr}.times{grid-template-columns:repeat(3,1fr)}.body{padding:18px 16px 24px}.hd{padding:0 20px}.st span{display:none}.st.on span{display:inline}}
+:root{--bg:#0d0f0c;--card:#15180f;--ink:#f4efe4;--mut:#b9b3a4;--gold:#e9b45f;--line:#2a2d22;--acct:#1a1205}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.6 'DM Sans',system-ui,sans-serif}
+.demo-bar{position:static;margin-top:40px}
+.resa-demo{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;background:var(--gold);color:#1a1205;font:700 14px/1.3 'DM Sans',system-ui,sans-serif;padding:9px 14px;min-height:46px}
+.resa-demo a{background:#1a1205;color:#fff;padding:8px 16px;border-radius:99px;font-size:13.5px}.resa-demo a:hover{background:#000}
+.w{max-width:1180px;margin:0 auto;padding:0 24px}
+.top{border-bottom:1px solid var(--line)}.top .w{display:flex;align-items:center;gap:20px;padding-block:16px;flex-wrap:wrap}
+.logo{font:italic 600 1.5rem 'Playfair Display',serif}.top .sp{flex:1}.top a.b{font-weight:700;font-size:14px;color:var(--mut)}.top a.b:hover{color:var(--ink)}
+.ban{position:relative;min-height:230px;display:flex;align-items:flex-end;overflow:hidden}
+.ban img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 62%}.ban:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,var(--bg) 4%,#0d0f0c99 55%,#0d0f0c55)}
+.ban .w{position:relative;z-index:2;padding-block:34px 18px;width:100%}.eb{font:700 12px 'DM Sans',sans-serif;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+.ban h1{font:italic 600 clamp(2.2rem,6vw,3.6rem)/1.05 'Playfair Display',serif;margin-top:6px}.ban p{color:#d9d3c4;max-width:560px;margin-top:8px}
+.wrap{max-width:760px;margin:0 auto;padding:10px 18px 0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:26px;box-shadow:0 24px 60px #0008}
+.sec{padding:20px 0;border-top:1px solid var(--line)}.sec:first-of-type{border-top:0;padding-top:4px}
+.sh{display:flex;gap:12px;align-items:center;margin-bottom:14px}.sh i{flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--gold);color:var(--acct);font:800 14px 'DM Sans',sans-serif;font-style:normal}
+.sh h2{font:600 1.35rem 'Playfair Display',serif}.sh small{color:var(--mut);margin-left:auto;font-size:13px}
+.stepper{display:inline-flex;align-items:center;gap:6px;border:1.5px solid #3b3a2e;border-radius:16px;padding:6px}
+.stepper button{width:46px;height:46px;border-radius:12px;border:0;background:#22251a;color:var(--ink);font-size:22px;line-height:1}.stepper button:hover:not(:disabled){background:var(--gold);color:var(--acct)}.stepper button:disabled{opacity:.3;cursor:not-allowed}
+.stepper b{min-width:92px;text-align:center;font:600 1.5rem 'Playfair Display',serif}.stepper b small{display:block;font:500 12px 'DM Sans',sans-serif;color:var(--mut);margin-top:-2px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}.dch{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch}
+.c{font:inherit;font-weight:700;color:var(--ink);background:transparent;border:1.5px solid #3b3a2e;border-radius:12px;cursor:pointer}
+.c:hover:not(:disabled){border-color:var(--gold)}
+.dc{flex:none;min-width:66px;padding:9px 8px;display:grid;line-height:1.15;text-align:center;font-size:13px}.dc small{font-weight:500;color:var(--mut)}
+.tc{padding:11px 16px;font-size:15px}.c.on{background:var(--gold);border-color:var(--gold);color:var(--acct)}.dc.on small{color:#5a4210}
+.c:disabled{text-decoration:line-through;color:#6a675c;border-style:dashed;cursor:not-allowed}
+.seg{display:inline-grid;grid-auto-flow:column;gap:0;background:#1d2016;border-radius:99px;padding:3px;margin-bottom:12px}.seg button{border:0;background:transparent;color:var(--mut);border-radius:99px;padding:9px 22px;font-weight:700;cursor:pointer}.seg button.on{background:var(--gold);color:var(--acct)}.seg button:disabled{opacity:.35;cursor:not-allowed}
+.hint{color:var(--mut);font-size:13.5px;margin-top:10px}
+.evt{margin-top:14px;display:grid;gap:12px;padding:14px;border-radius:14px;background:#1a1d13;border:1px dashed #3b3a2e}
+.f{display:grid;grid-template-columns:1fr 1fr;gap:12px}.f label{display:grid;gap:6px;font:700 12px 'DM Sans',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}.f .w2{grid-column:1/-1}
+.f input,.f textarea,.f select{font:500 16px 'DM Sans',system-ui,sans-serif;color:var(--ink);background:#101309;border:1.5px solid #3b3a2e;border-radius:12px;padding:13px 14px;width:100%;text-transform:none;letter-spacing:0}.f textarea{min-height:76px}
+.f input:focus,.f textarea:focus,.f select:focus{outline:2px solid var(--gold);outline-offset:1px}
+.recap{margin-top:6px;background:#1d2016;border:1px solid #3b3a2e;border-radius:14px;padding:12px 16px;display:flex;gap:6px 18px;flex-wrap:wrap;font-weight:600}
+.err{color:#ff8a7a;font-size:14px;min-height:20px;margin-top:8px}
+.go{display:block;width:100%;margin-top:6px;border:0;border-radius:99px;background:var(--gold);color:var(--acct);font:800 1.1rem 'DM Sans',sans-serif;padding:17px;cursor:pointer;box-shadow:0 10px 26px #e9b45f33}.go:hover{filter:brightness(1.06)}
+.okk{display:none;text-align:center;padding:14px 4px}.okk .big{width:70px;height:70px;border-radius:50%;background:var(--gold);color:var(--acct);display:grid;place-items:center;margin:0 auto 14px;font-size:34px}
+.okk h2{font:italic 600 2rem 'Playfair Display',serif}.okk .ref{display:inline-block;margin:12px 0;font:700 1.1rem monospace;background:#1d2016;border:1px solid #3b3a2e;padding:8px 14px;border-radius:10px;letter-spacing:.06em}
+.okk p{color:var(--mut);max-width:460px;margin:6px auto}.okk p b{color:var(--ink)}.okk .acts{display:grid;gap:10px;margin-top:18px;max-width:420px;margin-inline:auto}
+.okk .acts a{display:block;border-radius:99px;padding:14px;font-weight:700}.okk .acts a.p{background:var(--gold);color:var(--acct)}.okk .acts a.s{box-shadow:inset 0 0 0 1.5px #5a5846}
+.card.done .form{display:none}.card.done .okk{display:block}
+.toast{background:#e9b45f;color:#1a1205}
+.note{margin:16px auto 0;max-width:620px;font-size:13.5px;color:var(--mut);text-align:center;padding:0 14px}
+@media(max-width:600px){.f{grid-template-columns:1fr}.card{padding:18px}.ban{min-height:190px}}
 """
 
 CLIENT_BODY = """
-<div class="wrap"><div class="card">
-<div class="hd">%(bg)s<span class="chef">%(chef)s</span><div><h1>Le Bistro du Marché</h1><p>Restaurant · Cuisine de saison</p></div></div>
-<div class="body">
-<div class="steps" id="steps"></div>
-
-<section id="s1">
-<h2 class="q">Type de réservation</h2>
-<div class="types" id="types">
- <button type="button" class="ty on" data-k="table">%(fork)s<b>Table au restaurant</b><span class="ck">%(check)s</span></button>
- <button type="button" class="ty" data-k="group">%(group)s<b>Groupe / Événement</b><small>(8 à 40 pers.)</small><span class="ck">%(check)s</span></button>
- <button type="button" class="ty" data-k="event">%(cake)s<b>Événement privé</b><small>(anniversaire, repas pro…)</small><span class="ck">%(check)s</span></button>
+<div class="resa-demo"><span>Côté restaurateur :</span><a href="/exemples/bistro-reservation-interne" target="_blank" rel="noopener">Voir l’espace réservation interne</a></div>
+<div class="top"><div class="w"><a class="logo serif" href="/exemples/bistro">Le Bistro du Marché</a><span class="sp"></span><a class="b" href="/exemples/bistro">← Retour au site du restaurant</a></div></div>
+<div class="ban"><img src="/assets/ex/bistro-hero.jpg" alt="" onerror="this.remove()"><div class="w"><p class="eb">Réservation en ligne</p><h1>Réserver une table</h1><p>Choisissez le nombre de couverts, le jour et l’heure. Confirmation immédiate, annulation gratuite jusqu’à 2 h avant.</p></div></div>
+<div class="wrap"><div class="card" id="card">
+<div class="form">
+<div class="sec"><div class="sh"><i>1</i><h2>Nombre de couverts</h2></div>
+ <div class="stepper"><button type="button" id="minus" aria-label="Moins de couverts">−</button><b id="nb" aria-live="polite">2<small>couverts</small></b><button type="button" id="plus" aria-label="Plus de couverts">+</button></div>
+ <p class="hint">À partir de 13 personnes, appelez-nous au 04 00 00 00 00.</p></div>
+<div class="sec"><div class="sh"><i>2</i><h2>Le jour</h2><small>Fermé le lundi</small></div><div class="dch" id="dl"></div></div>
+<div class="sec"><div class="sh"><i>3</i><h2>L’heure</h2></div>
+ <div class="seg" role="tablist"><button type="button" id="b-midi">Midi</button><button type="button" id="b-soir" class="on">Soir</button></div>
+ <div class="chips" id="tl"></div><p class="hint" id="th"></p></div>
+<div class="sec"><div class="sh"><i>4</i><h2>Un événement ?</h2><small>Anniversaire, repas d’équipe…</small></div>
+ <div class="seg"><button type="button" id="ev-non" class="on">Non</button><button type="button" id="ev-oui">Oui</button></div>
+ <div class="evt" id="evt" hidden><div class="f"><label class="w2">Type d’événement<select id="et"><option>Anniversaire</option><option>Repas d’équipe</option><option>Repas de famille</option><option>Autre occasion</option></select></label>
+ <label class="w2">Précisions <span style="text-transform:none;letter-spacing:0;font-weight:500">(gâteau, décoration, menu groupe…)</span><textarea id="ep" placeholder="Ex. : un gâteau avec des bougies, à sortir au dessert"></textarea></label></div></div></div>
+<div class="sec"><div class="sh"><i>5</i><h2>Vos coordonnées</h2></div>
+ <div class="f"><label>Nom et prénom<input id="nom" autocomplete="name" placeholder="Claire Martin"></label><label>Téléphone<input id="tel" type="tel" autocomplete="tel" placeholder="06 12 34 56 78"></label>
+ <label class="w2">E-mail <span style="text-transform:none;letter-spacing:0;font-weight:500">(pour la confirmation)</span><input id="mail" type="email" autocomplete="email" placeholder="claire@exemple.fr"></label>
+ <label class="w2">Une demande particulière ? <span style="text-transform:none;letter-spacing:0;font-weight:500">(facultatif)</span><textarea id="msg" placeholder="Allergies, poussette, table en terrasse…"></textarea></label></div></div>
+<div class="recap" id="rc" hidden></div>
+<div class="err" id="er" role="alert"></div>
+<button type="button" class="go" id="go">Confirmer ma réservation</button>
 </div>
-<div class="row2">
- <div class="box"><h3>Nombre de convives</h3><div class="stepper">%(user)s<button type="button" id="minus" aria-label="Moins de convives">−</button><b id="nb" aria-live="polite">4</b><button type="button" id="plus" aria-label="Plus de convives">+</button></div></div>
- <div class="box"><h3>Date</h3><div class="sel">%(cal)s<select id="date" aria-label="Date"></select>%(down)s</div></div>
+<div class="okk" id="ok"><div class="big">✓</div><h2>Réservation confirmée</h2><div class="ref" id="ref"></div><p id="sum"></p><p>Un e-mail de confirmation vous est envoyé, avec un rappel la veille. Vous pouvez modifier ou annuler jusqu’à 2 h avant.</p>
+<div class="acts"><a class="p" id="toInt" href="/exemples/bistro-reservation-interne" target="_blank" rel="noopener">Voir cette réservation côté restaurant (espace interne) →</a><a class="s" href="/exemples/bistro-reservation-client">Faire une autre réservation</a></div></div>
 </div>
-<h2 class="q" style="margin-top:22px;font-size:1.4rem">Choisissez un horaire</h2>
-<div class="seg" role="tablist"><button type="button" id="b-midi">Midi</button><button type="button" id="b-soir" class="on">Soir</button></div>
-<div class="times" id="times"></div>
-<p class="hint">%(info)s <span id="hint">Les horaires barrés sont déjà complets.</span></p>
-<button type="button" class="go" id="next">Continuer %(arrow)s</button>
-<div class="err" id="err1" role="alert"></div>
-</section>
-
-<section id="s3" hidden>
-<h2 class="q">Vos coordonnées</h2>
-<div class="recap" id="recap"></div>
-<div class="f">
- <label>Nom et prénom<input id="nom" autocomplete="name" placeholder="Ex. : Claire Martin"></label>
- <label>Téléphone<input id="tel" type="tel" autocomplete="tel" placeholder="06 12 34 56 78"></label>
- <label>E-mail <small style="text-transform:none;letter-spacing:0;font-weight:500">(pour la confirmation)</small><input id="mail" type="email" autocomplete="email" placeholder="claire@exemple.fr"></label>
- <label>Une demande particulière ?<textarea id="msg" placeholder="Allergies, poussette, anniversaire, gâteau…"></textarea></label>
-</div>
-<div class="err" id="err3" role="alert"></div>
-<button type="button" class="go" id="confirm">Confirmer ma réservation %(arrow)s</button>
-<button type="button" class="link" id="back">← Modifier ma réservation</button>
-</section>
-
-<section id="s4" hidden class="okk">
-<div class="big">%(check2)s</div>
-<h2>Réservation confirmée</h2>
-<div class="ref" id="ref"></div>
-<p id="sum"></p>
-<p>Un e-mail de confirmation vous est envoyé, avec un rappel la veille. Vous pouvez modifier ou annuler jusqu’à 2 h avant.</p>
-<div class="acts"><a class="p" id="toInt" href="/exemples/bistro-reservation-interne">Voir cette réservation côté restaurant (espace interne) →</a><a class="s" href="/exemples/bistro-reservation-client" id="again">Faire une autre réservation</a></div>
-</section>
-</div></div>
-<p class="note">Démonstration : les créneaux déjà pris sont ceux de l’agenda du restaurant. Votre réservation apparaîtra dans l’espace interne, et le créneau se remplit.</p>
-</div>
+<p class="note">Démonstration : les créneaux déjà pris sont ceux de l’agenda du restaurant. Votre réservation apparaîtra dans l’espace interne, et le créneau se remplit.</p></div>
 """
 
 CLIENT_JS = r"""
 var $=function(s){return document.querySelector(s)};
-var S={k:'table',n:4,date:SHOW,svc:'soir',t:'20:00'};
-var LIM={table:[1,8],group:[8,40],event:[6,40]};
-var NAMES={table:'Table au restaurant',group:'Groupe / Événement',event:'Événement privé'};
-function steps(a){var L=['Réservation','Date & convives','Vos infos','Confirmation'],h='';L.forEach(function(l,i){var c=i+1===a?' on':(i+1<a?' done':'');h+=(i?'<span class="st sep"></span>':'')+'<span class="st'+c+'"><i>'+(i+1)+'</i><span>'+l+'</span></span>'});$('#steps').innerHTML=h}
-function fillDates(){var h='',d=new Date();d.setHours(12);for(var i=0;i<60;i++){var s=iso(d);if(openDay(s))h+='<option value="'+s+'"'+(s===S.date?' selected':'')+'>'+label(s)+'</option>';d.setDate(d.getDate()+1)}$('#date').innerHTML=h}
+var S={n:2,date:SHOW,svc:'soir',t:null,ev:false,days:[]};
+(function(){var d=new Date();d.setHours(12);for(var i=0;S.days.length<14&&i<45;i++){var s=iso(d);if(openDay(s))S.days.push(s);d.setDate(d.getDate()+1)}if(S.days.indexOf(S.date)<0)S.date=S.days[0]})();
+function drawDays(){var h='';S.days.forEach(function(s){var d=parse(s);h+='<button type="button" class="c dc'+(S.date===s?' on':'')+'" data-d="'+s+'">'+JOURS[d.getDay()]+'<small>'+d.getDate()+' '+MOIS[d.getMonth()]+'</small></button>'});$('#dl').innerHTML=h}
 function draw(){
-  $('#nb').textContent=S.n;var lim=LIM[S.k];$('#minus').disabled=S.n<=lim[0];$('#plus').disabled=S.n>=lim[1];
-  Array.prototype.forEach.call(document.querySelectorAll('.ty'),function(b){b.classList.toggle('on',b.dataset.k===S.k)});
+  $('#nb').innerHTML=S.n+'<small>couvert'+(S.n>1?'s':'')+'</small>';$('#minus').disabled=S.n<=1;$('#plus').disabled=S.n>=12;
   var sun=parse(S.date).getDay()===0;if(sun&&S.svc==='soir')S.svc='midi';
   $('#b-soir').disabled=sun;$('#b-midi').classList.toggle('on',S.svc==='midi');$('#b-soir').classList.toggle('on',S.svc==='soir');
   var list=S.svc==='midi'?MIDI:SOIR,h='',any=false;
-  list.forEach(function(t){var o=isOpen(S.date,t,S.n);if(o)any=true;h+='<button type="button" data-t="'+t+'"'+(o?'':' disabled')+(S.t===t&&o?' class="on"':'')+'>'+t+'</button>'});
-  $('#times').innerHTML=h;
-  if(S.t&&!isOpen(S.date,S.t,S.n)||list.indexOf(S.t)<0)S.t=null;
-  if(S.t)Array.prototype.forEach.call(document.querySelectorAll('#times button'),function(b){b.classList.toggle('on',b.dataset.t===S.t)});
-  $('#hint').textContent=any?'Les horaires barrés sont déjà complets.':'Plus de table à ce service : essayez l’autre service ou un autre jour.';
-  $('#err1').textContent='';
+  list.forEach(function(t){var o=isOpen(S.date,t,S.n);if(o)any=true;h+='<button type="button" class="c tc'+(S.t===t&&o?' on':'')+'" data-t="'+t+'"'+(o?'':' disabled')+'>'+t.replace(':',' h ').replace(' h 00',' h')+'</button>'});
+  $('#tl').innerHTML=h;if(S.t&&(list.indexOf(S.t)<0||!isOpen(S.date,S.t,S.n)))S.t=null;
+  $('#th').textContent=any?'Les horaires barrés sont déjà complets.':'Plus de table à ce service : essayez l’autre service ou un autre jour.';
+  $('#ev-non').classList.toggle('on',!S.ev);$('#ev-oui').classList.toggle('on',S.ev);$('#evt').hidden=!S.ev;drawDays();
+  var r=$('#rc');if(S.t){r.hidden=false;r.innerHTML='<span>📅 '+label(S.date)+'</span><span>🕗 '+hm(S.t)+'</span><span>👥 '+S.n+' couvert'+(S.n>1?'s':'')+'</span>'+(S.ev?'<span>🎉 '+esc($('#et').value)+'</span>':'')}else r.hidden=true;
+  $('#er').textContent='';
 }
-$('#types').onclick=function(e){var b=e.target.closest('.ty');if(!b)return;S.k=b.dataset.k;var l=LIM[S.k];S.n=Math.min(Math.max(S.n,l[0]),l[1]);if(S.k!=='table'&&S.n<l[0])S.n=l[0];draw()};
 $('#minus').onclick=function(){S.n--;draw()};$('#plus').onclick=function(){S.n++;draw()};
-$('#date').onchange=function(){S.date=this.value;draw()};
+$('#dl').onclick=function(e){var b=e.target.closest('.dc');if(!b)return;S.date=b.dataset.d;draw()};
 $('#b-midi').onclick=function(){S.svc='midi';S.t=null;draw()};$('#b-soir').onclick=function(){S.svc='soir';S.t=null;draw()};
-$('#times').onclick=function(e){var b=e.target.closest('button');if(!b||b.disabled)return;S.t=b.dataset.t;draw()};
-$('#next').onclick=function(){if(!S.t){$('#err1').textContent='Choisissez un horaire disponible.';return}
-  $('#recap').innerHTML='<span>'+'📅 '+label(S.date)+'</span><span>🕗 '+hm(S.t)+'</span><span>👥 '+S.n+' convive'+(S.n>1?'s':'')+'</span><span>🍽 '+NAMES[S.k]+'</span>';
-  $('#s1').hidden=true;$('#s3').hidden=false;steps(3);window.scrollTo({top:0,behavior:'smooth'})};
-$('#back').onclick=function(){$('#s3').hidden=true;$('#s1').hidden=false;steps(1)};
-$('#confirm').onclick=function(){
-  var nom=$('#nom').value.trim(),tel=$('#tel').value.trim(),mail=$('#mail').value.trim(),e=$('#err3');
+$('#tl').onclick=function(e){var b=e.target.closest('.tc');if(!b||b.disabled)return;S.t=b.dataset.t;draw()};
+$('#ev-non').onclick=function(){S.ev=false;draw()};$('#ev-oui').onclick=function(){S.ev=true;draw()};$('#et').onchange=draw;
+$('#go').onclick=function(){
+  var nom=$('#nom').value.trim(),tel=$('#tel').value.trim(),mail=$('#mail').value.trim(),e=$('#er');
+  if(!S.t){e.textContent='Choisissez un horaire disponible.';return}
   if(nom.length<2){e.textContent='Indiquez votre nom.';return}
   if(tel.replace(/\D/g,'').length<8){e.textContent='Indiquez un numéro de téléphone valide.';return}
   if(mail&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)){e.textContent='Cette adresse e-mail ne semble pas valide.';return}
-  if(!isOpen(S.date,S.t,S.n)){e.textContent='Ce créneau vient d’être pris. Choisissez-en un autre.';return}
-  var ref='RDV-'+Math.random().toString(36).slice(2,8).toUpperCase(),st=store(),id='u'+Date.now();
-  st.res.push({id:id,iso:S.date,t:S.t,n:S.n,nom:nom,tel:tel,mail:mail,msg:$('#msg').value.trim(),kind:S.k,ref:ref,web:1});save(st);
-  $('#ref').textContent=ref;$('#sum').innerHTML='<b>'+esc(label(S.date))+' à '+hm(S.t)+'</b> · '+S.n+' convive'+(S.n>1?'s':'')+' · '+NAMES[S.k]+'<br>Merci '+esc(nom)+', votre table est réservée.';
+  if(!isOpen(S.date,S.t,S.n)){e.textContent='Ce créneau vient d’être pris. Choisissez-en un autre.';draw();return}
+  var ref='RDV-'+Math.random().toString(36).slice(2,8).toUpperCase(),st=store(),id='u'+Date.now(),kind=S.ev?'event':(S.n>=8?'group':'table');
+  var msg=(S.ev?$('#et').value+($('#ep').value.trim()?' : '+$('#ep').value.trim():''):'')+(S.ev&&$('#msg').value.trim()?' · ':'')+$('#msg').value.trim();
+  st.res.push({id:id,iso:S.date,t:S.t,n:S.n,nom:nom,tel:tel,mail:mail,msg:msg,kind:kind,ref:ref,web:1});save(st);
+  $('#ref').textContent=ref;$('#sum').innerHTML='<b>'+esc(label(S.date))+' à '+hm(S.t)+'</b> · '+S.n+' couvert'+(S.n>1?'s':'')+(S.ev?' · '+esc($('#et').value):'')+'<br>Merci '+esc(nom)+', votre table est réservée.';
   $('#toInt').href='/exemples/bistro-reservation-interne?d='+S.date+'&n='+id;
-  $('#s3').hidden=true;$('#s4').hidden=false;steps(4);window.scrollTo({top:0,behavior:'smooth'});e.textContent=''};
-fillDates();steps(1);draw();
+  $('#card').classList.add('done');window.scrollTo({top:0,behavior:'smooth'})};
+draw();
 """
 
 
 def client():
-    body = CLIENT_BODY % dict(
-        bg=open("tools/src/bistro-scene.svg").read().replace("<svg ", '<svg class="bg" ', 1),
-        chef=ic("chef", 76, 1.6), fork=ic("fork", 42, 2), group=ic("group", 40, 1.8), cake=ic("cake", 40, 1.8),
-        check=ic("check", 16, 3), check2=ic("check", 38, 3), user=ic("user", 22), cal=ic("cal", 22), down=ic("down", 20),
-        info=ic("bell", 16), arrow=ic("right", 22, 2.4))
-    return shell("Réserver une table · Le Bistro du Marché", CLIENT_CSS, body, CLIENT_JS, c="on")
+    body = CLIENT_BODY
+    return shell("Réserver une table · Le Bistro du Marché", CLIENT_CSS, body, CLIENT_JS, c="on", bar="")
 
 
 # =====================================================================

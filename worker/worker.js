@@ -43,7 +43,9 @@ function validate(b) {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s('email')) || s('email').length > 120) e.email = 'Adresse e-mail invalide.';
   if (s('tel') && !/^[0-9+().\s-]{8,20}$/.test(s('tel'))) e.tel = 'Numéro invalide.';
   if (s('commerce').length < 2 || s('commerce').length > 80) e.commerce = 'Nom du commerce requis (2 à 80 caractères).';
-  if (!ACTIVITES.includes(s('activite'))) e.activite = 'Choisissez une activité.';
+  if (s('metier')) { if (s('metier').length < 2 || s('metier').length > 60) e.activite = 'Indiquez votre activité (2 à 60 caractères).'; }
+  else if (!ACTIVITES.includes(s('activite'))) e.activite = 'Indiquez votre activité.';
+  if (s('activite') && !ACTIVITES.includes(s('activite'))) e.activite = 'Activité invalide.';
   if (s('ville').length < 2 || s('ville').length > 60) e.ville = 'Ville requise.';
   if (s('domaine') && !/^[a-z0-9][a-z0-9-]{0,61}(\.[a-z]{2,10})?$/i.test(s('domaine'))) e.domaine = 'Nom de domaine invalide.';
   if (!FORMULES.includes(s('formule'))) e.formule = 'Choisissez une formule.';
@@ -88,8 +90,9 @@ async function demande(req, env, url) {
       utm = JSON.stringify(o).slice(0, 600);
     }
     const t = (k, n) => (typeof b[k] === 'string' ? b[k].trim().slice(0, n) : '');
-    await env.DB.prepare('INSERT INTO demandes (ref, nom, email, tel, commerce, activite, ville, domaine, mails, message, utm, page, ip_hash, ua, formule, compte_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)')
-      .bind(ref, t('nom', 80), t('email', 120), t('tel', 20), t('commerce', 80), t('activite', 20), t('ville', 60), t('domaine', 70), parseInt(b.mails, 10) || 0, t('message', 1000), utm, t('page', 60), iph, (req.headers.get('user-agent') || '').slice(0, 200), t('formule', 12), user.id).run();
+    await ensureSchema(env);
+    await env.DB.prepare('INSERT INTO demandes (ref, nom, email, tel, commerce, activite, metier, ville, domaine, mails, message, utm, page, ip_hash, ua, formule, compte_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)')
+      .bind(ref, t('nom', 80), t('email', 120), t('tel', 20), t('commerce', 80), ACTIVITES.includes(t('activite', 20)) ? t('activite', 20) : 'autre', (t('metier', 60) || null), t('ville', 60), t('domaine', 70), parseInt(b.mails, 10) || 0, t('message', 1000), utm, t('page', 60), iph, (req.headers.get('user-agent') || '').slice(0, 200), t('formule', 12), user.id).run();
   } catch (_) {
     return json({ ok: false }, 500);
   }
@@ -324,7 +327,8 @@ async function espace(req, env, url, p) {
     if (p === '/api/espace/editeur' || p === '/api/espace/contenu' || p === '/api/espace/media') return await espaceEdit(req, env, url, p, u, lecture);
     if (p === '/api/espace' && req.method === 'GET') {
       const compte = await one('SELECT nom, email, created_at, opt_out FROM comptes WHERE id = ?', u.id);
-      const demandes = await all('SELECT id, ref, created_at, commerce, activite, ville, domaine, mails, tel, formule, statut, suspendu, site_url FROM demandes WHERE compte_id = ? ORDER BY id DESC', u.id);
+      const demandes = await all('SELECT id, ref, created_at, commerce, COALESCE(metier, activite) AS activite, ville, domaine, mails, tel, formule, statut, suspendu, site_url FROM demandes WHERE compte_id = ? ORDER BY id DESC', u.id);
+      await appliquerChangements(env);
       const abo = await one('SELECT formule, statut, mails_sup, debut, fin FROM abonnements WHERE compte_id = ?', u.id);
       const formule = abo ? abo.formule : (demandes[0] ? demandes[0].formule : 'essentiel');
       const used = await one('SELECT COUNT(*) n FROM modifs WHERE compte_id = ? AND created_at >= ?', u.id, premierDuMois());
@@ -669,7 +673,7 @@ async function adminApi(req, env, url, p) {
       return json({ ok: true,
         comptes: await all(`SELECT id, nom, email, created_at, derniere_connexion, opt_out, demo FROM comptes WHERE ${NOADM} ORDER BY id DESC LIMIT 2000`),
         abonnements: await all('SELECT compte_id, formule, statut, mails_sup, debut, fin, motif, created_at FROM abonnements LIMIT 5000'),
-        demandes: await all('SELECT compte_id, ref, commerce, activite, ville, domaine, mails, tel, formule, statut, suspendu, site_url, utm, message, created_at FROM demandes ORDER BY id DESC LIMIT 3000'),
+        demandes: await all('SELECT compte_id, ref, commerce, COALESCE(metier, activite) AS activite, ville, domaine, mails, tel, formule, statut, suspendu, site_url, utm, message, created_at FROM demandes ORDER BY id DESC LIMIT 3000'),
         plaintes: await all('SELECT compte_id, sujet, message, statut, created_at, resolved_at FROM plaintes ORDER BY id DESC LIMIT 3000'),
         journal: await all('SELECT compte_id, type, detail, created_at FROM journal ORDER BY id DESC LIMIT 500') });
     }
@@ -684,12 +688,14 @@ async function adminApi(req, env, url, p) {
       return json({ ok: true, comptes: rows });
     }
     if (p === '/api/admin/compte' && req.method === 'GET') {
+      await appliquerChangements(env);
       const id = parseInt(url.searchParams.get('id'), 10);
       const cpt = await one('SELECT id, nom, email, created_at, derniere_connexion, role FROM comptes WHERE id = ?', id);
       if (!cpt) return json({ ok: false }, 404);
       return json({ ok: true, compte: cpt,
-        demandes: await all('SELECT id, ref, created_at, commerce, activite, ville, domaine, mails, tel, message, formule, statut, suspendu, site_url FROM demandes WHERE compte_id = ? ORDER BY id DESC', id),
-        abonnement: await one('SELECT * FROM abonnements WHERE compte_id = ?', id),
+        demandes: await all('SELECT id, ref, created_at, commerce, COALESCE(metier, activite) AS activite, ville, domaine, mails, tel, message, formule, statut, suspendu, site_url FROM demandes WHERE compte_id = ? ORDER BY id DESC', id),
+        abonnement: await one('SELECT * FROM abonnements WHERE compte_id = ?', id), changements: await changementsDe(env, id),
+        stats_site: await (async () => { const dd = await one('SELECT ref, statut FROM demandes WHERE compte_id = ? ORDER BY id DESC LIMIT 1', id); return dd ? { ref: dd.ref, statut: dd.statut, ...(await statsSite(env, dd.ref)) } : null; })(),
         plaintes: await all('SELECT * FROM plaintes WHERE compte_id = ? ORDER BY id DESC', id),
         journal: await all('SELECT type, detail, created_at, admin_id FROM journal WHERE compte_id = ? ORDER BY id DESC LIMIT 30', id) });
     }
@@ -727,6 +733,7 @@ async function adminApi(req, env, url, p) {
         if (b.statut === 'resilie') await env.DB.prepare("UPDATE resiliations SET statut = 'traitee', traite_at = datetime('now') WHERE compte_id = ? AND statut = 'demandee'").bind(cid).run();
         if (ex.formule !== b.formule) await log(env, cid, me.id, 'changement_formule', ex.formule + ' → ' + b.formule);
       }
+      if (b.statut === 'impaye') await ouvrirLitige(env, cid, 'impaye', { montant: Math.round((PRIX[b.formule] + PRIX_MAIL * mails) * 1.2 * 100) / 100, periode: parisToday().slice(0, 7), note: 'Abonnement passé en impayé.', source: 'auto' });
       return json({ ok: true });
     }
     if (p === '/api/admin/plainte') {
@@ -828,11 +835,17 @@ async function ensureSchema(env) {
     "CREATE TABLE IF NOT EXISTS suivi (compte_id INTEGER PRIMARY KEY, rappel_le TEXT, motif TEXT, updated_at TEXT)",
     "CREATE TABLE IF NOT EXISTS parrains (compte_id INTEGER PRIMARY KEY, code TEXT NOT NULL UNIQUE, created_at TEXT NOT NULL DEFAULT (datetime('now')))",
     "CREATE TABLE IF NOT EXISTS parrainages (id INTEGER PRIMARY KEY AUTOINCREMENT, parrain_id INTEGER NOT NULL, filleul_id INTEGER NOT NULL UNIQUE, code TEXT, statut TEXT NOT NULL DEFAULT 'en_attente', created_at TEXT NOT NULL DEFAULT (datetime('now')), valide_at TEXT)",
-    "CREATE TABLE IF NOT EXISTS credits (id INTEGER PRIMARY KEY AUTOINCREMENT, compte_id INTEGER NOT NULL, mois INTEGER NOT NULL DEFAULT 1, origine TEXT, parrainage_id INTEGER, utilise_at TEXT, expire_at TEXT, created_at TEXT NOT NULL DEFAULT (datetime('now')))",
+    "CREATE TABLE IF NOT EXISTS credits (id INTEGER PRIMARY KEY AUTOINCREMENT, compte_id INTEGER NOT NULL, mois INTEGER NOT NULL DEFAULT 1, origine TEXT, parrainage_id INTEGER, utilise_at TEXT, expire_at TEXT, created_at TEXT NOT NULL DEFAULT (datetime('now')), mois_offert TEXT)",
     "CREATE TABLE IF NOT EXISTS avis (id INTEGER PRIMARY KEY AUTOINCREMENT, compte_id INTEGER NOT NULL UNIQUE, demande_id INTEGER, note INTEGER NOT NULL, commentaire TEXT, nom TEXT, commerce TEXT, statut TEXT NOT NULL DEFAULT 'en_attente', created_at TEXT NOT NULL DEFAULT (datetime('now')), publie_at TEXT)",
+    "CREATE TABLE IF NOT EXISTS changements_formule (id INTEGER PRIMARY KEY AUTOINCREMENT, compte_id INTEGER NOT NULL, de TEXT NOT NULL, vers TEXT NOT NULL, effet TEXT NOT NULL, statut TEXT NOT NULL DEFAULT 'demande', mails_avant INTEGER, mails_apres INTEGER, created_at TEXT NOT NULL DEFAULT (datetime('now')), applique_at TEXT)",
+    "CREATE TABLE IF NOT EXISTS litiges (id INTEGER PRIMARY KEY AUTOINCREMENT, compte_id INTEGER NOT NULL, type TEXT NOT NULL, montant_ttc REAL, periode TEXT, note TEXT, source TEXT NOT NULL DEFAULT 'manuel', statut TEXT NOT NULL DEFAULT 'ouvert', created_at TEXT NOT NULL DEFAULT (datetime('now')), clos_at TEXT)",
+    "CREATE TABLE IF NOT EXISTS vues_site (site TEXT NOT NULL, jour TEXT NOT NULL, n INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (site, jour))",
+    "CREATE TABLE IF NOT EXISTS vues_site_uniq (site TEXT NOT NULL, jour TEXT NOT NULL, h TEXT NOT NULL, n INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (site, jour, h))",
     "CREATE TABLE IF NOT EXISTS vues (jour TEXT NOT NULL, page TEXT NOT NULL, n INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (jour, page))",
   ];
   await env.DB.batch(S.map((q) => env.DB.prepare(q)));
+  try { await env.DB.prepare('ALTER TABLE credits ADD COLUMN mois_offert TEXT').run(); } catch (_) { /* colonne déjà présente */ }
+  try { await env.DB.prepare('ALTER TABLE demandes ADD COLUMN metier TEXT').run(); } catch (_) { /* colonne déjà présente */ }
   SCHEMA_OK = true;
 }
 
@@ -848,6 +861,8 @@ const PARRAIN_VALIDITE_JOURS = 90; // un parrainage non transformé en abonnemen
 const CREDIT_VALIDITE_MOIS = 12;
 const STATUTS_PAUSE = ['hesite', 'a_rappeler', 'plus_tard', 'refusee', 'sans_reponse', 'trop_cher', 'concurrent', 'abandonnee'];
 
+const MOIS_FR = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+function moisFr(ym) { return MOIS_FR[+ym.slice(5, 7) - 1] + ' ' + ym.slice(0, 4); }
 function plusMois(iso, n) {
   const d = new Date(iso.slice(0, 10) + 'T12:00:00Z'), j = d.getUTCDate();
   d.setUTCDate(1); d.setUTCMonth(d.getUTCMonth() + n);
@@ -885,6 +900,19 @@ async function codeDe(env, compteId) {
 async function notifier(env, compteId, titre, message) {
   try { await env.DB.prepare('INSERT INTO notifications (compte_id, titre, message) VALUES (?,?,?)').bind(compteId, titre.slice(0, 120), message.slice(0, 1000)).run(); } catch (_) {}
 }
+// Mois offert : le mois en cours reste facturé, le premier mois libre suivant est offert.
+async function moisLibres(env, compteId, n) {
+  const today = parisToday();
+  const pris = new Set(((await env.DB.prepare('SELECT mois_offert FROM credits WHERE compte_id = ? AND mois_offert IS NOT NULL').bind(compteId).all()).results || []).map((r) => r.mois_offert));
+  const out = []; let k = 1;
+  while (out.length < n && k < 400) { const m = plusMois(today.slice(0, 8) + '01', k).slice(0, 7); if (!pris.has(m)) out.push(m); k++; }
+  return out;
+}
+function etatCredit(c, today) {
+  if (c.utilise_at) return 'utilise';
+  if (c.mois_offert) return c.mois_offert < today.slice(0, 7) ? 'utilise' : (c.mois_offert === today.slice(0, 7) ? 'en_cours' : 'planifie');
+  return c.expire_at && c.expire_at < today + ' 23:59:59' ? 'expire' : 'disponible';
+}
 async function expirerParrainages(env) {
   await env.DB.prepare("UPDATE parrainages SET statut = 'expire' WHERE statut = 'en_attente' AND created_at < datetime('now', ?)").bind('-' + PARRAIN_VALIDITE_JOURS + ' days').run();
 }
@@ -911,13 +939,14 @@ async function validerParrainage(env, filleulId) {
   const pa = await env.DB.prepare("SELECT id, parrain_id FROM parrainages WHERE filleul_id = ? AND statut = 'en_attente'").bind(filleulId).first();
   if (!pa) return false;
   const exp = "datetime('now','+" + CREDIT_VALIDITE_MOIS + " months')";
+  const mP = (await moisLibres(env, pa.parrain_id, 1))[0], mF = (await moisLibres(env, filleulId, 1))[0];
   await env.DB.batch([
     env.DB.prepare("UPDATE parrainages SET statut = 'valide', valide_at = datetime('now') WHERE id = ?").bind(pa.id),
-    env.DB.prepare('INSERT INTO credits (compte_id, mois, origine, parrainage_id, expire_at) VALUES (?,1,?,?,' + exp + ')').bind(pa.parrain_id, 'parrain', pa.id),
-    env.DB.prepare('INSERT INTO credits (compte_id, mois, origine, parrainage_id, expire_at) VALUES (?,1,?,?,' + exp + ')').bind(filleulId, 'filleul', pa.id),
+    env.DB.prepare('INSERT INTO credits (compte_id, mois, origine, parrainage_id, expire_at, mois_offert) VALUES (?,1,?,?,' + exp + ',?)').bind(pa.parrain_id, 'parrain', pa.id, mP),
+    env.DB.prepare('INSERT INTO credits (compte_id, mois, origine, parrainage_id, expire_at, mois_offert) VALUES (?,1,?,?,' + exp + ',?)').bind(filleulId, 'filleul', pa.id, mF),
   ]);
-  await notifier(env, pa.parrain_id, 'Parrainage validé : un mois offert', 'Merci ! Votre filleul est devenu client. Un mois offert est ajouté à votre compte, il sera déduit d’une prochaine facture.');
-  await notifier(env, filleulId, 'Bienvenue : un mois offert', 'Grâce à votre parrain, un mois offert est ajouté à votre compte, il sera déduit d’une prochaine facture.');
+  await notifier(env, pa.parrain_id, 'Parrainage validé : un mois offert', 'Merci ! Votre filleul est devenu client. Un mois offert est ajouté à votre compte, le mois de ' + moisFr(mP) + ' ne vous sera pas facturé.');
+  await notifier(env, filleulId, 'Bienvenue : un mois offert', 'Grâce à votre parrain, un mois offert est ajouté à votre compte : le mois de ' + moisFr(mF) + ' ne vous sera pas facturé.');
   await log(env, filleulId, null, 'parrainage_valide', 'filleul');
   await log(env, pa.parrain_id, null, 'parrainage_valide', 'parrain');
   return true;
@@ -960,14 +989,56 @@ function frise(d, dos, journal, retours) {
   const etapes = [
     { cle: 'recue', titre: 'Demande reçue', detail: 'Nous avons bien reçu votre demande.', etat: 'fait', date: d.created_at.slice(0, 10) },
     { cle: 'dossier', titre: 'Votre dossier', detail: termine ? 'Votre dossier est complet.' : 'À compléter : présentation, horaires, adresse, téléphone, prestations, logo et photos.', etat: termine || idx >= 1 ? 'fait' : 'cours', date: termine },
-    { cle: 'creation', titre: 'Création de votre site', detail: prevue && idx < 2 ? 'Livraison de l’aperçu prévue au plus tard le ' + prevue.split('-').reverse().join('/') + '.' : 'Nous créons votre site à partir de votre dossier.', etat: idx >= 2 ? 'fait' : (idx === 1 || (termine && idx === 0) ? 'cours' : 'avenir'), date: date('en_creation'), prevue: idx < 2 ? prevue : null },
+    { cle: 'creation', titre: 'Création de votre site', detail: 'Nous créons votre site à partir de votre dossier.', etat: idx >= 2 ? 'fait' : (idx === 1 || (termine && idx === 0) ? 'cours' : 'avenir'), date: date('en_creation'), prevue: idx < 2 ? prevue : null },
     { cle: 'apercu', titre: 'Votre validation', detail: valide ? 'Vous avez validé l’aperçu.' : 'Vous découvrez l’aperçu, puis vous le validez ou demandez des ajustements.', etat: valide || idx >= 3 ? 'fait' : (idx === 2 ? 'cours' : 'avenir'), date: valide ? valide.created_at.slice(0, 10) : date('apercu') },
     { cle: 'en_ligne', titre: 'Mise en ligne', detail: idx >= 3 ? 'Votre site est en ligne.' : 'Nous mettons votre site en ligne après votre validation.', etat: idx >= 3 ? 'fait' : 'avenir', date: date('en_ligne') },
   ];
   return { etapes, pause, prevue };
 }
 
-const V2_ESPACE = new Set(['/api/espace/parcours', '/api/espace/apercu', '/api/espace/dossier', '/api/espace/dossier-termine', '/api/espace/fichier', '/api/espace/fichier-suppr', '/api/espace/resiliation', '/api/espace/resiliation-annuler', '/api/espace/avis', '/api/espace/parrain-appliquer']);
+
+// ---- changement de formule : effet au 1er du mois suivant ----
+function premierMoisSuivant(iso) { return plusMois(iso.slice(0, 7) + '-01', 1); }
+// Pro -> Essentiel : l'adresse mail incluse devient payante (4 € HT) ; Essentiel -> Pro : une adresse payante devient incluse
+function mailsApresChangement(de, vers, avant) { return de === 'pro' && vers === 'essentiel' ? avant + 1 : de === 'essentiel' && vers === 'pro' ? Math.max(0, avant - 1) : avant; }
+async function appliquerChangements(env) {
+  await ensureSchema(env);
+  const today = parisToday();
+  const dus = (await env.DB.prepare("SELECT id, compte_id, de, vers, effet FROM changements_formule WHERE statut = 'demande' AND effet <= ? ORDER BY effet, id").bind(today).all()).results || [];
+  for (const c of dus) {
+    const abo = await env.DB.prepare('SELECT formule, statut, mails_sup FROM abonnements WHERE compte_id = ?').bind(c.compte_id).first();
+    if (!abo || abo.statut === 'resilie' || abo.formule === c.vers) { await env.DB.prepare("UPDATE changements_formule SET statut = 'annule', applique_at = datetime('now') WHERE id = ?").bind(c.id).run(); continue; }
+    const avant = abo.mails_sup || 0, apres = mailsApresChangement(abo.formule, c.vers, avant);
+    const r = await env.DB.prepare("UPDATE changements_formule SET statut = 'applique', de = ?, mails_avant = ?, mails_apres = ?, applique_at = datetime('now') WHERE id = ? AND statut = 'demande'").bind(abo.formule, avant, apres, c.id).run();
+    if (!(r.meta && r.meta.changes)) continue;
+    await env.DB.prepare("UPDATE abonnements SET formule = ?, mails_sup = ?, updated_at = datetime('now') WHERE compte_id = ?").bind(c.vers, apres, c.compte_id).run();
+    await log(env, c.compte_id, null, 'changement_formule', abo.formule + ' → ' + c.vers + ' (effet ' + c.effet + ')');
+    const txtMail = abo.formule === 'pro' && c.vers === 'essentiel' ? ' Votre adresse mail pro, auparavant incluse, est désormais facturée 4 € HT (4,80 € TTC) par mois.' : '';
+    await notifier(env, c.compte_id, 'Votre formule a changé', 'Votre abonnement est passé à la formule ' + (c.vers === 'pro' ? 'Pro' : 'Essentiel') + ' à compter du ' + c.effet.split('-').reverse().join('/') + '.' + txtMail);
+  }
+}
+async function changementsDe(env, cid) {
+  return (await env.DB.prepare("SELECT id, de, vers, effet, statut, mails_avant, mails_apres, created_at FROM changements_formule WHERE compte_id = ? AND statut IN ('demande','applique') ORDER BY effet, id").bind(cid).all()).results || [];
+}
+// ---- litiges (impayés, prélèvements rejetés, contestations) ----
+const TYPES_LITIGE = ['impaye', 'prelevement_rejete', 'contestation', 'autre'];
+async function ouvrirLitige(env, cid, type, o) {
+  o = o || {};
+  const ex = o.source === 'auto' && o.periode
+    ? await env.DB.prepare("SELECT id FROM litiges WHERE compte_id = ? AND type = ? AND source = 'auto' AND (statut = 'ouvert' OR periode = ?)").bind(cid, type, o.periode).first()
+    : await env.DB.prepare("SELECT id FROM litiges WHERE compte_id = ? AND type = ? AND statut = 'ouvert'").bind(cid, type).first();
+  if (ex) return ex.id;
+  const r = await env.DB.prepare('INSERT INTO litiges (compte_id, type, montant_ttc, periode, note, source) VALUES (?,?,?,?,?,?)').bind(cid, type, o.montant == null ? null : o.montant, o.periode || '', o.note || '', o.source || 'auto').run();
+  return r.meta.last_row_id;
+}
+async function synchroLitigesImpayes(env) {
+  await ensureSchema(env);
+  const imp = (await env.DB.prepare("SELECT compte_id, formule, mails_sup FROM abonnements WHERE statut = 'impaye'").all()).results || [];
+  for (const a of imp) await ouvrirLitige(env, a.compte_id, 'impaye', { montant: Math.round((PRIX[a.formule] + PRIX_MAIL * (a.mails_sup || 0)) * 1.2 * 100) / 100, periode: parisToday().slice(0, 7), note: 'Abonnement en statut impayé.', source: 'auto' });
+  await env.DB.prepare("UPDATE litiges SET statut = 'regle', clos_at = datetime('now') WHERE statut = 'ouvert' AND type = 'impaye' AND source = 'auto' AND compte_id NOT IN (SELECT compte_id FROM abonnements WHERE statut = 'impaye')").run();
+}
+
+const V2_ESPACE = new Set(['/api/espace/parcours', '/api/espace/apercu', '/api/espace/dossier', '/api/espace/dossier-termine', '/api/espace/fichier', '/api/espace/fichier-suppr', '/api/espace/resiliation', '/api/espace/resiliation-annuler', '/api/espace/avis', '/api/espace/parrain-appliquer', '/api/espace/formule-changer', '/api/espace/formule-annuler', '/api/espace/stats']);
 async function espaceV2(req, env, url, p, u, lecture) {
   await ensureSchema(env);
   const one = (sql, ...a) => env.DB.prepare(sql).bind(...a).first();
@@ -976,9 +1047,9 @@ async function espaceV2(req, env, url, p, u, lecture) {
   const dem = () => one('SELECT id, ref, created_at, statut, suspendu, site_url, formule, commerce, domaine FROM demandes WHERE compte_id = ? ORDER BY id DESC LIMIT 1', u.id);
   const today = parisToday();
   if (p === '/api/espace/parcours' && req.method === 'GET') {
-    await expirerParrainages(env);
+    await expirerParrainages(env); await appliquerChangements(env);
     const d = await dem();
-    const abo = await one('SELECT formule, statut, debut, fin FROM abonnements WHERE compte_id = ?', u.id);
+    const abo = await one('SELECT formule, statut, mails_sup, debut, fin FROM abonnements WHERE compte_id = ?', u.id);
     const dos = await dossierDe(env, u.id);
     const retours = await all('SELECT id, type, message, statut, created_at FROM retours_apercu WHERE compte_id = ? ORDER BY id DESC LIMIT 10', u.id);
     const journal = await all("SELECT detail, created_at FROM journal WHERE compte_id = ? AND type = 'site_statut' ORDER BY id", u.id);
@@ -986,14 +1057,20 @@ async function espaceV2(req, env, url, p, u, lecture) {
     const resil = await one("SELECT id, motif, message, effet, decale, created_at FROM resiliations WHERE compte_id = ? AND statut = 'demandee' ORDER BY id DESC LIMIT 1", u.id);
     const code = await codeDe(env, u.id);
     const filleuls = await all('SELECT p.statut, p.created_at, c.nom FROM parrainages p JOIN comptes c ON c.id = p.filleul_id WHERE p.parrain_id = ? ORDER BY p.id DESC LIMIT 50', u.id);
-    const credits = await all('SELECT id, mois, origine, utilise_at, expire_at, created_at FROM credits WHERE compte_id = ? ORDER BY id DESC', u.id);
+    const credits = await all('SELECT id, mois, origine, utilise_at, expire_at, created_at, mois_offert FROM credits WHERE compte_id = ? ORDER BY id DESC', u.id);
     const moi = await one('SELECT p.code, p.statut, p.created_at FROM parrainages p WHERE p.filleul_id = ?', u.id);
     const avis = await one('SELECT note, commentaire, statut FROM avis WHERE compte_id = ?', u.id);
     return json({ ok: true, lecture, aujourdhui: today, demande: d, abonnement: abo, dossier: dos, requis: DOSSIER_REQUIS.map((k) => ({ cle: k, libelle: DOSSIER_LIBELLES[k], ok: !!(dos[k] || '').trim() })),
       fichiers: await all('SELECT id, categorie, nom, mime, taille, created_at FROM dossier_fichiers WHERE compte_id = ? ORDER BY id', u.id), fichiers_max: FICHIERS_MAX, fichier_max: FICHIER_MAX,
-      retours, frise: fr, delai: DELAI_JOURS_OUVRES, resiliation: resil, effet: effetResiliation(abo && abo.debut, today),
-      parrainage: { code, lien: url.origin + '/inscription?parrain=' + code, filleuls: filleuls.map((f) => ({ prenom: prenomDe(f.nom), statut: f.statut, date: f.created_at.slice(0, 10) })), credits: credits.map((c) => ({ id: c.id, mois: c.mois, etat: c.utilise_at ? 'utilise' : (c.expire_at && c.expire_at < today + ' 23:59:59' ? 'expire' : 'disponible'), expire_at: c.expire_at ? c.expire_at.slice(0, 10) : null, utilise_le: c.utilise_at ? String(c.utilise_at).slice(0, 10) : null })), moi: moi ? { code: moi.code, statut: moi.statut } : null, validite: PARRAIN_VALIDITE_JOURS },
+      retours, frise: fr, delai: DELAI_JOURS_OUVRES, resiliation: resil, changements: await changementsDe(env, u.id), effet: effetResiliation(abo && abo.debut, today),
+      parrainage: { code, lien: url.origin + '/inscription?parrain=' + code, filleuls: filleuls.map((f) => ({ prenom: prenomDe(f.nom), statut: f.statut, date: f.created_at.slice(0, 10) })), credits: credits.map((c) => ({ id: c.id, mois: c.mois, origine: c.origine, mois_offert: c.mois_offert || null, etat: etatCredit(c, today), expire_at: c.expire_at ? c.expire_at.slice(0, 10) : null, utilise_le: c.utilise_at ? String(c.utilise_at).slice(0, 10) : null })), moi: moi ? { code: moi.code, statut: moi.statut } : null, validite: PARRAIN_VALIDITE_JOURS },
       avis: avis || null, avis_invite: !!(d && d.statut === 'en_ligne' && !avis) });
+  }
+  if (p === '/api/espace/stats' && req.method === 'GET') {
+    const d = await dem();
+    if (!d) return json({ ok: true, actif: false, raison: 'aucun-site' });
+    if (d.statut !== 'en_ligne') return json({ ok: true, actif: false, raison: 'pas-en-ligne' });
+    return json({ ok: true, actif: true, ...(await statsSite(env, d.ref)) });
   }
   if (p === '/api/espace/fichier' && req.method === 'GET') {
     const id = parseInt(url.searchParams.get('id'), 10);
@@ -1063,6 +1140,25 @@ async function espaceV2(req, env, url, p, u, lecture) {
     await env.DB.prepare('DELETE FROM dossier_fichiers WHERE id = ? AND compte_id = ?').bind(parseInt(b.id, 10) || 0, u.id).run();
     return json({ ok: true });
   }
+  if (p === '/api/espace/formule-changer') {
+    const abo = await one('SELECT formule, statut, mails_sup FROM abonnements WHERE compte_id = ?', u.id);
+    if (!abo || abo.statut !== 'actif') return json({ ok: false, error: 'pas-actif' }, 409);
+    if (!FORMULES.includes(b.vers) || b.vers === abo.formule) return json({ ok: false, error: 'formule' }, 422);
+    if (b.confirme !== true) return json({ ok: false, error: 'confirmation' }, 422);
+    if (await one("SELECT id FROM resiliations WHERE compte_id = ? AND statut = 'demandee'", u.id)) return json({ ok: false, error: 'resiliation' }, 409);
+    if (await one("SELECT id FROM changements_formule WHERE compte_id = ? AND statut = 'demande'", u.id)) return json({ ok: false, error: 'deja' }, 409);
+    const effet = premierMoisSuivant(today);
+    await env.DB.prepare('INSERT INTO changements_formule (compte_id, de, vers, effet) VALUES (?,?,?,?)').bind(u.id, abo.formule, b.vers, effet).run();
+    await log(env, u.id, null, 'changement_formule_demande', abo.formule + ' → ' + b.vers + ' / effet ' + effet);
+    await notifier(env, u.id, 'Changement de formule enregistré', 'Votre passage à la formule ' + (b.vers === 'pro' ? 'Pro' : 'Essentiel') + ' prendra effet le ' + effet.split('-').reverse().join('/') + '. Le mois en cours reste facturé à la formule actuelle. Vous pouvez annuler jusqu’à cette date.');
+    return json({ ok: true, effet, mails_apres: mailsApresChangement(abo.formule, b.vers, abo.mails_sup || 0) });
+  }
+  if (p === '/api/espace/formule-annuler') {
+    const r = await env.DB.prepare("UPDATE changements_formule SET statut = 'annule', applique_at = datetime('now') WHERE compte_id = ? AND statut = 'demande'").bind(u.id).run();
+    if (!(r.meta && r.meta.changes)) return json({ ok: false, error: 'aucun' }, 404);
+    await log(env, u.id, null, 'changement_formule_annule', '');
+    return json({ ok: true });
+  }
   if (p === '/api/espace/resiliation') {
     if (!d) return json({ ok: false, error: 'aucune-demande' }, 404);
     if (b.confirme !== true) return json({ ok: false, error: 'confirmation' }, 422);
@@ -1125,10 +1221,44 @@ async function vue(req, env, url) {
   return json({ ok: true });
 }
 
+
+// ---------- Statistiques de fréquentation des sites clients (sans cookie, sans IP conservée) ----------
+const CORS_VUE = { 'access-control-allow-origin': '*', 'access-control-allow-methods': 'POST, OPTIONS', 'access-control-allow-headers': 'content-type', 'access-control-max-age': '86400' };
+async function vueSite(req, env, url) {
+  const rep = (o, st = 200) => { const r = json(o, st); for (const k in CORS_VUE) r.headers.set(k, CORS_VUE[k]); return r; };
+  if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS_VUE });
+  if (req.method !== 'POST') return rep({ ok: false }, 405);
+  if (req.headers.get('dnt') === '1' || req.headers.get('sec-gpc') === '1') return rep({ ok: true, ignore: true });
+  if (/bot|crawl|spider|headless|preview|monitor|curl|wget/i.test(req.headers.get('user-agent') || '')) return rep({ ok: true, ignore: true });
+  let b = null; try { const raw = await req.text(); if (raw.length <= 300) b = JSON.parse(raw); } catch (_) {}
+  if (!b || typeof b !== 'object' || typeof b.s !== 'string' || !/^[A-Za-z0-9-]{4,30}$/.test(b.s)) return rep({ ok: false }, 400);
+  try {
+    await ensureSchema(env);
+    const d = await env.DB.prepare("SELECT d.ref FROM demandes d WHERE d.ref = ? AND d.statut = 'en_ligne' AND d.suspendu = 0").bind(b.s).first();
+    if (!d) return rep({ ok: true, ignore: true });
+    const jour = parisToday(), h = await ipHash(req, b.s + '|' + jour + '|' + (req.headers.get('user-agent') || ''));
+    const r = await env.DB.prepare('INSERT INTO vues_site_uniq (site, jour, h, n) VALUES (?,?,?,1) ON CONFLICT(site, jour, h) DO UPDATE SET n = n + 1 WHERE n < 300').bind(b.s, jour, h).run();
+    if (r.meta && r.meta.changes) await env.DB.prepare('INSERT INTO vues_site (site, jour, n) VALUES (?,?,1) ON CONFLICT(site, jour) DO UPDATE SET n = n + 1').bind(b.s, jour).run();
+    if (Math.random() < 0.02) await env.DB.prepare("DELETE FROM vues_site_uniq WHERE jour < date('now','-40 days')").run();
+  } catch (_) { return rep({ ok: false }, 500); }
+  return rep({ ok: true });
+}
+async function statsSite(env, ref) {
+  await ensureSchema(env);
+  const q = async (sql, ...a) => (await env.DB.prepare(sql).bind(...a).all()).results || [];
+  const t = parisToday();
+  const jours = await q("SELECT jour, n FROM vues_site WHERE site = ? AND jour >= date(?, '-29 days') ORDER BY jour", ref, t);
+  const som = (n) => jours.filter((x) => x.jour >= plusJours(t, -(n - 1))).reduce((a, x) => a + x.n, 0);
+  const uniq = async (n) => ((await q("SELECT COUNT(DISTINCT h) c FROM vues_site_uniq WHERE site = ? AND jour >= date(?, ?)", ref, t, '-' + (n - 1) + ' days'))[0] || {}).c || 0;
+  const tot = ((await q('SELECT COALESCE(SUM(n),0) n FROM vues_site WHERE site = ?', ref))[0] || {}).n || 0;
+  return { visites_7: som(7), visites_30: som(30), visiteurs_7: await uniq(7), visiteurs_30: await uniq(30), moyenne_jour: Math.round(som(30) / 30 * 10) / 10, total: tot, jours };
+}
+function plusJours(iso, n) { const d = new Date(iso.slice(0, 10) + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
+
 // ---------- Administration : à traiter, tâches, suivi, parcours, avis, visites, sauvegarde ----------
 const TABLES_SAUVEGARDE = ['comptes', 'demandes', 'abonnements', 'modifs', 'plaintes', 'notifications', 'communications', 'journal', 'reservations', 'contenus', 'retours_apercu', 'dossier', 'taches', 'suivi', 'resiliations', 'parrains', 'parrainages', 'credits', 'avis', 'vues'];
 const TABLES_LOURDES = ['medias', 'dossier_fichiers'];
-const V2_ADMIN = new Set(['/api/admin/atraiter', '/api/admin/taches', '/api/admin/parcours', '/api/admin/fichier', '/api/admin/avis', '/api/admin/visites', '/api/admin/sauvegarde', '/api/admin/tache', '/api/admin/tache-fait', '/api/admin/tache-suppr', '/api/admin/suivi', '/api/admin/retour-traite', '/api/admin/resiliation-statut', '/api/admin/avis-statut', '/api/admin/credit-utilise', '/api/admin/parrain-appliquer']);
+const V2_ADMIN = new Set(['/api/admin/atraiter', '/api/admin/taches', '/api/admin/parcours', '/api/admin/fichier', '/api/admin/avis', '/api/admin/visites', '/api/admin/sauvegarde', '/api/admin/tache', '/api/admin/tache-fait', '/api/admin/tache-suppr', '/api/admin/suivi', '/api/admin/retour-traite', '/api/admin/resiliation-statut', '/api/admin/avis-statut', '/api/admin/credit-utilise', '/api/admin/parrain-appliquer', '/api/admin/parrainages', '/api/admin/mois-offert', '/api/admin/credit-suppr', '/api/admin/litiges', '/api/admin/litige-ajout', '/api/admin/litige-statut', '/api/admin/changement-annuler', '/api/admin/changement-programmer']);
 async function adminV2(req, env, url, p, me, one, all) {
   await ensureSchema(env);
   const num = (v) => { const n = parseInt(v, 10); return Number.isFinite(n) ? n : 0; };
@@ -1161,6 +1291,8 @@ async function adminV2(req, env, url, p, me, one, all) {
       for (const m of await all("SELECT m.id, m.compte_id, m.type, m.description, m.created_at, c.nom FROM modifs m JOIN comptes c ON c.id = m.compte_id WHERE m.statut = 'demandee' ORDER BY m.id")) add('normal', 'modif', 'Modification demandée (' + m.type + ')', m.description, { compte_id: m.compte_id, nom: m.nom }, m.created_at);
       for (const r of await all("SELECT r.compte_id, r.motif, r.effet, r.created_at, c.nom FROM resiliations r JOIN comptes c ON c.id = r.compte_id WHERE r.statut = 'demandee'")) add('urgent', 'resiliation', 'Résiliation demandée', 'Motif : ' + (r.motif || 'non précisé') + '. Prend effet le ' + r.effet.split('-').reverse().join('/') + '.', { compte_id: r.compte_id, nom: r.nom }, r.created_at);
       for (const x of await all("SELECT p.compte_id, p.sujet, p.created_at, c.nom FROM plaintes p JOIN comptes c ON c.id = p.compte_id WHERE p.statut != 'resolue'")) add('urgent', 'plainte', 'Réclamation ouverte', x.sujet, { compte_id: x.compte_id, nom: x.nom }, x.created_at);
+      await appliquerChangements(env); await synchroLitigesImpayes(env);
+      for (const l of await all("SELECT l.compte_id, l.type, l.note, l.created_at, c.nom FROM litiges l JOIN comptes c ON c.id = l.compte_id WHERE l.statut = 'ouvert' AND l.type != 'impaye'")) add('urgent', 'litige', 'Litige : ' + ({ prelevement_rejete: 'prélèvement rejeté', contestation: 'contestation', autre: 'litige' }[l.type] || 'litige'), l.note || 'Voir l’onglet Litiges.', { compte_id: l.compte_id, nom: l.nom }, l.created_at);
       for (const a of await all("SELECT a.compte_id, c.nom FROM abonnements a JOIN comptes c ON c.id = a.compte_id WHERE a.statut = 'impaye'")) add('urgent', 'impaye', 'Impayé', 'L’abonnement est en impayé : relancer le client.', { compte_id: a.compte_id, nom: a.nom }, '');
       for (const s of await all("SELECT s.compte_id, s.rappel_le, s.motif, c.nom FROM suivi s JOIN comptes c ON c.id = s.compte_id WHERE s.rappel_le IS NOT NULL AND s.rappel_le != '' AND s.rappel_le <= ?", today)) add(s.rappel_le < today ? 'urgent' : 'normal', 'rappel', 'À rappeler', s.motif || 'Rappel prévu le ' + s.rappel_le.split('-').reverse().join('/'), { compte_id: s.compte_id, nom: s.nom }, s.rappel_le);
       for (const t of await all("SELECT t.id, t.compte_id, t.titre, t.detail, t.echeance, c.nom FROM taches t LEFT JOIN comptes c ON c.id = t.compte_id WHERE t.fait = 0 AND (t.echeance IS NULL OR t.echeance = '' OR t.echeance <= ?) ORDER BY t.id", today)) { add(t.echeance && t.echeance < today ? 'urgent' : 'normal', 'tache', t.titre, t.detail || '', t.compte_id ? { compte_id: t.compte_id, nom: t.nom } : null, t.echeance || ''); }
@@ -1183,12 +1315,27 @@ async function adminV2(req, env, url, p, me, one, all) {
       return json({ ok: true, dossier: dos, manquants: manquants(dos).map((k) => DOSSIER_LIBELLES[k]), fichiers: await all('SELECT id, categorie, nom, mime, taille, created_at FROM dossier_fichiers WHERE compte_id = ? ORDER BY id', id),
         retours: await all('SELECT id, type, message, statut, created_at FROM retours_apercu WHERE compte_id = ? ORDER BY id DESC LIMIT 20', id),
         resiliations: await all('SELECT id, motif, message, effet, decale, statut, created_at FROM resiliations WHERE compte_id = ? ORDER BY id DESC LIMIT 10', id),
+        changements: await changementsDe(env, id), litiges: await all('SELECT id, type, montant_ttc, periode, note, statut, created_at FROM litiges WHERE compte_id = ? ORDER BY id DESC LIMIT 20', id),
         suivi: (await one('SELECT rappel_le, motif FROM suivi WHERE compte_id = ?', id)) || { rappel_le: '', motif: '' },
-        parrainage: { code, filleuls: await all('SELECT p.statut, p.created_at, c.nom, c.id compte_id FROM parrainages p JOIN comptes c ON c.id = p.filleul_id WHERE p.parrain_id = ? ORDER BY p.id DESC', id), parrain: await one('SELECT p.code, p.statut, p.parrain_id, c.nom FROM parrainages p JOIN comptes c ON c.id = p.parrain_id WHERE p.filleul_id = ?', id), credits: await all('SELECT id, mois, origine, utilise_at, expire_at, created_at FROM credits WHERE compte_id = ? ORDER BY id DESC', id) },
+        parrainage: { code, filleuls: await all('SELECT p.statut, p.created_at, c.nom, c.id compte_id FROM parrainages p JOIN comptes c ON c.id = p.filleul_id WHERE p.parrain_id = ? ORDER BY p.id DESC', id), parrain: await one('SELECT p.code, p.statut, p.parrain_id, c.nom FROM parrainages p JOIN comptes c ON c.id = p.parrain_id WHERE p.filleul_id = ?', id), credits: (await all('SELECT id, mois, origine, utilise_at, expire_at, created_at, mois_offert FROM credits WHERE compte_id = ? ORDER BY id DESC', id)).map((c) => ({ ...c, etat: etatCredit(c, today) })) },
         avis: await one('SELECT id, note, commentaire, statut FROM avis WHERE compte_id = ?', id), demande: d });
+    }
+    if (p === '/api/admin/litiges') {
+      await synchroLitigesImpayes(env);
+      const lignes = await all("SELECT l.id, l.compte_id, l.type, l.montant_ttc, l.periode, l.note, l.source, l.statut, l.created_at, l.clos_at, c.nom, c.email, (SELECT commerce FROM demandes d WHERE d.compte_id = l.compte_id ORDER BY d.id DESC LIMIT 1) commerce, (SELECT tel FROM demandes d WHERE d.compte_id = l.compte_id ORDER BY d.id DESC LIMIT 1) tel FROM litiges l JOIN comptes c ON c.id = l.compte_id ORDER BY CASE l.statut WHEN 'ouvert' THEN 0 ELSE 1 END, l.id DESC LIMIT 300");
+      const ouv = lignes.filter((l) => l.statut === 'ouvert');
+      return json({ ok: true, ouverts: ouv.length, montant_ouvert: Math.round(ouv.reduce((t, l) => t + (l.montant_ttc || 0), 0) * 100) / 100, lignes });
     }
     if (p === '/api/admin/fichier') { const id = num(url.searchParams.get('id')); return id ? envoiFichier(env, id, null) : json({ ok: false }, 400); }
     if (p === '/api/admin/avis') return json({ ok: true, avis: await all('SELECT id, compte_id, note, commentaire, nom, commerce, statut, created_at, publie_at FROM avis ORDER BY id DESC LIMIT 200') });
+    if (p === '/api/admin/parrainages') {
+      await expirerParrainages(env);
+      const lignes = await all("SELECT p.id, p.statut, p.code, p.created_at, p.valide_at, pa.id parrain_id, pa.nom parrain, fi.id filleul_id, fi.nom filleul, (SELECT commerce FROM demandes d WHERE d.compte_id = pa.id ORDER BY d.id DESC LIMIT 1) parrain_commerce, (SELECT commerce FROM demandes d WHERE d.compte_id = fi.id ORDER BY d.id DESC LIMIT 1) filleul_commerce FROM parrainages p JOIN comptes pa ON pa.id = p.parrain_id JOIN comptes fi ON fi.id = p.filleul_id ORDER BY p.id DESC LIMIT 500");
+      const top = await all("SELECT pa.id compte_id, pa.nom, COUNT(*) n, SUM(CASE WHEN p.statut = 'valide' THEN 1 ELSE 0 END) valides FROM parrainages p JOIN comptes pa ON pa.id = p.parrain_id GROUP BY pa.id ORDER BY valides DESC, n DESC LIMIT 10");
+      const offerts = await all("SELECT c.id, c.compte_id, c.origine, c.mois_offert, c.utilise_at, c.created_at, co.nom FROM credits c JOIN comptes co ON co.id = c.compte_id ORDER BY c.id DESC LIMIT 300");
+      const cnt = (s) => lignes.filter((l) => l.statut === s).length;
+      return json({ ok: true, total: lignes.length, valides: cnt('valide'), en_attente: cnt('en_attente'), expires: cnt('expire'), mois_parrainage: offerts.filter((o) => o.origine !== 'admin').length, mois_admin: offerts.filter((o) => o.origine === 'admin').length, lignes, top, offerts: offerts.map((o) => ({ ...o, etat: etatCredit(o, today) })) });
+    }
     if (p === '/api/admin/visites') {
       return json({ ok: true, jours: await all("SELECT jour, SUM(n) n FROM vues WHERE jour >= date('now','-30 days') GROUP BY jour ORDER BY jour"), pages: await all("SELECT page, SUM(n) n FROM vues WHERE jour >= date('now','-30 days') GROUP BY page ORDER BY n DESC LIMIT 15"),
         total30: ((await one("SELECT COALESCE(SUM(n),0) n FROM vues WHERE jour >= date('now','-30 days')")) || {}).n || 0, total7: ((await one("SELECT COALESCE(SUM(n),0) n FROM vues WHERE jour >= date('now','-7 days')")) || {}).n || 0 });
@@ -1232,6 +1379,37 @@ async function adminV2(req, env, url, p, me, one, all) {
     await log(env, r.compte_id, me.id, 'retour_traite', r.type);
     return json({ ok: true });
   }
+  if (p === '/api/admin/changement-programmer') {
+    const cid = num(b.compte_id); if (!(await client(cid))) return json({ ok: false }, 404);
+    const abo = await one('SELECT formule, statut, mails_sup FROM abonnements WHERE compte_id = ?', cid);
+    if (!abo || abo.statut !== 'actif') return json({ ok: false, error: 'pas-actif' }, 409);
+    if (!FORMULES.includes(b.vers) || b.vers === abo.formule) return json({ ok: false, error: 'formule' }, 422);
+    if (await one("SELECT id FROM changements_formule WHERE compte_id = ? AND statut = 'demande'", cid)) return json({ ok: false, error: 'deja' }, 409);
+    const effet = premierMoisSuivant(parisToday());
+    await env.DB.prepare('INSERT INTO changements_formule (compte_id, de, vers, effet) VALUES (?,?,?,?)').bind(cid, abo.formule, b.vers, effet).run();
+    await log(env, cid, me.id, 'changement_formule_demande', abo.formule + ' → ' + b.vers + ' / effet ' + effet);
+    await notifier(env, cid, 'Changement de formule enregistré', 'Votre passage à la formule ' + (b.vers === 'pro' ? 'Pro' : 'Essentiel') + ' prendra effet le ' + effet.split('-').reverse().join('/') + '. Le mois en cours reste facturé à la formule actuelle.');
+    return json({ ok: true, effet });
+  }
+  if (p === '/api/admin/changement-annuler') {
+    const r = await env.DB.prepare("UPDATE changements_formule SET statut = 'annule', applique_at = datetime('now') WHERE id = ? AND statut = 'demande'").bind(num(b.id)).run();
+    if (!(r.meta && r.meta.changes)) return json({ ok: false }, 404);
+    return json({ ok: true });
+  }
+  if (p === '/api/admin/litige-ajout') {
+    const cid = num(b.compte_id), type = TYPES_LITIGE.includes(b.type) ? b.type : 'autre';
+    if (!(await client(cid))) return json({ ok: false }, 404);
+    const m = Number(b.montant), id = await ouvrirLitige(env, cid, type, { montant: Number.isFinite(m) && m >= 0 ? Math.round(m * 100) / 100 : null, periode: txt(b.periode, 20), note: txt(b.note, 500), source: 'manuel' });
+    await log(env, cid, me.id, 'litige_ouvert', type);
+    return json({ ok: true, id });
+  }
+  if (p === '/api/admin/litige-statut') {
+    const l = await one('SELECT id, compte_id FROM litiges WHERE id = ?', num(b.id)); if (!l || !['ouvert', 'regle', 'abandonne'].includes(b.statut)) return json({ ok: false }, 404);
+    const nt = txt(b.note, 500);
+    await env.DB.prepare("UPDATE litiges SET statut = ?, clos_at = CASE WHEN ? = 'ouvert' THEN NULL ELSE datetime('now') END, note = CASE WHEN ? != '' THEN ? ELSE note END WHERE id = ?").bind(b.statut, b.statut, nt, nt, l.id).run();
+    await log(env, l.compte_id, me.id, 'litige_' + b.statut, '');
+    return json({ ok: true });
+  }
   if (p === '/api/admin/resiliation-statut') {
     if (!['traitee', 'refusee', 'demandee'].includes(b.statut)) return json({ ok: false }, 422);
     const r = await one('SELECT id, compte_id FROM resiliations WHERE id = ?', num(b.id)); if (!r) return json({ ok: false }, 404);
@@ -1246,6 +1424,24 @@ async function adminV2(req, env, url, p, me, one, all) {
   }
   if (p === '/api/admin/credit-utilise') {
     await env.DB.prepare("UPDATE credits SET utilise_at = CASE WHEN ? = 1 THEN datetime('now') ELSE NULL END WHERE id = ?").bind(b.utilise ? 1 : 0, num(b.id)).run();
+    return json({ ok: true });
+  }
+  if (p === '/api/admin/mois-offert') {
+    const cid = num(b.compte_id); if (!(await client(cid))) return json({ ok: false }, 404);
+    const n = num(b.mois); if (n < 1 || n > 12) return json({ ok: false, error: 'mois' }, 422);
+    const ab = await one('SELECT statut FROM abonnements WHERE compte_id = ?', cid);
+    if (!ab || ab.statut === 'resilie') return json({ ok: false, error: 'pas-abonne' }, 422);
+    const ms = await moisLibres(env, cid, n), motif = txt(b.motif, 120) || 'geste commercial';
+    await env.DB.batch(ms.map((m) => env.DB.prepare("INSERT INTO credits (compte_id, mois, origine, mois_offert, expire_at) VALUES (?,1,'admin',?, NULL)").bind(cid, m)));
+    await log(env, cid, me.id, 'mois_offert', n + ' mois : ' + ms.join(', ') + ' (' + motif + ')');
+    await notifier(env, cid, n > 1 ? n + ' mois offerts' : 'Un mois offert', (n > 1 ? 'Les mois de ' + ms.map(moisFr).join(', ') + ' ne vous seront pas facturés.' : 'Le mois de ' + moisFr(ms[0]) + ' ne vous sera pas facturé.') + ' Merci pour votre confiance.');
+    return json({ ok: true, mois: ms });
+  }
+  if (p === '/api/admin/credit-suppr') {
+    const c = await one('SELECT id, compte_id, mois_offert FROM credits WHERE id = ?', num(b.id)); if (!c) return json({ ok: false }, 404);
+    if (!c.mois_offert || c.mois_offert <= today.slice(0, 7)) return json({ ok: false, error: 'deja-applique' }, 409);
+    await env.DB.prepare('DELETE FROM credits WHERE id = ?').bind(c.id).run();
+    await log(env, c.compte_id, me.id, 'mois_offert_annule', c.mois_offert);
     return json({ ok: true });
   }
   if (p === '/api/admin/parrain-appliquer') {
@@ -1268,6 +1464,7 @@ export default {
     if (p === '/api/demande') return demande(req, env, url);
     if (p === '/api/avis' && req.method === 'GET') return avisPublics(req, env);
     if (p === '/api/vue') return vue(req, env, url);
+    if (p === '/api/vue-site') return vueSite(req, env, url);
     if (p === '/api/reservation') return reservation(req, env, url);
     if (p === '/api/inscription/config') return inscriptionConfig(env);
     if (p === '/api/inscription/code') return inscriptionCode(req, env, url);

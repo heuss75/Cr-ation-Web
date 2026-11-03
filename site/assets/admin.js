@@ -39,6 +39,9 @@
   var lab = function (k) { return LBL[k] || k || '—'; };
   var COL = { pri: '#4f46e5', sky: '#0ea5e9', ok: '#10b981', warn: '#f59e0b', bad: '#ef4444', gray: '#94a3b8', pur: '#7c3aed' };
   var eur = function (n) { return (Math.round((n || 0) * 10) / 10).toLocaleString('fr-FR') + ' €'; };
+  /* tous les montants sont enregistrés hors taxes : on affiche aussi le TTC (TVA 20 %) */
+  var TVA = 1.2, eurHT = function (n) { return eur(n) + ' HT'; }, eurTTC = function (n) { return eur((n || 0) * TVA) + ' TTC'; }, eurB = function (n) { return eurHT(n) + ' · ' + eurTTC(n); };
+  var eurD = function (n) { return h('span', { class: 'dual' }, h('b', { text: eurHT(n) }), h('small', { text: eurTTC(n) })); };
   var num = function (n) { return (n || 0).toLocaleString('fr-FR'); };
   function dt(x) { if (!x) return '—'; var d = new Date(x.replace(' ', 'T') + 'Z'); return isNaN(d) ? x : d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }) + ' ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }); }
   function dOnly(x) { if (!x) return '—'; var d = new Date(x + 'T12:00:00Z'); return isNaN(d) ? x : d.toLocaleDateString('fr-FR'); }
@@ -89,6 +92,7 @@
     api('/api/admin/compte?id=' + id).then(function (r) {
       if (!r.j.ok) { flash('Compte introuvable.', true); return; }
       var c = r.j.compte, ab = r.j.abonnement, realMain = main, holder = h('div'); main = holder;
+      try {
       main.textContent = '';
       main.appendChild(head(c.nom, c.email + ' · inscrit le ' + dt(c.created_at), [h('button', { type: 'button', class: 'btn ghost', text: '← Clients', onclick: function () { top(clientsView); } }), h('button', { type: 'button', class: 'btn', text: 'Voir en tant que ce client', onclick: function () { impersonate(c.id); } })]));
       actionsCard(c, r.j.demandes);
@@ -106,6 +110,22 @@
       g.appendChild(h('div', { class: 'card' }, h('h2', { text: 'Abonnement' }), h('p', { class: 'sub', text: ab ? 'Début : ' + dOnly(ab.debut) + (ab.fin ? ' · fin : ' + dOnly(ab.fin) : '') : 'Aucun abonnement. Créez-le quand le client a accepté et payé.' }),
         h('div', { class: 'form' }, h('label', null, 'Formule', fo), h('label', null, 'Statut', stt), h('label', null, 'Mails pro en plus', ml), h('label', { class: 'wide' }, 'Motif', mo)),
         h('button', { type: 'button', class: 'btn', text: ab ? 'Enregistrer' : 'Créer l’abonnement', onclick: function () { api('/api/admin/abonnement', 'POST', { compte_id: c.id, formule: fo.value, statut: stt.value, mails_sup: ml.value, motif: mo.value }).then(function (x) { flash(x.j.ok ? 'Abonnement enregistré.' : 'Échec de l’enregistrement.', !x.j.ok); if (x.j.ok) loadAll().then(function () { detail(c.id); }); }); } })));
+      var chs = r.j.changements || [], pend = chs.filter(function (x) { return x.statut === 'demande'; })[0], appl = chs.filter(function (x) { return x.statut === 'applique'; });
+      var cf = h('div', { class: 'card' }, h('h2', { text: 'Changement de formule' }));
+      if (pend) cf.appendChild(h('div', { class: 'row' }, h('div', null, h('b', { text: lab(pend.de) + ' → ' + lab(pend.vers) + ' le ' + dOnly(pend.effet) }), h('div', { class: 'sub', text: 'Le mois en cours reste facturé à la formule actuelle. ' + (pend.vers === 'essentiel' ? 'L’adresse mail incluse passera à 4 € HT par mois.' : 'Une adresse mail payante deviendra incluse.') })), h('button', { type: 'button', class: 'btn ghost sm', text: 'Annuler', onclick: function () { api('/api/admin/changement-annuler', 'POST', { id: pend.id }).then(function (x) { flash(x.j.ok ? 'Changement annulé.' : 'Échec.', !x.j.ok); if (x.j.ok) loadAll(); }); } })));
+      else if (ab && ab.statut === 'actif') { var vv = ab.formule === 'pro' ? 'essentiel' : 'pro'; cf.appendChild(h('p', { class: 'sub', text: 'Le client peut le demander lui-même depuis son espace. Vous pouvez aussi le programmer ici : il prendra effet au 1er du mois prochain.' })); cf.appendChild(h('button', { type: 'button', class: 'btn ghost', text: 'Programmer le passage à ' + lab(vv) + ' le mois prochain', onclick: function () { api('/api/admin/changement-programmer', 'POST', { compte_id: c.id, vers: vv }).then(function (x) { flash(x.j.ok ? 'Changement programmé pour le ' + dOnly(x.j.effet) + '.' : 'Impossible (statut ou changement déjà programmé).', !x.j.ok); if (x.j.ok) loadAll(); }); } })); }
+      else cf.appendChild(h('p', { class: 'empty', text: 'Disponible pour un abonnement actif.' }));
+      appl.forEach(function (x) { cf.appendChild(h('div', { class: 'sub', text: 'Appliqué le ' + dOnly(x.effet) + ' : ' + lab(x.de) + ' → ' + lab(x.vers) + ' (adresses mail payantes : ' + x.mails_avant + ' → ' + x.mails_apres + ')' })); });
+      var ss = r.j.stats_site, cs = h('div', { class: 'card' }, h('h2', { text: 'Visites du site' }));
+      if (!ss) cs.appendChild(h('p', { class: 'empty', text: 'Pas encore de site.' }));
+      else {
+        cs.appendChild(h('p', { class: 'sub', text: ss.statut === 'en_ligne' ? ss.visites_7 + ' visite(s) sur 7 jours · ' + ss.visites_30 + ' sur 30 jours · ' + ss.visiteurs_30 + ' visiteur(s) différent(s) sur 30 jours · ' + ss.total + ' au total.' : 'Les visites sont comptées à partir de la mise en ligne (statut « en ligne »).' }));
+        var code = '<script>try{if(navigator.doNotTrack!==\'1\')fetch(\'' + location.origin + '/api/vue-site\',{method:\'POST\',headers:{\'content-type\':\'text/plain\'},body:JSON.stringify({s:\'' + ss.ref + '\',p:location.pathname}),keepalive:true})}catch(e){}</' + 'script>';
+        var ta = h('textarea', { rows: '4', readonly: 'readonly', 'aria-label': 'Code de suivi des visites', style: 'font:12px/1.4 ui-monospace,monospace' }); ta.value = code;
+        cs.appendChild(h('p', { class: 'sub', text: 'Code à coller dans chaque page du site du client, juste avant </body> : c’est lui qui permet de compter les visites. Sans lui, rien n’est enregistré.' })); cs.appendChild(ta);
+        cs.appendChild(h('button', { type: 'button', class: 'btn ghost sm', text: 'Copier le code', onclick: function () { ta.select(); try { navigator.clipboard.writeText(code).then(function () { flash('Code copié.'); }, function () { document.execCommand('copy'); flash('Code copié.'); }); } catch (_) { flash('Sélectionnez le code et copiez-le.', true); } } }));
+      }
+      var aboW = h('div', null, g.children[1], cf, cs); cf.style.marginTop = '16px'; cs.style.marginTop = '16px';
       main.appendChild(g);
       var g2 = h('div', { class: 'grid g2', style: 'margin-top:16px' });
       var pc = h('div', { class: 'card' }, h('h2', { text: 'Plaintes (' + r.j.plaintes.length + ')' }));
@@ -120,8 +140,9 @@
       g2.appendChild(pc);
       g2.appendChild(h('div', { class: 'card' }, h('h2', { text: 'Journal' }), r.j.journal.length ? h('ul', { class: 'log' }, r.j.journal.map(function (j) { return h('li', null, h('time', { text: dt(j.created_at) }), h('b', { text: j.type.replace(/_/g, ' ') }), h('span', { text: j.detail || '' }), j.admin_id ? h('span', { class: 'pill', text: 'admin' }) : null); })) : h('p', { class: 'empty', text: 'Rien pour le moment.' })));
       main.appendChild(g2);
-      main = realMain; done(r.j, { acts: holder.children[1], dem: dc, abo: g.children[1], pl: pc, jr: g2.children[1] });
-    });
+      main = realMain; done(r.j, { acts: holder.children[1], dem: dc, abo: aboW, pl: pc, jr: g2.children[1] });
+      } catch (err) { main = realMain; main.textContent = ''; main.appendChild(h('div', { class: 'card' }, h('h2', { text: 'La fiche n’a pas pu s’afficher' }), h('p', { class: 'sub', text: 'Une information de ce compte est inattendue. Rien n’a été modifié. Détail technique : ' + String(err && err.message || err).slice(0, 160) }), h('button', { type: 'button', class: 'btn', text: '← Retour aux clients', onclick: function () { top(clientsView); } }))); flash('La fiche n’a pas pu s’afficher.', true); }
+    }).catch(function () { flash('Impossible de joindre le serveur. Réessayez.', true); });
   }
   /* ===== fiche client (page complète, onglets) ===== */
   var TAB = 'apercu';
@@ -176,7 +197,7 @@
       };
       var aboCard = function () {
         if (!ab) return card('Abonnement', 'card', null, h('div', null, h('p', { class: 'sub', text: 'Aucun abonnement pour le moment.' }), h('button', { type: 'button', class: 'btn sm', text: 'Créer l’abonnement', onclick: function () { setTab('abo'); } })));
-        return card('Abonnement', 'card', h('button', { type: 'button', class: 'btn sm ghost', text: 'Gérer', onclick: function () { setTab('abo'); } }), h('div', null, h('div', { class: 'cf-plan' }, h('b', { text: lab(ab.formule) }), h('span', { class: 'pill ' + (pillFor(ab.statut) || ''), text: lab(ab.statut) })), h('div', { class: 'cf-price', text: eur(prixAbo(ab)) + ' HT / mois' }),
+        return card('Abonnement', 'card', h('button', { type: 'button', class: 'btn sm ghost', text: 'Gérer', onclick: function () { setTab('abo'); } }), h('div', null, h('div', { class: 'cf-plan' }, h('b', { text: lab(ab.formule) }), h('span', { class: 'pill ' + (pillFor(ab.statut) || ''), text: lab(ab.statut) })), h('div', { class: 'cf-price', text: eurHT(prixAbo(ab)) + ' / mois' }), h('div', { class: 'sub', text: eurTTC(prixAbo(ab)) + ' / mois' }),
           kv([['Début', dOnly(ab.debut)], ab.fin ? ['Fin', dOnly(ab.fin)] : null, ['Mails pro en plus', String(ab.mails_sup || 0)]]), h('button', { type: 'button', class: 'btn sm ghost wide', text: 'Voir les détails de l’abonnement →', onclick: function () { setTab('abo'); } })));
       };
       var infoCard = function () { return card('Informations du client', 'users', null, kv([['Nom complet', c.nom], ['Entreprise', d ? d.commerce : '—'], ['E-mail', c.email], ['Téléphone', d && d.tel || '—'], ['Inscription', dt(c.created_at)], ['Dernière connexion', dt(c.derniere_connexion)], ['Statut du compte', stTxt]])); };
@@ -325,7 +346,7 @@
   var C = function (k, l, t) { return { k: k, l: l, t: t || 'text' }; };
   var COLS = {
     clients: [C('nom', 'Nom', 'who'), C('email', 'E-mail'), C('inscrit', 'Inscrit le', 'date'), C('connexion', 'Dernière connexion', 'date'), C('commerce', 'Commerce'), C('activite', 'Activité'), C('ville', 'Ville'), C('tel', 'Téléphone'), C('domaine', 'Domaine'), C('site', 'Statut du site', 'site'), C('formule', 'Formule', 'formule'), C('abo', 'Abonnement', 'abo'), C('debut', 'Début abonnement', 'day'), C('fin', 'Fin abonnement', 'day'), C('mails', 'Mails pro en plus', 'int'), C('prix', 'Facturé par mois (HT)', 'eur'), C('demandes', 'Demandes', 'int'), C('plaintes', 'Plaintes', 'int'), C('plaintes_ouvertes', 'Plaintes ouvertes', 'int')],
-    abonnements: [C('nom', 'Client', 'who'), C('email', 'E-mail'), C('formule', 'Formule', 'formule'), C('abo', 'Statut', 'abo'), C('debut', 'Début', 'day'), C('fin', 'Fin', 'day'), C('mails', 'Mails pro en plus', 'int'), C('prix', 'Prix par mois (HT)', 'eur'), C('motif', 'Motif de résiliation')],
+    abonnements: [C('nom', 'Client', 'who'), C('email', 'E-mail'), C('formule', 'Formule', 'formule'), C('abo', 'Statut', 'abo'), C('debut', 'Début', 'day'), C('fin', 'Fin', 'day'), C('mails', 'Mails pro en plus', 'int'), C('prix', 'Prix par mois (HT et TTC)', 'eur'), C('motif', 'Motif de résiliation')],
     demandes: [C('commerce', 'Commerce'), C('nom', 'Client', 'who'), C('email', 'E-mail'), C('ref', 'Référence'), C('activite', 'Activité'), C('ville', 'Ville'), C('domaine', 'Domaine'), C('mails', 'Mails pro demandés', 'int'), C('tel', 'Téléphone'), C('formule', 'Formule', 'formule'), C('site', 'Statut', 'site'), C('source', 'Provenance'), C('date', 'Date', 'date')],
     plaintes: [C('nom', 'Client', 'who'), C('email', 'E-mail'), C('sujet', 'Sujet'), C('message', 'Détails'), C('pl', 'Statut', 'pl'), C('date', 'Date', 'date'), C('resolue', 'Résolue le', 'date')],
     journal: [C('date', 'Date', 'date'), C('type', 'Événement'), C('nom', 'Client', 'who'), C('email', 'E-mail'), C('detail', 'Détail')]
@@ -343,7 +364,7 @@
       case 'who': return h('div', { class: 'who' }, h('div', { class: 'av', text: initials(r.nom) }), h('div', null, h('b', { text: r.nom || '—' }), r.email ? h('small', { text: r.email }) : null));
       case 'date': return document.createTextNode(dt(v));
       case 'day': return document.createTextNode(dOnly(v));
-      case 'eur': return document.createTextNode(v ? eur(v) : '—');
+      case 'eur': return document.createTextNode(v ? eurHT(v) + ' (' + eurTTC(v) + ')' : '—');
       case 'int': return document.createTextNode(String(v || 0));
       case 'site': case 'abo': case 'pl': return v ? pillFor(v) : h('span', { class: 'pill', text: col.k === 'site' ? 'Aucune demande' : 'Aucun' });
       case 'formule': return v ? h('span', { class: 'pill pri', text: lab(v) }) : document.createTextNode('—');
@@ -373,7 +394,7 @@
   var stamp = function () { return new Date().toISOString().slice(0, 10); };
 
   /* ===== briques graphiques ===== */
-  function hero(color, icon, value, label, badge, down, fn) { var n = h('div', { class: 'card hero' }, h('div', { class: 'ic ' + color }, ico(icon, 22)), h('div', null, h('b', { text: value }), h('span', { text: label }), badge ? h('em', { class: down ? 'dn' : '', text: badge }) : null), h('span', { class: 'more', text: 'Détails →' })); return fn ? click(n, fn) : n; }
+  function hero(color, icon, value, label, badge, down, fn, ttc) { var n = h('div', { class: 'card hero' }, h('div', { class: 'ic ' + color }, ico(icon, 22)), h('div', null, h('b', { text: value }), ttc ? h('small', { class: 'ttcl', text: ttc }) : null, h('span', { text: label }), badge ? h('em', { class: down ? 'dn' : '', text: badge }) : null), h('span', { class: 'more', text: 'Détails →' })); return fn ? click(n, fn) : n; }
   function mini(items) { return h('div', { class: 'mini' }, items.map(function (i) { var n = h('div', null, h('b', { text: i[1] }), h('span', { text: i[0] })); return i[2] ? click(n, i[2]) : n; })); }
   function area(jours) {
     var map = {}; jours.forEach(function (j) { map[j.d] = j.n; });
@@ -503,7 +524,7 @@
     var bw = iw / rows.length, pw = Math.min(46, bw * 0.62);
     rows.forEach(function (r, i) {
       var x = Lm + bw * i + (bw - pw) / 2, y = T + ih;
-      [['ess', COL.pri], ['pro', COL.sky], ['mails', COL.ok]].forEach(function (p) { var hh = (r[p[0]] / top) * ih; if (hh <= 0) return; y -= hh; var rc = s('rect', { x: x, y: y, width: pw, height: hh, rx: 3, fill: p[1] }); var tt = s('title'); tt.textContent = r.periode + ' · ' + { ess: 'Essentiel', pro: 'Pro', mails: 'Mails pro' }[p[0]] + ' : ' + eur(r[p[0]]); rc.appendChild(tt); svg.appendChild(rc); });
+      [['ess', COL.pri], ['pro', COL.sky], ['mails', COL.ok]].forEach(function (p) { var hh = (r[p[0]] / top) * ih; if (hh <= 0) return; y -= hh; var rc = s('rect', { x: x, y: y, width: pw, height: hh, rx: 3, fill: p[1] }); var tt = s('title'); tt.textContent = r.periode + ' · ' + { ess: 'Essentiel', pro: 'Pro', mails: 'Mails pro' }[p[0]] + ' : ' + eurB(r[p[0]]); rc.appendChild(tt); svg.appendChild(rc); });
       if (rows.length <= 7 || i % 2 === (rows.length - 1) % 2) { var t = s('text', { x: x + pw / 2, y: H - 8, 'text-anchor': 'middle' }); t.textContent = r.periode; svg.appendChild(t); }
     });
     return svg;
@@ -517,7 +538,7 @@
       box.appendChild(h('div', { class: 'tbar' }, h('div', null, h('h2', { text: 'Revenus' }), h('p', { class: 'sub', text: 'Ce que vous facturez à vos clients, hors taxes. Un client compte pour chaque mois où son abonnement est actif.' })),
         h('div', { class: 'tools' }, seg('mode', [['mois', 'Mensuel'], ['trimestre', 'Trimestriel'], ['annee', 'Annuel']], REV.mode, function (v) { REV.mode = v; }), seg('depuis', [['6', '6 mois'], ['12', '12 mois'], ['24', '24 mois'], ['tout', 'Tout']], REV.depuis, function (v) { REV.depuis = v; }),
           h('button', { type: 'button', class: 'btn ghost sm', text: '⬇ CSV', onclick: function () { download('revenus-' + REV.mode + '-' + stamp() + '.csv', csvText(REVCOLS, rows)); flash('Export des revenus téléchargé.'); } }))));
-      box.appendChild(h('div', { class: 'revsum' }, h('span', null, 'Total facturé sur cette période : ', h('b', { text: eur(tot) })), h('span', null, h('b', { text: String(nv) }), ' nouveau(x) client(s)'), h('span', null, h('b', { text: String(rs) }), ' client(s) parti(s)')));
+      box.appendChild(h('div', { class: 'revsum' }, h('span', null, 'Total facturé sur cette période : ', h('b', { text: eurB(tot) })), h('span', null, h('b', { text: String(nv) }), ' nouveau(x) client(s)'), h('span', null, h('b', { text: String(rs) }), ' client(s) parti(s)')));
       box.appendChild(h('div', { class: 'legendline' }, h('span', null, h('i', { style: 'background:' + COL.pri }), 'Essentiel'), h('span', null, h('i', { style: 'background:' + COL.sky }), 'Pro'), h('span', null, h('i', { style: 'background:' + COL.ok }), 'Mails pro')));
       box.appendChild(h('p', { class: 'sub', style: 'margin:0 0 8px', text: 'Chaque barre est un mois : sa hauteur est le total facturé, les couleurs montrent d’où il vient.' }));
       box.appendChild(revBars(rows));
@@ -572,8 +593,8 @@
     if (nbDemo) out.appendChild(h('label', { class: 'demonote' }, h('input', { type: 'checkbox', checked: DEMO.on ? 'checked' : null, onchange: function (e) { DEMO.on = e.target.checked; top(showStats); } }), h('span', null, h('b', { text: DEMO.on ? 'Les ' + nbDemo + ' comptes de test sont inclus dans les chiffres. ' : 'Les ' + nbDemo + ' comptes de test sont cachés. ' }), 'Décochez pour ne voir que les vrais clients.')));
     var enLigne = dm.filter(function (x) { return x.statut === 'en_ligne'; }).length, caMois = monthCa();
     out.appendChild(h('div', { class: 'grid g4' },
-      hero('c3', 'euro', eur(k.mrr), 'Revenu récurrent par mois (HT)', k.actifs ? s7(k.actifs, 'client qui paie', 'clients qui paient') : null, false, function () { open(revenuePage); }),
-      hero('c2', 'file', eur(caMois), 'Facturé ce mois-ci (HT)', null, false, function () { open(revenuePage); }),
+      hero('c3', 'euro', eurHT(k.mrr), 'Revenu récurrent par mois', k.actifs ? s7(k.actifs, 'client qui paie', 'clients qui paient') : null, false, function () { open(revenuePage); }, eurTTC(k.mrr)),
+      hero('c2', 'file', eurHT(caMois), 'Facturé ce mois-ci', null, false, function () { open(revenuePage); }, eurTTC(caMois)),
       hero('c4', 'repeat', num(k.actifs), 'Clients actifs', k.nouveaux30 ? '+' + k.nouveaux30 + ' ce mois' : null, false, cA('Clients abonnés', actifsF)),
       hero('c1', 'users', num(enLigne), 'Sites en ligne', null, false, cD('Sites en ligne', function (r) { return r.site === 'en_ligne'; }))));
     var todo = [
@@ -590,15 +611,15 @@
 
     out.appendChild(h('div', { class: 'sec', text: 'Vos revenus, expliqués' }));
     var rv = h('div', { class: 'card' },
-      h('h2', { text: k.mrr ? 'Chaque mois, vous gagnez ' + eur(k.mrr) : 'Pas encore de revenus' }),
-      h('p', { class: 'sub', text: k.mrr ? 'Voici d’où vient cette somme. Tous les montants sont hors taxes (HT).' : 'Dès qu’un client aura un abonnement actif, le détail apparaîtra ici.' }));
+      h('h2', { text: k.mrr ? 'Chaque mois, vous gagnez ' + eurB(k.mrr) : 'Pas encore de revenus' }),
+      h('p', { class: 'sub', text: k.mrr ? 'Voici d’où vient cette somme. Chaque montant est affiché hors taxes (HT) et toutes taxes comprises (TTC, TVA 20 %).' : 'Dès qu’un client aura un abonnement actif, le détail apparaîtra ici.' }));
     if (k.mrr) {
-      rv.appendChild(revLine('Formule Essentiel', s7(k.nEss, 'client', 'clients') + ' × ' + PRIX.essentiel + ' €', eur(k.ess)));
-      rv.appendChild(revLine('Formule Pro', s7(k.nPro, 'client', 'clients') + ' × ' + PRIX.pro + ' €', eur(k.pro)));
-      rv.appendChild(revLine('Adresses mail pro en plus', s7(k.mailsN, 'adresse', 'adresses') + ' × ' + MAILP + ' €', eur(k.mailsEur)));
-      rv.appendChild(revLine('Total par mois', null, eur(k.mrr), true));
-      rv.appendChild(revLine('Sur une année', 'si personne ne part et que personne n’arrive', eur(k.arr)));
-      rv.appendChild(mini([['Prix moyen par client', eur(k.panier), cA('Clients abonnés', actifsF)], ['Clients partis (30 jours)', k.resilies30, cA('Clients partis ces 30 jours', function (r) { return r.abo === 'resilie' && d10(r.fin) >= ago(30); })], ['Impayés', k.impayes, cA('Abonnements impayés', function (r) { return r.abo === 'impaye'; })]]));
+      rv.appendChild(revLine('Formule Essentiel', s7(k.nEss, 'client', 'clients') + ' × ' + PRIX.essentiel + ' € HT', eurB(k.ess)));
+      rv.appendChild(revLine('Formule Pro', s7(k.nPro, 'client', 'clients') + ' × ' + PRIX.pro + ' € HT', eurB(k.pro)));
+      rv.appendChild(revLine('Adresses mail pro en plus', s7(k.mailsN, 'adresse', 'adresses') + ' × ' + MAILP + ' € HT', eurB(k.mailsEur)));
+      rv.appendChild(revLine('Total par mois', null, eurB(k.mrr), true));
+      rv.appendChild(revLine('Sur une année', 'si personne ne part et que personne n’arrive', eurB(k.arr)));
+      rv.appendChild(mini([['Prix moyen par client', eurHT(k.panier) + ' · ' + eurTTC(k.panier), cA('Clients abonnés', actifsF)], ['Clients partis (30 jours)', k.resilies30, cA('Clients partis ces 30 jours', function (r) { return r.abo === 'resilie' && d10(r.fin) >= ago(30); })], ['Impayés', k.impayes, cA('Abonnements impayés', function (r) { return r.abo === 'impaye'; })]]));
     }
     rv.appendChild(h('div', { style: 'margin-top:14px' }, h('button', { type: 'button', class: 'btn', text: 'Voir mois par mois →', onclick: function () { open(revenuePage); } })));
     out.appendChild(rv);
@@ -646,28 +667,31 @@
     main.textContent = '';
     main.appendChild(head(greet + ', Admin', new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + ' · cliquez sur un chiffre pour voir le détail.', [h('button', { type: 'button', class: 'btn ghost', text: 'Actualiser', onclick: function () { loadAll().then(function () { top(showStats); flash('Statistiques actualisées.'); }); } })]));
     main.appendChild(dashboard());
+    var pc = h('div', { class: 'card', style: 'margin-top:16px' }, h('div', { class: 'tbar' }, h('h3', { text: 'Parrainage' }), h('button', { type: 'button', class: 'btn sm', text: 'Voir le détail', onclick: function () { mark('parr'); top(parrView); } })), h('p', { class: 'sub', text: 'Chargement…' }));
+    main.appendChild(pc);
+    api('/api/admin/parrainages').then(function (r) { var j = r.j, p = pc.querySelector('.sub'); if (!j.ok) { p.textContent = 'Indisponible pour le moment.'; return; } p.textContent = j.total + ' client' + (j.total > 1 ? 's' : '') + ' parrainé' + (j.total > 1 ? 's' : '') + ' · ' + j.valides + ' validé' + (j.valides > 1 ? 's' : '') + ' · ' + j.en_attente + ' en attente · ' + (j.mois_parrainage + j.mois_admin) + ' mois offert' + (j.mois_parrainage + j.mois_admin > 1 ? 's' : '') + ' au total.'; }).catch(function () {});
   }
   function revenuePage() {
     main.textContent = '';
-    main.appendChild(head('Revenus', 'Ce que rapportent vos abonnements, en clair. Montants hors taxes (HT).', [backBtn()]));
+    main.appendChild(head('Revenus', 'Ce que rapportent vos abonnements, en clair. Montants en HT et en TTC (TVA 20 %).', [backBtn()]));
     var k = kpi(), sv = { m: REV.mode, d: REV.depuis }; REV.mode = 'mois'; REV.depuis = 'tout'; var all = revCalc(); REV.mode = sv.m; REV.depuis = sv.d;
     var depuis = all.reduce(function (t, r) { return t + r.ca; }, 0), ce = all.length ? all[all.length - 1].ca : 0;
     main.appendChild(h('div', { class: 'totbox card' },
-      h('div', null, h('span', { class: 'lbl', text: 'Revenu total par mois' }), h('b', { class: 'big', text: eur(k.mrr) }), h('small', { text: 'ce que vos clients actuels vous paient chaque mois' })),
-      h('div', null, h('span', { class: 'lbl', text: 'Facturé ce mois-ci' }), h('b', { text: eur(ce) })),
-      h('div', null, h('span', { class: 'lbl', text: 'Total depuis le début' }), h('b', { text: eur(depuis) })),
-      h('div', null, h('span', { class: 'lbl', text: 'Sur 12 mois' }), h('b', { text: eur(k.arr) }))));
+      h('div', null, h('span', { class: 'lbl', text: 'Revenu total par mois' }), h('b', { class: 'big', text: eurHT(k.mrr) }), h('small', { class: 'ttcl', text: eurTTC(k.mrr) }), h('small', { text: 'ce que vos clients actuels vous paient chaque mois' })),
+      h('div', null, h('span', { class: 'lbl', text: 'Facturé ce mois-ci' }), h('b', { text: eurHT(ce) }), h('small', { class: 'ttcl', text: eurTTC(ce) })),
+      h('div', null, h('span', { class: 'lbl', text: 'Total depuis le début' }), h('b', { text: eurHT(depuis) }), h('small', { class: 'ttcl', text: eurTTC(depuis) })),
+      h('div', null, h('span', { class: 'lbl', text: 'Sur 12 mois' }), h('b', { text: eurHT(k.arr) }), h('small', { class: 'ttcl', text: eurTTC(k.arr) }))));
     var share = function (v) { return k.mrr ? Math.round((100 * v) / k.mrr) : 0; };
-    var line = function (name, sub, n, unit, tot, color) { return h('tr', null, h('td', null, h('div', { class: 'tname' }, h('i', { style: 'background:' + color }), h('div', null, h('b', { text: name }), h('small', { text: sub })))), h('td', { class: 'num', text: String(n) }), h('td', { class: 'num', text: unit }), h('td', null, h('div', { class: 'meter' }, h('i', { style: 'width:' + share(tot) + '%;background:' + color }), h('small', { text: share(tot) + ' %' }))), h('td', { class: 'num strong', text: eur(tot) })); };
+    var line = function (name, sub, n, unit, tot, color) { return h('tr', null, h('td', null, h('div', { class: 'tname' }, h('i', { style: 'background:' + color }), h('div', null, h('b', { text: name }), h('small', { text: sub })))), h('td', { class: 'num', text: String(n) }), h('td', { class: 'num', text: unit }), h('td', null, h('div', { class: 'meter' }, h('i', { style: 'width:' + share(tot) + '%;background:' + color }), h('small', { text: share(tot) + ' %' }))), h('td', { class: 'num strong' }, eurD(tot))); };
     main.appendChild(h('div', { class: 'card', style: 'margin-top:16px' },
       h('h2', { text: 'D’où viennent vos revenus' }), h('p', { class: 'sub', text: 'Chaque ligne : combien de clients ou d’adresses, le prix de chacun, et ce que ça rapporte par mois.' }),
       h('div', { class: 'tablewrap' }, h('table', { class: 'revt' },
-        h('thead', null, h('tr', null, ['Type', 'Nombre', 'Prix unitaire', 'Part du total', 'Par mois'].map(function (x, i) { return h('th', { text: x, class: i ? 'num' : '' }); }))),
+        h('thead', null, h('tr', null, ['Type', 'Nombre', 'Prix unitaire HT', 'Part du total', 'Par mois (HT · TTC)'].map(function (x, i) { return h('th', { text: x, class: i ? 'num' : '' }); }))),
         h('tbody', null,
-          line('Abonnement Essentiel', 'site vitrine, 1 modification par mois', k.nEss, PRIX.essentiel + ' €', k.ess, COL.pri),
-          line('Abonnement Pro', 'réservation en ligne, éditeur, 1 mail pro inclus', k.nPro, PRIX.pro + ' €', k.pro, COL.sky),
-          line('Adresses mail pro en plus', 'hors celle incluse avec le Pro', k.mailsN, MAILP + ' €', k.mailsEur, COL.ok)),
-        h('tfoot', null, h('tr', null, h('td', { text: 'Total par mois' }), h('td', { class: 'num', text: String(k.nEss + k.nPro) + ' clients' }), h('td'), h('td'), h('td', { class: 'num strong', text: eur(k.mrr) }))))),
+          line('Abonnement Essentiel', 'site vitrine, 1 modification par mois', k.nEss, PRIX.essentiel + ' € · ' + eur(PRIX.essentiel * TVA) + ' TTC', k.ess, COL.pri),
+          line('Abonnement Pro', 'réservation en ligne, éditeur, 1 mail pro inclus', k.nPro, PRIX.pro + ' € · ' + eur(PRIX.pro * TVA) + ' TTC', k.pro, COL.sky),
+          line('Adresses mail pro en plus', 'hors celle incluse avec le Pro', k.mailsN, MAILP + ' € · ' + eur(MAILP * TVA) + ' TTC', k.mailsEur, COL.ok)),
+        h('tfoot', null, h('tr', null, h('td', { text: 'Total par mois' }), h('td', { class: 'num', text: String(k.nEss + k.nPro) + ' clients' }), h('td'), h('td'), h('td', { class: 'num strong' }, eurD(k.mrr)))))),
       h('div', { class: 'mailnote' }, h('b', { text: String(k.nPro + k.mailsN) }), ' adresse(s) mail pro au total : ', h('b', { text: String(k.nPro) }), ' incluse(s) avec le Pro + ', h('b', { text: String(k.mailsN) }), ' payante(s) en plus.')));
     main.appendChild(h('div', { class: 'sec', text: 'Mois par mois' }));
     main.appendChild(revenueBlock());
@@ -841,7 +865,7 @@
   function taskRow(t, after) {
     var cb = h('input', { type: 'checkbox', checked: t.fait ? '' : null, 'aria-label': 'Marquer comme fait : ' + t.titre });
     cb.addEventListener('change', function () { api('/api/admin/tache-fait', 'POST', { id: t.id, fait: cb.checked }).then(function (x) { if (!x.j.ok) { flash('Échec.', true); cb.checked = !cb.checked; } else after(); }); });
-    return h('li', { class: 'task' + (t.fait ? ' done' : '') }, h('label', null, cb, h('span', null, h('b', { text: t.titre }), t.detail ? h('small', { text: t.detail }) : null, h('small', { class: 'meta', text: [t.nom || null, t.echeance ? 'pour le ' + fd(t.echeance) : null, t.fait && t.fait_at ? 'fait le ' + fd(t.fait_at) : null].filter(Boolean).join(' · ') }))),
+    return h('li', { class: 'task todo' + (t.fait ? ' done' : '') }, h('label', null, cb, h('span', null, h('b', { text: t.titre }), t.detail ? h('small', { text: t.detail }) : null, h('small', { class: 'meta', text: [t.nom || null, t.echeance ? 'pour le ' + fd(t.echeance) : null, t.fait && t.fait_at ? 'fait le ' + fd(t.fait_at) : null].filter(Boolean).join(' · ') }))),
       h('button', { type: 'button', class: 'btn sm ghost', text: 'Supprimer', 'aria-label': 'Supprimer la tâche ' + t.titre, onclick: function () { api('/api/admin/tache-suppr', 'POST', { id: t.id }).then(function () { after(); }); } }));
   }
   function taskForm(compteId, after) {
@@ -853,28 +877,32 @@
     return h('div', { class: 'form tform' }, h('label', { class: 'wide' }, 'Nouvelle tâche', ti), h('label', { class: 'wide' }, 'Information interne', de), h('label', null, 'Pour le (facultatif)', ec), cs ? h('label', null, 'Client', cs) : null, h('div', { class: 'wide' }, h('button', { type: 'button', class: 'btn', text: 'Ajouter', onclick: go2 })));
   }
   function updToday() { return api('/api/admin/atraiter').then(function (r) { var b = $('#c-today'); if (b) b.textContent = r.j.ok && r.j.urgents ? String(r.j.urgents) : ''; return r; }); }
+  function taskDialog() {
+    var ov = h('div', { class: 'ov', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Nouvelle tâche' }), bx = h('div', { class: 'modal', style: 'max-width:560px' });
+    var close = function () { ov.remove(); document.removeEventListener('keydown', esc); }, esc = function (e) { if (e.key === 'Escape') close(); };
+    document.addEventListener('keydown', esc);
+    ov.addEventListener('click', function (e) { if (e.target === ov) close(); });
+    bx.appendChild(h('div', { class: 'tbar' }, h('h2', { text: 'Nouvelle tâche' }), h('button', { type: 'button', class: 'btn ghost sm', text: 'Fermer', 'aria-label': 'Fermer', onclick: close })));
+    bx.appendChild(taskForm(undefined, function () { close(); todayView(); }));
+    ov.appendChild(bx); document.body.appendChild(ov);
+    var f = bx.querySelector('input[type=text]'); if (f) f.focus();
+  }
   function todayView() {
-    main.textContent = ''; main.appendChild(head('À traiter aujourd’hui', new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }), []));
+    var plus = h('button', { type: 'button', class: 'plusb', id: 'task-plus', title: 'Créer une tâche', 'aria-label': 'Créer une tâche', onclick: taskDialog }, '+');
+    main.textContent = ''; main.appendChild(head('À traiter aujourd’hui', new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }), [plus]));
     var box = h('div'); main.appendChild(box); box.appendChild(h('p', { class: 'empty', text: 'Chargement…' }));
-    updToday().then(function (r) {
+    Promise.all([updToday(), api('/api/admin/taches')]).then(function (rs) {
+      var r = rs[0], tl0 = rs[1].j.taches || [];
       box.textContent = '';
       if (!r.j.ok) { box.appendChild(h('p', { class: 'empty', text: 'Impossible de charger la liste.' })); return; }
-      var items = r.j.items, ur = items.filter(function (i) { return i.niveau === 'urgent'; }), no = items.filter(function (i) { return i.niveau !== 'urgent'; });
-      box.appendChild(h('div', { class: 'cf-g3', style: 'margin-bottom:16px' }, [[ur.length, 'urgent' + (ur.length > 1 ? 's' : ''), ur.length ? 'bad' : 'ok'], [no.length, 'à faire', no.length ? 'warn' : 'ok'], [items.length, 'au total', '']].map(function (k) { return h('div', { class: 'card kpi2' }, h('b', { class: k[2], text: String(k[0]) }), h('span', { text: k[1] })); })));
-      var list = function (title, arr) {
-        if (!arr.length) return null;
-        return h('div', { class: 'card', style: 'margin-bottom:16px' }, h('h2', { text: title + ' (' + arr.length + ')' }), h('ul', { class: 'todol' }, arr.map(function (i) {
-          var open2 = function () { if (i.compte_id) { mark('clients'); top(function () { detail(i.compte_id, i.cle === 'avis' || i.cle === 'dossier_complet' || i.cle === 'ajustements' || i.cle === 'resiliation' || i.cle === 'rappel' || i.cle === 'tache' || i.cle === 'nouvelle' || i.cle === 'creation' || i.cle === 'mettre_en_ligne' ? 'suivi' : 'apercu'); }); } };
-          return h('li', null, h('span', { class: 'cf-ji ' + (i.niveau === 'urgent' ? 'bad' : 'warn') }, ico(CLE_ICO[i.cle] || 'alert', 16)), h('div', { class: 'tt' }, h('b', { text: i.titre }), i.detail ? h('small', { text: i.detail }) : null, h('small', { class: 'meta', text: [i.nom, i.date ? fd(i.date) : null].filter(Boolean).join(' · ') })),
-            i.compte_id ? h('button', { type: 'button', class: 'btn sm', text: 'Ouvrir', 'aria-label': 'Ouvrir la fiche de ' + i.nom, onclick: open2 }) : null);
-        })));
-      };
-      if (!items.length) box.appendChild(h('div', { class: 'card' }, h('h2', { text: 'Tout est à jour' }), h('p', { class: 'sub', text: 'Rien à traiter pour le moment. Profitez-en pour prospecter ou ajouter une tâche ci-dessous.' })));
-      [list('Urgent', ur), list('À faire', no)].forEach(function (n) { if (n) box.appendChild(n); });
-      var tasks = h('div', { class: 'card' }, h('h2', { text: 'Toutes mes tâches' }));
-      var tl = h('div'); tasks.appendChild(tl); tasks.appendChild(taskForm(undefined, function () { todayView(); }));
-      box.appendChild(tasks);
-      api('/api/admin/taches').then(function (x) { var l = x.j.taches || []; tl.appendChild(l.length ? h('ul', { class: 'tasks' }, l.map(function (t) { return taskRow(t, function () { todayView(); }); })) : h('p', { class: 'empty', text: 'Aucune tâche. Ajoutez-en une ci-dessous.' })); });
+      var items = r.j.items.slice().sort(function (a, b) { return (a.niveau === 'urgent' ? 0 : 1) - (b.niveau === 'urgent' ? 0 : 1); }), faites = tl0.filter(function (t) { return t.fait; }).length;
+      box.appendChild(h('div', { class: 'cf-g2', style: 'margin-bottom:16px' }, [[items.length, 'À traiter', items.length ? 'bad' : 'ok'], [faites, 'Déjà traité' + (faites > 1 ? 's' : ''), 'ok']].map(function (k) { return h('div', { class: 'card kpi2' }, h('b', { class: k[2], text: String(k[0]) }), h('span', { text: k[1] })); })));
+      if (items.length) box.appendChild(h('div', { class: 'card', style: 'margin-bottom:16px' }, h('h2', { text: 'À traiter (' + items.length + ')' }), h('ul', { class: 'todol' }, items.map(function (i) {
+        var open2 = function () { if (i.compte_id) { mark('clients'); top(function () { detail(i.compte_id, i.cle === 'avis' || i.cle === 'dossier_complet' || i.cle === 'ajustements' || i.cle === 'resiliation' || i.cle === 'rappel' || i.cle === 'tache' || i.cle === 'nouvelle' || i.cle === 'creation' || i.cle === 'mettre_en_ligne' ? 'suivi' : 'apercu'); }); } };
+        return h('li', null, h('span', { class: 'cf-ji ' + (i.niveau === 'urgent' ? 'bad' : 'warn') }, ico(CLE_ICO[i.cle] || 'alert', 16)), h('div', { class: 'tt' }, h('b', { text: i.titre }), i.detail ? h('small', { text: i.detail }) : null, h('small', { class: 'meta', text: [i.nom, i.date ? fd(i.date) : null].filter(Boolean).join(' · ') })),
+          i.compte_id ? h('button', { type: 'button', class: 'btn sm', text: 'Ouvrir', 'aria-label': 'Ouvrir la fiche de ' + i.nom, onclick: open2 }) : null);
+      }))));
+      box.appendChild(h('div', { class: 'card' }, h('h2', { text: 'Toutes mes tâches' }), tl0.length ? h('ul', { class: 'tasks' }, tl0.map(function (t) { return taskRow(t, function () { todayView(); }); })) : h('p', { class: 'empty', text: 'Aucune tâche pour le moment.' })));
     });
   }
 
@@ -923,12 +951,18 @@
       /* parrainage */
       var pa = P2.parrainage, ci = h('input', { type: 'text', maxlength: '9', placeholder: 'DW-XXXXX', 'aria-label': 'Code de parrainage à appliquer', autocapitalize: 'characters' });
       var ST = { en_attente: 'En attente', valide: 'Validé', expire: 'Expiré' };
+      var MF = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+      function moisFr(ym) { return MF[+ym.slice(5, 7) - 1] + ' ' + ym.slice(0, 4); }
+      var moisSel = h('select', { 'aria-label': 'Nombre de mois à offrir' }, [1, 2, 3, 6, 12].map(function (n) { return h('option', { value: String(n), text: n + (n > 1 ? ' mois' : ' mois') }); })), moisMotif = h('input', { type: 'text', maxlength: '120', placeholder: 'Ex. : geste après un retard' });
       var cPar = card('Parrainage', 'users', null, h('div', null, h('p', null, 'Code de ce client : ', h('b', { class: 'codep', text: pa.code })),
         pa.parrain ? h('p', { class: 'sub', text: 'Parrainé par ' + pa.parrain.nom + ' (code ' + pa.parrain.code + ') · ' + ST[pa.parrain.statut] }) : h('div', { class: 'form' }, h('label', { class: 'wide' }, 'Appliquer un code reçu par ce client (par téléphone, par exemple)', ci), h('div', { class: 'wide' }, h('button', { type: 'button', class: 'btn sm', text: 'Appliquer le code', onclick: function () { api('/api/admin/parrain-appliquer', 'POST', { compte_id: c.id, code: ci.value }).then(function (x) { var M = { inconnu: 'Code inconnu.', soi: 'C’est son propre code.', deja: 'Déjà parrainé.', client: 'Déjà client : un code est réservé aux nouveaux clients.', inactif: 'Le parrain n’a pas d’abonnement actif.' }; flash(x.j.ok ? 'Code appliqué.' : (M[x.j.error] || 'Échec.'), !x.j.ok); if (x.j.ok) redo(); }); } }))),
         h('h3', { style: 'margin-top:12px', text: 'Filleuls (' + pa.filleuls.length + ')' }), pa.filleuls.length ? h('ul', { class: 'tasks' }, pa.filleuls.map(function (f) { return h('li', { class: 'task' }, h('div', { style: 'flex:1' }, h('b', { text: f.nom }), h('small', { class: 'meta', text: 'Depuis le ' + fd(f.created_at) })), h('span', { class: 'pill ' + (f.statut === 'valide' ? 'ok' : f.statut === 'expire' ? 'bad' : 'warn'), text: ST[f.statut] })); })) : h('p', { class: 'empty', text: 'Aucun filleul.' }),
-        h('h3', { style: 'margin-top:12px', text: 'Mois offerts' }), pa.credits.length ? h('ul', { class: 'tasks' }, pa.credits.map(function (cr) {
-          var exp = !cr.utilise_at && cr.expire_at && cr.expire_at.slice(0, 10) < new Date().toISOString().slice(0, 10);
-          return h('li', { class: 'task' + (cr.utilise_at || exp ? ' done' : '') }, h('div', { style: 'flex:1' }, h('b', { text: '1 mois offert (' + (cr.origine === 'filleul' ? 'bienvenue' : 'parrainage') + ')' }), h('small', { class: 'meta', text: cr.utilise_at ? 'Utilisé le ' + fd(cr.utilise_at) : exp ? 'Expiré le ' + fd(cr.expire_at) : 'Valable jusqu’au ' + fd(cr.expire_at) })), exp ? null : h('button', { type: 'button', class: 'btn sm ' + (cr.utilise_at ? 'ghost' : ''), text: cr.utilise_at ? 'Remettre disponible' : 'Marquer utilisé (déduit d’une facture)', onclick: function () { api('/api/admin/credit-utilise', 'POST', { id: cr.id, utilise: !cr.utilise_at }).then(function (x) { if (x.j.ok) redo(); }); } }));
+        h('h3', { style: 'margin-top:12px', text: 'Mois offerts' }),
+        h('div', { class: 'form' }, h('label', null, 'Offrir des mois', moisSel), h('label', null, 'Raison (facultatif)', moisMotif), h('div', { class: 'wide' }, h('button', { type: 'button', class: 'btn sm', text: 'Offrir', onclick: function () { api('/api/admin/mois-offert', 'POST', { compte_id: c.id, mois: +moisSel.value, motif: moisMotif.value }).then(function (x) { var M = { 'pas-abonne': 'Ce client n’a pas d’abonnement en cours.', mois: 'Nombre de mois invalide.' }; flash(x.j.ok ? 'Offert : ' + x.j.mois.map(moisFr).join(', ') + '.' : (M[x.j.error] || 'Échec.'), !x.j.ok); if (x.j.ok) redo(); }); } })), h('p', { class: 'sub wide', text: 'Le mois en cours reste facturé. Le mois d’après (puis les suivants) n’est pas facturé et la facture du client l’indique.' })),
+        pa.credits.length ? h('ul', { class: 'tasks' }, pa.credits.map(function (cr) {
+          var fait = cr.etat === 'utilise' || cr.etat === 'expire', ori = cr.origine === 'filleul' ? 'bienvenue' : cr.origine === 'admin' ? 'offert par vous' : 'parrainage';
+          return h('li', { class: 'task' + (fait ? ' done' : '') }, h('div', { style: 'flex:1' }, h('b', { text: cr.mois_offert ? 'Mois offert : ' + moisFr(cr.mois_offert) : '1 mois offert' }), h('small', { class: 'meta', text: ori + ' · ' + (cr.etat === 'utilise' ? 'appliqué' : cr.etat === 'en_cours' ? 'en cours' : cr.etat === 'planifie' ? 'prévu' : cr.etat === 'expire' ? 'expiré' : 'sans mois attribué') })),
+            cr.mois_offert && cr.etat === 'planifie' ? h('button', { type: 'button', class: 'btn sm ghost', text: 'Annuler', onclick: function () { api('/api/admin/credit-suppr', 'POST', { id: cr.id }).then(function (x) { flash(x.j.ok ? 'Mois offert annulé.' : 'Impossible : le mois est déjà commencé.', !x.j.ok); if (x.j.ok) redo(); }); } }) : null);
         })) : h('p', { class: 'empty', text: 'Aucun mois offert.' })));
       box.appendChild(cPar);
     });
@@ -970,11 +1004,61 @@
     main.appendChild(sv);
   }
 
+  /* ===== parrainage : statistiques ===== */
+  function parrView() {
+    main.textContent = ''; main.appendChild(head('Parrainage', 'Qui a parrainé qui, et les mois offerts. Cliquez sur un nom pour ouvrir la fiche du client.', []));
+    var box = h('div'); main.appendChild(box); box.appendChild(h('p', { class: 'empty', text: 'Chargement…' }));
+    api('/api/admin/parrainages').then(function (r) {
+      box.textContent = ''; var j = r.j;
+      if (!j.ok) { box.appendChild(h('p', { class: 'empty', text: 'Impossible de charger les parrainages.' })); return; }
+      var MF = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'], mf = function (ym) { return MF[+ym.slice(5, 7) - 1] + ' ' + ym.slice(0, 4); };
+      var ST = { en_attente: 'En attente', valide: 'Validé', expire: 'Expiré' }, PC = { valide: 'ok', expire: 'bad', en_attente: 'warn' };
+      box.appendChild(h('div', { class: 'cf-g3', style: 'margin-bottom:16px' }, [[j.total, 'client' + (j.total > 1 ? 's' : '') + ' parrainé' + (j.total > 1 ? 's' : ''), ''], [j.valides, 'parrainage' + (j.valides > 1 ? 's' : '') + ' validé' + (j.valides > 1 ? 's' : ''), 'ok'], [j.en_attente, 'en attente d’un abonnement', j.en_attente ? 'warn' : ''], [j.expires, 'expiré' + (j.expires > 1 ? 's' : ''), ''], [j.mois_parrainage, 'mois offerts par parrainage', ''], [j.mois_admin, 'mois offerts par vous', '']].map(function (k) { return h('div', { class: 'card kpi2' }, h('b', { text: String(k[0]) }), h('span', { text: k[1] })); })));
+      var open = function (id) { var c = D.comptes.filter(function (x) { return x.id === id; })[0]; return c ? function () { mark('clients'); top(function () { detail(c.id, 'suivi'); }); } : null; };
+      var lnk = function (nom, id) { var f = open(id); return f ? h('button', { type: 'button', class: 'lnk', text: nom, onclick: f }) : h('span', { text: nom }); };
+      box.appendChild(h('div', { class: 'card' }, h('h3', { text: 'Qui a parrainé qui' }), j.lignes.length ? h('div', { class: 'tablewrap' }, h('table', { class: 'revt' }, h('thead', null, h('tr', null, ['Parrain', 'Client parrainé', 'Code', 'Date', 'Statut'].map(function (t) { return h('th', { text: t }); }))),
+        h('tbody', null, j.lignes.map(function (l) { return h('tr', null, h('td', null, lnk(l.parrain, l.parrain_id), l.parrain_commerce ? h('small', { class: 'meta', style: 'display:block', text: l.parrain_commerce }) : null), h('td', null, lnk(l.filleul, l.filleul_id), l.filleul_commerce ? h('small', { class: 'meta', style: 'display:block', text: l.filleul_commerce }) : null), h('td', { text: l.code || '' }), h('td', { text: fd(l.created_at) }), h('td', null, h('span', { class: 'pill ' + PC[l.statut], text: ST[l.statut] || l.statut }))); })))) : h('p', { class: 'empty', text: 'Aucun parrainage pour le moment. Chaque client a un code dans son espace et dans sa fiche.' })));
+      if (j.top.length) box.appendChild(h('div', { class: 'card', style: 'margin-top:16px' }, h('h3', { text: 'Meilleurs parrains' }), h('ul', { class: 'tasks' }, j.top.map(function (t) { return h('li', { class: 'task' }, h('div', { style: 'flex:1' }, lnk(t.nom, t.compte_id)), h('span', { class: 'pill ok', text: t.valides + ' validé' + (t.valides > 1 ? 's' : '') + ' sur ' + t.n })); }))));
+      box.appendChild(h('div', { class: 'card', style: 'margin-top:16px' }, h('h3', { text: 'Mois offerts' }), j.offerts.length ? h('ul', { class: 'tasks' }, j.offerts.map(function (o) { return h('li', { class: 'task' }, h('div', { style: 'flex:1' }, lnk(o.nom, o.compte_id), h('small', { class: 'meta', text: (o.mois_offert ? 'Mois offert : ' + mf(o.mois_offert) : '1 mois offert') + ' · ' + (o.origine === 'admin' ? 'offert par vous' : o.origine === 'filleul' ? 'bienvenue (parrainage)' : 'parrainage') })), h('span', { class: 'pill ' + (o.etat === 'utilise' ? 'pri' : 'ok'), text: o.etat === 'utilise' ? 'Appliqué' : o.etat === 'en_cours' ? 'En cours' : 'Prévu' })); })) : h('p', { class: 'empty', text: 'Aucun mois offert pour le moment. Vous pouvez en offrir depuis la fiche d’un client, onglet « Suivi & notes ».' })));
+    });
+  }
+
+  /* ===== litiges : impayés, prélèvements rejetés, contestations ===== */
+  var LIT_T = { impaye: 'Impayé', prelevement_rejete: 'Prélèvement rejeté', contestation: 'Contestation', autre: 'Autre litige' };
+  function litBadge(n) { var e = $('#c-lit'); if (e) { e.textContent = n ? String(n) : ''; } }
+  function litigesView() {
+    main.textContent = ''; main.appendChild(head('Litiges', 'Les clients qui n’ont pas payé, prélèvements rejetés, contestations. Les impayés arrivent ici automatiquement.', []));
+    var box = h('div'); main.appendChild(box); box.appendChild(h('p', { class: 'empty', text: 'Chargement…' }));
+    api('/api/admin/litiges').then(function (r) {
+      box.textContent = ''; var j = r.j;
+      if (!j.ok) { box.appendChild(h('p', { class: 'empty', text: 'Impossible de charger les litiges.' })); return; }
+      litBadge(j.ouverts);
+      var eur = function (n) { return n == null ? '—' : String(n.toFixed(2)).replace('.', ',') + ' € TTC'; };
+      var ouv = j.lignes.filter(function (l) { return l.statut === 'ouvert'; }), clos = j.lignes.filter(function (l) { return l.statut !== 'ouvert'; });
+      box.appendChild(h('div', { class: 'cf-g3', style: 'margin-bottom:16px' }, [[j.ouverts, 'litige' + (j.ouverts > 1 ? 's' : '') + ' ouvert' + (j.ouverts > 1 ? 's' : ''), j.ouverts ? 'bad' : ''], [eur(j.montant_ouvert), 'montant à récupérer', ''], [clos.filter(function (l) { return l.statut === 'regle'; }).length, 'litiges réglés', '']].map(function (t) { return h('div', { class: 'card kpi2' }, h('b', { text: String(t[0]) }), h('span', { text: t[1] })); })));
+      var openC = function (id) { var c = D.comptes.filter(function (x) { return x.id === id; })[0]; if (c) { mark('clients'); top(function () { detail(c.id, 'apercu'); }); } };
+      var act = function (l, st, msg) { return h('button', { type: 'button', class: 'btn sm ' + (st === 'regle' ? '' : 'ghost'), text: msg, onclick: function () { api('/api/admin/litige-statut', 'POST', { id: l.id, statut: st }).then(function (x) { flash(x.j.ok ? 'Litige mis à jour.' : 'Échec.', !x.j.ok); if (x.j.ok) litigesView(); }); } }); };
+      var row = function (l) {
+        var contact = [l.email ? h('a', { class: 'lnk', href: 'mailto:' + l.email, text: l.email }) : null, l.tel ? h('a', { class: 'lnk', href: 'tel:' + l.tel.replace(/\s/g, ''), text: l.tel }) : null].filter(Boolean);
+        var meta = h('small', { class: 'meta', style: 'display:block' }); meta.appendChild(document.createTextNode([l.commerce, l.periode && ('période ' + l.periode), 'ouvert le ' + fd(l.created_at), l.source === 'auto' ? 'détecté automatiquement' : 'ajouté à la main'].filter(Boolean).join(' · ')));
+        return h('li', { class: 'task lit ' + (l.statut === 'ouvert' ? 'todo' : 'done') },
+          h('div', { style: 'flex:1;min-width:0' }, h('div', null, h('button', { type: 'button', class: 'lnk', text: l.nom, onclick: function () { openC(l.compte_id); } }), ' ', h('span', { class: 'pill ' + (l.statut === 'ouvert' ? 'bad' : l.statut === 'regle' ? 'ok' : ''), text: (LIT_T[l.type] || l.type) + (l.statut === 'ouvert' ? '' : l.statut === 'regle' ? ' · réglé' : ' · abandonné') }), l.montant_ttc != null ? h('b', { style: 'margin-left:8px', text: eur(l.montant_ttc) }) : null), meta, l.note ? h('div', { class: 'sub', text: l.note }) : null, contact.length ? h('div', { class: 'sub' }, contact.reduce(function (acc, e, i) { if (i) acc.push(document.createTextNode(' · ')); acc.push(e); return acc; }, [])) : null),
+          h('div', { class: 'tools', style: 'flex-wrap:wrap;gap:8px' }, l.statut === 'ouvert' ? [act(l, 'regle', 'Marquer réglé'), act(l, 'abandonne', 'Abandonner')] : [act(l, 'ouvert', 'Rouvrir')]));
+      };
+      box.appendChild(h('div', { class: 'card' }, h('h3', { text: 'Litiges ouverts' }), ouv.length ? h('ul', { class: 'tasks' }, ouv.map(row)) : h('p', { class: 'empty', text: 'Aucun litige ouvert. Un abonnement passé en « impayé » apparaît ici automatiquement.' })));
+      var cs = h('select', { 'aria-label': 'Client' }, D.comptes.filter(function (c) { return c.role !== 'admin'; }).map(function (c) { return h('option', { value: String(c.id), text: c.nom }); })), ts = h('select', { 'aria-label': 'Type' }, Object.keys(LIT_T).map(function (k) { return h('option', { value: k, text: LIT_T[k] }); }));
+      var mi = h('input', { type: 'number', min: '0', step: '0.01', placeholder: 'Montant TTC' }), pi = h('input', { type: 'text', maxlength: '20', placeholder: 'Période (ex. 2026-11)' }), ni = h('textarea', { rows: '2', maxlength: '500', placeholder: 'Note (facultatif)' });
+      box.appendChild(h('div', { class: 'card', style: 'margin-top:16px' }, h('h3', { text: 'Ajouter un litige' }), h('div', { class: 'form' }, h('label', null, 'Client', cs), h('label', null, 'Type', ts), h('label', null, 'Montant TTC', mi), h('label', null, 'Période', pi), h('label', { class: 'wide' }, 'Note', ni)),
+        h('button', { type: 'button', class: 'btn', text: 'Ajouter le litige', onclick: function () { api('/api/admin/litige-ajout', 'POST', { compte_id: cs.value, type: ts.value, montant: mi.value, periode: pi.value, note: ni.value }).then(function (x) { flash(x.j.ok ? 'Litige ajouté.' : 'Échec.', !x.j.ok); if (x.j.ok) litigesView(); }); } })));
+      if (clos.length) box.appendChild(h('div', { class: 'card', style: 'margin-top:16px' }, h('h3', { text: 'Historique' }), h('ul', { class: 'tasks' }, clos.map(row))));
+    });
+  }
+
   /* ===== navigation latérale ===== */
-  var navb = { today: $('#n-today'), avis: $('#n-avis'), outils: $('#n-outils'), stats: $('#n-stats'), clients: $('#n-clients'), dem: $('#n-dem'), crea: $('#n-crea'), ligne: $('#n-ligne'), abo: $('#n-abo'), rev: $('#n-rev'), com: $('#n-com'), mdp: $('#n-mdp') };
+  var navb = { today: $('#n-today'), parr: $('#n-parr'), avis: $('#n-avis'), outils: $('#n-outils'), stats: $('#n-stats'), clients: $('#n-clients'), dem: $('#n-dem'), crea: $('#n-crea'), ligne: $('#n-ligne'), abo: $('#n-abo'), rev: $('#n-rev'), com: $('#n-com'), mdp: $('#n-mdp'), lit: $('#n-lit') };
   function mark(k) { Object.keys(navb).forEach(function (x) { if (x === k) navb[x].setAttribute('aria-current', 'page'); else navb[x].removeAttribute('aria-current'); }); }
   function go(k, fn) { navb[k].addEventListener('click', function () { mark(k); top(fn); }); }
-  go('today', todayView); go('avis', avisView); go('outils', outilsView); go('stats', showStats); go('clients', clientsView); go('dem', pageDem); go('crea', pageCrea); go('ligne', pageLigne); go('abo', pageAbo); go('rev', revenuePage); go('com', commView); go('mdp', motDePasse);
+  go('today', todayView); go('parr', parrView); go('avis', avisView); go('outils', outilsView); go('stats', showStats); go('clients', clientsView); go('dem', pageDem); go('crea', pageCrea); go('ligne', pageLigne); go('abo', pageAbo); go('rev', revenuePage); go('com', commView); go('mdp', motDePasse); go('lit', litigesView);
   $('#n-out').addEventListener('click', function () { api('/api/deconnexion', 'POST').then(function () { location.href = '/connexion'; }); });
 
   api('/api/moi').then(function (r) {
@@ -982,6 +1066,6 @@
     if (r.s === 401) { gate.textContent = ''; gate.appendChild(h('h1', { text: 'Espace administrateur' })); gate.appendChild(h('p', { text: 'Connectez-vous avec votre compte administrateur.' })); gate.appendChild(h('a', { class: 'btn', href: '/connexion', text: 'Se connecter' })); return; }
     if (!r.j.admin) { gate.textContent = ''; gate.appendChild(h('h1', { text: 'Accès refusé' })); gate.appendChild(h('p', { text: 'Cet espace est réservé à l’administrateur.' })); gate.appendChild(h('a', { class: 'btn', href: '/', text: 'Retour au site' })); return; }
     gate.hidden = true; $('#app').hidden = false; main.appendChild(h('p', { class: 'empty', text: 'Chargement…' }));
-    loadAll().then(function () { updBadges(); mark('today'); top(todayView); }).catch(function () { main.textContent = ''; main.appendChild(h('p', { class: 'empty', text: 'Impossible de charger les données. Réessayez dans un instant.' })); });
+    loadAll().then(function () { updBadges(); api('/api/admin/litiges').then(function (x) { if (x.j && x.j.ok) litBadge(x.j.ouverts); }); mark('today'); top(todayView); }).catch(function () { main.textContent = ''; main.appendChild(h('p', { class: 'empty', text: 'Impossible de charger les données. Réessayez dans un instant.' })); });
   }).catch(function () { $('#gate').textContent = 'Connexion impossible pour le moment.'; });
 })();
