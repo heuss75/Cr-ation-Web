@@ -425,6 +425,8 @@
             df.hidden = true; $('#d-done').classList.add('on');
             $('#d-done').setAttribute('tabindex', '-1'); $('#d-done').focus();
             $('#d-done').scrollIntoView({ block: 'start', behavior: reduce ? 'auto' : 'smooth' });
+          } else if (r.s === 409 && r.j.error === 'deja') {
+            alertBad.querySelector('span').textContent = 'Vous avez déjà une demande de site en cours (réf. ' + r.j.ref + '). Suivez-la dans votre espace client. Pour un second site, écrivez-nous depuis « Contacter le support ».'; alertBad.classList.add('on');
           } else if (r.s === 401) {
             location.replace('/inscription' + location.search);
           } else if (r.s === 429) {
@@ -489,7 +491,8 @@
             if (lbl) lbl.textContent = 'Vérifier et créer mon compte'; cin.value = ''; cin.focus(); if (again) toast('Nouveau code envoyé');
           } else if (r.s === 409 && r.j.errors) { setErr(sf.elements.email, r.j.errors.email); bad(sbad, 'Un compte existe déjà avec cette adresse. Connectez-vous.'); }
           else if (r.s === 422 && r.j.errors) { setErr(sf.elements.email, r.j.errors.email); }
-          else if (r.s === 429) bad(sbad, r.j.error === 'attente' ? 'Un code vient d’être envoyé. Patientez 30 secondes avant d’en demander un autre.' : 'Trop de demandes de code. Patientez une heure puis réessayez.');
+          else if (r.s === 429 && r.j.error === 'attente') { cbox.hidden = false; sf.classList.add('coded'); ['nom', 'email', 'password', 'password2'].forEach(function (n) { sf.elements[n].readOnly = true; }); if (lbl) lbl.textContent = 'Vérifier et créer mon compte'; cin.focus(); bad(sbad, 'Un code vient d’être envoyé. Saisissez-le ci-dessous, ou patientez 30 secondes avant d’en demander un autre.'); }
+          else if (r.s === 429) bad(sbad,  'Trop de demandes de code. Patientez une heure puis réessayez.');
           else bad(sbad, 'Le code n’a pas pu être envoyé. Vérifiez l’adresse e-mail puis réessayez.');
         }).catch(function () { busy(sbtn, false); bad(sbad, 'Connexion impossible pour le moment. Vérifiez votre réseau puis réessayez.'); });
       };

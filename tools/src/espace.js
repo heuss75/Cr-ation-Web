@@ -19,7 +19,7 @@
   var IC = { globe: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18', card: 'M2 7a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zM2 10h20', pen: 'M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z', msg: 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z', home: 'M3 11l9-8 9 8v9a2 2 0 0 1-2 2h-4v-7H9v7H5a2 2 0 0 1-2-2z', help: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01', user: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8', out: 'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9', ext: 'M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3', cal: 'M3 5h18v16H3zM3 10h18M8 3v4M16 3v4', edit: 'M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4', bell: 'M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0', file: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 13h8M8 17h5', book: 'M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2zM22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z', bolt: 'M13 2L3 14h9l-1 8 10-12h-9z', chart: 'M4 20V10M10 20V4M16 20v-7M22 20H2', layers: 'M12 2l10 5-10 5L2 7zM2 17l10 5 10-5M2 12l10 5 10-5', eye: 'M2 12s4-8 10-8 10 8 10 8-4 8-10 8S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6', mail: 'M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM22 6l-10 7L2 6', clock: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18M12 7v5l3 2', headset: 'M3 14v-2a9 9 0 0 1 18 0v2M3 14a2 2 0 0 1 2-2h1v6H5a2 2 0 0 1-2-2zM21 14a2 2 0 0 0-2-2h-1v6h1a2 2 0 0 0 2-2z', check: 'M5 12l5 5L20 7', down: 'M6 9l6 6 6-6', right: 'M5 12h14M13 6l6 6-6 6' };
   function ico(n, size) { var s = document.createElementNS(NS, 'svg'); s.setAttribute('width', size || 22); s.setAttribute('height', size || 22); s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('fill', 'none'); s.setAttribute('stroke', 'currentColor'); s.setAttribute('stroke-width', 2); s.setAttribute('stroke-linecap', 'round'); s.setAttribute('stroke-linejoin', 'round'); s.setAttribute('aria-hidden', 'true'); var p = document.createElementNS(NS, 'path'); p.setAttribute('d', IC[n]); s.appendChild(p); return s; }
   var LBL = { nouvelle: 'Demande reçue', en_creation: 'En création', apercu: 'Aperçu à valider', en_ligne: 'En ligne', abandonnee: 'Abandonnée', actif: 'Actif', impaye: 'Impayé', suspendu: 'Suspendu', resilie: 'Résilié', ouverte: 'Reçue', en_cours: 'En cours', resolue: 'Traitée', essentiel: 'Essentiel', pro: 'Pro', demandee: 'Demandée', faite: 'Faite' };
-  var PRIX = { essentiel: 60, pro: 100 }, MAILP = 4;
+  var PRIX = { essentiel: 60, pro: 100 }, MAILP = 4, ACT = { coiffeur: 'Coiffeur', restaurant: 'Restaurant', artisan: 'Artisan du bâtiment', therapeute: 'Thérapeute, bien-être', coach: 'Coach sportif', boutique: 'Boutique de quartier', autre: 'Autre' };
   var lab = function (k) { return LBL[k] || k || '—'; };
   var eur = function (n) { return (Math.round((n || 0) * 100) / 100).toLocaleString('fr-FR') + ' € HT'; };
   function dt(x) { if (!x) return '—'; var d = new Date(String(x).replace(' ', 'T') + 'Z'); return isNaN(d) ? x : d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }); }
@@ -96,7 +96,7 @@
   function vSite() {
     var d = D(); main.appendChild(head('Mon site', 'Les informations de votre site vitrine'));
     if (!d) { main.appendChild(h('div', { class: 'card' }, h('p', { class: 'empty', text: 'Aucun site pour le moment.' }), h('a', { class: 'btn', href: '/commander', text: 'Faire ma demande' }))); return; }
-    var dl = h('dl', { class: 'dl' }, [['Commerce', d.commerce], ['Statut', lab(d.statut)], ['Activité', d.activite], ['Ville', d.ville], ['Nom de domaine', d.domaine || 'À définir'], ['Référence', d.ref], ['Demande du', dt(d.created_at)], ['Adresses mail pro', String(d.mails || 0)]].map(function (x) { return h('div', null, h('dt', { text: x[0] }), h('dd', { text: x[1] || '—' })); }));
+    var dl = h('dl', { class: 'dl' }, [['Commerce', d.commerce], ['Statut', lab(d.statut)], ['Activité', ACT[d.activite] || d.activite], ['Ville', d.ville], ['Nom de domaine', d.domaine || 'À définir'], ['Référence', d.ref], ['Demande du', dt(d.created_at)], ['Adresses mail pro', String(d.mails || 0)]].map(function (x) { return h('div', null, h('dt', { text: x[0] }), h('dd', { text: x[1] || '—' })); }));
     main.appendChild(h('div', { class: 'card' }, h('div', { class: 'tbar' }, h('h2', { text: d.commerce }), pill(d.suspendu ? 'suspendu' : d.statut)), dl));
     if (d.site_url && enLigne()) {
       var rel = d.site_url.charAt(0) === '/';
@@ -105,15 +105,16 @@
     } else main.appendChild(h('div', { class: 'infobox', style: 'margin-top:16px', text: d.suspendu ? 'Votre site est suspendu pour le moment.' : 'Votre site apparaîtra ici dès que l’aperçu sera prêt. Nous vous prévenons dans l’onglet Messages.' }));
   }
   function vModifs() {
-    var q = E.quota, u = E.utilisees, left = Math.max(q - u, 0), d = D(), can = !E.lecture && enLigne() && left > 0;
+    var q = E.quota, u = E.utilisees, left = Math.max(q - u, 0), d = D(), can = !E.lecture && enLigne() && left > 0 && !(E.abonnement && ['impaye', 'suspendu', 'resilie'].indexOf(E.abonnement.statut) >= 0);
     main.appendChild(head('Mes modifications', q + ' modification' + (q > 1 ? 's' : '') + ' par mois avec la formule ' + lab(E.formule), []));
     var ty = h('select', null, [['texte', 'Remplacer un texte'], ['photo', 'Remplacer une photo'], ['bloc', 'Ajouter ou supprimer un bloc'], ['autre', 'Autre']].map(function (o) { return h('option', { value: o[0], text: o[1] }); })), ds = h('textarea', { maxlength: '1200', placeholder: 'Décrivez précisément ce que vous voulez changer et où.' });
-    var why = E.lecture ? 'Lecture seule : vous consultez ce compte en tant qu’administrateur.' : !d ? 'Faites d’abord votre demande de site.' : d.suspendu ? 'Votre site est suspendu.' : !enLigne() ? 'Disponible dès que votre aperçu est prêt.' : left < 1 ? 'Vous avez utilisé votre modification de ce mois-ci. Elle revient le 1er du mois prochain.' : '';
+    var ab = E.abonnement, aboKo = ab && ['impaye', 'suspendu', 'resilie'].indexOf(ab.statut) >= 0;
+    var why = E.lecture ? 'Lecture seule : vous consultez ce compte en tant qu’administrateur.' : aboKo ? 'Votre abonnement est ' + lab(ab.statut).toLowerCase() + ' : les nouvelles modifications sont suspendues. Écrivez-nous depuis « Contacter le support » pour régulariser.' : !d ? 'Faites d’abord votre demande de site.' : d.suspendu ? 'Votre site est suspendu.' : !enLigne() ? 'Disponible dès que votre aperçu est prêt.' : left < 1 ? (q > 1 ? 'Vous avez utilisé vos ' + q + ' modifications de ce mois-ci. Elles reviennent le 1er du mois prochain.' : 'Vous avez utilisé votre modification de ce mois-ci. Elle revient le 1er du mois prochain.') : '';
     main.appendChild(h('div', { class: 'card' }, h('h2', { text: left + ' restante' + (left > 1 ? 's' : '') + ' ce mois-ci' }), h('div', { class: 'quota' }, h('u', { style: 'width:' + Math.min(100, Math.round((u / q) * 100)) + '%' })), h('p', { class: 'sub', text: u + ' utilisée' + (u > 1 ? 's' : '') + ' sur ' + q + ' · une modification non utilisée ne se cumule pas.' }),
       why ? h('div', { class: 'infobox', text: why }) : null,
       h('div', { class: 'form' }, h('label', null, 'Type de modification', ty), h('label', { class: 'wide' }, 'Votre demande', ds)),
       h('button', { type: 'button', class: 'btn', text: 'Envoyer ma modification', disabled: can ? null : 'disabled', onclick: function () {
-        api('/api/espace/modif', 'POST', { type: ty.value, description: ds.value }).then(function (r) { if (r.j.ok) { flash('Modification envoyée.'); reload('modifs'); } else flash(r.j.error === 'vide' ? 'Décrivez votre demande (5 caractères minimum).' : r.j.error === 'quota' ? 'Quota du mois atteint.' : 'Envoi impossible pour le moment.', true); });
+        api('/api/espace/modif', 'POST', { type: ty.value, description: ds.value }).then(function (r) { if (r.j.ok) { flash('Modification envoyée.'); reload('modifs'); } else flash(r.j.error === 'vide' ? 'Décrivez votre demande (5 caractères minimum).' : r.j.error === 'quota' ? 'Quota du mois atteint.' : r.j.error === 'abonnement' ? 'Votre abonnement doit être régularisé avant de demander une modification.' : r.j.error === 'aucune-demande' ? 'Faites d’abord votre demande de site.' : r.j.error === 'suspendu' ? 'Votre site est suspendu.' : 'Envoi impossible pour le moment.', true); });
       } })));
     main.appendChild(h('div', { class: 'card', style: 'margin-top:16px' }, h('h3', { text: 'Historique' }), E.modifs.length ? h('ul', { class: 'list' }, E.modifs.map(function (m) { return h('li', null, h('div', { class: 'tbar', style: 'margin:0' }, h('b', { text: lab(m.type) === m.type ? ({ texte: 'Texte', photo: 'Photo', bloc: 'Bloc', autre: 'Autre' }[m.type] || m.type) : m.type }), pill(m.statut)), h('div', { class: 'sub', style: 'margin:4px 0 0', text: m.description }), h('small', { text: dt(m.created_at) })); })) : h('p', { class: 'empty', text: 'Aucune modification pour le moment.' })));
   }
@@ -135,7 +136,7 @@
     main.appendChild(head('Contacter le support', 'Une question, un souci ? Écrivez-nous, nous répondons sous 24 h'));
     var sj = h('input', { type: 'text', maxlength: '120', placeholder: 'Ex. : changer de formule, un souci sur mon site…' }), ms = h('textarea', { maxlength: '1500', placeholder: 'Expliquez-nous en quelques lignes.' });
     main.appendChild(h('div', { class: 'card' }, h('h2', { text: 'Nous écrire' }), h('div', { class: 'form' }, h('label', { class: 'wide' }, 'Sujet', sj), h('label', { class: 'wide' }, 'Message', ms)),
-      h('button', { type: 'button', class: 'btn', text: 'Envoyer', disabled: E.lecture ? 'disabled' : null, onclick: function () { if (!sj.value.trim()) { flash('Indiquez un sujet.', true); return; } api('/api/espace/plainte', 'POST', { sujet: sj.value, message: ms.value }).then(function (r) { if (r.j.ok) { flash('Message envoyé. Nous revenons vers vous rapidement.'); reload('aide'); } else flash('Envoi impossible.', true); }); } }),
+      h('button', { type: 'button', class: 'btn', text: 'Envoyer', disabled: E.lecture ? 'disabled' : null, onclick: function () { if (!sj.value.trim()) { flash('Indiquez un sujet.', true); return; } api('/api/espace/plainte', 'POST', { sujet: sj.value, message: ms.value }).then(function (r) { if (r.j.ok) { flash('Message envoyé. Nous revenons vers vous rapidement.'); reload('support'); } else flash('Envoi impossible.', true); }); } }),
       h('p', { class: 'sub', style: 'margin-top:10px' }, 'Pensez aussi à la ', h('a', { href: '/faq', target: '_blank', rel: 'noopener', text: 'FAQ' }), '.')));
     main.appendChild(h('div', { class: 'card', style: 'margin-top:16px' }, h('h3', { text: 'Mes messages envoyés' }), E.plaintes.length ? h('ul', { class: 'list' }, E.plaintes.map(function (p) { return h('li', null, h('div', { class: 'tbar', style: 'margin:0' }, h('b', { text: p.sujet }), pill(p.statut)), h('small', { text: dt(p.created_at) })); })) : h('p', { class: 'empty', text: 'Rien pour le moment.' })));
   }
@@ -143,6 +144,9 @@
     main.appendChild(head('Mon compte', E.compte.email));
     main.appendChild(h('div', { class: 'card', style: 'margin-bottom:16px' }, h('dl', { class: 'dl' }, [['Nom', E.compte.nom], ['E-mail', E.compte.email], ['Compte créé le', dt(E.compte.created_at)]].map(function (x) { return h('div', null, h('dt', { text: x[0] }), h('dd', { text: x[1] })); }))));
     var a = h('input', { type: 'password', autocomplete: 'current-password' }), n = h('input', { type: 'password', autocomplete: 'new-password' }), n2 = h('input', { type: 'password', autocomplete: 'new-password' });
+    var oo = h('input', { type: 'checkbox', disabled: E.lecture ? 'disabled' : null }); oo.checked = !!E.compte.opt_out;
+    oo.addEventListener('change', function () { api('/api/espace/opt-out', 'POST', { opt_out: oo.checked }).then(function (r) { if (r.j.ok) { E.compte.opt_out = oo.checked ? 1 : 0; flash(oo.checked ? 'Vous ne recevrez plus nos e-mails de communication.' : 'E-mails de communication réactivés.'); } else { oo.checked = !oo.checked; flash('Enregistrement impossible.', true); } }); });
+    main.appendChild(h('div', { class: 'card', style: 'max-width:560px;margin-bottom:16px' }, h('h2', { text: 'E-mails' }), h('label', { class: 'chk' }, oo, document.createTextNode(' Ne plus recevoir les e-mails de communication de Devanture Web (nouveautés, conseils). Les messages liés à votre compte restent envoyés.'))));
     main.appendChild(h('div', { class: 'card', style: 'max-width:560px' }, h('h2', { text: 'Changer de mot de passe' }), h('div', { class: 'form' }, h('label', { class: 'wide' }, 'Mot de passe actuel', a), h('label', { class: 'wide' }, 'Nouveau mot de passe (8 caractères minimum)', n), h('label', { class: 'wide' }, 'Confirmez le nouveau mot de passe', n2)),
       h('button', { type: 'button', class: 'btn', text: 'Changer le mot de passe', disabled: E.lecture ? 'disabled' : null, onclick: function () {
         if (n.value.length < 8) { flash('Au moins 8 caractères.', true); return; }
@@ -177,14 +181,14 @@
     api('/api/espace/editeur').then(function (r) {
       box.textContent = '';
       if (!r.j.ok) { box.appendChild(h('div', { class: 'card' }, h('p', { class: 'empty', text: r.j.error === 'pro' ? 'L’éditeur est réservé à la formule Pro.' : 'L’éditeur sera disponible dès que votre site sera en ligne.' }))); return; }
-      var C = r.j.champs, off = r.j.lecture || !!r.j.suspendu, frame = h('iframe', { src: r.j.site_url, title: 'Aperçu de mon site', loading: 'lazy' }), cnt = h('span', { class: 'pill', text: '' }), refT;
+      var C = r.j.champs, off = r.j.lecture || !!r.j.suspendu || !!r.j.abo_bloque, frame = h('iframe', { src: r.j.site_url, title: 'Aperçu de mon site', loading: 'lazy' }), cnt = h('span', { class: 'pill', text: '' }), refT;
       var maj = function () { cnt.textContent = C.filter(function (c) { return c.val !== null; }).length + ' modifié(s)'; };
       var refresh = function () { clearTimeout(refT); refT = setTimeout(function () { frame.src = r.j.site_url + '?v=' + Date.now(); }, 350); };
       function save(c, valeur, st, rst, node) {
         var p = valeur === null ? api('/api/espace/contenu', 'POST', { k: c.k, reset: true }) : api('/api/espace/contenu', 'POST', { k: c.k, valeur: valeur });
         st.textContent = 'Enregistrement…';
         return p.then(function (x) {
-          if (!x.j.ok) { st.textContent = ''; flash(x.j.error === 'texte' ? 'Le texte doit faire entre 1 et 600 caractères.' : x.j.error === 'suspendu' ? 'Votre site est suspendu.' : x.j.error === 'lecture-seule' ? 'Lecture seule.' : 'Enregistrement impossible.', true); return false; }
+          if (!x.j.ok) { st.textContent = ''; flash(x.j.error === 'texte' ? 'Le texte doit faire entre 1 et 600 caractères.' : x.j.error === 'suspendu' ? 'Votre site est suspendu.' : x.j.error === 'abonnement' ? 'Votre abonnement doit être régularisé.' : x.j.error === 'lecture-seule' ? 'Lecture seule.' : 'Enregistrement impossible.', true); return false; }
           c.val = valeur; st.textContent = 'Enregistré ✓'; setTimeout(function () { st.textContent = ''; }, 2200); rst.hidden = valeur === null; maj(); refresh(); return true;
         });
       }
@@ -220,6 +224,7 @@
       dets.forEach(function (d) { list.appendChild(d); });
       q.addEventListener('input', function () { var t = q.value.trim().toLowerCase(); secs.forEach(function (s) { var any = false; s.c.forEach(function (c) { var m = !t || (c.v + ' ' + (c.val || '') + ' ' + s.n).toLowerCase().indexOf(t) >= 0; c.node.hidden = !m; if (m) any = true; }); s.d.hidden = !any; if (t && any) s.d.open = true; }); });
       maj();
+      if (r.j.abo_bloque) box.appendChild(h('div', { class: 'warnbox' }, 'Votre abonnement est ' + lab(r.j.abo_bloque).toLowerCase() + ' : l’éditeur est désactivé tant qu’il n’est pas régularisé.'));
       if (r.j.suspendu) box.appendChild(h('div', { class: 'warnbox' }, 'Votre site est suspendu : les modifications sont désactivées.'));
       if (r.j.lecture) box.appendChild(h('div', { class: 'infobox', text: 'Lecture seule : vous consultez cet éditeur en tant qu’administrateur.' }));
       box.appendChild(h('div', { class: 'infobox', text: 'Modifiez votre site autant de fois que vous le souhaitez, sans limite. Vous avez en plus droit à ' + E.quota + ' modifications par mois réalisées par notre équipe, si vous préférez ne pas le faire vous-même (rubrique « Demandes à l’équipe »).' }));
@@ -308,7 +313,8 @@
   }
   function go(k) { cur = k; location.hash = k === 'accueil' ? '' : k; draw(); window.scrollTo(0, 0); }
   function draw() { main.textContent = ''; drawNav(); (VIEWS[cur] || vAccueil)(); }
-  function reload(k) { return api('/api/espace').then(function (r) { if (r.s === 401) { location.href = '/connexion'; return; } E = r.j; if (k) cur = k; draw(); }); }
+  function prix() { if (E && E.prix) { PRIX = E.prix; MAILP = E.prix_mail || MAILP; } }
+  function reload(k) { return api('/api/espace').then(function (r) { if (r.s === 401) { location.href = '/connexion'; return; } E = r.j; prix(); if (k) cur = k; draw(); }); }
   $('#n-out').addEventListener('click', function () { api('/api/deconnexion', 'POST').then(function () { location.href = '/connexion'; }); });
   window.addEventListener('hashchange', function () { var k = location.hash.slice(1) || 'accueil'; if (VIEWS[k] && k !== cur && E) { cur = k; draw(); } });
 
@@ -321,7 +327,7 @@
     }
     return api('/api/espace').then(function (r) {
       if (r.s !== 200 || !r.j.ok) { $('#gate').textContent = 'Impossible de charger votre espace. Réessayez dans un instant.'; return; }
-      E = r.j; var k = location.hash.slice(1); cur = VIEWS[k] ? k : 'accueil';
+      E = r.j; prix(); var k = location.hash.slice(1); cur = VIEWS[k] ? k : 'accueil';
       $('#gate').hidden = true; $('#app').hidden = false; draw();
     });
   }).catch(function () { $('#gate').textContent = 'Connexion impossible pour le moment.'; });
