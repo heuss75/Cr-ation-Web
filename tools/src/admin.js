@@ -188,12 +188,17 @@
       var body = h('div', { class: 'cf-body' }); main.appendChild(body);
       var card = function (title, ic, extra, kids, cls) { return h('div', { class: 'card cf-card ' + (cls || '') }, h('div', { class: 'cf-ch' }, h('h2', null, ico(ic, 20), title), extra || null), kids); };
       var kv = function (rows) { return h('dl', { class: 'cf-kv' }, rows.filter(Boolean).map(function (r) { return h('div', null, h('dt', { text: r[0] }), h('dd', null, r[1])); })); };
+      var ghLink = function (dd) {
+        var slug = String(dd.commerce || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+        if (!slug) return null;
+        return h('a', { class: 'btn sm ghost', href: 'https://github.com/heuss75/Site-Client/tree/main/clients/' + slug, target: '_blank', rel: 'noopener', title: 'Dossier du site sur GitHub (nom déduit du commerce)' }, 'Dossier GitHub ', ico('ext', 14));
+      };
       var siteCard = function () {
         if (!d) return card('Son site', 'globe', null, h('p', { class: 'empty', text: 'Aucune demande de site.' }));
         var url = d.site_url, pv = url ? h('div', { class: 'cf-pv' }, h('iframe', { src: url, title: 'Aperçu du site', loading: 'lazy', tabindex: '-1' })) : h('div', { class: 'cf-pv nopv', text: 'Pas encore d’adresse de site' });
         return card('Son site', 'globe', null, h('div', { class: 'cf-site' }, pv, h('div', null, h('b', { class: 'cf-dom', text: d.domaine || d.commerce }), h('div', null, pillFor(d.statut) ? h('span', { class: 'pill ' + pillFor(d.statut), text: lab(d.statut) }) : h('span', { class: 'pill', text: lab(d.statut) })),
           kv([['Créé le', dt(d.created_at)], ['Formule', lab(d.formule)], ['Activité', d.activite], ['Ville', d.ville]]),
-          h('div', { class: 'tools' }, url ? h('a', { class: 'btn sm', href: url, target: '_blank', rel: 'noopener' }, 'Voir le site ', ico('ext', 14)) : null, h('button', { type: 'button', class: 'btn sm ghost', text: 'Modifier le site', onclick: function () { impersonate(c.id); } })))));
+          h('div', { class: 'tools' }, url ? h('a', { class: 'btn sm', href: url, target: '_blank', rel: 'noopener' }, 'Voir le site ', ico('ext', 14)) : null, h('button', { type: 'button', class: 'btn sm ghost', text: 'Modifier le site', onclick: function () { impersonate(c.id); } }), ghLink(d)))));
       };
       var aboCard = function () {
         if (!ab) return card('Abonnement', 'card', null, h('div', null, h('p', { class: 'sub', text: 'Aucun abonnement pour le moment.' }), h('button', { type: 'button', class: 'btn sm', text: 'Créer l’abonnement', onclick: function () { setTab('abo'); } })));
