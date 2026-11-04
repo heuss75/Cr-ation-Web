@@ -264,6 +264,27 @@ footer span.l{display:flex;gap:20px;flex-wrap:wrap}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.btn{transition:none}}
 
+/* petites animations de l'accueil */
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.rot{display:inline-grid;vertical-align:bottom;font-weight:700}
+.rot>span{grid-area:1/1;opacity:0}
+.rot>span.on{opacity:1}
+[data-count]{font-variant-numeric:tabular-nums}
+.cur,.okr{display:none}
+@media(prefers-reduced-motion:no-preference){
+  .rot>span{transition:opacity .45s ease,transform .45s ease;transform:translateY(60%)}
+  .rot>span.on{transform:none}
+  .rot>span.out{transform:translateY(-60%)}
+  .laptop .bistro .bp{animation:bpress 9s ease-in-out infinite}
+  .phone-s .bistro .bp{animation:bpulse 4.5s ease-in-out infinite}
+  .laptop .bistro .cur{display:block;position:absolute;width:3.4cqw;left:60cqw;top:50cqw;z-index:3;filter:drop-shadow(0 .4cqw .6cqw rgba(0,0,0,.4));animation:bcur 9s ease-in-out infinite}
+  .laptop .bistro .okr{display:block;position:absolute;left:50%;bottom:5cqw;z-index:3;white-space:nowrap;background:#fff;color:#0B0B0C;font:700 2.1cqw var(--body);padding:1.3cqw 3cqw;border-radius:999px;box-shadow:0 1cqw 3cqw rgba(0,0,0,.35);opacity:0;transform:translate(-50%,3cqw);animation:bok 9s ease-in-out infinite}
+  @keyframes bpulse{0%,60%,100%{transform:scale(1)}70%{transform:scale(1.07)}80%{transform:scale(1)}}
+  @keyframes bpress{0%,38%{transform:scale(1)}43%{transform:scale(.93)}48%,100%{transform:scale(1)}}
+  @keyframes bcur{0%,8%{left:60cqw;top:50cqw;opacity:0}16%{opacity:1}38%,45%{left:20cqw;top:43cqw;opacity:1}60%{left:20cqw;top:43cqw;opacity:0}100%{opacity:0}}
+  @keyframes bok{0%,46%{opacity:0;transform:translate(-50%,3cqw)}52%,84%{opacity:1;transform:translate(-50%,0)}92%,100%{opacity:0;transform:translate(-50%,0)}}
+}
+
 /* modèles de sites (chaque métier a son univers) */
 .tpl{font-family:var(--tb,'Hanken Grotesk',sans-serif);background:var(--tbg);color:var(--tink);line-height:1.45;font-size:15px;min-height:100%;overflow-wrap:anywhere}
 .tpl *{box-sizing:border-box}
@@ -404,7 +425,7 @@ footer span.l{display:flex;gap:20px;flex-wrap:wrap}
   <div class="scene">
     <section class="wrap hero">
       <div class="hero-head">
-        <span class="pill">Site vitrine pour commerçants</span>
+        <span class="pill">Site vitrine pour <span class="rot" aria-hidden="true"><span class="on">commerçants</span><span>coiffeurs</span><span>restaurateurs</span><span>artisans</span><span>thérapeutes</span><span>coachs</span><span>boutiques</span></span><span class="sr">commerçants</span></span>
         <h1>Votre commerce mérite<br class="dbr"> <mark style="white-space:nowrap">d’être vu.</mark> Même en ligne.</h1>
         <p class="lede">Un joli site fait sur mesure pour vous. Vous n’avez rien à gérer, on s’occupe de tout.</p>
       </div>
@@ -419,6 +440,8 @@ footer span.l{display:flex;gap:20px;flex-wrap:wrap}
             <span class="tl">LE BISTRO</span>
             <div class="nav2"><span>Accueil</span><span>Notre carte</span><span>Le restaurant</span><span>Horaires</span><span>Contact</span></div>
             <div class="copy"><h4>Le Bistro<br>du Marché</h4><p>Cuisine maison &amp; produits de saison</p><span class="bp">Réserver une table</span></div>
+            <svg class="cur" viewBox="0 0 20 24" aria-hidden="true"><path d="M2 1l15 12-6.5 1.2 3.6 7.3-3 1.5-3.6-7.4L2 20z" fill="#fff" stroke="#111" stroke-width="1.6" stroke-linejoin="round"/></svg>
+            <span class="okr" aria-hidden="true">✓ Table réservée · ce soir 20 h</span>
           </div></div></div>
           <div class="base"></div>
         </div>
@@ -445,12 +468,12 @@ footer span.l{display:flex;gap:20px;flex-wrap:wrap}
     <section class="wrap" aria-label="Nos engagements">
       <div class="proof">
         <div><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg><span>Mise en ligne<br><b>express</b></span></div>
-        <div><svg class="ic" aria-hidden="true"><use href="#i-euro"/></svg><span><b>Dès 60 € HT/mois</b> (72 € TTC)<br>(engagement 12 mois)</span></div>
-        <div><svg class="ic" aria-hidden="true"><use href="#i-pencil"/></svg><span><b>1 modification</b><br>par mois incluse</span></div>
+        <div><svg class="ic" aria-hidden="true"><use href="#i-euro"/></svg><span><b>Dès <span data-count="60">60</span> € HT/mois</b> (72 € TTC)<br>(engagement <span data-count="12">12</span> mois)</span></div>
+        <div><svg class="ic" aria-hidden="true"><use href="#i-pencil"/></svg><span><b><span data-count="1">1</span> modification</b><br>par mois incluse</span></div>
         <div><svg class="ic" aria-hidden="true"><use href="#i-headset"/></svg><span>Un accompagnement<br><b>simple et humain</b></span></div>
       </div>
       <div class="bar">
-        <h3><span>Votre</span> site en 8 étapes simples</h3>
+        <h3><span>Votre</span> site en <span data-count="8">8</span> étapes simples</h3>
         <ol aria-label="Les 8 étapes">
           <li>Découverte</li><li>Compte</li><li>Formulaire</li><li>Validation</li><li>Création</li><li>Prévisualisation</li><li>Mise en ligne</li><li>Guide &amp; Mail</li>
         </ol>
@@ -708,6 +731,40 @@ footer span.l{display:flex;gap:20px;flex-wrap:wrap}
   /* aperçu personnalisé */
   fit();
   if(document.fonts&&document.fonts.ready){document.fonts.ready.then(fit)}
+
+  /* mot qui change dans le bandeau */
+  (function(){
+    var r=document.querySelector('.rot');
+    if(!r||!window.matchMedia||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    var w=r.children,i=0;
+    setInterval(function(){
+      var cur=w[i];i=(i+1)%w.length;
+      cur.className='out';
+      var nx=w[i];nx.className='';
+      void nx.offsetWidth;nx.className='on';
+      setTimeout(function(){if(cur!==w[i])cur.className=''},500);
+    },2400);
+  })();
+
+  /* chiffres qui défilent */
+  (function(){
+    var els=document.querySelectorAll('[data-count]');
+    if(!els.length||!('IntersectionObserver' in window)||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    function run(el){
+      var to=+el.getAttribute('data-count'),t0=null,d=1300;
+      function f(ts){
+        if(t0===null)t0=ts;
+        var p=Math.min(1,(ts-t0)/d),e=1-Math.pow(1-p,3);
+        el.textContent=Math.round(to*e);
+        if(p<1)requestAnimationFrame(f);
+      }
+      el.textContent='0';requestAnimationFrame(f);
+    }
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){if(e.isIntersecting){io.unobserve(e.target);run(e.target)}});
+    },{threshold:.6});
+    Array.prototype.forEach.call(els,function(el){io.observe(el)});
+  })();
 })();
 </script>
 </body>
