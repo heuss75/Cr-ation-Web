@@ -261,11 +261,7 @@ footer{border-top:1px solid var(--line);padding-block:30px;color:var(--mut);font
 <section id="contact"><div class="w"><p class="eb">Horaires et accès</p><h2>Venez nous voir</h2><div class="res" style="margin-top:26px"><div class="box"><h3 class="serif" style="font-size:1.4rem">Horaires</h3><ul class="hrs" style="margin-top:8px"><li><span>Lundi</span><span class="c">Fermé</span></li><li><span>Mardi – Vendredi</span><span>12 h – 14 h 30 · 19 h – 22 h 30</span></li><li><span>Samedi</span><span>12 h – 15 h · 19 h – 23 h</span></li><li><span>Dimanche</span><span>12 h – 15 h</span></li></ul></div>
 <div class="box"><h3 class="serif" style="font-size:1.4rem">Adresse</h3><p style="margin-top:8px;color:var(--mut)">12 rue du Marché, 69003 Lyon · 04 00 00 00 00</p><div class="map"><i></i></div><p style="margin-top:16px"><a class="btn" href="/exemples/bistro-reservation-client">Réserver une table</a></p></div></div></div></section></main>
 <footer><div class="w"><span>© 2026 Le Bistro du Marché</span><span>Instagram · Facebook · Mentions légales</span></div></footer>'''
-    import burger_fx
-    css += burger_fx.CSS
-    body = body.replace('<section class="menu" id="carte">', burger_fx.html() + '<section class="menu" id="carte">', 1)
     js = '''<script>document.querySelectorAll('.tabs button').forEach(function(b){b.onclick=function(){document.querySelectorAll('.tabs button').forEach(function(x){x.classList.toggle('on',x===b)});document.querySelectorAll('.dishes').forEach(function(d){d.hidden=d.dataset.p!==b.dataset.t})}})</script>'''
-    js += burger_fx.JS
     return page("Le Bistro du Marché · Restaurant", "Exemple de site restaurant", "family=DM+Sans:wght@400;500;700&family=Playfair+Display:ital,wght@0,600;1,600", css, body, js)
 
 # ======================= ICÔNES =======================
