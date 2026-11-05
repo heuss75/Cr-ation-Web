@@ -93,6 +93,7 @@ WIDGET_CSS = r"""
 .rf{display:grid;grid-template-columns:1fr 1fr;gap:10px}.rf label{display:grid;gap:5px;font:700 12px 'Jost',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
 .rf input,.rf textarea{font:500 15px 'Jost',sans-serif;padding:12px 14px;border-radius:12px;border:1.5px solid var(--line);background:#fff;color:var(--ink);text-transform:none;letter-spacing:0;width:100%}
 .rf .w2{grid-column:1/-1}.rf textarea{min-height:70px}
+.recap[hidden],.recap2[hidden],.evt[hidden],[hidden]{display:none!important}
 .recap2{background:#eef3ef;border-radius:14px;padding:12px 16px;font-weight:600;display:flex;gap:6px 18px;flex-wrap:wrap}
 .rgo{border:0;cursor:pointer;font:700 15.5px 'Jost',sans-serif;background:var(--sage);color:#fff;padding:16px 24px;border-radius:99px;width:100%}.rgo:disabled{opacity:.45;cursor:not-allowed}
 .rerr{color:#b3261e;font-size:13.5px;min-height:18px}
