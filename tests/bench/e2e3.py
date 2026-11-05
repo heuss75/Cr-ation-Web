@@ -28,15 +28,15 @@ with sync_playwright() as p:
     ctx.clear_cookies()
     pg.goto(B + "/connexion"); pg.fill("#login [name=email]", "admin@test.invalid"); pg.fill("#login [name=password]", "AdminPass123"); pg.click("#login button[type=submit]"); pg.wait_for_url("**/admin"); pg.wait_for_timeout(1200)
     pg.locator("#n-stats").click(); pg.wait_for_timeout(900); txt = pg.inner_text("#main"); ok("268 €" in txt, "tableau de bord: revenu récurrent = 104 + 100 + 64 = 268 €", txt[:160].replace("\n", " | "))
-    for t in ["n-stats", "n-clients", "n-dem", "n-crea", "n-ligne", "n-abo", "n-rev", "n-com", "n-mdp"]:
+    for t in ["n-stats", "n-clients", "n-rev", "n-com", "n-mdp"]:
         pg.click("#" + t); pg.wait_for_timeout(700); b = pg.inner_text("#main"); ok(len(b) > 60 and "undefined" not in b and "NaN" not in b and "[object" not in b, f"admin {t}: contenu sans valeur cassée", b[:100].replace("\n", " | "))
     ok(pg.evaluate("window.__xss") is None, "nom piégé <img onerror> : aucun script exécuté dans l'admin")
     ok(not clean(), "aucune erreur JS dans les 9 onglets admin", clean())
     # clients
     pg.click("#n-clients"); pg.wait_for_timeout(600)
     ok("4 client(s) sur 4" in pg.inner_text("#main"), "liste complète des clients (4)")
-    for label, n in [("Actifs", 2), ("Impayés", 1), ("Suspendus", 0), ("Résiliés", 0), ("Sans abonnement", 1), ("Tous", 4)]:
-        pg.get_by_role("button", name=label, exact=True).first.click(); pg.wait_for_timeout(400)
+    for label, n in [("Impayés", 1), ("En ligne", 1), ("En création", 1), ("Résiliés", 0), ("Tous \\(", 4)]:
+        pg.get_by_role("button", name=re.compile("^" + label)).first.click(); pg.wait_for_timeout(400)
         m = re.search(r"(\d+) client\(s\) sur (\d+)", pg.inner_text("#main")); ok(m and int(m.group(1)) == n, f"filtre clients « {label} » = {n}", m.group(0) if m else pg.inner_text('#main')[:100])
     pg.fill("input[type=search]", "léa"); pg.wait_for_timeout(500); m = re.search(r"(\d+) client\(s\) sur", pg.inner_text("#main")); ok(m and m.group(1) == "1", "recherche « léa » trouve 1 client", m.group(0) if m else "")
     pg.fill("input[type=search]", "zzzz"); pg.wait_for_timeout(500); ok("0 client" in pg.inner_text("#main") or "Aucun" in pg.inner_text("#main"), "recherche sans résultat ne casse pas la liste")
@@ -70,7 +70,7 @@ with sync_playwright() as p:
     pg.get_by_text("Modifications", exact=True).first.click(); pg.wait_for_timeout(500); bt_=pg.locator("button:has-text('Envoyer'), button[type=submit]"); note("Impersonation/Modifications boutons", str([(bt_.nth(i).inner_text(), bt_.nth(i).is_disabled()) for i in range(bt_.count())])); ok(all(bt_.nth(i).is_disabled() for i in range(bt_.count())) or bt_.count()==0, "en impersonation: envoi de modification bloqué")
     pg.get_by_role("button", name="Revenir à l’admin").click(); pg.wait_for_url("**/admin", timeout=8000); pg.wait_for_timeout(900); ok("Espace administrateur" in pg.inner_text("body") or pg.locator("#n-stats").count() == 1, "retour à l'administration")
     # demandes: filtre
-    pg.click("#n-dem"); pg.wait_for_timeout(500); pg.fill("input[type=search]", "garage"); pg.wait_for_timeout(400); ok("Garage Durand" in pg.inner_text("#main") and "Boulangerie" not in pg.inner_text("#main"), "recherche dans les demandes")
+    pg.click("#n-clients"); pg.wait_for_timeout(500); pg.fill("input[type=search]", "garage"); pg.wait_for_timeout(400); ok("Garage Durand" in pg.inner_text("#main") and "Boulangerie" not in pg.inner_text("#main"), "recherche dans les demandes")
     # communication
     pg.click("#n-com"); pg.wait_for_timeout(700)
     pg.locator("#main select").first.select_option("pro"); pg.wait_for_timeout(400); ok(re.search(r"(\d+) sélectionné\(s\) sur", pg.inner_text("#main")).group(1) == "2", "communication: filtre « Pro » = 2 destinataires", re.search(r"\d+ sélectionné\(s\) sur \d+", pg.inner_text('#main')).group(0))

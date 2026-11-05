@@ -577,11 +577,7 @@ ADMIN_HTML = """<!doctype html>
 <nav class="nav" aria-label="Administration">
 <button type="button" id="n-today" aria-current="page">""" + _ic("M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11") + """À traiter<span class="cnt" id="c-today"></span></button>
 <button type="button" id="n-stats">""" + _ic("M3 3v18h18M7 15l4-4 3 3 5-6") + """Tableau de bord</button>
-<button type="button" id="n-clients">""" + _ic("M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8") + """Clients</button>
-<button type="button" id="n-dem">""" + _ic("M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 13h8M8 17h5") + """Demandes de site<span class="cnt" id="c-dem"></span></button>
-<button type="button" id="n-crea">""" + _ic("M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z") + """Sites en création<span class="cnt" id="c-crea"></span></button>
-<button type="button" id="n-ligne">""" + _ic("M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20") + """Sites en ligne<span class="cnt" id="c-ligne"></span></button>
-<button type="button" id="n-abo">""" + _ic("M17 1l4 4-4 4M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 0 1-4 4H3") + """Abonnements</button>
+<button type="button" id="n-clients">""" + _ic("M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8") + """Tous mes clients<span class="cnt" id="c-dem"></span></button>
 <button type="button" id="n-rev">""" + _ic("M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6") + """Revenus</button>
 <button type="button" id="n-com">""" + _ic("M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM22 6l-10 7L2 6") + """Communication</button>
 <button type="button" id="n-parr">""" + _ic("M16 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 18.5V20M10 12a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM20 20v-1.5a3.5 3.5 0 0 0-2.5-3.3M15.5 5.2a3.5 3.5 0 0 1 0 6.6") + """Parrainage</button>

@@ -173,7 +173,7 @@
       var setTab = function (t) { TAB = t; detail(id, t); };
       main.textContent = '';
       /* en-tête */
-      main.appendChild(h('div', { class: 'cf-crumb' }, h('a', { href: '#', text: 'Clients', onclick: function (e) { e.preventDefault(); top(clientsView); mark('clients'); } }), h('span', { text: ' › ' }), h('b', { text: c.nom })));
+      main.appendChild(h('div', { class: 'cf-crumb' }, h('a', { href: '#', text: 'Tous mes clients', onclick: function (e) { e.preventDefault(); top(clientsView); mark('clients'); } }), h('span', { text: ' › ' }), h('b', { text: c.nom })));
       main.appendChild(h('div', { class: 'cf-head' },
         h('div', { class: 'cf-id' }, h('div', { class: 'cf-name' }, h('h1', { text: c.nom }), h('span', { class: 'pill ' + (pillFor(st) || ''), text: stTxt })),
           h('div', { class: 'cf-meta' }, h('span', null, ico('msg', 15), c.email), d && d.tel ? h('span', null, ico('users', 15), d.tel) : null, h('span', null, ico('repeat', 15), 'Inscrit le ' + dt(c.created_at)), d ? h('span', null, ico('home', 15), d.commerce) : null)),
@@ -322,6 +322,10 @@
   var comR = function () { return D.comptes.filter(function (c) { return DEMO.on || !c.demo; }); };
   var d10 = function (x) { return x ? String(x).slice(0, 10) : ''; };
   var ago = function (n) { return new Date(Date.now() - n * 864e5).toISOString().slice(0, 10); };
+  /* engagement de 12 mois : fin = début + 12 mois ; reste = jours avant cette date */
+  function finEng(deb) { if (!deb) return ''; var d = new Date(String(deb).slice(0, 10) + 'T12:00:00Z'); if (isNaN(d)) return ''; d.setUTCFullYear(d.getUTCFullYear() + 1); return d.toISOString().slice(0, 10); }
+  function joursEng(deb) { var f = finEng(deb); return f ? Math.ceil((new Date(f + 'T12:00:00Z').getTime() - Date.now()) / 864e5) : null; }
+  function resteTxt(r) { if (!r.debut || r.abo === 'resilie') return '—'; var j = joursEng(r.debut); if (j === null) return '—'; if (j <= 0) return 'Terminé'; return j > 45 ? Math.round(j / 30.4) + ' mois' : j + ' j'; }
   function loadAll() {
     return Promise.all([api('/api/admin/stats'), api('/api/admin/donnees')]).then(function (r) {
       if (!r[0].j.ok || !r[1].j.ok) throw new Error('chargement');
@@ -341,7 +345,7 @@
   var who = function (r) { return (IX && IX.c[r.compte_id]) || {}; };
   function cRow(c) {
     var a = IX.abo[c.id], ds = IX.dem[c.id] || [], d = ds[0], ps = IX.pl[c.id] || [];
-    return { compte_id: c.id, optout: c.opt_out, demo: c.demo, nom: c.nom, email: c.email, inscrit: c.created_at, connexion: c.derniere_connexion, formule: a ? a.formule : '', abo: a ? a.statut : '', debut: a ? a.debut : '', fin: a ? a.fin : '', mails: a ? a.mails_sup : 0, prix: a && counts(a) ? prixAbo(a) : 0, site: d ? d.statut : '', commerce: d ? d.commerce : '', ville: d ? d.ville : '', activite: d ? d.activite : '', domaine: d ? d.domaine : '', tel: d ? d.tel : '', demandes: ds.length, plaintes: ps.length, plaintes_ouvertes: ps.filter(function (p) { return p.statut !== 'resolue'; }).length };
+    return { compte_id: c.id, optout: c.opt_out, demo: c.demo, nom: c.nom, email: c.email, inscrit: c.created_at, connexion: c.derniere_connexion, formule: a ? a.formule : '', abo: a ? a.statut : '', debut: a ? a.debut : '', fin: a ? a.fin : '', engage: a ? finEng(a.debut) : '', mails: a ? a.mails_sup : 0, prix: a && counts(a) ? prixAbo(a) : 0, site: d ? d.statut : '', commerce: d ? d.commerce : '', ville: d ? d.ville : '', activite: d ? d.activite : '', domaine: d ? d.domaine : '', tel: d ? d.tel : '', demandes: ds.length, plaintes: ps.length, plaintes_ouvertes: ps.filter(function (p) { return p.statut !== 'resolue'; }).length };
   }
   function aRow(a) { var c = IX.c[a.compte_id] || {}; return { compte_id: a.compte_id, nom: c.nom, email: c.email, formule: a.formule, abo: a.statut, debut: a.debut, fin: a.fin, mails: a.mails_sup, prix: counts(a) ? prixAbo(a) : 0, motif: a.motif || '' }; }
   function dRow(d) { var c = IX.c[d.compte_id] || {}; return { compte_id: d.compte_id, nom: c.nom, email: c.email, ref: d.ref, commerce: d.commerce, activite: d.activite, ville: d.ville, domaine: d.domaine, mails: d.mails, tel: d.tel, formule: d.formule, site: d.statut, date: d.created_at, source: srcOf(d) }; }
@@ -350,7 +354,7 @@
   function srcOf(d) { try { var u = JSON.parse(d.utm || '{}'); return u.utm_source || u.ref || 'direct'; } catch (_) { return 'direct'; } }
   var C = function (k, l, t) { return { k: k, l: l, t: t || 'text' }; };
   var COLS = {
-    clients: [C('nom', 'Nom', 'who'), C('email', 'E-mail'), C('inscrit', 'Inscrit le', 'date'), C('connexion', 'Dernière connexion', 'date'), C('commerce', 'Commerce'), C('activite', 'Activité'), C('ville', 'Ville'), C('tel', 'Téléphone'), C('domaine', 'Domaine'), C('site', 'Statut du site', 'site'), C('formule', 'Formule', 'formule'), C('abo', 'Abonnement', 'abo'), C('debut', 'Début abonnement', 'day'), C('fin', 'Fin abonnement', 'day'), C('mails', 'Mails pro en plus', 'int'), C('prix', 'Facturé par mois (HT)', 'eur'), C('demandes', 'Demandes', 'int'), C('plaintes', 'Plaintes', 'int'), C('plaintes_ouvertes', 'Plaintes ouvertes', 'int')],
+    clients: [C('nom', 'Nom', 'who'), C('email', 'E-mail'), C('inscrit', 'Inscrit le', 'date'), C('connexion', 'Dernière connexion', 'date'), C('commerce', 'Commerce'), C('activite', 'Activité'), C('ville', 'Ville'), C('tel', 'Téléphone'), C('domaine', 'Domaine'), C('site', 'Statut du site', 'site'), C('formule', 'Formule', 'formule'), C('abo', 'Abonnement', 'abo'), C('debut', 'Début abonnement', 'day'), C('fin', 'Fin abonnement', 'day'), C('mails', 'Mails pro en plus', 'int'), C('prix', 'Facturé par mois (HT)', 'eur'), C('demandes', 'Demandes', 'int'), C('plaintes', 'Plaintes', 'int'), C('plaintes_ouvertes', 'Plaintes ouvertes', 'int'), C('debut', 'Début d’abonnement', 'day'), C('engage', 'Fin d’engagement (12 mois)', 'day'), { k: 'reste', l: 'Engagement restant', t: 'reste', ex: resteTxt }],
     abonnements: [C('nom', 'Client', 'who'), C('email', 'E-mail'), C('formule', 'Formule', 'formule'), C('abo', 'Statut', 'abo'), C('debut', 'Début', 'day'), C('fin', 'Fin', 'day'), C('mails', 'Mails pro en plus', 'int'), C('prix', 'Prix par mois (HT et TTC)', 'eur'), C('motif', 'Motif de résiliation')],
     demandes: [C('commerce', 'Commerce'), C('nom', 'Client', 'who'), C('email', 'E-mail'), C('ref', 'Référence'), C('activite', 'Activité'), C('ville', 'Ville'), C('domaine', 'Domaine'), C('mails', 'Mails pro demandés', 'int'), C('tel', 'Téléphone'), C('formule', 'Formule', 'formule'), C('site', 'Statut', 'site'), C('source', 'Provenance'), C('date', 'Date', 'date')],
     plaintes: [C('nom', 'Client', 'who'), C('email', 'E-mail'), C('sujet', 'Sujet'), C('message', 'Détails'), C('pl', 'Statut', 'pl'), C('date', 'Date', 'date'), C('resolue', 'Résolue le', 'date')],
@@ -369,6 +373,7 @@
       case 'who': return h('div', { class: 'who' }, h('div', { class: 'av', text: initials(r.nom) }), h('div', null, h('b', { text: r.nom || '—' }), r.email ? h('small', { text: r.email }) : null));
       case 'date': return document.createTextNode(dt(v));
       case 'day': return document.createTextNode(dOnly(v));
+      case 'reste': return document.createTextNode(resteTxt(r));
       case 'eur': return document.createTextNode(v ? eurHT(v) + ' (' + eurTTC(v) + ')' : '—');
       case 'int': return document.createTextNode(String(v || 0));
       case 'site': case 'abo': case 'pl': return v ? pillFor(v) : h('span', { class: 'pill', text: col.k === 'site' ? 'Aucune demande' : 'Aucun' });
@@ -578,11 +583,6 @@
   function monthCa() { var r = revCalcLast(1); return r.length ? r[r.length - 1].ca : 0; }
   function kpiRow(items) { return h('div', { class: 'kr' }, items.map(function (i) { return h('div', { class: 'card' }, h('div', { class: 'ic ' + (i[3] || 'c1') }, ico(i[2] || 'users', 20)), h('div', null, h('span', { text: i[0] }), h('b', { text: String(i[1]) }))); })); }
   function updBadges() { var d = demR(), n = function (f) { return d.filter(f).length; }; var set = function (id, v) { var e = $('#' + id); if (e) { e.textContent = v || ''; e.hidden = !v; } }; set('c-dem', n(function (x) { return x.statut === 'nouvelle'; })); set('c-crea', n(function (x) { return x.statut === 'en_creation' || x.statut === 'apercu'; })); set('c-ligne', n(function (x) { return x.statut === 'en_ligne'; })); }
-  function sectionPage(t, sub, key, pred, kp) { listView(key, t, sub, pred, function () { return kpiRow(kp); }, true); }
-  function pageDem() { var d = demR(), c = function (k) { return d.filter(function (x) { return x.statut === k; }).length; }; sectionPage('Demandes de site', 'Suivez et traitez les nouvelles demandes.', 'demandes', null, [['Total', d.length, 'file', 'c2'], ['Nouvelles', c('nouvelle'), 'file', 'c3'], ['En création', c('en_creation'), 'file', 'c4'], ['Aperçus envoyés', c('apercu'), 'file', 'c2'], ['Terminées', c('en_ligne'), 'file', 'c1']]); }
-  function pageCrea() { var d = demR(), c = function (k) { return d.filter(function (x) { return x.statut === k; }).length; }; sectionPage('Sites en création', 'Les sites en cours de fabrication ou en attente de l’accord du client.', 'demandes', function (r) { return r.site === 'en_creation' || r.site === 'apercu'; }, [['En création', c('en_creation'), 'file', 'c4'], ['Aperçus envoyés', c('apercu'), 'file', 'c2']]); }
-  function pageLigne() { var d = demR().filter(function (x) { return x.statut === 'en_ligne'; }); sectionPage('Sites en ligne', 'Les sites livrés et publiés.', 'demandes', function (r) { return r.site === 'en_ligne'; }, [['Sites en ligne', d.length, 'file', 'c1'], ['Formule Pro', d.filter(function (x) { return x.formule === 'pro'; }).length, 'file', 'c2'], ['Formule Essentiel', d.filter(function (x) { return x.formule !== 'pro'; }).length, 'file', 'c3']]); }
-  function pageAbo() { var k = kpi(); sectionPage('Abonnements', 'Les formules et abonnements de vos clients.', 'abonnements', null, [['Abonnements actifs', k.actifs, 'repeat', 'c4'], ['Essentiel', k.nEss, 'repeat', 'c3'], ['Pro', k.nPro, 'repeat', 'c2'], ['Impayés', k.impayes, 'repeat', 'c1'], ['Partis (30 jours)', k.resilies30, 'repeat', 'c1']]); }
   function dashboard() {
     var k = kpi(), out = h('div'), dm = demR(), pl = plR(), cm = comR(), st = {}, plc = { ouverte: 0, en_cours: 0, resolue: 0 };
     dm.forEach(function (x) { st[x.statut] = (st[x.statut] || 0) + 1; });
@@ -706,10 +706,19 @@
   var F = {};
   var FDEF = [['q', 'Recherche'], ['formule', 'Formule'], ['abo', 'Abonnement'], ['site', 'Statut du site'], ['plaintes', 'Plaintes'], ['activite', 'Activité'], ['ville', 'Ville'], ['connexion', 'Dernière connexion'], ['mails', 'Mails pro'], ['du', 'Inscrit après'], ['au', 'Inscrit avant']];
   function nbF() { return Object.keys(F).filter(function (k) { return F[k]; }).length; }
+  var SEG = {
+    nouvelle: { l: 'Nouvelles demandes', t: function (r) { return r.site === 'nouvelle'; } },
+    creation: { l: 'En création', t: function (r) { return r.site === 'en_creation' || r.site === 'apercu'; } },
+    ligne: { l: 'En ligne', t: function (r) { return r.site === 'en_ligne'; } },
+    impaye: { l: 'Impayés', t: function (r) { return r.abo === 'impaye'; } },
+    fin: { l: 'Engagement bientôt fini', t: function (r) { var j = r.abo === 'actif' ? joursEng(r.debut) : null; return j !== null && j <= 60; } },
+    resilie: { l: 'Résiliés', t: function (r) { return r.abo === 'resilie'; } }
+  };
   function applyF(rows, f) {
     f = f || F;
     return rows.filter(function (r) {
       if (f.q) { var q = f.q.toLowerCase(); if ((r.nom + ' ' + r.email + ' ' + r.commerce + ' ' + r.ville + ' ' + r.tel).toLowerCase().indexOf(q) < 0) return false; }
+      if (f.seg && !SEG[f.seg].t(r)) return false;
       if (f.formule && r.formule !== f.formule) return false;
       if (f.abo) { if (f.abo === 'aucun') { if (r.abo) return false; } else if (r.abo !== f.abo) return false; }
       if (f.site) { if (f.site === 'aucune') { if (r.demandes) return false; } else if (r.site !== f.site) return false; }
@@ -737,7 +746,7 @@
     function draw() {
       upd(); var rows = applyF(all); count.textContent = rows.length + ' client(s) sur ' + all.length; tbody.textContent = '';
       if (!rows.length) { tbody.appendChild(h('p', { class: 'empty', text: all.length ? 'Aucun client ne correspond aux filtres.' : 'Aucun client pour le moment.' })); return; }
-      var cols = ['nom', 'inscrit', 'connexion', 'site', 'formule', 'abo', 'mails', 'plaintes_ouvertes'].map(function (k) { var c = COLS.clients.filter(function (c) { return c.k === k; })[0], sh = { connexion: 'Connexion', site: 'Site', mails: 'Mails pro', plaintes_ouvertes: 'Plaintes', inscrit: 'Inscrit' }; return sh[k] ? { k: c.k, l: sh[k], t: c.t } : c; });
+      var cols = ['nom', 'commerce', 'site', 'formule', 'abo', 'debut', 'engage', 'reste', 'mails'].map(function (k) { var c = COLS.clients.filter(function (c) { return c.k === k; })[0], sh = { site: 'Site', mails: 'Mails pro', plaintes_ouvertes: 'Plaintes', debut: 'Début', engage: 'Fin d’engagement', reste: 'Reste' }; return sh[k] ? { k: c.k, l: sh[k], t: c.t } : c; });
       var tb = h('tbody');
       rows.slice(0, 500).forEach(function (r) {
         var tr = h('tr', null, cols.map(function (c) { return h('td', null, cell(c, r)); }), h('td', { class: 'acts' }, h('button', { type: 'button', class: 'btn sm', text: 'Son espace', title: 'Voir le site en tant que ce client', onclick: function (e) { e.stopPropagation(); impersonate(r.compte_id); } })));
@@ -760,11 +769,15 @@
       panel.appendChild(h('div', { class: 'tools' }, h('button', { type: 'button', class: 'btn', text: 'Appliquer', onclick: function () { draw(); flash(applyF(all).length + ' client(s) trouvé(s).'); } }), h('button', { type: 'button', class: 'btn ghost', text: 'Réinitialiser', onclick: function () { F = {}; qBox.value = ''; buildPanel(); draw(); } })));
     }
     fbtn.addEventListener('click', function () { var o = panel.hidden; panel.hidden = !o; fbtn.setAttribute('aria-expanded', String(o)); if (o) buildPanel(); });
-    main.appendChild(head('Clients', 'Tous les comptes inscrits · cliquez sur une ligne pour ouvrir la fiche', [h('button', { type: 'button', class: 'btn', text: '⬇ Exporter', onclick: function () { exportDialog('clients'); } })]));
+    main.appendChild(head('Tous mes clients', 'Un seul endroit : demandes, sites, abonnements et engagement de 12 mois · cliquez sur une ligne pour ouvrir la fiche', [h('button', { type: 'button', class: 'btn ghost', text: 'Marche à suivre', onclick: guideCommande }), h('button', { type: 'button', class: 'btn', text: '⬇ Exporter', onclick: function () { exportDialog('clients'); } })]));
     var cmR = D.comptes.map(cRow), nAbo = function (f) { return cmR.filter(f).length; };
-    main.appendChild(kpiRow([['Tous les clients', cmR.length, 'users', 'c2'], ['Abonnement actif', nAbo(function (r) { return r.abo === 'actif'; }), 'repeat', 'c3'], ['Paiement en attente', nAbo(function (r) { return r.abo === 'impaye'; }), 'repeat', 'c4'], ['Sans abonnement', nAbo(function (r) { return !r.abo; }), 'users', 'c1']]));
-    var chips = h('div', { class: 'chips' }), CH = [['', 'Tous'], ['actif', 'Actifs'], ['impaye', 'Impayés'], ['suspendu', 'Suspendus'], ['resilie', 'Résiliés'], ['aucun', 'Sans abonnement']];
-    function drawChips() { chips.textContent = ''; CH.forEach(function (c) { chips.appendChild(h('button', { type: 'button', class: 'chip' + ((F.abo || '') === c[0] ? ' on' : ''), text: c[1], onclick: function () { F.abo = c[0]; drawChips(); draw(); } })); }); }
+    main.appendChild(kpiRow([['Clients', cmR.length, 'users', 'c2'], ['Abonnements actifs', nAbo(function (r) { return r.abo === 'actif'; }), 'repeat', 'c3'], ['Sites en ligne', nAbo(SEG.ligne.t), 'globe', 'c1'], ['Engagements finissant sous 60 j', nAbo(SEG.fin.t), 'repeat', 'c4']]));
+    var chips = h('div', { class: 'chips' });
+    function drawChips() {
+      chips.textContent = '';
+      var seg = function (k, l, n) { chips.appendChild(h('button', { type: 'button', class: 'chip' + ((F.seg || '') === k ? ' on' : ''), onclick: function () { F.seg = k; drawChips(); draw(); } }, l + ' (' + n + ')')); };
+      seg('', 'Tous', cmR.length); Object.keys(SEG).forEach(function (k) { seg(k, SEG[k].l, cmR.filter(SEG[k].t).length); });
+    }
     drawChips();
     main.appendChild(h('div', { class: 'card' }, chips, h('div', { class: 'tbar' }, fbtn, qBox, count), panel, tbody));
     draw();
@@ -911,6 +924,39 @@
     });
   }
 
+  /* ===== marche à suivre : de la commande à la mise en ligne ===== */
+  var ETAPES = [
+    ['Le client commande', 'Dans « Tous mes clients », ouvrez la fiche. Vérifiez la formule (Essentiel ou Pro) et les mails pro. Passez le site en « En création » (onglet Suivi & notes).'],
+    ['Vérifier l’abonnement', 'Onglet Abonnement : le statut doit être « Actif ». Le début d’abonnement marque le début des 12 mois d’engagement.'],
+    ['Récupérer son dossier', 'Onglet Suivi & notes : présentation, horaires, photos, couleurs. S’il manque quelque chose, programmez un rappel : il apparaîtra dans « À traiter ».'],
+    ['Créer son dossier de site', 'Onglet Site, bouton « Dossier GitHub » (dépôt Site-Client). Pour créer le dossier : python3 tools/nouveau-client.py nom-du-client "Nom affiché" domaine.fr'],
+    ['Construire le site', 'Remplir les pages avec son dossier, puis vérifier sur téléphone et sur ordinateur.'],
+    ['Envoyer l’aperçu', 'Passez le statut en « Aperçu envoyé ». Le client le voit dans son espace et peut le valider ou demander des ajustements.'],
+    ['Traiter les ajustements', 'Onglet Suivi & notes, « Retours sur l’aperçu » : faites les modifications, puis « Marquer comme traité » (le client est prévenu).'],
+    ['Domaine et mails', 'Acheter ou connecter le nom de domaine chez OVH, le brancher sur Cloudflare, puis créer les boîtes mail pro demandées.'],
+    ['Mettre en ligne', 'Envoyer sur la branche main de Site-Client : la mise en ligne se lance toute seule (onglet Actions de GitHub). Vérifiez le site, saisissez son adresse dans l’onglet Site, passez en « En ligne ».'],
+    ['Après la mise en ligne', 'Dans « Tous mes clients », la colonne « Fin d’engagement » donne la date des 12 mois. Demandez un avis au bout de quelques jours (onglet Suivi & notes).']
+  ];
+  function guideCommande() {
+    var ov = h('div', { class: 'ov', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Marche à suivre' }), bx = h('div', { class: 'modal', style: 'max-width:640px' });
+    var close = function () { ov.remove(); document.removeEventListener('keydown', esc); }, esc = function (e) { if (e.key === 'Escape') close(); };
+    document.addEventListener('keydown', esc); ov.addEventListener('click', function (e) { if (e.target === ov) close(); });
+    bx.appendChild(h('div', { class: 'tbar' }, h('h2', { text: 'Quand un client commande' }), h('button', { type: 'button', class: 'btn ghost sm', text: 'Fermer', 'aria-label': 'Fermer', onclick: close })));
+    bx.appendChild(h('p', { class: 'sub', text: 'Les étapes dans l’ordre, de la commande à la mise en ligne.' }));
+    bx.appendChild(h('ol', { class: 'steps-guide' }, ETAPES.map(function (e) { return h('li', null, h('b', { text: e[0] }), h('small', { text: e[1] })); })));
+    ov.appendChild(bx); document.body.appendChild(ov);
+  }
+  function etapesCard(c, d, P2, card) {
+    var ab = IX.abo[c.id], dos = P2.dossier || {}, rt = P2.retours || [], st = d ? d.statut : '';
+    var E = [['Demande reçue', !!d], ['Abonnement actif', !!(ab && ab.statut === 'actif')], ['Dossier complet', !!dos._termine], ['Aperçu envoyé', st === 'apercu' || st === 'en_ligne'], ['Aperçu validé', st === 'en_ligne' || rt.some(function (r) { return r.type === 'valide'; })], ['Site en ligne', st === 'en_ligne']];
+    var nxt = E.filter(function (x) { return !x[1]; })[0], fait = E.filter(function (x) { return x[1]; }).length;
+    var eng = ab && ab.debut && ab.statut !== 'resilie' ? 'Engagement de 12 mois jusqu’au ' + dOnly(finEng(ab.debut)) + ' (reste ' + resteTxt({ debut: ab.debut, abo: ab.statut }) + ').' : null;
+    return card('Étapes de la commande', 'check', h('span', { class: 'pill ' + (nxt ? 'warn' : 'ok'), text: fait + ' / ' + E.length }),
+      h('div', null, h('div', { class: 'etapes' }, E.map(function (x, i) { return h('span', { class: 'etape ' + (x[1] ? 'ok' : nxt === x ? 'now' : '') }, h('i', { text: x[1] ? '✓' : String(i + 1) }), x[0]); })),
+        h('p', { class: 'sub', text: nxt ? 'Prochaine étape : ' + nxt[0].toLowerCase() + '.' : 'Toutes les étapes sont faites.' }), eng ? h('p', { class: 'sub', text: eng }) : null,
+        h('button', { type: 'button', class: 'btn sm ghost', text: 'Voir la marche à suivre', onclick: guideCommande })));
+  }
+
   function suiviTab(body, c, d, card, setTab) {
     var box = h('div'); body.appendChild(box); box.appendChild(h('p', { class: 'empty', text: 'Chargement…' }));
     var redo = function () { loadAll().then(function () { updToday(); setTab('suivi'); }); };
@@ -929,6 +975,7 @@
           var p1 = d && ss.value !== d.statut ? api('/api/admin/demande', 'POST', { id: d.id, statut: ss.value }) : Promise.resolve({ j: { ok: true } });
           p1.then(function (x) { if (!x.j.ok) { flash('Échec du changement de statut.', true); return; } return api('/api/admin/suivi', 'POST', { compte_id: c.id, rappel_le: ra.value, motif: rm.value }).then(function (y) { flash(y.j.ok ? 'Suivi enregistré.' : 'Échec.', !y.j.ok); if (y.j.ok) redo(); }); });
         } })));
+      box.appendChild(etapesCard(c, d, P2, card));
       box.appendChild(g([cTasks, cSuivi]));
       /* dossier */
       var dos = P2.dossier || {}, labs = { description: 'Présentation', horaires: 'Horaires', adresse_pub: 'Adresse', tel_pub: 'Téléphone', email_pub: 'E-mail', services: 'Prestations et tarifs', reseaux: 'Réseaux', couleurs: 'Couleurs et style', slogan: 'Slogan', domaine_choisi: 'Domaine souhaité', remarques: 'Remarques' };
@@ -1060,10 +1107,10 @@
   }
 
   /* ===== navigation latérale ===== */
-  var navb = { today: $('#n-today'), parr: $('#n-parr'), avis: $('#n-avis'), outils: $('#n-outils'), stats: $('#n-stats'), clients: $('#n-clients'), dem: $('#n-dem'), crea: $('#n-crea'), ligne: $('#n-ligne'), abo: $('#n-abo'), rev: $('#n-rev'), com: $('#n-com'), mdp: $('#n-mdp'), lit: $('#n-lit') };
+  var navb = { today: $('#n-today'), parr: $('#n-parr'), avis: $('#n-avis'), outils: $('#n-outils'), stats: $('#n-stats'), clients: $('#n-clients'), rev: $('#n-rev'), com: $('#n-com'), mdp: $('#n-mdp'), lit: $('#n-lit') };
   function mark(k) { Object.keys(navb).forEach(function (x) { if (x === k) navb[x].setAttribute('aria-current', 'page'); else navb[x].removeAttribute('aria-current'); }); }
   function go(k, fn) { navb[k].addEventListener('click', function () { mark(k); top(fn); }); }
-  go('today', todayView); go('parr', parrView); go('avis', avisView); go('outils', outilsView); go('stats', showStats); go('clients', clientsView); go('dem', pageDem); go('crea', pageCrea); go('ligne', pageLigne); go('abo', pageAbo); go('rev', revenuePage); go('com', commView); go('mdp', motDePasse); go('lit', litigesView);
+  go('today', todayView); go('parr', parrView); go('avis', avisView); go('outils', outilsView); go('stats', showStats); go('clients', clientsView); go('rev', revenuePage); go('com', commView); go('mdp', motDePasse); go('lit', litigesView);
   $('#n-out').addEventListener('click', function () { api('/api/deconnexion', 'POST').then(function () { location.href = '/connexion'; }); });
 
   api('/api/moi').then(function (r) {
