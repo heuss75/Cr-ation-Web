@@ -416,8 +416,7 @@ footer{padding-block:22px 30px;font-size:13.5px}
 .exwrap{position:relative;margin-top:10px;overflow:hidden;padding:10px 0 6px}
 .exls{position:relative;perspective:1400px;perspective-origin:50% 40%;cursor:grab;touch-action:pan-y;user-select:none;-webkit-user-select:none;outline-offset:6px}.exls.grab{cursor:grabbing}
 .exls .exl{position:absolute;left:50%;top:0;width:var(--cw,340px);will-change:transform,opacity;transform-style:preserve-3d;backface-visibility:hidden}
-.exls .fi,.exls .bw{pointer-events:none}.exls .exc{display:none}
-.excap{display:flex;justify-content:center;text-align:center;margin-top:18px;min-height:96px}.excap .exc{display:flex;flex-direction:column;align-items:center;gap:10px}.excap .exc b{font-size:1.25rem}
+.exls .fi,.exls .bw{pointer-events:none}.exls .exl .exc{transition:opacity .25s}.exls .exl:not(.front) .exc{opacity:0;pointer-events:none}.exls .exl:not(.front) .btn{pointer-events:none}
 .exar{position:absolute;top:34%;z-index:200;width:46px;height:46px;border-radius:50%;border:1.5px solid var(--ink);background:var(--surface);font:400 26px/1 var(--display);cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.18)}
 .exar.prev{left:8px}.exar.next{right:8px}
 @media(max-width:699px){.exar{display:none}}
