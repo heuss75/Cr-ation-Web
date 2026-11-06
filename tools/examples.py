@@ -420,7 +420,10 @@ def editable(html, slug):
                 champs.append(dict(k=k, type="text", sec=sec[0], v=v.strip(), label=el.name))
     return str(soup), champs
 
-for name, fn in (("bistro", bistro), ("salon", salon), ("artisan", artisan)):
+import ex_more
+ex_more.H.update(page=page, slot=slot, svg=svg, ico=ico)
+EXTRA = [(n, getattr(ex_more, n)) for n in ("fleuriste", "garage", "osteo") if hasattr(ex_more, n)]
+for name, fn in (("bistro", bistro), ("salon", salon), ("artisan", artisan)) + tuple(EXTRA):
     html, champs = editable(fn(), name)
     open(os.path.join(OUT, name + ".html"), "w").write(html)
     json.dump(dict(slug=name, champs=champs), open(os.path.join(OUT, name + ".edit.json"), "w"), ensure_ascii=False, separators=(",", ":"))
