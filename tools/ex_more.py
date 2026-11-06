@@ -14,7 +14,7 @@ def wheel(cx, cy, r=58):
         a = k * 72 - 90
         x2 = cx + math.cos(math.radians(a)) * (r - 20); y2 = cy + math.sin(math.radians(a)) * (r - 20)
         s.append('<path d="M%d %d L%.1f %.1f" stroke="#c9ced6" stroke-width="7" stroke-linecap="round"/>' % (cx, cy, x2, y2))
-        s.append('<path d="M%d %d L%.1f %.1f" stroke="#ff5a1f" stroke-width="1.6" stroke-linecap="round" opacity=".85"/>' % (cx, cy, x2, y2))
+        s.append('<path d="M%d %d L%.1f %.1f" stroke="#ffd400" stroke-width="1.6" stroke-linecap="round" opacity=".85"/>' % (cx, cy, x2, y2))
     s.append('<circle cx="%d" cy="%d" r="9" fill="#e5e8ed"/><circle cx="%d" cy="%d" r="3.5" fill="#0a0a0b"/>' % (cx, cy, cx, cy))
     s.append('<circle cx="%d" cy="%d" r="%d" fill="none" stroke="#3a3d44" stroke-width="2"/>' % (cx, cy, r - 9))
     return "".join(s)
@@ -23,19 +23,19 @@ def wheel(cx, cy, r=58):
 def car_art(uid="car"):
     d = ('<defs><linearGradient id="%sb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a3f48"/><stop offset=".55" stop-color="#1f2329"/><stop offset="1" stop-color="#121417"/></linearGradient>'
          '<linearGradient id="%sg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7fa0b8"/><stop offset=".5" stop-color="#2d4252"/><stop offset="1" stop-color="#111b24"/></linearGradient>'
-         '<radialGradient id="%sl" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ff5a1f" stop-opacity=".55"/><stop offset="1" stop-color="#ff5a1f" stop-opacity="0"/></radialGradient>'
+         '<radialGradient id="%sl" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffd400" stop-opacity=".55"/><stop offset="1" stop-color="#ffd400" stop-opacity="0"/></radialGradient>'
          '<filter id="%ss"><feGaussianBlur stdDeviation="8"/></filter></defs>' % (uid, uid, uid, uid))
     d += '<ellipse cx="410" cy="352" rx="330" ry="18" fill="#000" opacity=".7" filter="url(#%ss)"/>' % uid
     d += '<ellipse cx="410" cy="300" rx="380" ry="80" fill="url(#%sl)" opacity=".45"/>' % uid
     for i, y in enumerate((150, 175, 200, 232)):
-        d += '<path d="M%d %d H%d" stroke="#ff5a1f" stroke-width="2.5" stroke-linecap="round" opacity="%.2f"/>' % (20 + i * 22, y, 80 + i * 20, .55 - i * .1)
+        d += '<path d="M%d %d H%d" stroke="#ffd400" stroke-width="2.5" stroke-linecap="round" opacity="%.2f"/>' % (20 + i * 22, y, 80 + i * 20, .55 - i * .1)
     body = ('M86 292 L70 262 Q64 236 84 228 L150 218 Q205 214 242 160 Q262 128 300 124 L470 120 Q520 122 556 150 L640 214 Q712 220 748 244 Q770 262 764 292 L706 296 '
             'A58 58 0 0 0 594 296 L322 296 A58 58 0 0 0 206 296 Z')
     d += '<path d="%s" fill="url(#%sb)" stroke="#0a0a0b" stroke-width="2"/>' % (body, uid)
     d += '<path d="M268 164 Q286 140 310 138 L462 134 Q505 136 536 160 L608 214 L246 214 Q258 190 268 164 Z" fill="url(#%sg)" stroke="#0a0a0b" stroke-width="2"/>' % uid
     d += '<path d="M392 138 L402 214" stroke="#0a0a0b" stroke-width="5"/><path d="M286 160 Q330 150 392 150" stroke="#fff" stroke-width="2" opacity=".18" fill="none"/>'
-    d += '<path d="M92 252 L750 252" stroke="#4a5059" stroke-width="1.5" opacity=".55"/><path d="M110 270 L296 270 M604 270 L728 270" stroke="#ff5a1f" stroke-width="5" stroke-linecap="round"/>'
-    d += '<path d="M700 236 Q742 240 758 256 L710 256 Z" fill="#ffe8c2"/><path d="M700 236 Q742 240 758 256" stroke="#ff5a1f" stroke-width="3" fill="none"/><path d="M84 236 L110 232 L110 250 L82 250 Z" fill="#c4161c"/>'
+    d += '<path d="M92 252 L750 252" stroke="#4a5059" stroke-width="1.5" opacity=".55"/><path d="M110 270 L296 270 M604 270 L728 270" stroke="#ffd400" stroke-width="5" stroke-linecap="round"/>'
+    d += '<path d="M700 236 Q742 240 758 256 L710 256 Z" fill="#ffe8c2"/><path d="M700 236 Q742 240 758 256" stroke="#ffd400" stroke-width="3" fill="none"/><path d="M84 236 L110 232 L110 250 L82 250 Z" fill="#c4161c"/>'
     d += '<path d="M446 206 h38 M300 206 h38" stroke="#aab0ba" stroke-width="3" stroke-linecap="round"/>'
     d += wheel(264, 296) + wheel(650, 296)
     return d
@@ -49,9 +49,9 @@ def dial(uid="dl"):
         r1 = 120; r2 = 104 if big else 112
         x1 = 150 + math.cos(math.radians(a)) * r1; y1 = 150 + math.sin(math.radians(a)) * r1
         x2 = 150 + math.cos(math.radians(a)) * r2; y2 = 150 + math.sin(math.radians(a)) * r2
-        col = "#ff5a1f" if i > 32 else "#e5e8ed"
+        col = "#ffd400" if i > 32 else "#e5e8ed"
         s.append('<path d="M%.1f %.1f L%.1f %.1f" stroke="%s" stroke-width="%d" stroke-linecap="round"/>' % (x1, y1, x2, y2, col, 3 if big else 1.5))
-    s.append('<path d="M150 150 L%.1f %.1f" stroke="#ff5a1f" stroke-width="5" stroke-linecap="round"/>' % (150 + math.cos(math.radians(135 + 6.75 * 26)) * 96, 150 + math.sin(math.radians(135 + 6.75 * 26)) * 96))
+    s.append('<path d="M150 150 L%.1f %.1f" stroke="#ffd400" stroke-width="5" stroke-linecap="round"/>' % (150 + math.cos(math.radians(135 + 6.75 * 26)) * 96, 150 + math.sin(math.radians(135 + 6.75 * 26)) * 96))
     s.append('<circle cx="150" cy="150" r="14" fill="#e5e8ed"/><circle cx="150" cy="150" r="5" fill="#0b0c0e"/><text x="150" y="218" text-anchor="middle" font-family="Barlow Condensed,sans-serif" font-weight="700" font-size="22" letter-spacing="4" fill="#9ba1ac">KM/H</text>')
     return "".join(s)
 
@@ -59,50 +59,50 @@ def dial(uid="dl"):
 def garage():
     page, slot, svg, ico = H["page"], H["slot"], H["svg"], H["ico"]
     css = r'''
-:root{--bg:#0b0c0e;--p:#14161a;--p2:#1b1e23;--ink:#f2f3f5;--mut:#9ba1ac;--or:#ff5a1f;--ln:#262a31}
+:root{--bg:#fff;--p:#f3f1ea;--p2:#fff;--ink:#111;--mut:#555a63;--or:#1a3cff;--y:#ffd400;--ln:#dcd9cf}
 html,body{overflow-x:clip}
 body{background:var(--bg);color:var(--ink);font:400 17px/1.6 'Barlow',system-ui,sans-serif}
 .c{font-family:'Barlow Condensed','Arial Narrow','Liberation Sans Narrow',sans-serif;text-transform:uppercase;letter-spacing:.01em}
 .w{max-width:1280px;margin:0 auto;padding:0 28px}
-.top{background:#000;border-bottom:1px solid var(--ln);font-size:14px}.top .w{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:9px;padding-bottom:9px;color:var(--mut)}
+.top{background:#111;font-size:14px}.top .w{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:9px;padding-bottom:9px;color:#c9ccd2}.top .live{color:#fff}
 .live{display:inline-flex;align-items:center;gap:8px;font-weight:600;color:var(--ink)}.live i{width:9px;height:9px;border-radius:50%;background:#2fd06a;box-shadow:0 0 0 0 #2fd06a99;animation:pl 2s infinite}.live.off i{background:#e0483a;animation:none}
 @keyframes pl{70%{box-shadow:0 0 0 9px #2fd06a00}100%{box-shadow:0 0 0 0 #2fd06a00}}
 @media(prefers-reduced-motion:reduce){.live i,.mq div{animation:none}}
-header.g{position:sticky;top:0;z-index:40;background:#0b0c0ef0;backdrop-filter:blur(12px);border-bottom:1px solid var(--ln)}
+header.g{position:sticky;top:0;z-index:40;background:#fffffff2;backdrop-filter:blur(12px);border-bottom:1px solid var(--ln)}
 header.g .w{display:flex;justify-content:space-between;align-items:center;height:78px;gap:20px}@media(max-width:600px){header.g .w{height:64px;gap:10px;padding:0 14px}header.g .lg{font-size:1.25rem;gap:8px}header.g .lg small{display:none}header.g .bt{padding:12px 14px;font-size:14px}header.o .lg{font-size:1.4rem}}
 .lg{display:flex;align-items:center;gap:12px;font:800 1.9rem/1 'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.04em}.lg small{display:block;font:600 .62rem/1 'Barlow',sans-serif;letter-spacing:.3em;color:var(--mut);margin-top:5px}
-.lg i{display:grid;place-items:center;width:44px;height:44px;background:var(--or);clip-path:polygon(0 0,100% 0,100% 70%,70% 100%,0 100%)}
+.lg i{display:grid;place-items:center;width:44px;height:44px;background:var(--y);clip-path:polygon(0 0,100% 0,100% 70%,70% 100%,0 100%)}
 nav.g{display:flex;gap:30px;font:600 15px 'Barlow',sans-serif;text-transform:uppercase;letter-spacing:.1em}nav.g a{color:var(--mut)}nav.g a:hover{color:var(--or)}
-.bt{display:inline-flex;align-items:center;gap:10px;background:var(--or);color:#0b0c0e;font:700 16px/1 'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.08em;padding:17px 26px;border:0;cursor:pointer;clip-path:polygon(0 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%);transition:.2s}
-.bt:hover{background:#fff}.bt.o{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 2px var(--ln);clip-path:none}.bt.o:hover{box-shadow:inset 0 0 0 2px var(--or);background:transparent;color:var(--or)}
-.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--ln)}
-.hero:before{content:"";position:absolute;inset:0;background:radial-gradient(900px 520px at 78% 40%,#ff5a1f26,transparent 60%),repeating-linear-gradient(90deg,#ffffff05 0 1px,transparent 1px 90px)}
+.bt{display:inline-flex;align-items:center;gap:10px;background:var(--y);color:#111;font:700 16px/1 'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.08em;padding:17px 26px;border:0;cursor:pointer;clip-path:polygon(0 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%);transition:.2s}
+.bt:hover{background:#111;color:#fff}.bt.o{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 2px var(--ln);clip-path:none}.bt.o:hover{box-shadow:inset 0 0 0 2px var(--or);background:transparent;color:var(--or)}
+.hero{position:relative;overflow:hidden;background:#1a3cff;color:#fff}.hero .lead{color:#dbe3ff}.hero .tg{border-color:#ffffff66;color:#fff}.hero .tg b{color:var(--y)}.hero h1.c em{color:var(--y)}.hero .lb{color:var(--y)}
+.hero:before{content:"";position:absolute;inset:0;background:radial-gradient(900px 520px at 78% 40%,#ffffff22,transparent 60%),repeating-linear-gradient(90deg,#ffffff0f 0 1px,transparent 1px 90px)}
 .hero .w{position:relative;display:grid;grid-template-columns:1.05fr 1fr;gap:20px;align-items:center;padding-top:70px;padding-bottom:40px}
 .tg{display:inline-flex;gap:10px;align-items:center;border:1px solid var(--ln);padding:8px 14px;font:600 13px/1 'Barlow',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}.tg b{color:var(--or)}
 h1.c{font-weight:800;font-size:clamp(3.2rem,7.4vw,7.4rem);line-height:.88;margin:26px 0 22px;letter-spacing:-.005em}h1.c em{font-style:normal;color:var(--or)}
 .lead{color:var(--mut);font-size:1.18rem;max-width:30em}
-.devis{margin-top:32px;background:var(--p);border:1px solid var(--ln);padding:22px;display:grid;grid-template-columns:auto 1fr 1fr auto;gap:12px;align-items:end;max-width:760px}
+.devis{margin-top:32px;background:#fff;color:#111;box-shadow:8px 8px 0 #111;padding:22px;display:grid;grid-template-columns:auto 1fr 1fr auto;gap:12px;align-items:end;max-width:760px}
 .devis label{display:grid;gap:7px;font:600 12px 'Barlow',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}
 .plate{display:flex;align-items:stretch;background:#fff;border-radius:6px;overflow:hidden;height:50px;min-width:190px;box-shadow:0 0 0 2px #111}.plate b{width:30px;background:#133b9c;color:#fff;display:grid;place-items:end center;padding-bottom:4px;font:700 11px 'Barlow'}.plate input{border:0;outline:0;font:800 1.55rem 'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.12em;text-align:center;width:100%;color:#111;background:#fff}
 .devis select{height:50px;background:var(--p2);color:var(--ink);border:1px solid var(--ln);font:500 16px 'Barlow',sans-serif;padding:0 12px}
-.est{grid-column:1/-1;display:none;align-items:center;gap:16px;border-top:1px dashed var(--ln);padding-top:16px;flex-wrap:wrap}.est.on{display:flex}.est b{font:800 2.4rem/1 'Barlow Condensed',sans-serif;color:var(--or)}.est span{color:var(--mut);font-size:15px}
+.est{grid-column:1/-1;display:none;align-items:center;gap:16px;border-top:1px dashed var(--ln);padding-top:16px;flex-wrap:wrap}.est.on{display:flex}.est b{font:800 2.4rem/1 'Barlow Condensed',sans-serif;color:var(--or)}.est .bt{margin-left:auto}.est span{color:var(--mut);font-size:15px}
 .stage{position:relative}.stage>svg:not(.dl){display:block;width:100%;height:auto}.stage .dl{position:absolute;right:3%;top:-16%;width:27%;height:auto;opacity:.96;z-index:2}
-.kpi{position:relative;border-top:1px solid var(--ln);display:grid;grid-template-columns:repeat(4,1fr);background:var(--p)}
-.kpi div{padding:24px 28px;border-right:1px solid var(--ln)}.kpi div:last-child{border:0}.kpi b{display:block;font:800 2.5rem/1 'Barlow Condensed',sans-serif;color:var(--or)}.kpi span{color:var(--mut);font-size:15px}
-section.s{padding:100px 0;border-bottom:1px solid var(--ln)}
+.kpi{position:relative;display:grid;grid-template-columns:repeat(4,1fr);background:#111;color:#fff}
+.kpi div{padding:24px 28px;border-right:1px solid #2b2e35}.kpi div:last-child{border:0}.kpi b{display:block;font:800 2.5rem/1 'Barlow Condensed',sans-serif;color:var(--y)}.kpi span{color:#aeb2ba;font-size:15px}
+section.s{padding:100px 0;border-bottom:1px solid var(--ln)}#forfaits,#equipe{background:var(--p)}.sg{border-color:#111}.sv{background:#fff}
 .lb{font:600 13px/1 'Barlow',sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--or);display:flex;gap:10px;align-items:center}.lb:before{content:"";width:28px;height:2px;background:var(--or)}
 h2.c{font-weight:800;font-size:clamp(2.6rem,5.4vw,4.8rem);line-height:.92;margin:16px 0 0}
 .sg{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--ln);border:1px solid var(--ln);margin-top:48px}
-.sv{background:var(--bg);padding:34px 30px 30px;position:relative;display:flex;flex-direction:column;gap:10px;transition:background .25s}.sv:hover{background:var(--p2)}
+.sv{background:var(--bg);padding:34px 30px 30px;position:relative;display:flex;flex-direction:column;gap:10px;transition:background .25s}.sv:hover{background:var(--y)}.sv:hover .n,.sv:hover p,.sv:hover small{color:#111}
 .sv .n{font:700 .95rem 'Barlow Condensed',sans-serif;color:var(--or);letter-spacing:.2em}.sv h3{font:800 2rem/1 'Barlow Condensed',sans-serif;text-transform:uppercase}.sv p{color:var(--mut);font-size:15.5px}
 .sv .pr{margin-top:auto;padding-top:14px;display:flex;align-items:baseline;justify-content:space-between;border-top:1px solid var(--ln)}.sv .pr b{font:800 2.2rem/1 'Barlow Condensed',sans-serif}.sv .pr small{color:var(--mut)}
 .sv .du{position:absolute;right:24px;top:30px;font:600 12px 'Barlow';letter-spacing:.14em;text-transform:uppercase;border:1px solid var(--ln);padding:6px 9px;color:var(--mut)}
 .why{display:grid;grid-template-columns:1fr 1fr;gap:70px;align-items:center}
 .pt{display:grid;gap:0;margin-top:36px;border-top:1px solid var(--ln)}.pt div{display:grid;grid-template-columns:60px 1fr;gap:18px;padding:22px 0;border-bottom:1px solid var(--ln)}.pt i{display:grid;place-items:center;width:52px;height:52px;border:1px solid var(--ln);color:var(--or)}.pt h4{font:700 1.5rem/1 'Barlow Condensed',sans-serif;text-transform:uppercase}.pt p{color:var(--mut);font-size:15.5px;margin-top:4px}
-.bay{position:relative;aspect-ratio:1.05;background:var(--p);border:1px solid var(--ln);overflow:hidden}.bay .sl svg{width:100%;height:100%}
+.bay{position:relative;aspect-ratio:1.05;background:#111;box-shadow:10px 10px 0 var(--y);overflow:hidden}.bay .sl svg{width:100%;height:100%}
 .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:52px;position:relative}.steps:before{content:"";position:absolute;left:0;right:0;top:34px;height:2px;background:var(--ln)}
 .st{position:relative;padding-right:30px}.st .nb{width:70px;height:70px;background:var(--bg);border:2px solid var(--or);display:grid;place-items:center;font:800 2rem 'Barlow Condensed',sans-serif;color:var(--or);position:relative}.st h4{font:800 1.7rem/1 'Barlow Condensed',sans-serif;text-transform:uppercase;margin:20px 0 8px}.st p{color:var(--mut);font-size:15.5px}
-.mq{overflow:hidden;white-space:nowrap;border-bottom:1px solid var(--ln);padding:26px 0;background:var(--p)}.mq div{display:inline-block;animation:mqa 44s linear infinite}.mq span{font:700 2rem/1 'Barlow Condensed',sans-serif;text-transform:uppercase;color:#4a4f58;margin:0 34px;letter-spacing:.06em}.mq b{color:var(--or)}
+.mq{overflow:hidden;white-space:nowrap;padding:26px 0;background:var(--y);color:#111}.mq div{display:inline-block;animation:mqa 44s linear infinite}.mq span{font:700 2rem/1 'Barlow Condensed',sans-serif;text-transform:uppercase;color:#111;margin:0 34px;letter-spacing:.06em}.mq b{color:#1a3cff}
 @keyframes mqa{to{transform:translateX(-50%)}}
 .rev{display:grid;grid-template-columns:.8fr 1.2fr;gap:50px;margin-top:48px;align-items:stretch}
 .score{background:var(--p);border:1px solid var(--ln);padding:36px;display:flex;flex-direction:column;justify-content:center}.score b{font:800 7rem/.9 'Barlow Condensed',sans-serif;color:var(--or)}.score span{color:var(--or);letter-spacing:5px;font-size:1.4rem}.score p{color:var(--mut);margin-top:10px}
@@ -113,9 +113,9 @@ h2.c{font-weight:800;font-size:clamp(2.6rem,5.4vw,4.8rem);line-height:.92;margin
 .map{aspect-ratio:1.7;background:#15181c;border:1px solid var(--ln);margin-bottom:18px;overflow:hidden}.map svg{width:100%;height:100%;display:block}
 form.rd{display:grid;gap:14px}.rd label{display:grid;gap:7px;font:600 12px 'Barlow',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}.rd input,.rd select,.rd textarea{font:500 16px 'Barlow',sans-serif;background:var(--p2);color:var(--ink);border:1px solid var(--ln);padding:14px;border-radius:0}.rd input:focus,.rd select:focus,.rd textarea:focus{outline:0;border-color:var(--or)}.rd .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .slots{display:flex;gap:8px;flex-wrap:wrap}.slots button{background:var(--p2);color:var(--ink);border:1px solid var(--ln);padding:11px 14px;font:600 15px 'Barlow',sans-serif;cursor:pointer}.slots button.on,.slots button:hover{border-color:var(--or);color:var(--or)}
-.ok{display:none;border:1px solid #2fd06a;color:#2fd06a;padding:16px 18px;font-weight:600}.ok.on{display:block}
+.ok{display:none;border:1px solid #0a8a3c;color:#0a8a3c;padding:16px 18px;font-weight:600}.ok.on{display:block}
 .faq details{border-bottom:1px solid var(--ln);padding:22px 0}.faq summary{cursor:pointer;font:700 1.6rem/1.1 'Barlow Condensed',sans-serif;text-transform:uppercase;list-style:none;display:flex;justify-content:space-between;gap:20px}.faq summary::-webkit-details-marker{display:none}.faq summary:after{content:"+";color:var(--or);font-size:1.8rem;line-height:1}.faq details[open] summary:after{content:"–"}.faq p{color:var(--mut);margin-top:12px;max-width:48em}
-footer.ft{background:#000;padding:64px 0 36px}footer.ft .w{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:36px}footer.ft h4{font:700 1.1rem 'Barlow Condensed',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--or);margin-bottom:14px}footer.ft li{margin:8px 0;color:var(--mut);font-size:15px}.lg2{font:800 2.4rem/1 'Barlow Condensed',sans-serif;text-transform:uppercase}.legal{grid-column:1/-1;border-top:1px solid var(--ln);padding-top:24px;color:#6f7580;font-size:13px}
+footer.ft{background:#111;color:#fff;padding:64px 0 36px}footer.ft .w{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:36px}footer.ft h4{font:700 1.1rem 'Barlow Condensed',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--y);margin-bottom:14px}footer.ft li{margin:8px 0;color:#aeb2ba;font-size:15px}.lg2{font:800 2.4rem/1 'Barlow Condensed',sans-serif;text-transform:uppercase}.legal{grid-column:1/-1;border-top:1px solid #2b2e35;padding-top:24px;color:#6f7580;font-size:13px}
 @media(max-width:980px){.hero .w,.why,.rev,.contact{grid-template-columns:1fr}.devis{grid-template-columns:1fr}.plate{min-width:0}.sg,.team{grid-template-columns:1fr}.kpi{grid-template-columns:1fr 1fr}.steps{grid-template-columns:1fr 1fr;row-gap:36px}.steps:before{display:none}nav.g{display:none}footer.ft .w{grid-template-columns:1fr 1fr}.dl{display:none}section.s{padding:68px 0}}
 '''
     svc = [("Vidange + filtres", "Huile moteur, filtre à huile, à air et d’habitacle. Niveaux et contrôle visuel offerts.", "79", "1 h"),
@@ -126,7 +126,7 @@ footer.ft{background:#000;padding:64px 0 36px}footer.ft .w{display:grid;grid-tem
            ("Courroie de distribution", "Kit complet, pompe à eau et galets. Garantie 24 mois pièces et main-d’œuvre.", "449", "4 h")]
     cards = "".join('<article class="sv"><span class="n">0%d</span><span class="du">%s</span><h3>%s</h3><p>%s</p><div class="pr"><small>à partir de</small><b>%s €</b></div></article>' % (i + 1, du, t, d, p) for i, (t, d, p, du) in enumerate(svc))
     brands = "".join('<span>%s</span><b>/</b>' % b for b in ["Renault", "Peugeot", "Citroën", "Dacia", "Volkswagen", "Toyota", "Ford", "Fiat", "Opel", "BMW", "Mercedes", "Audi", "Kia", "Hyundai", "Nissan", "Seat", "Skoda", "Mini", "Volvo", "Tesla"])
-    team = [("Thomas Marchand", "Gérant · mécanicien depuis 22 ans", "#ff5a1f"), ("Inès Boudaoud", "Diagnostic électronique & hybrides", "#4fa3ff"), ("Karim Lopes", "Freinage, pneus et trains roulants", "#ffc61a")]
+    team = [("Thomas Marchand", "Gérant · mécanicien depuis 22 ans", "#ffd400"), ("Inès Boudaoud", "Diagnostic électronique & hybrides", "#1a3cff"), ("Karim Lopes", "Freinage, pneus et trains roulants", "#ffc61a")]
     tms = ""
     for i, (n, r, c) in enumerate(team):
         ini = "".join(w[0] for w in n.split())
@@ -137,11 +137,11 @@ footer.ft{background:#000;padding:64px 0 36px}footer.ft .w{display:grid;grid-tem
         tms += '<div class="tm"><div class="av">%s</div><div class="t"><h4>%s</h4><p>%s</p></div></div>' % (slot("garage-equipe-%d" % (i + 1), av), n, r)
     bay = slot("garage-atelier", svg(600, 570, '<defs><linearGradient id="fl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1b1e23"/><stop offset="1" stop-color="#0d0e10"/></linearGradient></defs><rect width="600" height="570" fill="url(#fl)"/>'
         + "".join('<rect x="%d" y="70" width="12" height="260" fill="#2a2d33"/>' % x for x in (90, 498))
-        + '<rect x="60" y="62" width="480" height="22" fill="#2f333a"/><path d="M60 62H540" stroke="#ff5a1f" stroke-width="3"/>'
+        + '<rect x="60" y="62" width="480" height="22" fill="#2f333a"/><path d="M60 62H540" stroke="#ffd400" stroke-width="3"/>'
         + '<g transform="translate(-60 190) scale(.78)">' + car_art("bay") + '</g>'
-        + '<rect x="0" y="470" width="600" height="100" fill="#0a0b0d"/><path d="M0 470H600" stroke="#ff5a1f" stroke-width="2" stroke-dasharray="26 18"/>'))
-    mapsvg = svg(600, 350, '<rect width="600" height="350" fill="#14171b"/><path d="M0 110H600M0 240H600M170 0V350M390 0V350" stroke="#232830" stroke-width="22"/><path d="M0 300Q300 250 600 300" stroke="#1a2a3a" stroke-width="34" fill="none"/><path d="M0 110H600M170 0V350" stroke="#ff5a1f" stroke-width="2" opacity=".5"/>'
-                 '<path d="M270 160 q26-58 52 0 q0 32-26 58 q-26-26-26-58z" fill="#ff5a1f"/><circle cx="296" cy="158" r="10" fill="#0b0c0e"/>')
+        + '<rect x="0" y="470" width="600" height="100" fill="#0a0b0d"/><path d="M0 470H600" stroke="#ffd400" stroke-width="2" stroke-dasharray="26 18"/>'))
+    mapsvg = svg(600, 350, '<rect width="600" height="350" fill="#14171b"/><path d="M0 110H600M0 240H600M170 0V350M390 0V350" stroke="#232830" stroke-width="22"/><path d="M0 300Q300 250 600 300" stroke="#1a2a3a" stroke-width="34" fill="none"/><path d="M0 110H600M170 0V350" stroke="#ffd400" stroke-width="2" opacity=".5"/>'
+                 '<path d="M270 160 q26-58 52 0 q0 32-26 58 q-26-26-26-58z" fill="#ffd400"/><circle cx="296" cy="158" r="10" fill="#0b0c0e"/>')
     faq = '''<details><summary>Faut-il prendre rendez-vous ?</summary><p>Pour les entretiens oui, c’est plus simple pour tout le monde. Pour une panne ou un voyant allumé, venez directement : on vous prend en charge dans la journée.</p></details>
 <details><summary>Mon entretien annule-t-il la garantie constructeur ?</summary><p>Non. Depuis le règlement européen, vous pouvez entretenir votre véhicule dans le garage de votre choix sans perdre la garantie, à condition de suivre le carnet. Nous utilisons des pièces de qualité équivalente d’origine et tamponnons votre carnet.</p></details>
 <details><summary>Prêtez-vous un véhicule ?</summary><p>Oui, une citadine de courtoisie est prêtée gratuitement pour les réparations de plus de deux heures, sur réservation.</p></details>
