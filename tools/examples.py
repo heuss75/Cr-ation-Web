@@ -196,12 +196,11 @@ def page(title, desc, fonts, css, body, js=""):
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?{fonts}&display=swap">
 <style>*{{box-sizing:border-box}}html{{scroll-behavior:smooth}}body{{margin:0}}img,svg{{max-width:100%}}a{{color:inherit;text-decoration:none}}h1,h2,h3,h4,p,ul,figure{{margin:0;padding:0}}ul{{list-style:none}}
-.back{{position:fixed;left:14px;bottom:88px;z-index:100;background:#fff;color:#111;font:700 14px/1 system-ui,sans-serif;padding:13px 18px;border-radius:99px;box-shadow:0 8px 24px #0006,0 0 0 2px #111}}.back:hover{{background:#f2f2f2}}.demo-bar{{position:sticky;left:0;right:0;bottom:0;margin-top:40px;z-index:99;background:#111;color:#fff;font:500 12.5px/1.3 system-ui,sans-serif;padding:9px 14px;display:flex;gap:12px;justify-content:center;align-items:center;flex-wrap:wrap}}.demo-bar a{{text-decoration:underline}}
+.back{{position:fixed;right:0;top:50%;z-index:100;transform:translateY(-50%);writing-mode:vertical-rl;background:#111;color:#fff;font:600 13px/1 system-ui,sans-serif;letter-spacing:.04em;padding:18px 11px;border-radius:12px 0 0 12px;box-shadow:-4px 0 16px #0004;transition:padding .2s}}.back:hover{{padding-right:16px;background:#000}}.back b{{display:inline-block;margin-top:8px;font-weight:700}}@media(max-width:600px){{.back{{font-size:12px;padding:14px 9px;top:auto;bottom:90px;transform:none}}}}
 {css}{BK_CSS}.sl{{position:relative;display:block;width:100%;height:100%}}.sl img{{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}}</style></head><body>{body}
 {BK_JS}
-<a class="back" href="/#avant" id="back">← Retour au site</a>
+<a class="back" href="/" id="back" target="_top">Découvrez-nous en cliquant ici <b>→</b></a>
 <script>(function(){{var b=document.getElementById('back');if(window.self!==window.top){{b.remove();return}}}})()</script>
-<div class="demo-bar"><span>Exemple de site réalisé par Devanture Web · noms, prix et photos fictifs</span><a href="/" target="_top">← Retour à l’offre</a></div>
 {js}</body></html>'''
 
 # ======================= BISTRO =======================
