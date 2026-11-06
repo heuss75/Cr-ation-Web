@@ -148,7 +148,6 @@ footer.ft{background:#111;color:#fff;padding:64px 0 36px}footer.ft .w{display:gr
 <details><summary>Le devis est-il gratuit et définitif ?</summary><p>Il est gratuit, écrit, détaillé pièce par pièce. Nous ne lançons aucun travail supplémentaire sans votre accord signé ou par message.</p></details>
 <details><summary>Travaillez-vous sur les véhicules hybrides et électriques ?</summary><p>Oui. Inès est habilitée pour les véhicules hybrides et électriques (habilitation B2VL / BR). Diagnostic, freinage, climatisation et batterie 12 V.</p></details>'''
     body = '''
-<div class="top"><div class="w"><span class="live" id="live"><i></i><span id="livet">Ouvert</span></span><span>12 rue de la Forge, 44000 Nantes · 02 40 00 00 00</span></div></div>
 <header class="g"><div class="w"><a class="lg" href="#top"><i>@@GEAR@@</i><span>Garage Marchand<small>MÉCANIQUE &amp; PNEUS · NANTES</small></span></a>
 <nav class="g"><a href="#forfaits">Forfaits</a><a href="#garanties">Garanties</a><a href="#equipe">Équipe</a><a href="#avis">Avis</a><a href="#rdv">Contact</a></nav><a class="bt" href="#rdv">Prendre rendez-vous</a></div></header>
 <main id="top"><section class="hero"><div class="w"><div>
@@ -207,7 +206,7 @@ function f(h){var m=Math.round((h%1)*60);return Math.floor(h)+' h'+(m?(' '+(m<10
 function live(){var n=new Date(),d=n.getDay(),h=n.getHours()+n.getMinutes()/60,o=null,nx=null,i,r;
  for(i=0;i<(H[d]||[]).length;i++){r=H[d][i];if(h>=r[0]&&h<r[1])o=r;else if(h<r[0]&&!nx)nx=r}
  var L=document.getElementById('live'),T=document.getElementById('livet');
- if(o){L.classList.remove('off');T.textContent='Ouvert · ferme à '+f(o[1])}else{L.classList.add('off');T.textContent=nx?('Fermé · ouvre à '+f(nx[0])):'Fermé · réouverture demain'}
+ if(L&&T){if(o){L.classList.remove('off');T.textContent='Ouvert · ferme à '+f(o[1])}else{L.classList.add('off');T.textContent=nx?('Fermé · ouvre à '+f(nx[0])):'Fermé · réouverture demain'}}
  var li=document.querySelector('#hr li[data-d="'+d+'"]');if(li)li.classList.add('today')}
 live();
 document.getElementById('dv').onsubmit=function(e){e.preventDefault();var p=+document.getElementById('sv').value*+document.getElementById('vh').value;
