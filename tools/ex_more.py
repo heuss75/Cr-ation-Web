@@ -1,278 +1,9 @@
 # -*- coding: utf-8 -*-
 """Trois sites d'exemple supplémentaires : fleuriste, garage auto, ostéopathe.
-Chaque site a son propre langage visuel. Les « photos » sont des illustrations dessinées en code ;
-chaque emplacement accepte une vraie photo : il suffit de déposer assets/ex/<nom>.jpg."""
+Chaque site a son propre langage visuel. Les emplacements photo acceptent une vraie photo : déposer assets/ex/<nom>.jpg."""
 import math, random
 
 H = {}          # rempli par examples.py : page, slot, svg, ico
-
-
-# ============================================================ outils de dessin
-def _mix(c1, c2, t):
-    a = [int(c1[i:i + 2], 16) for i in (1, 3, 5)]; b = [int(c2[i:i + 2], 16) for i in (1, 3, 5)]
-    return "#%02x%02x%02x" % tuple(round(a[i] + (b[i] - a[i]) * t) for i in range(3))
-
-
-def bloom(cx, cy, r, c1, c2, rot=0, rings=4):
-    """Fleur à pétales superposés (pivoine / rose de jardin)."""
-    s = []
-    for i in range(rings):
-        ri = r * (1 - i * 0.22); n = 9 - i
-        col = _mix(c1, c2, i / max(1, rings - 1))
-        edge = _mix(col, "#000000", .16)
-        for k in range(n):
-            a = rot + i * 17 + k * 360 / n
-            s.append('<ellipse cx="%.1f" cy="%.1f" rx="%.1f" ry="%.1f" fill="%s" stroke="%s" stroke-width=".8" transform="rotate(%.1f %.1f %.1f)"/>'
-                     % (cx, cy - ri * .5, ri * .46, ri * .62, col, edge, a, cx, cy))
-    s.append('<circle cx="%.1f" cy="%.1f" r="%.1f" fill="%s"/>' % (cx, cy, r * .13, _mix(c2, "#5a2a00", .5)))
-    for k in range(7):
-        a = k * 51.4
-        s.append('<circle cx="%.1f" cy="%.1f" r="%.1f" fill="#f4c35a"/>' % (cx + math.cos(math.radians(a)) * r * .1, cy + math.sin(math.radians(a)) * r * .1, r * .022))
-    return "".join(s)
-
-
-def leaf(x, y, ln, ang, col="#4f6b45", rib="#cfe0bd"):
-    return ('<g transform="translate(%.1f %.1f) rotate(%.1f)"><path d="M0 0Q%.1f %.1f %.1f 0Q%.1f %.1f 0 0Z" fill="%s"/>'
-            '<path d="M0 0L%.1f 0" stroke="%s" stroke-width="1.2" opacity=".55"/></g>'
-            % (x, y, ang, ln * .5, -ln * .32, ln, ln * .5, ln * .32, col, ln * .94, rib))
-
-
-def bouquet(seed, c1, c2, bg1, bg2, vw=500, vh=560, uid="b"):
-    R = random.Random(seed); s = []
-    s.append('<defs><linearGradient id="%sbg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="%s"/><stop offset="1" stop-color="%s"/></linearGradient>'
-             '<linearGradient id="%spp" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#c9a77a"/><stop offset=".5" stop-color="#e3c79c"/><stop offset="1" stop-color="#b8956a"/></linearGradient>'
-             '<filter id="%ssh"><feGaussianBlur stdDeviation="9"/></filter></defs>' % (uid, bg1, bg2, uid, uid))
-    s.append('<rect width="%d" height="%d" fill="url(#%sbg)"/>' % (vw, vh, uid))
-    cx = vw / 2
-    s.append('<ellipse cx="%.0f" cy="%.0f" rx="%.0f" ry="16" fill="#000" opacity=".18" filter="url(#%ssh)"/>' % (cx, vh - 36, vw * .22, uid))
-    # tiges
-    for k in range(9):
-        x2 = cx + R.uniform(-vw * .2, vw * .2)
-        s.append('<path d="M%.0f %.0f Q%.0f %.0f %.0f %.0f" stroke="#3f5a38" stroke-width="%.1f" fill="none" stroke-linecap="round"/>' % (cx + R.uniform(-8, 8), vh - 70, (cx + x2) / 2, vh * .62, x2, vh * .42, R.uniform(3, 5)))
-    # feuillage
-    for k in range(16):
-        a = R.uniform(-150, -30); x = cx + R.uniform(-vw * .22, vw * .22); y = vh * R.uniform(.3, .55)
-        s.append(leaf(x, y, R.uniform(70, 120), a, R.choice(["#4f6b45", "#5f7d52", "#3f5a38", "#7a9468"])))
-    # papier kraft (cône)
-    s.append('<path d="M%.0f %.0f L%.0f %.0f L%.0f %.0f Q%.0f %.0f %.0f %.0f Z" fill="url(#%spp)"/>' % (cx - vw * .30, vh * .62, cx + vw * .30, vh * .62, cx + 26, vh - 44, cx, vh - 30, cx - 26, vh - 44, uid))
-    s.append('<path d="M%.0f %.0f L%.0f %.0f" stroke="#a4825a" stroke-width="1.5" opacity=".6"/><path d="M%.0f %.0f L%.0f %.0f" stroke="#a4825a" stroke-width="1.5" opacity=".6"/>' % (cx - vw * .12, vh * .62, cx - 8, vh - 50, cx + vw * .14, vh * .62, cx + 10, vh - 50))
-    s.append('<rect x="%.0f" y="%.0f" width="%.0f" height="9" rx="4" fill="#e2502c" opacity=".92"/>' % (cx - vw * .2, vh * .74, vw * .4))
-    # fleurs
-    pos = [(cx, vh * .22, 74), (cx - vw * .2, vh * .3, 62), (cx + vw * .21, vh * .31, 64), (cx - vw * .08, vh * .42, 58), (cx + vw * .1, vh * .43, 56), (cx - vw * .28, vh * .46, 46), (cx + vw * .3, vh * .47, 44)]
-    for i, (x, y, r) in enumerate(pos):
-        t = (c1, c2) if i % 3 else (c2, c1)
-        s.append(bloom(x, y, r * (vw / 500), t[0], t[1], rot=R.randint(0, 40), rings=4))
-    for k in range(9):
-        x = cx + R.uniform(-vw * .3, vw * .3); y = vh * R.uniform(.2, .5)
-        s.append('<circle cx="%.0f" cy="%.0f" r="%.1f" fill="#fff" opacity=".85"/>' % (x, y, R.uniform(3, 6)))
-    return H["svg"](vw, vh, "".join(s))
-
-
-def card_art(seed, pal):
-    return bouquet(seed, pal[0], pal[1], pal[2], pal[3], vw=400, vh=440, uid="c%d" % seed)
-
-
-PALS = {
-    "peche": ("#f7b79a", "#e4572e", "#fbe3d5", "#f3c3ae"),
-    "rose": ("#f6c4d0", "#d8607f", "#fde8ee", "#f2bfcc"),
-    "soleil": ("#fbe18f", "#e9a62e", "#fff3cf", "#f6d78a"),
-    "lilas": ("#d7c5f2", "#8059c4", "#efe7fb", "#d3c0f0"),
-    "ivoire": ("#fffaf0", "#e9d9bb", "#e8efe0", "#c9d9bd"),
-    "rouge": ("#f08a84", "#b01e2b", "#fbe2df", "#f0b3ad"),
-}
-
-
-# ============================================================ 1. FLEURISTE
-def fleuriste():
-    page, slot, svg, ico = H["page"], H["slot"], H["svg"], H["ico"]
-    css = r'''
-:root{--bg:#f3ede2;--ink:#201c17;--mut:#6d6559;--co:#e2502c;--sg:#6f8467;--dk:#1f2a1c;--bl:#f3d6cc;--line:#ddd2bf}
-html,body{overflow-x:clip}
-body{background:var(--bg);color:var(--ink);font:400 17px/1.65 'Inter Tight',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
-.f{font-family:'Fraunces',Georgia,serif;font-optical-sizing:auto}
-.w{max-width:1240px;margin:0 auto;padding:0 28px}
-header.fl{position:sticky;top:0;z-index:40;background:#f3ede2e8;backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-header.fl .w{display:flex;align-items:center;justify-content:space-between;height:74px;gap:18px}
-.logo{display:flex;align-items:center;gap:11px;font:italic 600 1.55rem/1 'Fraunces',serif;letter-spacing:-.01em}
-.logo i{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:var(--co)}
-nav.fl{display:flex;gap:26px;font-weight:500;font-size:15.5px}nav.fl a:hover{color:var(--co)}
-.btn{display:inline-flex;align-items:center;gap:9px;background:var(--ink);color:#f3ede2;font:600 15.5px/1 'Inter Tight',sans-serif;padding:15px 24px;border-radius:99px;border:0;cursor:pointer;transition:transform .2s,background .2s}
-.btn:hover{background:var(--co);transform:translateY(-2px)}.btn.o{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}.btn.o:hover{background:var(--ink);color:#f3ede2}.btn.c{background:var(--co);color:#fff}
-.hero{padding:58px 0 0;position:relative;overflow:hidden}
-.hero .w{display:grid;grid-template-columns:1.12fr .88fr;gap:30px;align-items:center}
-.eyebrow{display:inline-flex;gap:10px;align-items:center;font:600 13px/1 'Inter Tight',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--sg)}
-.eyebrow:before{content:"";width:34px;height:1.5px;background:currentColor}
-h1.f{font-weight:400;font-size:clamp(3.1rem,7.6vw,7.2rem);line-height:.93;letter-spacing:-.035em;margin:22px 0 26px}
-h1.f em{color:var(--co);font-style:italic;font-weight:300}
-.lead{font-size:1.2rem;color:var(--mut);max-width:34em}
-.cta{display:flex;gap:12px;flex-wrap:wrap;margin:30px 0 34px}
-.trust{display:flex;gap:26px;flex-wrap:wrap;font-weight:500;font-size:14.5px;color:var(--mut)}.trust b{color:var(--ink)}
-.arch{position:relative;aspect-ratio:.84;border-radius:999px 999px 28px 28px;overflow:hidden;background:var(--bl);box-shadow:0 40px 80px -30px #5a2a1a55}
-.arch .sl svg{width:100%;height:100%}
-.badge{position:absolute;left:-26px;bottom:44px;width:132px;height:132px;animation:spin 22s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.herowrap{position:relative}.herowrap .badge{z-index:3}
-.band{margin-top:64px;background:var(--ink);color:#f3ede2;overflow:hidden;white-space:nowrap;padding:18px 0;font:italic 400 1.6rem/1 'Fraunces',serif}
-.band div{display:inline-block;animation:mq 38s linear infinite}.band span{margin:0 26px}.band b{color:var(--co);font-style:normal}
-@keyframes mq{to{transform:translateX(-50%)}}
-@media(prefers-reduced-motion:reduce){.band div,.badge{animation:none}}
-section.s{padding:104px 0}
-h2.f{font-weight:400;font-size:clamp(2.2rem,4.6vw,4rem);line-height:1;letter-spacing:-.03em;margin:14px 0 0}
-h2.f em{font-style:italic;font-weight:300;color:var(--co)}
-.sh{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:42px}
-.arrows{display:flex;gap:10px}.arrows button{width:52px;height:52px;border-radius:50%;border:1.5px solid var(--ink);background:transparent;cursor:pointer;display:grid;place-items:center;transition:.2s}.arrows button:hover{background:var(--ink);color:#fff}
-.rail{display:flex;gap:22px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 28px 26px;margin:0 -28px;scroll-padding-left:28px;scrollbar-width:none}.rail::-webkit-scrollbar{display:none}
-.pc{flex:0 0 min(300px,78vw);scroll-snap-align:start}
-.pc .ph{aspect-ratio:.9;border-radius:22px;overflow:hidden;position:relative;transition:transform .35s}
-.pc:hover .ph{transform:translateY(-6px) rotate(-.6deg)}
-.pc .ph .sl svg{width:100%;height:100%}
-.tag{position:absolute;left:14px;top:14px;background:#fff;border-radius:99px;font:600 12px/1 'Inter Tight',sans-serif;padding:8px 12px;z-index:2}
-.pc h3{font:500 1.5rem/1.1 'Fraunces',serif;margin:16px 0 4px;letter-spacing:-.01em}.pc p{color:var(--mut);font-size:15.5px;min-height:4.9em}
-.pc .row{display:flex;align-items:center;justify-content:space-between;margin-top:12px}
-.pc .pr{font:500 1.35rem/1 'Fraunces',serif}.pc .ad{border:1.5px solid var(--ink);background:transparent;border-radius:99px;padding:10px 18px;font:600 14px/1 'Inter Tight',sans-serif;cursor:pointer;transition:.2s}.pc .ad:hover,.pc .ad.ok{background:var(--co);border-color:var(--co);color:#fff}
-.sub{background:var(--dk);color:#f3ede2;border-radius:36px;margin:0 20px;padding:96px 0}
-.sub .eyebrow{color:#b8cbab}.sub h2 em{color:#f0a68b}
-.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:46px}
-.plan{border:1px solid #ffffff2e;border-radius:26px;padding:34px 30px;display:flex;flex-direction:column;gap:6px;background:#ffffff08;transition:.3s}.plan:hover{background:#ffffff12;transform:translateY(-4px)}
-.plan.pop{background:var(--co);border-color:var(--co);color:#fff}
-.plan h3{font:italic 400 1.9rem/1 'Fraunces',serif}.plan .pr{font:300 3.6rem/1 'Fraunces',serif;letter-spacing:-.03em;margin:14px 0 4px}.plan .pr small{font:500 1rem 'Inter Tight',sans-serif;opacity:.7}
-.plan ul{margin:14px 0 22px;display:grid;gap:9px;font-size:15.5px}.plan li{display:flex;gap:10px}.plan li:before{content:"✓";font-weight:700;color:#b8cbab}.plan.pop li:before{color:#fff}
-.plan .btn{margin-top:auto;justify-content:center;background:#f3ede2;color:var(--ink)}.plan.pop .btn{background:#fff;color:var(--co)}
-.ev{border-top:1.5px solid var(--ink)}
-.evr{display:grid;grid-template-columns:90px 1.1fr 1.4fr auto;gap:28px;align-items:center;padding:36px 0;border-bottom:1.5px solid var(--ink);transition:.25s}.evr:hover{padding-left:14px;background:#fff6}
-.evr .n{font:italic 300 2.6rem/1 'Fraunces',serif;color:var(--co)}.evr h3{font:400 2.1rem/1 'Fraunces',serif;letter-spacing:-.02em}.evr p{color:var(--mut)}.evr .fr{font-weight:600;white-space:nowrap}
-.about{display:grid;grid-template-columns:.9fr 1.1fr;gap:70px;align-items:center}
-.about .pt{aspect-ratio:.82;border-radius:999px 999px 24px 24px;overflow:hidden;background:#cfd9c1}.about .pt .sl svg{width:100%;height:100%}
-.about p{margin-top:18px;color:#4d463c}.sig{font:italic 400 2rem/1 'Fraunces',serif;color:var(--co);margin-top:26px}
-.stats{display:flex;gap:40px;margin-top:34px;flex-wrap:wrap}.stats b{display:block;font:300 3rem/1 'Fraunces',serif;letter-spacing:-.03em}.stats span{font-size:14px;color:var(--mut)}
-.rv{background:var(--bl);border-radius:36px;margin:0 20px}
-.rvs{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:42px}
-.rc{background:#fff;border-radius:24px;padding:30px;display:flex;flex-direction:column;gap:14px}.rc .st{color:var(--co);letter-spacing:3px}.rc p{font:400 1.2rem/1.45 'Fraunces',serif}.rc small{color:var(--mut);font-size:14px}
-.info{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-.box{background:#fff;border-radius:28px;padding:36px}
-.hrs li{display:flex;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--line);font-size:16px}.hrs li:last-child{border:0}.hrs b{font-weight:600}
-.hrs li.today{color:var(--co);font-weight:700}
-.map{border-radius:20px;overflow:hidden;aspect-ratio:1.5;background:#e9e2d3;margin-bottom:20px}.map svg{width:100%;height:100%;display:block}
-.det details{border-bottom:1.5px solid var(--ink);padding:24px 0}.det summary{cursor:pointer;font:400 1.5rem/1.2 'Fraunces',serif;list-style:none;display:flex;justify-content:space-between;gap:20px}.det summary::-webkit-details-marker{display:none}.det summary:after{content:"+";font-size:1.8rem;line-height:1;color:var(--co);transition:.2s}.det details[open] summary:after{transform:rotate(45deg)}.det p{margin-top:14px;color:var(--mut);max-width:46em}
-.order{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start}
-form.of{display:grid;gap:16px}.of label{display:grid;gap:7px;font-weight:600;font-size:14px}
-.of input,.of select,.of textarea{font:400 16px 'Inter Tight',sans-serif;padding:15px 16px;border-radius:14px;border:1.5px solid var(--line);background:#fff;color:var(--ink)}.of input:focus,.of select:focus,.of textarea:focus{outline:0;border-color:var(--co);box-shadow:0 0 0 4px #e2502c22}
-.of .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.ok{display:none;background:#e6f0df;border-radius:16px;padding:18px 20px;font-weight:600}.ok.on{display:block}
-.toast{position:fixed;left:50%;bottom:90px;transform:translate(-50%,30px);background:var(--ink);color:#fff;padding:14px 22px;border-radius:99px;font-weight:600;opacity:0;transition:.3s;z-index:90;pointer-events:none}.toast.on{opacity:1;transform:translate(-50%,0)}
-footer.ft{background:var(--ink);color:#d9d1c2;padding:70px 0 40px;margin-top:104px}
-footer.ft .w{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:40px}footer.ft h4{font:600 13px 'Inter Tight';letter-spacing:.14em;text-transform:uppercase;color:#f3ede2;margin-bottom:16px}footer.ft li{margin:8px 0;font-size:15px}footer.ft .big{font:italic 400 2.2rem/1.1 'Fraunces',serif;color:#f3ede2}.legal{grid-column:1/-1;border-top:1px solid #ffffff22;padding-top:26px;font-size:13px;color:#a59d8e}
-@media(max-width:960px){.hero .w,.about,.order,.info{grid-template-columns:1fr}.plans,.rvs{grid-template-columns:1fr}.evr{grid-template-columns:60px 1fr;gap:14px}.evr p,.evr .fr{grid-column:2}nav.fl{display:none}footer.ft .w{grid-template-columns:1fr 1fr}.sub,.rv{margin:0 10px;border-radius:26px}.badge{left:6px;bottom:20px;width:104px;height:104px}h1.f{margin-top:16px}section.s{padding:72px 0}.arch{max-width:520px}}
-'''
-    pal = list(PALS.items())
-    prods = [
-        ("Le Matin", "Pivoines pêche, eucalyptus, brins de gypsophile. Un bouquet généreux et aérien.", 35, "peche", "Best-seller"),
-        ("Pivoine d’été", "Dix pivoines roses en bouquet rond, feuillage de jardin. Saison : mai à juillet.", 48, "rose", "De saison"),
-        ("Champêtre", "Marguerites, renoncules et graminées, noué à la main. Simple et lumineux.", 42, "soleil", ""),
-        ("Brume lilas", "Delphiniums, lisianthus et lavande. Des tons doux, un parfum discret.", 44, "lilas", "Nouveau"),
-        ("Nuage blanc", "Roses ivoire, hortensias et verdure fine. Pour offrir sans se tromper.", 52, "ivoire", ""),
-        ("Grand Jardin", "Le bouquet signature de l’atelier : vingt tiges, trois formes, un papier kraft.", 78, "rouge", "Signature"),
-    ]
-    cards = ""
-    for i, (nm, ds, pr, pk, tg) in enumerate(prods):
-        art = slot("fleur-%d" % (i + 1), card_art(i + 3, PALS[pk]))
-        cards += ('<article class="pc"><div class="ph">%s%s</div><h3>%s</h3><p>%s</p><div class="row"><span class="pr">%d €</span>'
-                  '<button class="ad" type="button" data-n="%s">Ajouter</button></div></article>'
-                  % (art, ('<span class="tag">%s</span>' % tg) if tg else "", nm, ds, pr, nm))
-    options = "".join('<option>%s — %d €</option>' % (n, p) for n, _, p, _, _ in prods)
-    hero_art = slot("fleur-hero", bouquet(11, "#f7b79a", "#e4572e", "#f8d9c9", "#f3c3ae", vw=560, vh=660, uid="h"))
-    portrait = slot("fleur-atelier", svg(500, 610, '<defs><linearGradient id="pg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#dfe8d2"/><stop offset="1" stop-color="#b5c5a3"/></linearGradient></defs><rect width="500" height="610" fill="url(#pg)"/>'
-        + "".join(leaf(250 + math.cos(math.radians(a)) * 20, 560, 330 - abs(a + 90) * 1.1, a, c) for a, c in [(-160, "#4f6b45"), (-135, "#5f7d52"), (-110, "#3f5a38"), (-90, "#6f8f60"), (-70, "#4f6b45"), (-45, "#5f7d52"), (-20, "#3f5a38")])
-        + bloom(250, 250, 88, "#f6c4d0", "#d8607f", 10) + bloom(150, 330, 56, "#fbe18f", "#e9a62e", 30) + bloom(352, 340, 60, "#f7b79a", "#e4572e", 0)))
-    badge = ('<svg class="badge" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="58" fill="#e2502c"/><defs><path id="cp" d="M60 60m-40 0a40 40 0 1 1 80 0a40 40 0 1 1 -80 0"/></defs>'
-             '<text font-family="Inter Tight,sans-serif" font-weight="700" font-size="10.5" fill="#fff"><textPath href="#cp" textLength="246" lengthAdjust="spacing">FAIT MAIN À LYON · DE SAISON · </textPath></text>'
-             + '<g transform="translate(60 60) scale(.42)">' + bloom(0, 0, 40, "#ffffff", "#ffe1d5", 0, 3) + '</g></svg>')
-    mapsvg = svg(600, 400, '<rect width="600" height="400" fill="#e9e2d3"/><path d="M0 120H600M0 260H600M140 0V400M330 0V400M470 0V400" stroke="#fff" stroke-width="16"/><path d="M0 330Q200 280 600 340" stroke="#cdd9bf" stroke-width="40" fill="none"/>'
-                 '<path d="M250 200 q28-62 56 0 q0 34-28 62 q-28-28-28-62z" fill="#e2502c"/><circle cx="278" cy="198" r="11" fill="#fff"/>', "")
-    order = '''<div class="det"><details><summary>Livrez-vous le jour même ?</summary><p>Oui, pour toute commande passée avant 14 h du mardi au samedi, à Lyon (1er au 9e) et Villeurbanne. Livraison à vélo cargo : 7 €, offerte dès 60 € d’achat.</p></details>
-<details><summary>Puis-je ajouter un message ?</summary><p>Toujours. Camille l’écrit à la main sur une carte, sans le lire à voix haute au livreur : promis.</p></details>
-<details><summary>Combien de temps durent mes fleurs ?</summary><p>Entre 7 et 10 jours avec une eau changée tous les deux jours et une tige recoupée en biais. Une petite fiche d’entretien est glissée dans chaque bouquet.</p></details>
-<details><summary>Faites-vous les mariages et les deuils ?</summary><p>Oui. Mariages sur rendez-vous (trois mois avant, idéalement) et deuils sous 24 h, avec livraison au lieu de cérémonie.</p></details>
-<details><summary>Puis-je changer ou arrêter mon abonnement ?</summary><p>À tout moment, en un message, jusqu’à 5 jours avant la prochaine livraison. Sans frais et sans engagement.</p></details></div>'''
-    body = '''
-<header class="fl"><div class="w"><a class="logo" href="#top"><i>@@LOGOI@@</i>Atelier Pivoine</a>
-<nav class="fl"><a href="#bouquets">Bouquets</a><a href="#abo">Abonnements</a><a href="#events">Mariages &amp; deuils</a><a href="#atelier">L’atelier</a><a href="#infos">Horaires</a></nav>
-<a class="btn" href="#commander">Commander</a></div></header>
-<main id="top">
-<section class="hero"><div class="w"><div><span class="eyebrow">Fleuriste indépendante · Lyon 1er</span>
-<h1 class="f">Des fleurs qui <em>racontent</em> quelque chose.</h1>
-<p class="lead">Bouquets composés le matin même avec des fleurs de saison, cultivées à moins de 150 km de l’atelier. Livrés à vélo dans tout Lyon, ou à emporter rue des Tables Claudiennes.</p>
-<div class="cta"><a class="btn c" href="#commander">Commander un bouquet @@ARR@@</a><a class="btn o" href="#bouquets">Voir les bouquets</a></div>
-<div class="trust"><span><b>4,9 / 5</b> · 126 avis</span><span><b>Livraison</b> à vélo, le jour même</span><span><b>Sans pesticide</b> ni importation lointaine</span></div></div>
-<div class="herowrap"><div class="arch">@@HERO@@</div>@@BADGE@@</div></div>
-<div class="band" aria-hidden="true"><div>@@MQ@@@@MQ@@</div></div></section>
-
-<section class="s" id="bouquets"><div class="w"><div class="sh"><div><span class="eyebrow">Cette semaine</span><h2 class="f">Les bouquets <em>du moment</em></h2></div>
-<div class="arrows"><button type="button" id="pv" aria-label="Précédent">@@L@@</button><button type="button" id="nx" aria-label="Suivant">@@ARR@@</button></div></div>
-<div class="rail" id="rail">@@CARDS@@</div></div></section>
-
-<section class="sub" id="abo"><div class="w"><span class="eyebrow">Abonnement floral</span><h2 class="f">Des fleurs fraîches, <em>sans y penser.</em></h2>
-<p class="lead" style="color:#cfd8c6;margin-top:18px">Choisissez un rythme. Camille compose chaque bouquet selon la saison et vous le livre à domicile ou au bureau. Arrêt possible à tout moment.</p>
-<div class="plans">
-<div class="plan"><h3>Mensuel</h3><div class="pr">39 €<small> / mois</small></div><p style="opacity:.75">Un bouquet par mois</p><ul><li>Bouquet de saison, 15 tiges</li><li>Livraison incluse</li><li>Carte manuscrite</li></ul><a class="btn" href="#commander">Choisir</a></div>
-<div class="plan pop"><h3>Quinzaine</h3><div class="pr">72 €<small> / mois</small></div><p style="opacity:.9">Deux bouquets par mois</p><ul><li>Bouquets de 18 tiges</li><li>Livraison incluse</li><li>Vase en grès offert au départ</li></ul><a class="btn" href="#commander">Choisir</a></div>
-<div class="plan"><h3>Hebdo</h3><div class="pr">135 €<small> / mois</small></div><p style="opacity:.75">Un bouquet par semaine</p><ul><li>Idéal restaurants et bureaux</li><li>Livraison incluse</li><li>Facture mensuelle</li></ul><a class="btn" href="#commander">Choisir</a></div>
-</div></div></section>
-
-<section class="s" id="events"><div class="w"><div class="sh"><div><span class="eyebrow">Sur rendez-vous</span><h2 class="f">Les grands moments, <em>sans stress.</em></h2></div></div>
-<div class="ev">
-<div class="evr"><span class="n">01</span><h3>Mariages</h3><p>Bouquet de mariée, boutonnières, arche et centres de table. Rendez-vous gratuit à l’atelier pour choisir les couleurs.</p><span class="fr">dès 450 €</span></div>
-<div class="evr"><span class="n">02</span><h3>Deuils</h3><p>Gerbes, coussins et compositions livrés au lieu de cérémonie sous 24 h, partout dans le Rhône.</p><span class="fr">dès 85 €</span></div>
-<div class="evr"><span class="n">03</span><h3>Entreprises</h3><p>Accueil, réception, restaurants : un abonnement hebdomadaire et des compositions au rythme de vos événements.</p><span class="fr">sur devis</span></div>
-</div></div></section>
-
-<section class="s" id="atelier" style="padding-top:20px"><div class="w about"><div class="pt">@@PORTRAIT@@</div>
-<div><span class="eyebrow">L’atelier</span><h2 class="f">Camille Roux, <em>fleuriste</em> depuis 2014.</h2>
-<p>Après dix ans dans une grande maison parisienne, j’ai ouvert l’Atelier Pivoine pour faire simple : peu de fleurs, mais les meilleures, choisies chez trois producteurs de la région que je connais par leur prénom.</p>
-<p>Chaque bouquet est composé le matin même, noué à la main et emballé dans du papier kraft recyclable. Pas de mousse florale, pas de plastique.</p>
-<div class="stats"><div><b>150 km</b><span>rayon maximum des producteurs</span></div><div><b>10 ans</b><span>de métier</span></div><div><b>3 200</b><span>bouquets livrés l’an dernier</span></div></div>
-<div class="sig">— Camille</div></div></div></section>
-
-<section class="s rv"><div class="w"><span class="eyebrow" style="color:#9a4b32">Avis clients</span><h2 class="f">Ils en parlent <em>mieux que nous.</em></h2>
-<div class="rvs">
-<div class="rc"><span class="st">★★★★★</span><p>« Livré à vélo en 2 heures pour l’anniversaire de ma mère. Le bouquet était encore plus beau que sur la photo. »</p><small>Julie M. · Lyon 6e</small></div>
-<div class="rc"><span class="st">★★★★★</span><p>« On a pris l’abonnement hebdo pour le restaurant. Les clients nous en parlent chaque semaine. »</p><small>Antoine R. · restaurateur</small></div>
-<div class="rc"><span class="st">★★★★★</span><p>« Camille a tout géré pour notre mariage, avec une patience incroyable. Les fleurs ont tenu trois jours. »</p><small>Sarah &amp; Thomas · mariés en juin</small></div></div></div></section>
-
-<section class="s" id="infos"><div class="w"><div class="sh"><div><span class="eyebrow">Passer nous voir</span><h2 class="f">Horaires <em>&amp; accès</em></h2></div></div>
-<div class="info"><div class="box"><ul class="hrs" id="hrs"><li data-d="1"><span>Lundi</span><b>Fermé</b></li><li data-d="2"><span>Mardi</span><b>9 h 30 – 19 h</b></li><li data-d="3"><span>Mercredi</span><b>9 h 30 – 19 h</b></li><li data-d="4"><span>Jeudi</span><b>9 h 30 – 19 h</b></li><li data-d="5"><span>Vendredi</span><b>9 h 30 – 19 h</b></li><li data-d="6"><span>Samedi</span><b>9 h – 19 h</b></li><li data-d="0"><span>Dimanche</span><b>9 h 30 – 13 h</b></li></ul></div>
-<div class="box"><div class="map">@@MAP@@</div><p><b>Atelier Pivoine</b><br>14 rue des Tables Claudiennes, 69001 Lyon<br>04 78 00 00 00 · bonjour@atelierpivoine.fr</p><p style="color:var(--mut);margin-top:10px;font-size:15px">Métro Croix-Paquet (ligne C) · Parking Terreaux à 4 min.</p></div></div></div></section>
-
-<section class="s" style="padding-top:20px"><div class="w order"><div><span class="eyebrow">Questions fréquentes</span><h2 class="f">On vous <em>répond.</em></h2><div class="det" style="margin-top:34px">@@FAQ@@</div></div>
-<div id="commander"><span class="eyebrow">Commander</span><h2 class="f">Un bouquet, <em>une adresse.</em></h2>
-<form class="of" id="of" style="margin-top:30px"><label>Bouquet<select id="sel">@@OPT@@</select></label>
-<div class="two"><label>Livraison ou retrait<select><option>Livraison à vélo (7 €)</option><option>Retrait à l’atelier (gratuit)</option></select></label><label>Date<input type="date" required></label></div>
-<label>Nom et téléphone<input required placeholder="Camille Dupont · 06 00 00 00 00"></label><label>Message pour la carte<textarea rows="3" placeholder="Joyeux anniversaire…"></textarea></label>
-<button class="btn c" type="submit" style="justify-content:center">Envoyer ma commande</button><div class="ok" id="ok">Merci ! Camille vous rappelle dans l’heure pour confirmer le créneau et régler.</div></form></div></div></section>
-</main>
-<footer class="ft"><div class="w"><div><div class="big">Atelier Pivoine</div><p style="margin-top:14px;max-width:26em;color:#a59d8e">Fleuriste indépendante, Lyon 1er. Des fleurs de saison, des producteurs de la région.</p></div>
-<div><h4>Boutique</h4><ul><li><a href="#bouquets">Bouquets</a></li><li><a href="#abo">Abonnements</a></li><li><a href="#events">Mariages &amp; deuils</a></li></ul></div>
-<div><h4>Contact</h4><ul><li>04 78 00 00 00</li><li>bonjour@atelierpivoine.fr</li><li>Instagram @atelierpivoine</li></ul></div>
-<div><h4>Infos</h4><ul><li>Mentions légales</li><li>CGV</li><li>Livraison &amp; retours</li></ul></div>
-<div class="legal">© 2026 Atelier Pivoine · SARL au capital de 5 000 € · SIRET 000 000 000 00000 (exemple) · Hébergeur : Cloudflare, Inc.</div></div></footer>
-<div class="toast" id="toast" role="status"></div>
-'''
-    mq = "".join('<span>%s</span><b>✿</b>' % t for t in ["Bouquets du jour", "Mariages", "Abonnements", "Deuils", "Livraison à vélo", "Fleurs de saison", "Entreprises"])
-    logoi = ico("leaf", 20, "#fff", 1.9)
-    body = (body.replace("@@LOGOI@@", logoi).replace("@@ARR@@", ico("arrow", 18)).replace("@@L@@", '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>')
-            .replace("@@HERO@@", hero_art).replace("@@BADGE@@", badge).replace("@@MQ@@", mq).replace("@@CARDS@@", cards).replace("@@PORTRAIT@@", portrait)
-            .replace("@@MAP@@", mapsvg).replace("@@FAQ@@", order).replace("@@OPT@@", options))
-    js = r'''<script>(function(){
-var r=document.getElementById('rail');function go(d){r.scrollBy({left:d*(r.firstElementChild.offsetWidth+22),behavior:'smooth'})}
-document.getElementById('pv').onclick=function(){go(-1)};document.getElementById('nx').onclick=function(){go(1)};
-var t=document.getElementById('toast'),to;function say(m){t.textContent=m;t.classList.add('on');clearTimeout(to);to=setTimeout(function(){t.classList.remove('on')},2200)}
-var sel=document.getElementById('sel');document.querySelectorAll('.ad').forEach(function(b){b.onclick=function(){b.classList.add('ok');b.textContent='Ajouté ✓';for(var i=0;i<sel.options.length;i++)if(sel.options[i].text.indexOf(b.dataset.n)===0)sel.selectedIndex=i;say(b.dataset.n+' ajouté à votre commande');setTimeout(function(){b.classList.remove('ok');b.textContent='Ajouter'},2200)}});
-document.getElementById('of').onsubmit=function(e){e.preventDefault();document.getElementById('ok').classList.add('on')};
-var d=new Date().getDay(),li=document.querySelector('#hrs li[data-d="'+d+'"]');if(li)li.classList.add('today');
-})()</script>'''
-    return page("Atelier Pivoine · Fleuriste à Lyon", "Fleuriste indépendante à Lyon 1er : bouquets de saison, abonnements, mariages et livraison à vélo.",
-                "family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400;1,9..144,600&family=Inter+Tight:wght@400;500;600;700",
-                css, body, js)
 
 
 # ============================================================ 2. GARAGE
@@ -490,181 +221,267 @@ var dt=document.getElementById('dt');if(dt){var t=new Date();t.setDate(t.getDate
                 "family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700", css, body, js)
 
 
-# ============================================================ 3. OSTÉOPATHE
-def zen(uid="z"):
-    R = random.Random(7)
-    s = ['<defs><linearGradient id="%sa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d4e4d7"/><stop offset="1" stop-color="#b6cfbd"/></linearGradient>'
-         '<linearGradient id="%sb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f0d4bb"/><stop offset="1" stop-color="#dfae8e"/></linearGradient>'
-         '<linearGradient id="%sc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3f8a72"/><stop offset="1" stop-color="#245748"/></linearGradient>'
-         '<radialGradient id="%ss" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#f4f1ea"/><stop offset="1" stop-color="#b8b2a4"/></radialGradient>'
-         '<filter id="%sf"><feGaussianBlur stdDeviation="7"/></filter></defs>' % (uid, uid, uid, uid, uid)]
-    s.append('<rect width="560" height="680" fill="#f4f6f1"/>')
-    s.append('<path d="M30 640 V280 A130 130 0 0 1 290 280 V640Z" fill="url(#%sa)"/>' % uid)
-    s.append('<path d="M250 640 V210 A145 145 0 0 1 540 210 V640Z" fill="url(#%sb)"/>' % uid)
-    s.append('<circle cx="395" cy="250" r="58" fill="#fbf1e6" opacity=".92"/>')
-    s.append('<path d="M120 640 V420 A62 62 0 0 1 244 420 V640Z" fill="url(#%sc)"/>' % uid)
-    s.append('<path d="M0 640 H560 V680 H0Z" fill="#e9e3d6"/>')
-    # branche
-    pts = []
-    for k in range(11):
-        t = k / 10
-        x = 520 - 330 * t; y = 120 + 90 * math.sin(t * 2.2) + 60 * t
-        pts.append((x, y))
-    s.append('<path d="M%.0f %.0f ' % pts[0] + " ".join("L%.0f %.0f" % p for p in pts[1:]) + '" stroke="#2c5a48" stroke-width="3" fill="none" stroke-linecap="round"/>')
-    for i, (x, y) in enumerate(pts[1:], 1):
-        for sd in (-1, 1):
-            r = 17 - i * .8
-            s.append('<ellipse cx="%.0f" cy="%.0f" rx="%.1f" ry="%.1f" fill="%s" transform="rotate(%d %.0f %.0f)" opacity=".95"/>' % (x + sd * 4, y + sd * 16, r * .86, r, R.choice(["#4f8f78", "#3f7c66", "#6aa88d"]), sd * 35, x, y))
-    # galets empilés
-    base = 640
-    ell = [(86, 26, "#ece6d9"), (68, 22, "#d6cbb8"), (52, 19, "#e2d6c3"), (38, 16, "#c9bda9"), (26, 13, "#ece6d9")]
-    s.append('<ellipse cx="418" cy="%d" rx="100" ry="10" fill="#000" opacity=".16" filter="url(#%sf)"/>' % (base, uid))
-    y = base
-    for rx, ry, col in ell:
-        y -= ry * 1.55
-        s.append('<ellipse cx="%d" cy="%.0f" rx="%d" ry="%d" fill="%s"/><ellipse cx="%d" cy="%.0f" rx="%d" ry="%d" fill="url(#%ss)" opacity=".5"/>' % (418 + R.randint(-3, 3), y, rx, ry, col, 418, y - ry * .3, rx * .8, ry * .6, uid))
-    return "".join(s)
 
 
-def osteo():
-    page, slot, svg, ico = H["page"], H["slot"], H["svg"], H["ico"]
+# ============================================================ 1. FLEURISTE : « le nuancier »
+def fleuriste():
+    page = H["page"]
+    V = [  # id, nom, latin, couleur, texte, prix, origine, reste
+        ("pi", "Pivoine Sarah Bernhardt", "Paeonia lactiflora", "#f3a6bd", "#2a0d17", 4.5, "Saint-Genis-Laval · 11 km", 46),
+        ("re", "Renoncule orange", "Ranunculus asiaticus", "#ff6a2b", "#1f0a00", 2.2, "Charly · 18 km", 120),
+        ("da", "Dahlia café au lait", "Dahlia × hortensis", "#e6c3a5", "#2b1a0c", 3.0, "Millery · 21 km", 38),
+        ("an", "Anémone pourpre", "Anemone coronaria", "#4a1f7a", "#f4ebff", 2.4, "Irigny · 14 km", 84),
+        ("tu", "Tulipe perroquet", "Tulipa gesneriana", "#f4cf3d", "#2a2000", 1.6, "Vourles · 16 km", 200),
+        ("de", "Delphinium bleu", "Delphinium elatum", "#3358e0", "#eef1ff", 2.8, "Saint-Genis-Laval · 11 km", 60),
+        ("eu", "Eucalyptus cinerea", "Feuillage", "#6f9a74", "#06190a", 1.5, "Brignais · 19 km", 150),
+    ]
+    B = [("Le Dimanche", "6 renoncules, 5 anémones, eucalyptus", 32, ["re", "an", "eu"]),
+         ("La Grande Maison", "9 pivoines, delphiniums, eucalyptus", 68, ["pi", "de", "eu"]),
+         ("Le Marché", "tulipes perroquet, dahlias, renoncules", 38, ["tu", "da", "re"]),
+         ("Le Soir", "anémones, delphiniums, feuillage sombre", 44, ["an", "de", "eu"])]
+    sw = ""
+    for i, (k, n, la, c, t, p, o, r) in enumerate(V):
+        sw += ('<button type="button" class="sw%s" data-k="%s" style="--c:%s;--f:%s"><span class="v">%s</span><span class="d"><small>%s</small><b>%s</b>'
+               '<em>%s € la tige</em><span class="m">Cultivée à %s<br>Il en reste <i data-r="%d">%d</i> ce matin</span>'
+               '<span class="st" role="group" aria-label="Quantité"><span class="mn" data-a="-1" role="button" tabindex="0" aria-label="Retirer une tige">−</span><output>0</output><span class="mn" data-a="1" role="button" tabindex="0" aria-label="Ajouter une tige">+</span><span class="lb">tiges</span></span></span></button>'
+               % (" on" if i == 0 else "", k, c, t, n.split(" ")[0] if False else n, la, n, ("%.2f" % p).replace(".", ","), o, r, r))
+    rows = ""
+    for i, (n, d, p, ks) in enumerate(B, 1):
+        dots = "".join('<i style="background:%s"></i>' % [v for v in V if v[0] == k][0][3] for k in ks)
+        rows += '<li><span class="no">%02d</span><span class="nm"><b>%s</b><small>%s</small></span><span class="dt">%s</span><span class="pr">%d €</span><button type="button" class="add" data-b="%d">Ajouter</button></li>' % (i, n, d, dots, p, i - 1)
+    mk = "".join('<tr><td><i style="background:%s"></i>%s</td><td class="mono">%s</td><td><span class="bar"><u data-s="%d" data-t="%d"></u></span></td><td class="mono rt" data-s2="%d">%d</td></tr>' % (c, n, o.split(" · ")[0], r, r, r, r) for k, n, la, c, t, p, o, r in V)
     css = r'''
-:root{--bg:#f4f6f1;--ink:#142520;--mut:#5c6b64;--g:#2f6f5a;--g2:#e2ece5;--cl:#d6a98c;--sd:#ebe5da;--ln:#d9dfd6}
-body{background:var(--bg);color:var(--ink);font:400 17px/1.7 'Figtree',system-ui,sans-serif}
-.s2{font-family:'Instrument Serif',Georgia,serif;font-weight:400}
-.w{max-width:1180px;margin:0 auto;padding:0 28px}
-header.o{position:sticky;top:0;z-index:40;background:#f4f6f1ee;backdrop-filter:blur(10px)}header.o .w{display:flex;justify-content:space-between;align-items:center;height:80px}
-.lg{display:flex;align-items:center;gap:12px;font:400 1.7rem/1 'Instrument Serif',serif}.lg i{width:30px;height:38px;border-radius:15px 15px 3px 3px;background:var(--g);display:block;position:relative}.lg i:after{content:"";position:absolute;left:8px;right:8px;top:9px;bottom:0;border-radius:8px 8px 0 0;background:var(--cl)}
-.lg small{display:block;font:500 .66rem/1 'Figtree',sans-serif;letter-spacing:.22em;text-transform:uppercase;color:var(--mut);margin-top:5px}
-nav.o{display:flex;gap:30px;font-weight:500;font-size:15.5px;color:var(--mut)}nav.o a:hover{color:var(--g)}
-.b{display:inline-flex;align-items:center;gap:10px;background:var(--g);color:#fff;font:600 15.5px/1 'Figtree',sans-serif;padding:16px 26px;border-radius:99px;border:0;cursor:pointer;transition:.2s}.b:hover{background:var(--ink)}.b.o2{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}.b.o2:hover{background:var(--ink);color:#fff}
-.hero .w{display:grid;grid-template-columns:1.05fr .95fr;gap:50px;align-items:center;padding-top:44px;padding-bottom:30px}
-.ey{font:600 13px/1 'Figtree',sans-serif;letter-spacing:.18em;text-transform:uppercase;color:var(--g)}
-h1.s2{font-size:clamp(3.2rem,6.6vw,6rem);line-height:.98;letter-spacing:-.02em;margin:22px 0 24px}h1.s2 em{color:var(--g)}
-.lead{font-size:1.2rem;color:var(--mut);max-width:31em}
-.cta{display:flex;gap:12px;flex-wrap:wrap;margin:32px 0 36px}
-.mini{display:flex;gap:30px;flex-wrap:wrap;font-size:14.5px;color:var(--mut)}.mini span{display:flex;gap:9px;align-items:center}.mini i{width:8px;height:8px;border-radius:50%;background:var(--g)}
-.art{aspect-ratio:.82;border-radius:999px 999px 20px 20px;overflow:hidden;background:var(--g2)}.art .sl svg{width:100%;height:100%}
-.facts{border-top:1px solid var(--ln);border-bottom:1px solid var(--ln);margin-top:40px}.facts .w{display:grid;grid-template-columns:repeat(3,1fr);padding-top:0;padding-bottom:0}
-.facts div{padding:26px 24px;border-right:1px solid var(--ln)}.facts div:last-child{border:0}.facts b{display:block;font:400 2.1rem/1 'Instrument Serif',serif}.facts span{font-size:14.5px;color:var(--mut)}
-section.s{padding:112px 0}
-h2.s2{font-size:clamp(2.4rem,4.6vw,4rem);line-height:1.02;letter-spacing:-.02em;margin:16px 0 0}h2.s2 em{color:var(--g)}
-.two{display:grid;grid-template-columns:.8fr 1.2fr;gap:80px;align-items:start}
-.mot{border-top:1px solid var(--ink)}.mr{display:grid;grid-template-columns:56px 1fr auto;gap:20px;align-items:center;padding:26px 0;border-bottom:1px solid var(--ln);transition:.25s}.mr:hover{padding-left:12px;background:var(--g2)}
-.mr i{display:grid;place-items:center;width:48px;height:48px;border-radius:50%;background:var(--g2);color:var(--g)}.mr h3{font:400 1.7rem/1.1 'Instrument Serif',serif}.mr p{color:var(--mut);font-size:15.5px;margin-top:2px}.mr em{font-style:normal;font-size:13px;color:var(--g);font-weight:600;letter-spacing:.1em;text-transform:uppercase}
-.sess{background:var(--ink);color:#e7efe9;border-radius:40px;margin:0 20px}.sess .ey{color:#9fd2bd}.sess h2 em{color:#9fd2bd}
-.tl{margin-top:50px;display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid #ffffff30}.tl div{padding:34px 30px 10px 0;position:relative}.tl div:before{content:"";position:absolute;left:0;top:-6px;width:11px;height:11px;border-radius:50%;background:#9fd2bd}
-.tl b{font:400 1.2rem/1 'Instrument Serif',serif;color:#9fd2bd;letter-spacing:.04em}.tl h3{font:400 2.3rem/1.05 'Instrument Serif',serif;margin:10px 0}.tl p{color:#b7c8bf;font-size:16px;max-width:22em}
-.tar{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:44px}.tc{background:#fff;border-radius:28px;padding:36px;display:grid;gap:4px}.tc.f{background:var(--g);color:#fff}
-.tc li{display:flex;justify-content:space-between;align-items:baseline;padding:15px 0;border-bottom:1px solid #00000014;font-size:17px}.tc.f li{border-color:#ffffff30}.tc li:last-child{border:0}.tc li b{font:400 2rem/1 'Instrument Serif',serif}
-.tc h3{font:400 1.9rem/1 'Instrument Serif',serif;margin-bottom:8px}.tc p{font-size:15px;opacity:.8;margin-top:12px}
-.pr{display:grid;grid-template-columns:.85fr 1.15fr;gap:80px;align-items:center}.pr .pt{aspect-ratio:.88;border-radius:999px 999px 20px 20px;overflow:hidden;background:var(--sd)}.pr .pt .sl svg{width:100%;height:100%}
-.pr p{color:#40514a;margin-top:18px}.dip{margin-top:28px;display:grid;gap:12px}.dip div{display:flex;gap:14px;align-items:baseline;border-top:1px solid var(--ln);padding-top:12px}.dip b{min-width:64px;font:400 1.3rem 'Instrument Serif',serif;color:var(--g)}
-.bk{background:#fff;border-radius:36px;box-shadow:0 40px 90px -50px #14252066;display:grid;grid-template-columns:1.2fr .8fr;overflow:hidden;margin-top:44px}
-.bk>div{min-width:0}.bk .l{padding:40px}.bk .r{background:var(--g2);padding:40px;display:flex;flex-direction:column;gap:16px}
-.days{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}.days::-webkit-scrollbar{display:none}
-.dy{flex:0 0 auto;min-width:74px;border:1.5px solid var(--ln);background:#fff;border-radius:18px;padding:12px 8px;text-align:center;cursor:pointer;transition:.2s;font:500 13px/1.2 'Figtree',sans-serif;color:var(--mut)}.dy b{display:block;font:400 1.9rem/1 'Instrument Serif',serif;color:var(--ink);margin-top:4px}.dy:hover{border-color:var(--g)}.dy.on{background:var(--ink);border-color:var(--ink);color:#c7d6cf}.dy.on b{color:#fff}.dy.full{opacity:.4;pointer-events:none}
-.slots{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:22px}.sl2{border:1.5px solid var(--ln);background:#fff;border-radius:14px;padding:14px 0;text-align:center;font:600 15.5px 'Figtree',sans-serif;cursor:pointer;transition:.2s}.sl2:hover{border-color:var(--g);color:var(--g)}.sl2.on{background:var(--g);border-color:var(--g);color:#fff}.sl2.x{opacity:.35;text-decoration:line-through;pointer-events:none}
-.lab{font:600 12px 'Figtree',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);margin-bottom:12px}
-.bk form{display:grid;gap:12px}.bk label{display:grid;gap:6px;font-weight:600;font-size:14px}.bk input,.bk select{font:400 16px 'Figtree',sans-serif;padding:14px 15px;border-radius:12px;border:1.5px solid #cdd8d0;background:#fff;color:var(--ink)}.bk input:focus,.bk select:focus{outline:0;border-color:var(--g);box-shadow:0 0 0 4px #2f6f5a22}
-.rec{background:#fff;border-radius:18px;padding:18px 20px;font-size:15.5px;min-height:92px}.rec b{font:400 1.5rem/1.1 'Instrument Serif',serif;display:block;margin-bottom:4px}
-.done{display:none;background:var(--g);color:#fff;border-radius:18px;padding:22px}.done.on{display:block}.done b{font:400 1.7rem/1.1 'Instrument Serif',serif;display:block;margin-bottom:6px}
-.qt{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:48px;border-top:1px solid var(--ink)}.qt blockquote{margin:0;padding:34px 34px 10px 0}.qt p{font:400 1.55rem/1.3 'Instrument Serif',serif}.qt small{display:block;margin-top:16px;color:var(--mut);font-size:14px}
-.sc{display:flex;align-items:baseline;gap:14px;margin-top:20px}.sc b{font:400 4.5rem/1 'Instrument Serif',serif;color:var(--g)}.sc span{color:var(--mut)}
-.faq{margin-top:34px;border-top:1px solid var(--ink)}.faq details{border-bottom:1px solid var(--ln);padding:24px 0}.faq summary{cursor:pointer;font:400 1.7rem/1.15 'Instrument Serif',serif;list-style:none;display:flex;justify-content:space-between;gap:20px}.faq summary::-webkit-details-marker{display:none}.faq summary:after{content:"+";color:var(--g);font-size:1.8rem;line-height:1;transition:.2s}.faq details[open] summary:after{transform:rotate(45deg)}.faq p{color:var(--mut);margin-top:12px;max-width:46em}
-.ac{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:44px}.bx{background:#fff;border-radius:28px;padding:36px}
-.hr li{display:flex;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--ln)}.hr li:last-child{border:0}.hr li.today{color:var(--g);font-weight:700}
-.map{border-radius:18px;overflow:hidden;aspect-ratio:1.7;background:#dfe7dc;margin-bottom:18px}.map svg{width:100%;height:100%;display:block}
-.ul{display:grid;gap:12px;margin-top:6px}.ul div{display:flex;gap:12px;align-items:flex-start;font-size:15.5px;color:#40514a}.ul i{flex:0 0 22px;color:var(--g)}
-footer.ft{background:var(--ink);color:#b9c9c1;padding:70px 0 38px;margin-top:100px}footer.ft .w{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:36px}footer.ft h4{font:600 12px 'Figtree';letter-spacing:.18em;text-transform:uppercase;color:#9fd2bd;margin-bottom:14px}footer.ft li{margin:8px 0;font-size:15px}.big{font:400 2.3rem/1 'Instrument Serif',serif;color:#fff}.legal{grid-column:1/-1;border-top:1px solid #ffffff22;padding-top:24px;font-size:13px;color:#8fa198}
-@media(max-width:980px){.hero .w,.two,.pr,.bk,.ac,.tar{grid-template-columns:1fr}.facts .w,.tl,.qt{grid-template-columns:1fr}.facts div{border-right:0;border-bottom:1px solid var(--ln)}nav.o{display:none}.sess{margin:0 10px;border-radius:28px}.slots{grid-template-columns:repeat(3,1fr)}section.s{padding:72px 0}.art{max-width:480px}footer.ft .w{grid-template-columns:1fr 1fr}.tl div{padding-bottom:26px}.bk .l,.bk .r{padding:26px}}
+:root{--bg:#fbfaf6;--ink:#111;--mut:#6a6a63;--ln:#d9d6cc}
+body{background:var(--bg);color:var(--ink);font:400 17px/1.6 'Bricolage Grotesque',system-ui,sans-serif;padding-bottom:50px}
+.mono{font-family:'DM Mono',ui-monospace,monospace;font-size:.82em;letter-spacing:.02em}
+.w{max-width:1240px;margin:0 auto;padding:0 28px}
+.top{background:var(--ink);color:#fff;font:500 12.5px/1 'DM Mono',monospace;padding:11px 0;letter-spacing:.04em}.top .w{display:flex;justify-content:space-between;gap:16px}.top span:last-child{opacity:.6}
+header.f{position:sticky;top:0;z-index:50;background:#fbfaf6ee;backdrop-filter:blur(8px);border-bottom:1px solid var(--ln)}header.f .w{display:flex;align-items:center;justify-content:space-between;height:68px}
+.logo{font:800 1.7rem/1 'Bricolage Grotesque',system-ui,sans-serif;letter-spacing:-.05em}.logo sup{font:500 .5rem 'DM Mono',ui-monospace,monospace;letter-spacing:0;margin-left:3px}
+header nav{display:flex;gap:28px;font-weight:500;font-size:15px}header nav a:hover{text-decoration:underline;text-underline-offset:5px}
+.cart{font:600 14px/1 'Bricolage Grotesque',system-ui,sans-serif;border:1.5px solid var(--ink);padding:11px 16px;border-radius:2px;cursor:pointer;background:transparent;color:var(--ink)}.cart:hover{background:var(--ink);color:#fff}
+.intro{padding:46px 0 30px}.intro .w{display:grid;grid-template-columns:1.7fr 1fr;gap:50px;align-items:end}
+h1{font:800 clamp(3.4rem,8.6vw,8.2rem)/.86 'Bricolage Grotesque',system-ui,sans-serif;letter-spacing:-.055em}h1 span{display:block;color:var(--mut);font-weight:300}
+.intro p{font-size:1.08rem;color:#3b3b37;max-width:24em}.intro .hint{margin-top:18px;font:500 12px/1.4 'DM Mono',monospace;color:var(--mut);display:flex;gap:8px;align-items:center}.hint:before{content:"";width:28px;height:1px;background:var(--mut)}
+.swr{display:flex;height:min(64vh,560px);min-height:430px}
+.sw{flex:1;border:0;background:var(--c);color:var(--f);position:relative;cursor:pointer;text-align:left;padding:0;overflow:hidden;transition:flex .7s cubic-bezier(.2,.85,.2,1);font:inherit;min-width:0}.sw.on{flex:6}
+.sw .v{position:absolute;left:16px;bottom:18px;writing-mode:vertical-rl;transform:rotate(180deg);font:600 15px/1 'Bricolage Grotesque',system-ui,sans-serif;letter-spacing:.01em;white-space:nowrap;transition:opacity .25s}.sw.on .v{opacity:0}
+.sw .d{position:absolute;inset:0;padding:28px 30px;display:flex;flex-direction:column;justify-content:flex-end;gap:10px;opacity:0;transition:opacity .35s;pointer-events:none;min-width:420px}.sw.on .d{opacity:1;transition-delay:.3s;pointer-events:auto}
+.d small{font:500 12px/1 'DM Mono',monospace;opacity:.7}.d b{font:800 clamp(2.2rem,4.4vw,4rem)/.92 'Bricolage Grotesque',system-ui,sans-serif;letter-spacing:-.04em;max-width:9em}.d em{font-style:normal;font:500 1.15rem 'Bricolage Grotesque',system-ui,sans-serif}
+.d .m{font-size:15px;line-height:1.45;opacity:.85}.d .m i{font-style:normal;font-weight:700}
+.st{display:flex;align-items:center;gap:0;margin-top:10px;border:1.5px solid currentColor;width:max-content;border-radius:2px}.mn{width:46px;height:44px;display:grid;place-items:center;font:500 1.5rem 'DM Mono',ui-monospace,monospace;cursor:pointer;user-select:none}.mn:hover{background:var(--f);color:var(--c)}.st output{min-width:44px;text-align:center;font:600 1.1rem 'DM Mono',ui-monospace,monospace}.st .lb{padding:0 14px;font:500 12px 'DM Mono',ui-monospace,monospace;opacity:.7;border-left:1.5px solid currentColor;height:44px;display:grid;place-items:center}
+section.s{padding:104px 0 0}
+.hd{display:flex;justify-content:space-between;align-items:baseline;gap:20px;border-top:2px solid var(--ink);padding-top:16px;margin-bottom:12px}.hd h2{font:800 clamp(2.2rem,4.6vw,3.8rem)/.95 'Bricolage Grotesque',system-ui,sans-serif;letter-spacing:-.045em}.hd span{font:500 12px 'DM Mono',ui-monospace,monospace;color:var(--mut)}
+.bl li{display:grid;grid-template-columns:60px 1.6fr 110px 90px 130px;gap:20px;align-items:center;padding:24px 0;border-bottom:1px solid var(--ln)}.bl .no{font:500 13px 'DM Mono',ui-monospace,monospace;color:var(--mut)}.bl .nm b{display:block;font:700 1.7rem/1 'Bricolage Grotesque',system-ui,sans-serif;letter-spacing:-.03em}.bl .nm small{color:var(--mut);font-size:14.5px}
+.dt{display:flex}.dt i{width:26px;height:26px;border-radius:50%;margin-right:-8px;border:2px solid var(--bg)}.pr{font:700 1.7rem 'Bricolage Grotesque',system-ui,sans-serif;text-align:right}
+.add{border:1.5px solid var(--ink);background:transparent;padding:13px 0;font:600 14.5px 'Bricolage Grotesque',system-ui,sans-serif;border-radius:2px;cursor:pointer;transition:.15s}.add:hover{background:var(--ink);color:var(--bg)}
+.tb{width:100%;border-collapse:collapse}.tb td{padding:15px 0;border-bottom:1px solid var(--ln);font-size:16.5px}.tb td i{display:inline-block;width:14px;height:14px;border-radius:50%;margin-right:12px;vertical-align:-1px}.rt{text-align:right}
+.bar{display:block;height:3px;background:var(--ln);width:100%;position:relative}.bar u{position:absolute;left:0;top:0;bottom:0;background:var(--ink);text-decoration:none;transition:width .4s}
+.cols3{display:grid;grid-template-columns:repeat(3,1fr);gap:0}.cols3>div{padding:26px 28px 0 0}.cols3>div+div{padding-left:28px;border-left:1px solid var(--ln)}
+.cols3 b{display:block;font:800 clamp(2.6rem,5vw,4.4rem)/.9 'Bricolage Grotesque',system-ui,sans-serif;letter-spacing:-.05em;margin:6px 0 14px}.cols3 b sup{font:500 .9rem 'DM Mono',ui-monospace,monospace;letter-spacing:0;vertical-align:top}.cols3 h3{font:700 1.3rem 'Bricolage Grotesque',system-ui,sans-serif}.cols3 p{color:#4b4b46;font-size:15.5px;margin:6px 0 18px}
+.lk{font:600 15px 'Bricolage Grotesque',system-ui,sans-serif;border-bottom:2px solid var(--ink);padding-bottom:2px;cursor:pointer;background:none;border-top:0;border-left:0;border-right:0;color:var(--ink)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:60px}.two h3{font:800 2.5rem/1 'Bricolage Grotesque',system-ui,sans-serif;letter-spacing:-.04em;margin-bottom:14px}.two p{color:#3e3e39}.two ol{margin-top:22px;border-top:1px solid var(--ink)}.two ol li{display:flex;gap:18px;padding:13px 0;border-bottom:1px solid var(--ln);font-size:15.5px}.two ol li b{font:500 12px 'DM Mono',ui-monospace,monospace;padding-top:3px;color:var(--mut)}
+.quote{display:grid;grid-template-columns:repeat(3,1fr);gap:40px}.quote p{font:500 1.55rem/1.22 'Bricolage Grotesque',system-ui,sans-serif;letter-spacing:-.02em}.quote small{display:block;margin-top:16px;font:500 12px 'DM Mono',ui-monospace,monospace;color:var(--mut)}
+.fm{display:grid;grid-template-columns:1fr 1fr;gap:70px}.fm h3{font:700 1.4rem/1 'Bricolage Grotesque',system-ui,sans-serif;margin-bottom:12px}
+#recap{border-top:2px solid var(--ink)}#recap li{display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--ln)}#recap .vide{color:var(--mut)}#recap button{background:none;border:0;color:var(--mut);cursor:pointer;font:500 12px 'DM Mono',ui-monospace,monospace;margin-left:10px}
+.tot{display:flex;justify-content:space-between;align-items:baseline;padding:18px 0;font:800 2.6rem/1 'Bricolage Grotesque',system-ui,sans-serif;letter-spacing:-.04em}.tot small{font:500 13px 'DM Mono',ui-monospace,monospace;letter-spacing:0;color:var(--mut)}
+form.o{display:grid;gap:18px}.o label{display:grid;gap:6px;font:600 13px 'DM Mono',ui-monospace,monospace;letter-spacing:.03em;text-transform:uppercase;color:var(--mut)}.o input,.o select,.o textarea{font:400 17px 'Bricolage Grotesque',system-ui,sans-serif;padding:13px 0;border:0;border-bottom:1.5px solid var(--ink);background:transparent;color:var(--ink);border-radius:0;text-transform:none;letter-spacing:0}.o input:focus,.o select:focus,.o textarea:focus{outline:0;border-bottom-width:3px}
+.mode{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1.5px solid var(--ink)}.mode label{padding:14px 16px;cursor:pointer;display:block;color:var(--ink);text-transform:none;font:600 15px 'Bricolage Grotesque',system-ui,sans-serif;letter-spacing:0}.mode label+label{border-left:1.5px solid var(--ink)}.mode input{display:none}.mode label:has(input:checked){background:var(--ink);color:#fff}.mode small{display:block;font:400 12px 'DM Mono',ui-monospace,monospace;opacity:.7;margin-top:3px}
+.go{background:var(--ink);color:#fff;border:0;padding:18px;font:700 16px 'Bricolage Grotesque',system-ui,sans-serif;border-radius:2px;cursor:pointer}.go:hover{background:#000;box-shadow:6px 6px 0 #ff6a2b}.go:disabled{opacity:.35;box-shadow:none;cursor:not-allowed}
+.ok{display:none;border:2px solid var(--ink);padding:26px}.ok.on{display:block}.ok b{font:800 2rem/1 'Bricolage Grotesque',system-ui,sans-serif;display:block;margin-bottom:8px}
+.hr li{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--ln)}.hr li.today{font-weight:700}.hr li.today:before{content:"● ";color:#ff6a2b}.hr li.today span:first-child{margin-right:auto}
+.faq details{border-bottom:1px solid var(--ln);padding:20px 0}.faq summary{cursor:pointer;font:700 1.35rem/1.2 'Bricolage Grotesque',system-ui,sans-serif;list-style:none;display:flex;justify-content:space-between;gap:18px;letter-spacing:-.02em}.faq summary::-webkit-details-marker{display:none}.faq summary:after{content:"+";font:400 1.6rem 'DM Mono',ui-monospace,monospace}.faq details[open] summary:after{content:"–"}.faq p{margin-top:10px;color:#4b4b46;max-width:46em}
+.bar2{position:fixed;left:0;right:0;bottom:46px;z-index:90;background:var(--ink);color:#fff;transform:translateY(120%);transition:.35s;padding:14px 0}.bar2.on{transform:none}.bar2 .w{display:flex;justify-content:space-between;align-items:center;gap:14px}.bar2 b{font:700 1.2rem 'Bricolage Grotesque',system-ui,sans-serif}.bar2 a{background:#ff6a2b;color:#111;padding:12px 22px;font:700 15px 'Bricolage Grotesque',system-ui,sans-serif;border-radius:2px}
+footer.ft{margin-top:110px;background:var(--ink);color:#bbb;padding:64px 0 40px}footer.ft .w{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:34px}footer.ft .big{font:800 clamp(3rem,8vw,7rem)/.85 'Bricolage Grotesque',system-ui,sans-serif;letter-spacing:-.06em;color:#fff;grid-column:1/-1;margin-bottom:30px}footer.ft h4{font:500 12px 'DM Mono',ui-monospace,monospace;color:#fff;margin-bottom:12px;text-transform:uppercase}footer.ft li{margin:7px 0;font-size:15px}.legal{grid-column:1/-1;border-top:1px solid #333;padding-top:22px;font-size:13px;color:#888;margin-top:20px}
+@media(max-width:860px){.intro .w,.two,.fm,.quote,.cols3{grid-template-columns:1fr;gap:34px}.cols3>div+div{padding-left:0;border-left:0;border-top:1px solid var(--ln)}header nav{display:none}.bl li{grid-template-columns:34px 1fr 80px;grid-template-areas:"no nm pr" "dt dt add";row-gap:12px}.bl .no{grid-area:no}.bl .nm{grid-area:nm}.bl .pr{grid-area:pr}.bl .dt{grid-area:dt}.bl .add{grid-area:add;padding:12px 18px}
+.swr{flex-direction:column;height:auto;min-height:0}.sw{flex:none;height:62px;transition:height .55s cubic-bezier(.2,.85,.2,1)}.sw.on{height:380px}.sw .v{writing-mode:horizontal-tb;transform:none;left:20px;bottom:auto;top:22px;font-size:17px}.sw .d{min-width:0;padding:22px 20px}.d b{font-size:2.3rem}
+footer.ft .w{grid-template-columns:1fr 1fr}section.s{padding-top:76px}.top span:last-child{display:none}.w{padding:0 18px}}
 '''
-    mot = [("Dos &amp; lombaires", "Lumbagos, sciatiques, tensions du bureau ou du port de charges.", "leaf", "Le plus fréquent"),
-           ("Nuque &amp; cervicales", "Raideurs, maux de tête de tension, vertiges d’origine cervicale.", "hands", ""),
-           ("Sport &amp; tendinites", "Reprise, douleurs d’épaule ou de genou, préparation avant compétition.", "timer", ""),
-           ("Bébés &amp; enfants", "Reflux, coliques, plagiocéphalie, troubles du sommeil. Soin très doux.", "shield", "Dès 15 jours"),
-           ("Grossesse &amp; post-partum", "Douleurs du bassin, du dos ; récupération après l’accouchement.", "drop", ""),
-           ("Stress &amp; sommeil", "Tensions du diaphragme, respiration courte, fatigue nerveuse.", "alarm", "")]
-    rows = "".join('<div class="mr"><i>%s</i><span><h3>%s</h3><p>%s</p></span><em>%s</em></div>' % (ico(ic, 22, "currentColor", 1.7), t, d, tg) for t, d, ic, tg in mot)
-    hero = slot("osteo-hero", svg(560, 680, zen()))
-    pt = slot("osteo-portrait", svg(500, 570, '<defs><linearGradient id="pq" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#efe4d3"/><stop offset="1" stop-color="#d8c4a6"/></linearGradient></defs><rect width="500" height="570" fill="url(#pq)"/>'
-        '<path d="M60 570 V300 A190 190 0 0 1 440 300 V570Z" fill="#fbf7ef" opacity=".7"/><path d="M130 570 Q250 330 370 570Z" fill="#2f6f5a"/><circle cx="250" cy="236" r="70" fill="#e1b896"/>'
-        '<path d="M178 226 Q190 150 262 156 Q326 164 322 236 Q312 190 250 184 Q200 184 178 226Z" fill="#3b2a1f"/><path d="M210 296 L250 360 L290 296" fill="#e1b896"/><path d="M226 330 L250 378 L274 330 L250 342Z" fill="#fbf7ef"/>'
-        '<path d="M60 560 H440" stroke="#bfa985" stroke-width="3"/>'))
-    mapsvg = svg(600, 350, '<rect width="600" height="350" fill="#dfe7dc"/><path d="M0 100H600M0 230H600M140 0V350M330 0V350M480 0V350" stroke="#fff" stroke-width="18"/><path d="M0 320Q300 270 600 320" stroke="#b9d3d9" stroke-width="38" fill="none"/><path d="M0 100H600" stroke="#2f6f5a" stroke-width="3" stroke-dasharray="10 8"/>'
-                 '<path d="M232 150 q26-58 52 0 q0 32-26 58 q-26-26-26-58z" fill="#2f6f5a"/><circle cx="258" cy="148" r="10" fill="#fff"/>')
-    faq = '''<details><summary>Combien de séances faut-il prévoir ?</summary><p>Une à trois séances suffisent le plus souvent. Si le problème est ancien, nous convenons ensemble d’un rythme, jamais d’un forfait imposé.</p></details>
-<details><summary>La séance est-elle remboursée ?</summary><p>La Sécurité sociale ne rembourse pas l’ostéopathie, mais la plupart des mutuelles proposent un forfait (souvent 3 à 5 séances par an). Une facture détaillée vous est remise à chaque séance.</p></details>
-<details><summary>Faut-il une ordonnance ou apporter des examens ?</summary><p>Non, mais apportez vos radios, IRM et comptes rendus récents s’ils existent. Ils m’aident à adapter le soin.</p></details>
-<details><summary>Est-ce douloureux ?</summary><p>Non. Les techniques sont douces et adaptées à votre état. Vous pouvez m’arrêter à tout moment.</p></details>
-<details><summary>Recevez-vous les bébés et les femmes enceintes ?</summary><p>Oui, dès les premières semaines de vie et pendant toute la grossesse, avec des techniques spécifiques et une table adaptée.</p></details>'''
     body = '''
-<header class="o"><div class="w"><a class="lg" href="#top"><i></i><span>Cabinet Lemaire<small>Ostéopathie · Bordeaux</small></span></a>
-<nav class="o"><a href="#motifs">Motifs</a><a href="#seance">La séance</a><a href="#tarifs">Tarifs</a><a href="#praticienne">Praticienne</a><a href="#infos">Accès</a></nav><a class="b" href="#rdv">Prendre rendez-vous</a></div></header>
-<main id="top"><section class="hero"><div class="w"><div><span class="ey">Ostéopathe D.O. · Bordeaux Chartrons</span>
-<h1 class="s2">Retrouvez le plaisir de <em>bouger.</em></h1>
-<p class="lead">Un cabinet calme, une séance d’une heure sans précipitation, et un soin doux pour comprendre l’origine de votre douleur, pas seulement la calmer.</p>
-<div class="cta"><a class="b" href="#rdv">Réserver un créneau @@ARR@@</a><a class="b o2" href="#motifs">Pourquoi consulter</a></div>
-<div class="mini"><span><i></i>Premier rendez-vous sous 48 h</span><span><i></i>Cabinet accessible PMR</span><span><i></i>Feuille de soins pour la mutuelle</span></div></div>
-<div class="art">@@HERO@@</div></div>
-<div class="facts"><div class="w"><div><b>1 h</b><span>de consultation, sans chronomètre</span></div><div><b>4,9 / 5</b><span>87 avis Google</span></div><div><b>12 ans</b><span>de pratique à Bordeaux</span></div></div></div></section>
+<div class="top"><div class="w"><span>● Ce matin : 7 variétés arrivées du marché</span><span>Livraison à vélo avant 18 h · commande jusqu’à 11 h</span></div></div>
+<header class="f"><div class="w"><a class="logo" href="#top">pivoine<sup>atelier</sup></a><nav><a href="#nuancier">Nuancier</a><a href="#bouquets">Bouquets</a><a href="#abo">Abonnements</a><a href="#mariages">Mariages &amp; deuils</a><a href="#infos">Horaires</a></nav><button class="cart" type="button" id="cartb">Panier · <span id="cn">0</span></button></div></header>
+<main id="top"><section class="intro"><div class="w"><h1>Des fleurs,<span>à la tige.</span></h1><div><p>Choisissez vos fleurs une par une, comme une couleur sur un nuancier. Cultivées à moins de 40 km de la boutique, coupées la veille, livrées à vélo dans Lyon.</p><div class="hint">Survolez une couleur pour l’ouvrir</div></div></div></section>
+<div class="swr" id="nuancier">@@SW@@</div>
 
-<section class="s" id="motifs"><div class="w two"><div><span class="ey">Pourquoi consulter</span><h2 class="s2">Ce que je <em>soigne,</em> et ce que je ne soigne pas.</h2>
-<p style="color:var(--mut);margin-top:22px;max-width:23em">L’ostéopathie soulage des troubles fonctionnels. Je ne remplace pas votre médecin : en cas de signe d’alerte (fièvre, perte de force, douleur thoracique), je vous oriente aussitôt.</p></div>
-<div class="mot">@@ROWS@@</div></div></section>
+<section class="s" id="bouquets"><div class="w"><div class="hd"><h2>Bouquets prêts</h2><span>Composés ce matin · prix TTC</span></div><ul class="bl">@@ROWS@@</ul></div></section>
 
-<section class="s sess" id="seance"><div class="w"><span class="ey">Votre première séance</span><h2 class="s2">Une heure, <em>trois temps.</em></h2>
-<div class="tl"><div><b>15 min</b><h3>L’échange</h3><p>Vous me racontez votre douleur, votre histoire, votre quotidien. Je vous écoute avant de toucher.</p></div>
-<div><b>10 min</b><h3>L’examen</h3><p>Tests de mobilité, observation de la posture et palpation pour comprendre ce qui se bloque.</p></div>
-<div><b>35 min</b><h3>Le soin</h3><p>Techniques douces et adaptées. Je vous explique ce que je fais et vous donne des gestes simples pour la maison.</p></div></div></div></section>
+<section class="s"><div class="w"><div class="hd"><h2>Au marché ce matin</h2><span id="dj">—</span></div>
+<table class="tb"><tr class="mono" style="color:var(--mut)"><td>Variété</td><td>Ferme</td><td style="width:34%">Reste en boutique</td><td class="rt">Tiges</td></tr>@@MK@@</table></div></section>
 
-<section class="s" id="tarifs"><div class="w"><span class="ey">Tarifs</span><h2 class="s2">Des prix clairs, <em>affichés d’avance.</em></h2>
-<div class="tar"><div class="tc f"><h3>Consultations</h3><ul><li>Adulte<b>60 €</b></li><li>Enfant de 2 à 12 ans<b>45 €</b></li><li>Nourrisson (moins de 2 ans)<b>50 €</b></li><li>Femme enceinte<b>55 €</b></li></ul></div>
-<div class="tc"><h3>Bon à savoir</h3><ul><li>Moyens de paiement<span>CB · espèces · chèque</span></li><li>Mutuelle<span>Facture fournie</span></li><li>Annulation<span>Gratuite jusqu’à 24 h avant</span></li></ul><p>Un rendez-vous manqué sans prévenir est facturé 30 €. Ce n’est pas un piège : un créneau libre est précieux pour un autre patient.</p></div></div></div></section>
+<section class="s" id="abo"><div class="w"><div class="hd"><h2>Abonnements</h2><span>Sans engagement · pause en un clic</span></div>
+<div class="cols3"><div><span class="mono">Pour soi</span><b>29<sup>€/mois</sup></b><h3>Le petit</h3><p>Un bouquet de saison, une fois par mois, déposé ou à retirer. Choisi par nous selon l’arrivage.</p><button class="lk" data-abo="Abonnement Le petit · 29 €/mois">Je m’abonne</button></div>
+<div><span class="mono">Pour offrir</span><b>49<sup>€/mois</sup></b><h3>Le généreux</h3><p>Deux bouquets par mois, dont un pour quelqu’un d’autre, carte écrite à la main incluse.</p><button class="lk" data-abo="Abonnement Le généreux · 49 €/mois">Je m’abonne</button></div>
+<div><span class="mono">Pour l’accueil</span><b>79<sup>€/sem.</sup></b><h3>L’entreprise</h3><p>Un grand bouquet chaque lundi pour votre accueil, restaurant ou cabinet. Facture mensuelle.</p><button class="lk" data-abo="Abonnement L’entreprise · 79 €/semaine">Je m’abonne</button></div></div></div></section>
 
-<section class="s" id="praticienne" style="padding-top:20px"><div class="w pr"><div class="pt">@@PT@@</div>
-<div><span class="ey">Votre praticienne</span><h2 class="s2">Léa Lemaire, <em>ostéopathe D.O.</em></h2>
-<p>Diplômée en 2014 après cinq ans d’études, j’ai exercé dans un club de handball avant d’ouvrir mon cabinet aux Chartrons. J’aime les consultations longues, les questions simples et les explications claires.</p>
-<p>Je me forme chaque année : pédiatrie, périnatalité, douleur chronique. Et je préfère vous revoir une fois de moins que de vous fidéliser à tout prix.</p>
-<div class="dip"><div><b>2014</b><span>Diplôme d’ostéopathe D.O., Bordeaux</span></div><div><b>2017</b><span>Formation en ostéopathie pédiatrique</span></div><div><b>2021</b><span>Périnatalité et suivi post-partum</span></div></div></div></div></section>
+<section class="s" id="mariages"><div class="w"><div class="hd"><h2>Mariages &amp; deuils</h2><span>Sur rendez-vous · 04 78 00 00 00</span></div>
+<div class="two"><div><h3>Mariages</h3><p>Bouquet de mariée, boutonnières, arche, tables. Nous venons voir le lieu, nous choisissons les fleurs de votre mois, puis nous installons la veille.</p><ol><li><b>01</b>Rendez-vous à l’atelier, une heure, café offert</li><li><b>02</b>Devis détaillé sous 5 jours, sans surprise</li><li><b>03</b>Installation la veille, récupération le lendemain</li></ol></div>
+<div><h3>Deuils</h3><p>Gerbes, coussins, couronnes et bouquets. Nous répondons au téléphone toute la semaine et livrons au funérarium ou au cimetière le jour même quand c’est possible.</p><ol><li><b>01</b>Un appel suffit, devis immédiat</li><li><b>02</b>Ruban personnalisé, écrit sans faute</li><li><b>03</b>Livraison à l’heure de la cérémonie</li></ol></div></div></div></section>
 
-<section class="s" id="rdv" style="padding-top:20px"><div class="w"><span class="ey">Rendez-vous en ligne</span><h2 class="s2">Choisissez <em>votre créneau.</em></h2>
-<div class="bk"><div class="l"><div class="lab">1 · Jour</div><div class="days" id="days"></div><div class="lab" style="margin-top:26px" id="slab">2 · Heure</div><div class="slots" id="slots"></div></div>
-<div class="r"><div class="lab">3 · Vos coordonnées</div><div class="rec" id="rec"><b>Aucun créneau choisi</b>Sélectionnez un jour puis une heure.</div>
-<form id="bf"><label>Nom et prénom<input required placeholder="Marie Durand"></label><label>Téléphone<input required placeholder="06 00 00 00 00" inputmode="tel"></label><label>Motif<select><option>Dos / lombaires</option><option>Nuque / cervicales</option><option>Sport</option><option>Bébé / enfant</option><option>Grossesse</option><option>Autre</option></select></label>
-<button class="b" type="submit" id="bgo" disabled style="justify-content:center;opacity:.5">Confirmer</button></form><div class="done" id="done"><b>C’est noté.</b><span id="dt"></span></div></div></div></div></section>
+<section class="s"><div class="w"><div class="hd"><h2>Ce qu’ils en disent</h2><span>4,9 / 5 · 126 avis Google</span></div>
+<div class="quote"><div><p>« Mon bouquet a tenu douze jours. Je n’avais jamais vu ça pour des renoncules. »</p><small>Camille R. · Lyon 1er</small></div><div><p>« Livré à vélo, sonné à 17 h 05. La carte était écrite à la main, ma mère a pleuré. »</p><small>Antoine D. · Croix-Rousse</small></div><div><p>« Le mariage de ma sœur : exactement la couleur que je décrivais mal. Ils ont compris. »</p><small>Inès B. · Lyon 6e</small></div></div></div></section>
 
-<section class="s" style="padding-top:20px"><div class="w"><span class="ey">Avis patients</span><div class="sc"><b>4,9</b><span>sur 5 · 87 avis Google</span></div>
-<div class="qt"><blockquote><p>« Enfin une consultation où l’on prend le temps. Mon mal de dos chronique s’est apaisé dès la deuxième séance. »</p><small>Claire B. · Chartrons</small></blockquote>
-<blockquote><p>« Très douce avec mon bébé de trois semaines. Léa explique tout avec calme, et c’était efficace. »</p><small>Julien M. · papa d’Éloïse</small></blockquote>
-<blockquote><p>« Je cours le marathon : elle a trouvé l’origine de ma douleur au genou en vingt minutes. »</p><small>Thomas R. · coureur</small></blockquote></div></div></section>
+<section class="s" id="commande"><div class="w"><div class="hd"><h2>Ma commande</h2><span>Paiement à la livraison ou en boutique</span></div>
+<div class="fm"><div><h3>Récapitulatif</h3><ul id="recap"></ul><div class="tot"><span>Total <small id="tsub"></small></span><b id="tt" style="font-weight:800">0 €</b></div></div>
+<div><form class="o" id="of"><div class="mode"><label><input type="radio" name="m" value="liv" checked>Livraison à vélo<small>6 € · offerte dès 45 €</small></label><label><input type="radio" name="m" value="ret">Retrait boutique<small>Gratuit · prêt en 1 h</small></label></div>
+<label>Jour<select id="dj2"></select></label><label id="adl">Adresse de livraison<input placeholder="12 rue de la République, Lyon 2e"></label>
+<label>Nom<input required placeholder="Camille Roux"></label><label>Téléphone<input required inputmode="tel" placeholder="06 00 00 00 00"></label><label>Mot pour la carte (facultatif)<textarea rows="2" placeholder="Pour toi, avec tout mon amour"></textarea></label>
+<button class="go" id="go" disabled>Commander</button></form><div class="ok" id="ok"><b>Commande reçue.</b><span id="okt"></span></div></div></div></div></section>
 
-<section class="s" id="infos" style="padding-top:20px"><div class="w"><span class="ey">Accès &amp; horaires</span><h2 class="s2">Venir au <em>cabinet.</em></h2>
-<div class="ac"><div class="bx"><ul class="hr" id="hr"><li data-d="1"><span>Lundi</span><b>9 h – 12 h · 14 h – 19 h</b></li><li data-d="2"><span>Mardi</span><b>9 h – 12 h · 14 h – 19 h</b></li><li data-d="3"><span>Mercredi</span><b>9 h – 12 h · 14 h – 18 h</b></li><li data-d="4"><span>Jeudi</span><b>9 h – 12 h · 14 h – 19 h</b></li><li data-d="5"><span>Vendredi</span><b>9 h – 12 h · 14 h – 17 h</b></li><li data-d="6"><span>Samedi</span><b>9 h – 13 h</b></li><li data-d="0"><span>Dimanche</span><b>Fermé</b></li></ul></div>
-<div class="bx"><div class="map">@@MAP@@</div><p><b>Cabinet Lemaire</b><br>27 cours Saint-Louis, 33300 Bordeaux · 05 56 00 00 00</p>
-<div class="ul"><div><i>@@PIN@@</i><span>Tram C, arrêt Chartrons (3 min à pied) · Parking Saint-Louis à 100 m</span></div><div><i>@@CK@@</i><span>Cabinet de plain-pied, accessible aux personnes à mobilité réduite</span></div></div></div></div>
-<div class="faq"><h2 class="s2" style="font-size:2.4rem;margin:40px 0 0">Questions <em>fréquentes</em></h2>@@FAQ@@</div></div></section></main>
-<footer class="ft"><div class="w"><div><div class="big">Cabinet Lemaire</div><p style="margin-top:14px;max-width:24em">Ostéopathie pour adultes, enfants et nourrissons, à Bordeaux Chartrons.</p></div>
-<div><h4>Cabinet</h4><ul><li>Motifs de consultation</li><li>La séance</li><li>Tarifs</li></ul></div><div><h4>Contact</h4><ul><li>05 56 00 00 00</li><li>cabinet@lemaire-osteo.fr</li><li>27 cours Saint-Louis</li></ul></div><div><h4>Infos</h4><ul><li>Mentions légales</li><li>Confidentialité</li><li>Données de santé</li></ul></div>
+<section class="s" id="infos"><div class="w"><div class="hd"><h2>Atelier &amp; horaires</h2><span>14 rue des Tables Claudiennes, Lyon 1er</span></div>
+<div class="fm"><div><ul class="hr" id="hr"><li data-d="1"><span>Lundi</span><span>Fermé</span></li><li data-d="2"><span>Mardi</span><span>8 h 30 – 19 h 30</span></li><li data-d="3"><span>Mercredi</span><span>8 h 30 – 19 h 30</span></li><li data-d="4"><span>Jeudi</span><span>8 h 30 – 19 h 30</span></li><li data-d="5"><span>Vendredi</span><span>8 h 30 – 20 h</span></li><li data-d="6"><span>Samedi</span><span>8 h – 20 h</span></li><li data-d="0"><span>Dimanche</span><span>9 h – 13 h</span></li></ul>
+<p style="margin-top:22px;color:#4b4b46">Métro Hôtel de Ville (ligne A), bus C13 arrêt Terreaux. 04 78 00 00 00 · bonjour@atelier-pivoine.fr</p></div>
+<div class="faq"><details><summary>Jusqu’à quelle heure commander pour le jour même ?</summary><p>Jusqu’à 11 h pour une livraison avant 18 h, du mardi au samedi. Après, c’est le lendemain.</p></details><details><summary>Combien de temps tiennent les fleurs ?</summary><p>Entre 7 et 14 jours selon la variété. Une fiche d’entretien est glissée dans chaque bouquet.</p></details><details><summary>Livrez-vous en dehors de Lyon ?</summary><p>Lyon 1er à 9e, Villeurbanne et Caluire à vélo. Au-delà, un coursier dès 12 €.</p></details><details><summary>Pouvez-vous choisir pour moi ?</summary><p>Oui. Donnez un budget et une occasion : nous composons avec ce qui est le plus beau ce matin.</p></details></div></div></div></section></main>
+
+<div class="bar2" id="bar2"><div class="w"><b id="b2t"></b><a href="#commande">Commander →</a></div></div>
+<footer class="ft"><div class="w"><div class="big">pivoine</div><div><h4>Atelier Pivoine</h4><p style="max-width:22em">Fleuriste indépendante à Lyon. Fleurs locales et de saison, sans mousse florale.</p></div><div><h4>Boutique</h4><ul><li>14 rue des Tables Claudiennes</li><li>69001 Lyon</li></ul></div><div><h4>Contact</h4><ul><li>04 78 00 00 00</li><li>bonjour@atelier-pivoine.fr</li></ul></div><div><h4>Infos</h4><ul><li>Mentions légales</li><li>CGV</li><li>Confidentialité</li></ul></div>
+<div class="legal">© 2026 Atelier Pivoine · SIRET 000 000 000 00000 (exemple) · Hébergeur : Cloudflare, Inc.</div></div></footer>
+'''
+    body = body.replace("@@SW@@", sw).replace("@@ROWS@@", rows).replace("@@MK@@", mk)
+    js = r'''<script>(function(){
+var V=@@VJS@@,B=@@BJS@@,D=document,cart={},ab=null,$=function(i){return D.getElementById(i)};
+function eur(n){return n.toFixed(2).replace('.',',').replace(',00','')+' €'}
+var sw=[].slice.call(D.querySelectorAll('.sw'));
+function open(b){sw.forEach(function(x){x.classList.toggle('on',x===b)})}
+sw.forEach(function(b){b.addEventListener('mouseenter',function(){if(matchMedia('(hover:hover) and (min-width:861px)').matches)open(b)});b.addEventListener('click',function(e){if(!b.classList.contains('on')){open(b);return}var m=e.target.closest('.mn');if(m){e.preventDefault();step(b.dataset.k,+m.dataset.a)}});
+ b.addEventListener('keydown',function(e){var m=e.target.closest&&e.target.closest('.mn');if(m&&(e.key==='Enter'||e.key===' ')){e.preventDefault();step(b.dataset.k,+m.dataset.a)}})});
+function step(k,a){cart[k]=Math.max(0,(cart[k]||0)+a);if(!cart[k])delete cart[k];draw()}
+D.querySelectorAll('.add').forEach(function(b){b.onclick=function(){var k='b'+b.dataset.b;cart[k]=(cart[k]||0)+1;draw();b.textContent='Ajouté ✓';setTimeout(function(){b.textContent='Ajouter'},1200)}});
+D.querySelectorAll('[data-abo]').forEach(function(b){b.onclick=function(){ab=b.dataset.abo;draw();$('commande').scrollIntoView()}});
+function lines(){var L=[];V.forEach(function(v){if(cart[v[0]])L.push({id:v[0],t:cart[v[0]]+' × '+v[1],p:cart[v[0]]*v[2]})});B.forEach(function(b,i){var k='b'+i;if(cart[k])L.push({id:k,t:cart[k]+' × Bouquet '+b[0],p:cart[k]*b[1]})});if(ab)L.push({id:'ab',t:ab,p:+(/(\d+) €/.exec(ab)||[0,0])[1]});return L}
+function mode(){return D.querySelector('input[name=m]:checked').value}
+function draw(){var L=lines(),sub=L.reduce(function(s,l){return s+l.p},0),liv=mode()==='liv'&&sub>0&&sub<45?6:0,tot=sub+liv,n=Object.keys(cart).reduce(function(s,k){return s+cart[k]},0)+(ab?1:0);
+ V.forEach(function(v){var o=D.querySelector('.sw[data-k='+v[0]+'] output');if(o)o.textContent=cart[v[0]]||0});
+ $('cn').textContent=n;$('bar2').classList.toggle('on',n>0);$('b2t').textContent=n+(n>1?' articles · ':' article · ')+eur(tot);
+ $('recap').innerHTML=L.length?L.map(function(l){return '<li><span>'+l.t+'<button type="button" data-x="'+l.id+'">retirer</button></span><span>'+eur(l.p)+'</span></li>'}).join('')+(liv?'<li><span>Livraison à vélo</span><span>6 €</span></li>':''):'<li class="vide">Votre panier est vide. Ouvrez une couleur du nuancier ou ajoutez un bouquet.</li>';
+ $('tt').textContent=eur(tot);$('tsub').textContent=sub>=45&&mode()==='liv'?'· livraison offerte':'';$('go').disabled=!L.length;$('adl').style.display=mode()==='liv'?'':'none'}
+$('recap').onclick=function(e){var x=e.target.getAttribute('data-x');if(!x)return;if(x==='ab')ab=null;else delete cart[x];draw()};
+D.querySelectorAll('input[name=m]').forEach(function(r){r.onchange=draw});$('cartb').onclick=function(){$('commande').scrollIntoView()};
+var j=$('dj2'),n=new Date();for(var i=0;i<6;i++){var d=new Date(n);d.setDate(n.getDate()+i);if(d.getDay()===1)continue;var o=D.createElement('option');o.textContent=(i===0?'Aujourd’hui':i===1?'Demain':d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'}));j.appendChild(o)}
+$('of').onsubmit=function(e){e.preventDefault();$('of').style.display='none';var x=$('ok');x.classList.add('on');$('okt').textContent='Merci ! Nous préparons votre commande pour '+j.value.toLowerCase()+'. Un SMS vous prévient au départ du coursier.'};
+function h(s){var x=0;for(var i=0;i<s.length;i++)x=(x*31+s.charCodeAt(i))|0;return Math.abs(x)}
+var day=new Date().toISOString().slice(0,10);D.querySelectorAll('.tb .bar u').forEach(function(u,i){var t=+u.dataset.t,r=Math.round(t*(.35+(h(day+i)%55)/100));u.style.width=Math.min(100,r/t*100)+'%';u.parentNode.parentNode.parentNode.querySelector('[data-s2]').textContent=r;var sw=D.querySelectorAll('.sw i[data-r]')[i];if(sw)sw.textContent=r});
+$('dj').textContent='Mis à jour à 8 h 30 · '+new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+var li=D.querySelector('#hr li[data-d="'+new Date().getDay()+'"]');if(li)li.classList.add('today');
+draw()})()</script>'''
+    import json
+    vj = json.dumps([[v[0], v[1], v[5]] for v in V], ensure_ascii=False)
+    bj = json.dumps([[b[0], b[2]] for b in B], ensure_ascii=False)
+    js = js.replace("@@VJS@@", vj).replace("@@BJS@@", bj)
+    return page("Atelier Pivoine · Fleuriste à Lyon", "Fleuriste indépendante à Lyon 1er : fleurs de saison à la tige, bouquets, abonnements, mariages, livraison à vélo.",
+                "family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=DM+Mono:wght@400;500", css, body, js)
+
+
+# ============================================================ 3. OSTÉOPATHE : « où avez-vous mal ? »
+def osteo():
+    page, slot, svg = H["page"], H["slot"], H["svg"]
+    import json
+    Z = [  # id, x, y, titre, ce qu'on voit, séances, à savoir, motif du formulaire
+        ("tete", 150, 52, "Tête et mâchoire", "Maux de tête de tension, mâchoire serrée, sensation de pression derrière les yeux.", "1 à 3", "Très souvent lié à la nuque et au stress. Nous cherchons d’abord la cause cervicale.", "Tête / mâchoire"),
+        ("nuque", 150, 112, "Nuque et cervicales", "Torticolis, raideur du matin, fourmillements dans le bras, vertiges d’origine cervicale.", "1 à 3", "Les écrans et le sommeil sont les premiers suspects. Je vous montre deux gestes à refaire chez vous.", "Nuque / cervicales"),
+        ("epaule", 84, 152, "Épaule", "Douleur en levant le bras, épaule gelée, tendinite, gêne en dormant sur le côté.", "2 à 4", "En cas de chute ou de perte de force soudaine, passez d’abord par une radio.", "Épaule"),
+        ("dos", 150, 205, "Haut du dos", "Brûlure entre les omoplates, douleur en respirant profondément, dos « coincé ».", "1 à 3", "Souvent une tension du diaphragme ou des côtes. Rarement grave, toujours soulageable.", "Haut du dos"),
+        ("lombes", 150, 292, "Bas du dos", "Lumbago, sciatique, douleur en se levant d’une chaise, blocage après un effort.", "1 à 3", "Si la douleur descend sous le genou avec perte de force, consultez en urgence.", "Bas du dos / lombaires"),
+        ("poignet", 48, 348, "Coude et poignet", "Épicondylite, canal carpien, douleur de souris ou de clavier, tennis elbow.", "2 à 4", "Je regarde aussi la nuque et l’épaule : la cause est rarement là où ça fait mal.", "Coude / poignet"),
+        ("hanche", 112, 352, "Hanche et bassin", "Douleur dans le pli de l’aine, bassin bloqué, douleurs de grossesse ou post-partum.", "1 à 3", "Techniques adaptées aux femmes enceintes, avec une table réglable.", "Hanche / bassin"),
+        ("genou", 100, 478, "Genou et jambe", "Genou de coureur, douleur après un faux mouvement, tendinite, jambe lourde.", "2 à 4", "Apportez vos baskets de sport : je regarde comment vous courez ou marchez.", "Genou / jambe"),
+    ]
+    zj = json.dumps([[z[0], z[3], z[4], z[5], z[6], z[7]] for z in Z], ensure_ascii=False)
+    hot = "".join('<g class="hs" data-z="%s" tabindex="0" role="button" aria-label="%s"><circle class="pl" cx="%d" cy="%d" r="11"/><circle class="dt" cx="%d" cy="%d" r="7"/><text x="%d" y="%d">%d</text></g>' % (z[0], z[3], z[1], z[2], z[1], z[2], z[1], z[2] + 3.5, i + 1) for i, z in enumerate(Z))
+    figure = svg(300, 640, '<g class="fg" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">'
+                 '<circle cx="150" cy="56" r="34"/><path d="M138 90 L136 120 M162 90 L164 120"/>'
+                 '<path d="M136 120 Q96 128 76 152 L50 300 L40 420 M164 120 Q204 128 224 152 L250 300 L260 420"/>'
+                 '<path d="M92 160 L100 330 Q150 352 200 330 L208 160"/>'
+                 '<path d="M104 340 L96 470 L100 610 M196 340 L204 470 L200 610 M150 352 L150 420"/></g>' + hot).replace('xMidYMid slice', 'xMidYMid meet').replace('aria-hidden="true"', 'role="group" aria-label="Schéma du corps"')
+    portrait = slot("osteo-portrait", svg(420, 520, '<rect width="420" height="520" fill="#1d37ff"/><text x="210" y="320" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="800" font-size="200" fill="#fff" letter-spacing="-10">LL</text><text x="30" y="494" font-family="ui-monospace,monospace" font-size="15" fill="#c9d1ff">Photo de la praticienne</text>'))
+    css = r'''
+:root{--b:#1d37ff;--bd:#1226c9;--y:#ffe14d;--ink:#0b0f2e;--mut:#5a5f7e;--ln:#d7d9e6;--bg:#fff}
+body{background:var(--bg);color:var(--ink);font:400 17px/1.65 'Figtree',system-ui,sans-serif;padding-bottom:50px}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:.78em;letter-spacing:.04em;text-transform:uppercase}
+.w{max-width:1240px;margin:0 auto;padding:0 28px}
+.hero{background:var(--b);color:#fff;position:relative}.hero header{position:absolute;top:0;left:0;right:0;z-index:5}.hero header .w{display:flex;justify-content:space-between;align-items:center;height:84px}
+.lg{font:700 1.35rem/1 'Familjen Grotesk','Figtree',system-ui,sans-serif;letter-spacing:-.02em}.lg small{display:block;font:500 .64rem/1 'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase;opacity:.7;margin-top:6px}
+header nav{display:flex;gap:30px;font-size:15px;font-weight:500}header nav a{opacity:.85}header nav a:hover{opacity:1;text-decoration:underline;text-underline-offset:5px}
+.cta{background:var(--y);color:var(--ink);font:700 15px/1 'Figtree',sans-serif;padding:15px 22px;border-radius:3px;border:0;cursor:pointer;display:inline-block}.cta:hover{background:#fff}
+.hg{display:grid;grid-template-columns:1.1fr .9fr;gap:30px;padding-top:130px;padding-bottom:70px;min-height:min(100vh,820px);align-items:center}
+h1{font:700 clamp(3.2rem,7.4vw,7rem)/.9 'Familjen Grotesk','Figtree',system-ui,sans-serif;letter-spacing:-.045em}h1 u{text-decoration:none;color:var(--y)}
+.lead{font-size:1.15rem;max-width:26em;margin:22px 0 28px;color:#d8deff}
+.pan{border-top:2px solid #fff;padding-top:18px;max-width:34em;min-height:210px}.pan .mono{color:var(--y)}.pan h2{font:700 2rem/1.05 'Familjen Grotesk','Figtree',sans-serif;letter-spacing:-.03em;margin:8px 0 10px}.pan p{color:#dfe4ff;font-size:16.5px}
+.pan .mt{display:flex;gap:28px;margin:14px 0 18px;font-size:14.5px;color:#fff}.pan .mt b{display:block;font:700 1.5rem 'Familjen Grotesk','Figtree',sans-serif;color:var(--y)}.pan .mt span{opacity:.85}
+.body{display:flex;justify-content:center}.body svg{width:min(100%,340px);height:auto;max-height:72vh}
+.hs{cursor:pointer}.hs .pl{fill:var(--y);opacity:.28;transform-box:fill-box;transform-origin:center;animation:pu 2.2s ease-out infinite}.hs .dt{fill:var(--y);stroke:var(--b);stroke-width:2;transition:.2s}.hs text{font:700 9px 'JetBrains Mono',monospace;fill:var(--ink);text-anchor:middle;pointer-events:none}.hs:hover .dt,.hs:focus .dt{r:9}.hs.on .dt{fill:#fff}.hs.on .pl{animation:none;opacity:.5;fill:#fff}.hs:focus{outline:0}
+@keyframes pu{0%{transform:scale(.7);opacity:.5}100%{transform:scale(1.9);opacity:0}}
+.bar{background:var(--ink);color:#fff}.bar .w{display:grid;grid-template-columns:repeat(4,1fr)}.bar div{padding:24px 24px 24px 0;border-right:1px solid #2b3160;margin-right:24px}.bar div:last-child{border:0}.bar b{display:block;font:700 2.2rem/1 'Familjen Grotesk','Figtree',sans-serif;letter-spacing:-.03em}.bar span{font-size:14px;color:#aab0dc}
+.row{display:grid;grid-template-columns:230px 1fr;gap:40px;border-top:2px solid var(--ink);padding:56px 0 20px;margin-top:70px}.row>.lb{font:500 13px 'JetBrains Mono',monospace;letter-spacing:.05em;text-transform:uppercase;color:var(--b);position:sticky;top:20px;align-self:start}.row>.lb .n{font-style:normal;display:block;font:700 3.4rem/1 'Familjen Grotesk','Figtree',sans-serif;letter-spacing:-.05em;color:var(--ink);margin-bottom:6px}
+h2.t{font:700 clamp(2rem,4vw,3.4rem)/1 'Familjen Grotesk','Figtree',sans-serif;letter-spacing:-.04em;max-width:15em;margin-bottom:34px}
+.st li{display:grid;grid-template-columns:110px 1fr;gap:24px;padding:24px 0;border-top:1px solid var(--ln)}.st li:last-child{border-bottom:1px solid var(--ln)}.st b{font:700 2.4rem/1 'Familjen Grotesk','Figtree',sans-serif;letter-spacing:-.04em;color:var(--b)}.st h3{font:700 1.5rem 'Familjen Grotesk','Figtree',sans-serif;letter-spacing:-.02em}.st p{color:#454a6b;max-width:36em}
+.pt li{display:flex;justify-content:space-between;align-items:baseline;padding:18px 0;border-top:1px solid var(--ln);font-size:18px}.pt li:last-child{border-bottom:1px solid var(--ln)}.pt b{font:700 2rem 'Familjen Grotesk','Figtree',sans-serif;letter-spacing:-.03em}.note{margin-top:22px;color:var(--mut);font-size:15px;max-width:38em}
+.pr{display:grid;grid-template-columns:260px 1fr;gap:40px;align-items:start}.pr .ph{aspect-ratio:.82;background:var(--b);overflow:hidden}.pr .ph .sl svg{width:100%;height:100%}.pr p{max-width:34em;color:#33385a;margin-bottom:14px}
+.dp{margin-top:20px}.dp li{display:grid;grid-template-columns:70px 1fr;padding:11px 0;border-top:1px solid var(--ln);font-size:15.5px}.dp li b{font:500 13px 'JetBrains Mono',monospace;color:var(--b);padding-top:2px}
+.qt{display:grid;grid-template-columns:1fr 1fr 1fr;gap:40px}.qt p{font:600 1.45rem/1.25 'Familjen Grotesk','Figtree',sans-serif;letter-spacing:-.02em}.qt small{display:block;margin-top:14px;font:500 12px 'JetBrains Mono',monospace;color:var(--mut);text-transform:uppercase}
+.rdv{background:var(--b);color:#fff;margin-top:90px;padding:80px 0 90px}.rdv h2{font:700 clamp(2.4rem,5.5vw,5rem)/.92 'Familjen Grotesk','Figtree',sans-serif;letter-spacing:-.045em;margin-bottom:12px}.rdv .sub{color:#d8deff;margin-bottom:44px}
+.bk{display:grid;grid-template-columns:1.25fr .75fr;gap:60px}.bk>div{min-width:0}.lab{font:500 12px 'JetBrains Mono',monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--y);margin-bottom:12px}
+.days{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}.days::-webkit-scrollbar{display:none}
+.dy{flex:0 0 auto;min-width:76px;border:1.5px solid #ffffff66;background:transparent;color:#fff;padding:12px 6px;text-align:center;cursor:pointer;font:500 12.5px/1.3 'Figtree',sans-serif;border-radius:2px;transition:.15s}.dy b{display:block;font:700 2rem/1.1 'Familjen Grotesk','Figtree',sans-serif}.dy:hover{border-color:#fff}.dy.on{background:#fff;color:var(--b);border-color:#fff}.dy.full{opacity:.35;pointer-events:none}
+.slots{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px}.sl2{border:1.5px solid #ffffff66;background:transparent;color:#fff;padding:14px 0;font:600 16px 'Figtree',sans-serif;cursor:pointer;border-radius:2px}.sl2:hover{border-color:#fff}.sl2.on{background:var(--y);color:var(--ink);border-color:var(--y)}.sl2.x{opacity:.3;text-decoration:line-through;pointer-events:none}
+.rec{border-top:2px solid #fff;padding:16px 0;margin-bottom:12px;min-height:84px}.rec b{display:block;font:700 1.7rem/1.1 'Familjen Grotesk','Figtree',sans-serif;letter-spacing:-.02em}.rec span{color:#d8deff;font-size:15px}
+.bk form{display:grid;gap:16px}.bk label{display:grid;gap:5px;font:500 12px 'JetBrains Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:#c4ccff}.bk input,.bk select{font:400 17px 'Figtree',sans-serif;background:transparent;color:#fff;border:0;border-bottom:1.5px solid #fff;padding:11px 0;border-radius:0;text-transform:none;letter-spacing:0}.bk select option{color:#111}.bk input::placeholder{color:#9aa6ff}.bk input:focus,.bk select:focus{outline:0;border-bottom-width:3px}
+.go{background:var(--y);color:var(--ink);border:0;padding:17px;font:700 16px 'Figtree',sans-serif;cursor:pointer;border-radius:2px;margin-top:6px}.go:disabled{opacity:.4;cursor:not-allowed}.go:not(:disabled):hover{background:#fff}
+.done{display:none;border:2px solid var(--y);padding:24px}.done.on{display:block}.done b{font:700 1.8rem 'Familjen Grotesk','Figtree',sans-serif;display:block;margin-bottom:6px;color:var(--y)}
+.hr li{display:flex;justify-content:space-between;padding:13px 0;border-top:1px solid var(--ln)}.hr li:last-child{border-bottom:1px solid var(--ln)}.hr li.today{font-weight:700;color:var(--b)}.hr li.today:before{content:"● ";}.hr li.today span:first-child{margin-right:auto}
+.ac{display:grid;grid-template-columns:1fr 1fr;gap:50px}.ac h3{font:700 1.4rem 'Familjen Grotesk','Figtree',sans-serif;margin-bottom:10px}.ac p{color:#454a6b}
+.faq details{border-top:1px solid var(--ln);padding:22px 0}.faq details:last-child{border-bottom:1px solid var(--ln)}.faq summary{cursor:pointer;font:700 1.4rem/1.2 'Familjen Grotesk','Figtree',sans-serif;letter-spacing:-.02em;list-style:none;display:flex;justify-content:space-between;gap:20px}.faq summary::-webkit-details-marker{display:none}.faq summary:after{content:"+";font:400 1.6rem 'JetBrains Mono',monospace;color:var(--b)}.faq details[open] summary:after{content:"–"}.faq p{margin-top:10px;color:#454a6b;max-width:44em}
+footer.ft{background:var(--ink);color:#aab0dc;padding:64px 0 38px}footer.ft .w{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:34px}footer.ft .big{font:700 clamp(2.6rem,7vw,6rem)/.9 'Familjen Grotesk','Figtree',sans-serif;letter-spacing:-.05em;color:#fff;grid-column:1/-1;margin-bottom:26px}footer.ft h4{font:500 12px 'JetBrains Mono',monospace;color:var(--y);margin-bottom:12px;text-transform:uppercase}footer.ft li{margin:7px 0;font-size:15px}.legal{grid-column:1/-1;border-top:1px solid #2b3160;padding-top:22px;font-size:13px;color:#7c82b0;margin-top:20px}
+@media(max-width:900px){.hg{grid-template-columns:1fr;padding-top:104px;min-height:0;gap:18px}.hg>div:first-child{display:contents}.body{order:2}.pan{order:3}.body svg{max-height:56vh}.hero header .w{height:70px}.lg{font-size:1.1rem}.lg small{display:none}.cta{padding:12px 14px;font-size:14px}h1{font-size:3.4rem}header nav{display:none}.bar .w{grid-template-columns:1fr 1fr}.bar div:nth-child(2){border:0}.row,.pr,.bk,.ac,.qt{grid-template-columns:1fr;gap:28px}.row>.lb{position:static}.row>.lb .n{display:inline;font-size:2.6rem;margin-right:12px}.st li{grid-template-columns:76px 1fr}.slots{grid-template-columns:repeat(3,1fr)}.pr .ph{max-width:240px}footer.ft .w{grid-template-columns:1fr 1fr}.w{padding-left:18px;padding-right:18px}.rdv{padding:56px 0 64px}}
+'''
+    body = '''
+<div class="hero"><header><div class="w"><a class="lg" href="#top">Cabinet Lemaire<small>Ostéopathie · Bordeaux</small></a><nav><a href="#seance">La séance</a><a href="#tarifs">Tarifs</a><a href="#lea">Léa Lemaire</a><a href="#acces">Accès</a></nav><a class="cta" href="#rdv">Prendre rendez-vous</a></div></header>
+<div class="w hg" id="top"><div><span class="mono" style="color:var(--y)">Ostéopathe D.O. · Bordeaux Chartrons</span><h1 style="margin-top:14px">Où avez-vous <u>mal</u> ?</h1><p class="lead">Touchez la zone qui vous gêne. Je vous dis ce que l’on voit le plus souvent, combien de séances il faut en général, et ce qu’il faut savoir avant de venir.</p>
+<div class="pan" id="pan" aria-live="polite"><span class="mono">Choisissez un point sur le corps</span><h2>Huit zones, une seule question.</h2><p>Chaque point est une raison fréquente de consultation. Si votre douleur est ailleurs, prenez rendez-vous : on la trouvera ensemble.</p></div></div>
+<div class="body">@@FIG@@</div></div></div>
+<div class="bar"><div class="w"><div><b>1 h</b><span>de consultation, sans chronomètre</span></div><div><b>4,9 / 5</b><span>87 avis Google</span></div><div><b>48 h</b><span>pour un premier rendez-vous</span></div><div><b>12 ans</b><span>de pratique à Bordeaux</span></div></div></div>
+
+<main class="w">
+<section class="row" id="seance"><div class="lb"><i class="n">01</i>La séance</div><div><h2 class="t">Une heure, trois temps. Pas de précipitation.</h2><ul class="st"><li><b>15 min</b><div><h3>L’échange</h3><p>Vous racontez votre douleur, votre histoire, votre quotidien. Je vous écoute avant de toucher.</p></div></li><li><b>10 min</b><div><h3>L’examen</h3><p>Tests de mobilité, observation de la posture, palpation : je cherche ce qui se bloque vraiment.</p></div></li><li><b>35 min</b><div><h3>Le soin</h3><p>Techniques douces, adaptées à votre état. J’explique ce que je fais, et je vous donne des gestes simples pour la maison.</p></div></li></ul></div></section>
+
+<section class="row" id="tarifs"><div class="lb"><i class="n">02</i>Tarifs</div><div><h2 class="t">Des prix affichés d’avance, sans supplément.</h2><ul class="pt"><li><span>Adulte</span><b>60 €</b></li><li><span>Enfant de 2 à 12 ans</span><b>45 €</b></li><li><span>Nourrisson (moins de 2 ans)</span><b>50 €</b></li><li><span>Femme enceinte</span><b>55 €</b></li></ul><p class="note">Paiement par carte, espèces ou chèque. Facture remise à chaque séance pour votre mutuelle (la Sécurité sociale ne rembourse pas l’ostéopathie). Annulation gratuite jusqu’à 24 h avant ; un rendez-vous manqué sans prévenir est facturé 30 €.</p></div></section>
+
+<section class="row" id="lea"><div class="lb"><i class="n">03</i>Votre praticienne</div><div class="pr"><div class="ph">@@PT@@</div><div><h2 class="t" style="margin-bottom:20px">Léa Lemaire, ostéopathe D.O.</h2><p>Diplômée en 2014 après cinq ans d’études, j’ai accompagné une équipe de handball avant d’ouvrir mon cabinet aux Chartrons. J’aime les consultations longues, les questions simples et les explications claires.</p><p>Je me forme chaque année. Et je préfère vous revoir une fois de moins que de vous faire revenir pour rien.</p><ul class="dp"><li><b>2014</b><span>Diplôme d’ostéopathe D.O., Bordeaux</span></li><li><b>2017</b><span>Formation en ostéopathie pédiatrique</span></li><li><b>2021</b><span>Périnatalité et suivi post-partum</span></li></ul></div></div></section>
+
+<section class="row"><div class="lb"><i class="n">04</i>Avis patients</div><div><h2 class="t">4,9 sur 5, 87 avis.</h2><div class="qt"><div><p>« Enfin une consultation où l’on prend le temps. Mon mal de dos chronique s’est apaisé dès la deuxième séance. »</p><small>Claire B. · Chartrons</small></div><div><p>« Très douce avec mon bébé de trois semaines. Tout est expliqué avec calme, et ça a marché. »</p><small>Julien M. · papa d’Éloïse</small></div><div><p>« Je cours des marathons : elle a trouvé l’origine de mon genou en vingt minutes. »</p><small>Thomas R. · coureur</small></div></div></div></section>
+
+<section class="row" id="acces"><div class="lb"><i class="n">05</i>Accès &amp; questions</div><div><div class="ac"><div><h3>Horaires</h3><ul class="hr" id="hr"><li data-d="1"><span>Lundi</span><span>9 h – 12 h · 14 h – 19 h</span></li><li data-d="2"><span>Mardi</span><span>9 h – 12 h · 14 h – 19 h</span></li><li data-d="3"><span>Mercredi</span><span>9 h – 12 h · 14 h – 18 h</span></li><li data-d="4"><span>Jeudi</span><span>9 h – 12 h · 14 h – 19 h</span></li><li data-d="5"><span>Vendredi</span><span>9 h – 12 h · 14 h – 17 h</span></li><li data-d="6"><span>Samedi</span><span>9 h – 13 h</span></li><li data-d="0"><span>Dimanche</span><span>Fermé</span></li></ul></div>
+<div><h3>Le cabinet</h3><p>27 cours Saint-Louis, 33300 Bordeaux<br>05 56 00 00 00<br>cabinet@lemaire-osteo.fr</p><h3 style="margin-top:22px">Venir</h3><p>Tram C, arrêt Chartrons, à 3 minutes à pied. Parking Saint-Louis à 100 m. Cabinet de plain-pied, accessible aux personnes à mobilité réduite.</p></div></div>
+<div class="faq" style="margin-top:46px"><details><summary>Combien de séances faut-il prévoir ?</summary><p>Une à trois suffisent le plus souvent. Si le problème est ancien, nous convenons d’un rythme ensemble, jamais d’un forfait imposé.</p></details><details><summary>Faut-il une ordonnance ?</summary><p>Non. Apportez vos radios, IRM et comptes rendus récents s’il y en a : ils m’aident à adapter le soin.</p></details><details><summary>Est-ce douloureux ?</summary><p>Non. Les techniques sont douces ; vous pouvez m’arrêter à tout moment.</p></details><details><summary>Recevez-vous les bébés et les femmes enceintes ?</summary><p>Oui, dès les premières semaines de vie et pendant toute la grossesse, avec des techniques et une table adaptées.</p></details></div></div></section></main>
+
+<section class="rdv" id="rdv"><div class="w"><span class="mono" style="color:var(--y)">Rendez-vous en ligne</span><h2 style="margin-top:12px">Choisissez votre créneau.</h2><p class="sub">Un SMS de confirmation, un rappel la veille. Annulation gratuite jusqu’à 24 h avant.</p>
+<div class="bk"><div><div class="lab">1 · Jour</div><div class="days" id="days"></div><div class="lab" style="margin-top:26px">2 · Heure</div><div class="slots" id="slots"></div></div>
+<div><div class="lab">3 · Vous</div><div class="rec" id="rec"><b>Aucun créneau choisi</b><span>Sélectionnez un jour puis une heure.</span></div>
+<form id="bf"><label>Nom et prénom<input required placeholder="Marie Durand"></label><label>Téléphone<input required placeholder="06 00 00 00 00" inputmode="tel"></label><label>Motif<select id="mot"><option>Tête / mâchoire</option><option>Nuque / cervicales</option><option>Épaule</option><option>Haut du dos</option><option>Bas du dos / lombaires</option><option>Coude / poignet</option><option>Hanche / bassin</option><option>Genou / jambe</option><option>Bébé / enfant</option><option>Grossesse</option><option>Autre</option></select></label><button class="go" type="submit" id="bgo" disabled>Confirmer le rendez-vous</button></form><div class="done" id="done"><b>C’est noté.</b><span id="dt"></span></div></div></div></div></section>
+
+<footer class="ft"><div class="w"><div class="big">Cabinet Lemaire</div><div><h4>Cabinet</h4><p style="max-width:22em">Ostéopathie pour adultes, enfants et nourrissons, à Bordeaux Chartrons.</p></div><div><h4>Contact</h4><ul><li>05 56 00 00 00</li><li>cabinet@lemaire-osteo.fr</li></ul></div><div><h4>Adresse</h4><ul><li>27 cours Saint-Louis</li><li>33300 Bordeaux</li></ul></div><div><h4>Infos</h4><ul><li>Mentions légales</li><li>Confidentialité</li><li>Données de santé</li></ul></div>
 <div class="legal">© 2026 Cabinet Lemaire · Ostéopathe D.O., n° ADELI 33 00 00000 (exemple) · SIRET 000 000 000 00000 (exemple) · Hébergeur : Cloudflare, Inc.</div></div></footer>
 '''
-    body = (body.replace("@@ARR@@", ico("arrow", 18)).replace("@@HERO@@", hero).replace("@@ROWS@@", rows).replace("@@PT@@", pt).replace("@@MAP@@", mapsvg).replace("@@FAQ@@", faq)
-            .replace("@@PIN@@", ico("pin", 20, "currentColor", 1.7)).replace("@@CK@@", ico("check", 20, "currentColor", 1.9)))
+    body = body.replace("@@FIG@@", figure).replace("@@PT@@", portrait)
     js = r'''<script>(function(){
-var D=document,days=D.getElementById('days'),slots=D.getElementById('slots'),rec=D.getElementById('rec'),go=D.getElementById('bgo'),sel={d:null,t:null};
+var Z=@@ZJ@@,D=document,$=function(i){return D.getElementById(i)},pan=$('pan'),hs=[].slice.call(D.querySelectorAll('.hs'));
+function show(id){var z=Z.filter(function(x){return x[0]===id})[0];hs.forEach(function(h){h.classList.toggle('on',h.dataset.z===id)});
+ pan.innerHTML='<span class="mono">Zone '+(Z.indexOf(z)+1)+' sur '+Z.length+'</span><h2>'+z[1]+'</h2><p>'+z[2]+'</p><div class="mt"><div><b>'+z[3]+'</b><span>séances en général</span></div></div><p style="font-size:15px;opacity:.9">'+z[4]+'</p><p style="margin-top:14px"><a class="cta" href="#rdv" data-m="'+z[5]+'">Réserver pour cette zone</a></p>'}
+hs.forEach(function(h){h.onclick=function(){show(h.dataset.z)};h.onkeydown=function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();show(h.dataset.z)}}});
+pan.onclick=function(e){var m=e.target.getAttribute&&e.target.getAttribute('data-m');if(m)$('mot').value=m};
+var days=$('days'),slots=$('slots'),rec=$('rec'),go=$('bgo'),sel={d:null,t:null};
 var M={1:[9,10,11,14,15,16,17,18],2:[9,10,11,14,15,16,17,18],3:[9,10,11,14,15,16,17],4:[9,10,11,14,15,16,17,18],5:[9,10,11,14,15,16],6:[9,10,11,12],0:[]};
 function hash(s){var h=0;for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;return Math.abs(h)}
 function fmt(d){return d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}
 var out=[],n=new Date();n.setHours(12);for(var i=1;out.length<8&&i<30;i++){var d=new Date(n);d.setDate(n.getDate()+i);if(d.getDay()!==0)out.push(d)}
-function avail(d){var key=d.toISOString().slice(0,10);return (M[d.getDay()]||[]).filter(function(h,i){return hash(key+h)%100<62})}
-out.forEach(function(d,i){var b=D.createElement('button');b.type='button';b.className='dy'+(avail(d).length?'':' full');b.innerHTML=d.toLocaleDateString('fr-FR',{weekday:'short'}).replace('.','')+'<b>'+d.getDate()+'</b>'+d.toLocaleDateString('fr-FR',{month:'short'}).replace('.','');
- b.onclick=function(){sel.d=d;sel.t=null;Array.prototype.forEach.call(days.children,function(x){x.classList.remove('on')});b.classList.add('on');draw();upd()};days.appendChild(b)});
-function draw(){slots.innerHTML='';var a=avail(sel.d);(M[sel.d.getDay()]||[]).forEach(function(h){var b=D.createElement('button');b.type='button';var ok=a.indexOf(h)>-1;b.className='sl2'+(ok?'':' x');b.textContent=h+' h 00';
- b.onclick=function(){sel.t=h;Array.prototype.forEach.call(slots.children,function(x){x.classList.remove('on')});b.classList.add('on');upd()};slots.appendChild(b)})}
-function upd(){if(sel.d&&sel.t){rec.innerHTML='<b>'+fmt(sel.d)+'</b>à '+sel.t+' h 00 · consultation d’une heure';go.disabled=false;go.style.opacity=1}else{rec.innerHTML='<b>'+(sel.d?fmt(sel.d):'Aucun créneau choisi')+'</b>'+(sel.d?'Choisissez maintenant une heure.':'Sélectionnez un jour puis une heure.');go.disabled=true;go.style.opacity=.5}}
+function avail(d){var key=d.toISOString().slice(0,10);return (M[d.getDay()]||[]).filter(function(h){return hash(key+h)%100<62})}
+out.forEach(function(d){var b=D.createElement('button');b.type='button';b.className='dy'+(avail(d).length?'':' full');b.innerHTML=d.toLocaleDateString('fr-FR',{weekday:'short'}).replace('.','')+'<b>'+d.getDate()+'</b>'+d.toLocaleDateString('fr-FR',{month:'short'}).replace('.','');
+ b.onclick=function(){sel.d=d;sel.t=null;[].forEach.call(days.children,function(x){x.classList.remove('on')});b.classList.add('on');draw();upd()};days.appendChild(b)});
+function draw(){slots.innerHTML='';var a=avail(sel.d);(M[sel.d.getDay()]||[]).forEach(function(h){var b=D.createElement('button');b.type='button';var ok=a.indexOf(h)>-1;b.className='sl2'+(ok?'':' x');b.textContent=h+' h 00';b.onclick=function(){sel.t=h;[].forEach.call(slots.children,function(x){x.classList.remove('on')});b.classList.add('on');upd()};slots.appendChild(b)})}
+function upd(){if(sel.d&&sel.t){rec.innerHTML='<b>'+fmt(sel.d)+'</b><span>à '+sel.t+' h 00 · consultation d’une heure</span>';go.disabled=false}else{rec.innerHTML='<b>'+(sel.d?fmt(sel.d):'Aucun créneau choisi')+'</b><span>'+(sel.d?'Choisissez maintenant une heure.':'Sélectionnez un jour puis une heure.')+'</span>';go.disabled=true}}
 for(var k=0;k<days.children.length;k++){if(days.children[k].className.indexOf('full')<0){days.children[k].click();break}}
-D.getElementById('bf').onsubmit=function(e){e.preventDefault();if(!sel.t)return;D.getElementById('bf').style.display='none';var x=D.getElementById('done');x.classList.add('on');D.getElementById('dt').textContent=fmt(sel.d)+' à '+sel.t+' h 00. Un SMS de confirmation vous est envoyé, avec un rappel la veille.'};
+$('bf').onsubmit=function(e){e.preventDefault();if(!sel.t)return;$('bf').style.display='none';$('done').classList.add('on');$('dt').textContent=fmt(sel.d)+' à '+sel.t+' h 00. Un SMS de confirmation vous est envoyé, avec un rappel la veille.'};
 var li=D.querySelector('#hr li[data-d="'+new Date().getDay()+'"]');if(li)li.classList.add('today');
 })()</script>'''
+    js = js.replace("@@ZJ@@", zj)
     return page("Cabinet Lemaire · Ostéopathe à Bordeaux Chartrons", "Ostéopathe D.O. à Bordeaux Chartrons : adultes, enfants, nourrissons, femmes enceintes. Rendez-vous en ligne.",
-                "family=Instrument+Serif:ital@0;1&family=Figtree:wght@400;500;600;700", css, body, js)
+                "family=Familjen+Grotesk:wght@500;700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500", css, body, js)
