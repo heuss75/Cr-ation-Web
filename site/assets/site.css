@@ -774,14 +774,13 @@ footer{padding-block:22px 30px;font-size:13.5px}
 .ex{margin:0;display:grid;gap:10px;align-content:start}
 .ex figcaption b{display:block;font:700 .95rem var(--display)}
 .ex figcaption span{font-size:12.5px;color:var(--muted)}
-.exwrap{position:relative;margin-top:20px}
-.exls{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:4px 2px 14px;-webkit-overflow-scrolling:touch}.exls::-webkit-scrollbar{display:none}
-.exls .exl{flex:0 0 86%;scroll-snap-align:start}
-@media(min-width:700px){.exls .exl{flex-basis:calc(50% - 8px)}}
-@media(min-width:1000px){.exls .exl{flex-basis:calc(33.333% - 11px)}}
-.exar{position:absolute;top:38%;z-index:3;width:46px;height:46px;border-radius:50%;border:1.5px solid var(--ink);background:var(--surface);font:400 26px/1 var(--display);cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.18);display:none}
-.exar.prev{left:-14px}.exar.next{right:-14px}.exar:disabled{opacity:.3;cursor:default}
-@media(min-width:700px){.exar{display:block}}
+.exwrap{position:relative;margin-top:10px;overflow:hidden;padding:10px 0 6px}
+.exls{position:relative;perspective:1400px;perspective-origin:50% 40%;cursor:grab;touch-action:pan-y;user-select:none;-webkit-user-select:none;outline-offset:6px}.exls.grab{cursor:grabbing}
+.exls .exl{position:absolute;left:50%;top:0;width:var(--cw,340px);will-change:transform,opacity;transform-style:preserve-3d;backface-visibility:hidden}
+.exls .fi,.exls .bw{pointer-events:none}.exls .exl:not(.front) .btn{pointer-events:none}
+.exar{position:absolute;top:34%;z-index:200;width:46px;height:46px;border-radius:50%;border:1.5px solid var(--ink);background:var(--surface);font:400 26px/1 var(--display);cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.18)}
+.exar.prev{left:8px}.exar.next{right:8px}
+@media(max-width:699px){.exar{display:none}}
 .exdots{display:flex;gap:7px;justify-content:center;margin-top:6px}.exdots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:.2s}.exdots i.on{width:22px;border-radius:4px;background:var(--ink)}
 .exl{display:grid;gap:12px;align-content:start}
 .bw{border:1.5px solid var(--ink);border-radius:14px;overflow:hidden;background:var(--surface);box-shadow:0 16px 36px rgba(0,0,0,.12)}
