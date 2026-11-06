@@ -493,7 +493,6 @@ footer span.l{display:flex;gap:20px;flex-wrap:wrap}
       <article class="exl"><div class="bw"><div class="bwb"><i></i><i></i><i></i><span>garage-marchand.fr</span></div><div class="vp" data-w="1280" data-h="800"><iframe class="fi" src="/exemples/garage" title="Exemple de site : Garage Marchand" loading="lazy" tabindex="-1"></iframe></div></div><div class="exc"><div><b>Garage Marchand</b><span>Garage auto · devis et rendez-vous en ligne</span></div><a class="btn sm" href="/exemples/garage">Ouvrir le site<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a></div></article>
       <article class="exl"><div class="bw"><div class="bwb"><i></i><i></i><i></i><span>cabinet-lemaire.fr</span></div><div class="vp" data-w="1280" data-h="800"><iframe class="fi" src="/exemples/osteo" title="Exemple de site : Cabinet Lemaire" loading="lazy" tabindex="-1"></iframe></div></div><div class="exc"><div><b>Cabinet Lemaire</b><span>Ostéopathe · prise de rendez-vous en ligne</span></div><a class="btn sm" href="/exemples/osteo">Ouvrir le site<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a></div></article>
     </div></div>
-    <div class="excap" id="excap" aria-live="polite"></div>
     <div class="exdots" id="exdots" aria-hidden="true"></div>
   </section>
 
@@ -772,15 +771,15 @@ footer span.l{display:flex;gap:20px;flex-wrap:wrap}
   })();
 })();
 
-(function(){var r=document.getElementById('exls');if(!r)return;var cap=document.getElementById('excap'),cur=-1;var w=r.parentNode,P=w.querySelector('.prev'),N=w.querySelector('.next'),D=document.getElementById('exdots'),c=[].slice.call(r.children),n=c.length,pos=0,tgt=0,drag=null,raf=0,vel=0,moved=0;
+(function(){var r=document.getElementById('exls');if(!r)return;var w=r.parentNode,P=w.querySelector('.prev'),N=w.querySelector('.next'),D=document.getElementById('exdots'),c=[].slice.call(r.children),n=c.length,pos=0,tgt=0,drag=null,raf=0,vel=0,moved=0;
 for(var i=0;i<n;i++){D.appendChild(document.createElement('i'))}
-function size(){var W=r.clientWidth,cw=Math.min(380,Math.max(230,W*(W<700?.62:.30)));r.style.setProperty('--cw',cw+'px');r.style.height=(cw*0.625+64)+'px';return{W:W,cw:cw}}
-function draw(){var z=size(),Rx=z.W<700?z.W*.36:z.W*.40,Rz=z.W<700?110:190,best=0,bd=9;
+function size(){var W=r.clientWidth,cw=Math.min(380,Math.max(250,W*(W<700?.72:.34)));r.style.setProperty('--cw',cw+'px');r.style.height=(cw*0.625+175)+'px';return{W:W,cw:cw}}
+function draw(){var z=size(),Rx=z.W<700?z.W*.34:z.W*.36,Rz=z.W<700?110:190,best=0,bd=9;
 c.forEach(function(el,i){var d=i-pos;d=((d%n)+n+n/2)%n-n/2;var t=d*2*Math.PI/n,x=Math.sin(t)*Rx,zz=(Math.cos(t)-1)*Rz,sc=.62+.38*(Math.cos(t)+1)/2,ad=Math.abs(d);
- el.style.transform='translate3d(calc(-50% + '+x.toFixed(1)+'px),0,'+zz.toFixed(1)+'px) rotateY('+(-t*16/ (Math.PI/3)).toFixed(1)+'deg) scale('+sc.toFixed(3)+')';
- el.style.zIndex=Math.round(100-ad*10);var op=ad<=1?1-ad*.25:Math.max(0,(1.7-ad)/.7)*.75;el.style.opacity=op.toFixed(2);el.style.visibility=op<.02?'hidden':'visible';el.style.filter=ad<.5?'none':'saturate('+(1-Math.min(ad,2)*.2)+')';
- el.classList.toggle('front',ad<.5);if(ad<bd){bd=ad;best=i}});
- for(var k=0;k<n;k++)D.children[k].className=k===best?'on':'';if(best!==cur){cur=best;cap.innerHTML=c[best].querySelector('.exc').outerHTML}}
+ el.style.transform='translate3d(calc(-50% + '+x.toFixed(1)+'px),0,'+zz.toFixed(1)+'px) rotateY('+(-t*28/ (Math.PI/3)).toFixed(1)+'deg) scale('+sc.toFixed(3)+')';
+ el.style.zIndex=Math.round(100-ad*10);el.style.opacity=Math.max(.25,1-ad*.28).toFixed(2);el.style.filter=ad<.5?'none':'saturate('+(1-Math.min(ad,2)*.2)+')';
+ el.classList.toggle('front',ad<.5);el.style.pointerEvents=ad<.5?'auto':'auto';if(ad<bd){bd=ad;best=i}});
+ for(var k=0;k<n;k++)D.children[k].className=k===best?'on':''}
 function loop(){raf=0;if(!drag){var d=tgt-pos;if(Math.abs(d)<.002){pos=tgt;draw();return}pos+=d*.14}draw();raf=requestAnimationFrame(loop)}
 function kick(){if(!raf)raf=requestAnimationFrame(loop)}
 function snap(){tgt=Math.round(pos+vel*6);vel=0;kick()}
