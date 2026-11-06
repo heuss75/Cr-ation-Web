@@ -8,7 +8,7 @@ H = {}          # rempli par examples.py : page, slot, svg, ico
 
 # ============================================================ 2. GARAGE
 def wheel(cx, cy, r=58):
-    s = ['<circle cx="%d" cy="%d" r="%d" fill="#0a0a0b"/><circle cx="%d" cy="%d" r="%d" fill="#17181b"/>' % (cx, cy, r, cx, cy, r - 9),
+    s = ['<g class="wh" style="transform-origin:%dpx %dpx">' % (cx, cy), '<circle cx="%d" cy="%d" r="%d" fill="#0a0a0b"/><circle cx="%d" cy="%d" r="%d" fill="#17181b"/>' % (cx, cy, r, cx, cy, r - 9),
          '<circle cx="%d" cy="%d" r="%d" fill="#2a2d33"/>' % (cx, cy, r - 18)]
     for k in range(5):
         a = k * 72 - 90
@@ -16,7 +16,7 @@ def wheel(cx, cy, r=58):
         s.append('<path d="M%d %d L%.1f %.1f" stroke="#c9ced6" stroke-width="7" stroke-linecap="round"/>' % (cx, cy, x2, y2))
         s.append('<path d="M%d %d L%.1f %.1f" stroke="#ffd400" stroke-width="1.6" stroke-linecap="round" opacity=".85"/>' % (cx, cy, x2, y2))
     s.append('<circle cx="%d" cy="%d" r="9" fill="#e5e8ed"/><circle cx="%d" cy="%d" r="3.5" fill="#0a0a0b"/>' % (cx, cy, cx, cy))
-    s.append('<circle cx="%d" cy="%d" r="%d" fill="none" stroke="#3a3d44" stroke-width="2"/>' % (cx, cy, r - 9))
+    s.append('<circle cx="%d" cy="%d" r="%d" fill="none" stroke="#3a3d44" stroke-width="2"/></g>' % (cx, cy, r - 9))
     return "".join(s)
 
 
@@ -116,6 +116,25 @@ form.rd{display:grid;gap:14px}.rd label{display:grid;gap:7px;font:600 12px 'Barl
 .ok{display:none;border:1px solid #0a8a3c;color:#0a8a3c;padding:16px 18px;font-weight:600}.ok.on{display:block}
 .faq details{border-bottom:1px solid var(--ln);padding:22px 0}.faq summary{cursor:pointer;font:700 1.6rem/1.1 'Barlow Condensed',sans-serif;text-transform:uppercase;list-style:none;display:flex;justify-content:space-between;gap:20px}.faq summary::-webkit-details-marker{display:none}.faq summary:after{content:"+";color:var(--or);font-size:1.8rem;line-height:1}.faq details[open] summary:after{content:"–"}.faq p{color:var(--mut);margin-top:12px;max-width:48em}
 footer.ft{background:#111;color:#fff;padding:64px 0 36px}footer.ft .w{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:36px}footer.ft h4{font:700 1.1rem 'Barlow Condensed',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--y);margin-bottom:14px}footer.ft li{margin:8px 0;color:#aeb2ba;font-size:15px}.lg2{font:800 2.4rem/1 'Barlow Condensed',sans-serif;text-transform:uppercase}.legal{grid-column:1/-1;border-top:1px solid #2b2e35;padding-top:24px;color:#6f7580;font-size:13px}
+/* ===== effets 3D ===== */
+.stage{perspective:1200px;padding-bottom:46px}
+.stage>svg:not(.dl){transform:perspective(1100px) rotateY(calc(var(--ry,0)*1deg)) rotateX(calc(var(--rx,0)*1deg)) translateZ(30px);will-change:transform;filter:drop-shadow(0 30px 24px #0007)}
+.stage .dl{transform:translate3d(calc(var(--ry,0)*-5px),calc(var(--rx,0)*5px),0) rotateY(calc(var(--ry,0)*-1deg));will-change:transform}
+.stage:after{content:"";position:absolute;left:-10%;right:-10%;bottom:-6px;height:150px;z-index:-1;background:repeating-linear-gradient(90deg,#ffffff33 0 2px,transparent 2px 60px),repeating-linear-gradient(0deg,#ffffff33 0 2px,transparent 2px 38px);transform:perspective(500px) rotateX(68deg);transform-origin:50% 100%;-webkit-mask:linear-gradient(0deg,#000,transparent);mask:linear-gradient(0deg,#000,transparent);animation:fl 1.6s linear infinite}
+@keyframes fl{to{background-position:0 0,0 38px}}
+.wh{animation:sp 1.5s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+.hero h1.c{text-shadow:1px 1px 0 #0d28b8,2px 2px 0 #0d28b8,3px 3px 0 #0d28b8,4px 4px 0 #0d28b8,5px 5px 0 #0d28b8,6px 6px 0 #0d28b8,7px 7px 14px #0006}
+.hero h1.c em{text-shadow:1px 1px 0 #b39500,2px 2px 0 #b39500,3px 3px 0 #b39500,4px 4px 0 #b39500,5px 5px 0 #b39500,6px 6px 0 #b39500,7px 7px 14px #0006}
+.sv,.tm{transform-style:preserve-3d;will-change:transform}.sv{transition:background .25s,box-shadow .25s}.sv.tl,.tm.tl{z-index:3;box-shadow:0 26px 40px -14px #0007}
+.sv:after,.tm:after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(240px circle at var(--gx,50%) var(--gy,50%),#ffffff55,transparent 60%);opacity:0;transition:opacity .25s}.sv.tl:after,.tm.tl:after{opacity:1}.tm{position:relative}
+.st .nb{transition:transform .7s cubic-bezier(.2,.8,.2,1),background .3s,color .3s;transform-style:preserve-3d}.st:hover .nb{transform:rotateY(360deg);background:var(--or);color:#fff}
+.score b{display:inline-block;text-shadow:1px 1px 0 #0d28b8,2px 2px 0 #0d28b8,3px 3px 0 #0d28b8,4px 4px 0 #0d28b8,5px 5px 0 #0d28b8,6px 6px 12px #0005}
+.bay{transform:perspective(1000px) rotateY(-9deg) rotateX(3deg);transition:transform .5s}.bay:hover{transform:perspective(1000px) rotateY(0) rotateX(0)}
+.rq{transition:transform .35s}.rq:hover{transform:perspective(700px) translateZ(20px) rotateX(-3deg) translateX(8px);box-shadow:0 18px 30px -12px #0005}
+.rv{opacity:0;transform:perspective(900px) rotateX(16deg) translateY(46px);transform-origin:50% 100%;transition:opacity .8s,transform .9s cubic-bezier(.2,.8,.2,1)}.rv.in{opacity:1;transform:none}
+.sg .rv.in{transform:none}
+@media(max-width:980px){.bay{transform:none}.stage:after{height:90px}}
+@media(prefers-reduced-motion:reduce){.wh,.stage:after{animation:none}.rv{opacity:1;transform:none}.stage>svg:not(.dl){transform:none}}
 @media(max-width:980px){.hero .w,.why,.rev,.contact{grid-template-columns:1fr}.devis{grid-template-columns:1fr}.plate{min-width:0}.sg,.team{grid-template-columns:1fr}.kpi{grid-template-columns:1fr 1fr}.steps{grid-template-columns:1fr 1fr;row-gap:36px}.steps:before{display:none}nav.g{display:none}footer.ft .w{grid-template-columns:1fr 1fr}.dl{display:none}section.s{padding:68px 0}}
 '''
     svc = [("Vidange + filtres", "Huile moteur, filtre à huile, à air et d’habitacle. Niveaux et contrôle visuel offerts.", "79", "1 h"),
@@ -214,6 +233,16 @@ document.getElementById('dv').onsubmit=function(e){e.preventDefault();var p=+doc
 var im=document.getElementById('im');im.oninput=function(){var v=im.value.toUpperCase().replace(/[^A-Z0-9]/g,'');var o=v.slice(0,2);if(v.length>2)o+='-'+v.slice(2,5);if(v.length>5)o+='-'+v.slice(5,7);im.value=o};
 var sl=document.getElementById('sl');sl.onclick=function(e){if(e.target.tagName==='BUTTON'){Array.prototype.forEach.call(sl.children,function(b){b.classList.remove('on')});e.target.classList.add('on')}};
 document.getElementById('rd').onsubmit=function(e){e.preventDefault();document.getElementById('ok').classList.add('on')};
+var st=document.querySelector('.stage'),hero=document.querySelector('.hero'),px=null,pt=0,cx=0,cy=0,rm=matchMedia('(prefers-reduced-motion:reduce)').matches;
+if(hero)hero.addEventListener('pointermove',function(e){var r=hero.getBoundingClientRect();px=[(e.clientX-r.left)/r.width-.5,(e.clientY-r.top)/r.height-.5];pt=Date.now()});
+function tick(t){if(st&&!rm&&hero.getBoundingClientRect().bottom>0){var tx,ty;if(px&&Date.now()-pt<2500){tx=px[0]*26;ty=-px[1]*14}else{tx=Math.sin(t/1800)*14;ty=Math.cos(t/2600)*5}
+ cx+=(tx-cx)*.07;cy+=(ty-cy)*.07;st.style.setProperty('--ry',cx.toFixed(2));st.style.setProperty('--rx',cy.toFixed(2))}requestAnimationFrame(tick)}
+requestAnimationFrame(tick);
+if(matchMedia('(hover:hover)').matches&&!rm)Array.prototype.forEach.call(document.querySelectorAll('.sv,.tm'),function(c){
+ c.addEventListener('pointermove',function(e){var r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;c.classList.add('tl');c.style.transform='perspective(800px) rotateY('+((x-.5)*14).toFixed(1)+'deg) rotateX('+((.5-y)*14).toFixed(1)+'deg) translateZ(14px)';c.style.setProperty('--gx',(x*100)+'%');c.style.setProperty('--gy',(y*100)+'%')});
+ c.addEventListener('pointerleave',function(){c.classList.remove('tl');c.style.transform=''})});
+if('IntersectionObserver' in window&&!rm){var els=document.querySelectorAll('.sv,.tm,.st,.rq,.score,.pt>div,.faq details,section.s h2.c');var io=new IntersectionObserver(function(en){en.forEach(function(x){if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target)}})},{threshold:.12});
+ Array.prototype.forEach.call(els,function(el,i){el.classList.add('rv');el.style.transitionDelay=((i%3)*90)+'ms';io.observe(el)})}
 var dt=document.getElementById('dt');if(dt){var t=new Date();t.setDate(t.getDate()+1);dt.min=t.toISOString().slice(0,10)}
 })()</script>'''
     return page("Garage Marchand · Mécanique, pneus et entretien à Nantes", "Garage indépendant toutes marques à Nantes : entretien, freinage, pneus, climatisation. Devis écrit gratuit, garantie 12 mois.",
