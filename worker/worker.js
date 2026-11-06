@@ -440,7 +440,7 @@ async function reinitialiser(req, env, url) {
     return json({ ok: true });
   } catch (_) { return json({ ok: false }, 500); }
 }
-const SITE_RE = /^\/exemples\/(bistro|salon|artisan)$/;
+const SITE_RE = /^\/exemples\/(bistro|salon|artisan|fleuriste|garage|osteo)$/;
 const PAGE_SUSPENDU = '<!doctype html><html lang="fr"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Site momentanément indisponible</title><body style="font-family:system-ui,sans-serif;display:grid;place-items:center;min-height:100vh;margin:0;background:#f5f6f6;color:#0b0b0c;text-align:center;padding:24px"><div><h1 style="margin:0 0 8px">Site momentanément indisponible</h1><p style="color:#5e5e64">Ce site est en cours de maintenance. Merci de revenir un peu plus tard.</p></div></body></html>';
 async function champsDe(sitePath) {
   const r = await fromGithub(sitePath.slice(1) + '.edit.json');

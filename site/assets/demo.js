@@ -130,3 +130,10 @@
     Array.prototype.forEach.call(els,function(el){io.observe(el)});
   })();
 })();
+
+(function(){var r=document.getElementById('exls');if(!r)return;var w=r.parentNode,P=w.querySelector('.prev'),N=w.querySelector('.next'),D=document.getElementById('exdots'),c=r.children;
+for(var i=0;i<c.length;i++){var d=document.createElement('i');D.appendChild(d)}
+function step(){return c[0].getBoundingClientRect().width+16}
+function upd(){var i=Math.round(r.scrollLeft/step());for(var k=0;k<D.children.length;k++)D.children[k].className=k===i?'on':'';P.disabled=r.scrollLeft<4;N.disabled=r.scrollLeft+r.clientWidth>=r.scrollWidth-4}
+function go(d){var i=Math.max(0,Math.min(c.length-1,Math.round(r.scrollLeft/step())+d));r.scrollTo({left:c[i].offsetLeft-c[0].offsetLeft,behavior:'smooth'})}P.onclick=function(){go(-1)};N.onclick=function(){go(1)};
+r.addEventListener('scroll',function(){requestAnimationFrame(upd)},{passive:true});window.addEventListener('resize',upd);upd()})()
