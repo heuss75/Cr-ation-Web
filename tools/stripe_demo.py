@@ -12,6 +12,7 @@ CSS = r"""
 .pay label{display:grid;gap:5px;font:600 12px/1.2 system-ui,sans-serif;letter-spacing:.05em;text-transform:uppercase;color:var(--pay-mut,#666)}
 .pay input{font:500 16px system-ui,sans-serif;padding:12px 14px;border-radius:10px;border:1.5px solid var(--pay-ln,#e4ded2);background:#fff;color:#111;width:100%;letter-spacing:0;text-transform:none}
 .pay input:focus{outline:0;border-color:#635bff;box-shadow:0 0 0 3px #635bff22}.pay-r{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pay-ck{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.45;color:var(--pay-mut,#555);margin:10px 0 8px;cursor:pointer}.pay-ck input{width:18px;height:18px;flex:none;margin-top:1px;accent-color:#635bff}
 .pay-n{font-size:12.5px;color:var(--pay-mut,#666);margin:0}
 .pay-load{display:none;align-items:center;gap:10px;font-size:14px;color:var(--pay-mut,#666)}.pay.busy .pay-load{display:flex}.pay.busy label,.pay.busy .pay-r{opacity:.5;pointer-events:none}
 .pay-load i{width:18px;height:18px;border-radius:50%;border:2.5px solid #635bff44;border-top-color:#635bff;animation:payspin .8s linear infinite}@keyframes payspin{to{transform:rotate(360deg)}}
@@ -24,7 +25,8 @@ HTML = """<div class="pay" id="pay"><div class="pay-h"><b>Paiement sécurisé</b
 <label>Numéro de carte<input id="spc" inputmode="numeric" autocomplete="cc-number" placeholder="1234 1234 1234 1234" maxlength="23"></label>
 <div class="pay-r"><label>Expiration<input id="spe" inputmode="numeric" autocomplete="cc-exp" placeholder="MM / AA" maxlength="7"></label><label>Code (CVC)<input id="spv" inputmode="numeric" autocomplete="cc-csc" placeholder="123" maxlength="4"></label></div>
 <div class="pay-load"><i></i><span>Paiement en cours auprès de Stripe…</span></div>
-<p class="pay-n">🔒 Vos données bancaires sont saisies et conservées par Stripe, jamais par l’établissement ni par Devanture Web.</p></div>"""
+<p class="pay-n">🔒 Vos données bancaires sont saisies et conservées par Stripe, jamais par l’établissement ni par Devanture Web.</p>
+<label class="pay-ck"><input type="checkbox" id="spk"><span>J’accepte les conditions de vente et d’annulation de l’établissement. Je demande que la prestation soit réalisée à la date choisie, avant la fin du délai de rétractation de 14 jours, et je reconnais perdre ce droit une fois la prestation entièrement réalisée.</span></label></div>"""
 
 JS = r"""
 function luhn(n){var s=0,d=false;for(var i=n.length-1;i>=0;i--){var x=+n.charAt(i);if(d){x*=2;if(x>9)x-=9}s+=x;d=!d}return n.length>=13&&s%10===0}
@@ -34,6 +36,7 @@ function spInit(){var c=document.getElementById('spc'),e=document.getElementById
 function stripePay(amount){
   return new Promise(function(ok,ko){
     var n=document.getElementById('spc').value.replace(/\D/g,''),ex=document.getElementById('spe').value.replace(/\D/g,''),cv=document.getElementById('spv').value.replace(/\D/g,''),box=document.getElementById('pay');
+    var ck=document.getElementById('spk');if(ck&&!ck.checked){ko('Cochez la case pour accepter les conditions de vente et d’annulation.');return}
     if(!luhn(n)){ko('Numéro de carte invalide.');return}
     var mm=+ex.slice(0,2),yy=2000+(+ex.slice(2,4)),now=new Date();
     if(ex.length<4||mm<1||mm>12||yy<now.getFullYear()||(yy===now.getFullYear()&&mm<now.getMonth()+1)){ko('Date d’expiration invalide ou dépassée.');return}

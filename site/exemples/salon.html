@@ -2,8 +2,7 @@
 
 <html lang="fr"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <script>if(window.self!==window.top)document.documentElement.className+=' emb'</script><title>Maison Olive · Salon de coiffure à Caen</title><meta content="Exemple de site salon de coiffure" name="description"/><meta content="noindex" name="robots"/>
-<link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&amp;family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&amp;display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/assets/fonts/fonts.css">
 <style>*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0}img,svg{max-width:100%}a{color:inherit;text-decoration:none}h1,h2,h3,h4,p,ul,figure{margin:0;padding:0}ul{list-style:none}
 .resa-tab{position:fixed;left:0;top:50%;z-index:100;transform:translateY(-50%) rotate(180deg);writing-mode:vertical-rl;background:#f2efe8;color:#161616;font:600 13px/1 system-ui,sans-serif;letter-spacing:.04em;padding:18px 11px;border-radius:0 12px 12px 0;box-shadow:4px 0 16px #0004;border:1px solid #0002;border-left:0}.resa-tab:hover{background:#fff}@media(max-width:600px){.resa-tab{top:auto;bottom:96px;transform:rotate(180deg);padding:13px 8px;font-size:11.5px}}.back{position:fixed;right:0;top:50%;z-index:100;transform:translateY(-50%);writing-mode:vertical-rl;background:#111;color:#fff;font:600 13px/1 system-ui,sans-serif;letter-spacing:.04em;padding:18px 11px;border-radius:12px 0 0 12px;box-shadow:-4px 0 16px #0004;transition:padding .2s}.back:hover{padding-right:16px;background:#000}.back b{display:inline-block;margin-top:8px;font-weight:700}@media(max-width:600px){.back{font-size:12px;padding:14px 9px;top:auto;bottom:90px;transform:none}}
 
@@ -71,6 +70,7 @@ footer{background:#241c15;color:#bfae96;padding-block:30px;font-size:14px}footer
 .pay label{display:grid;gap:5px;font:600 12px/1.2 system-ui,sans-serif;letter-spacing:.05em;text-transform:uppercase;color:var(--pay-mut,#666)}
 .pay input{font:500 16px system-ui,sans-serif;padding:12px 14px;border-radius:10px;border:1.5px solid var(--pay-ln,#e4ded2);background:#fff;color:#111;width:100%;letter-spacing:0;text-transform:none}
 .pay input:focus{outline:0;border-color:#635bff;box-shadow:0 0 0 3px #635bff22}.pay-r{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pay-ck{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.45;color:var(--pay-mut,#555);margin:10px 0 8px;cursor:pointer}.pay-ck input{width:18px;height:18px;flex:none;margin-top:1px;accent-color:#635bff}
 .pay-n{font-size:12.5px;color:var(--pay-mut,#666);margin:0}
 .pay-load{display:none;align-items:center;gap:10px;font-size:14px;color:var(--pay-mut,#666)}.pay.busy .pay-load{display:flex}.pay.busy label,.pay.busy .pay-r{opacity:.5;pointer-events:none}
 .pay-load i{width:18px;height:18px;border-radius:50%;border:2.5px solid #635bff44;border-top-color:#635bff;animation:payspin .8s linear infinite}@keyframes payspin{to{transform:rotate(360deg)}}
@@ -100,13 +100,14 @@ footer{background:#241c15;color:#bfae96;padding-block:30px;font-size:14px}footer
 <div><div class="st"><i>4</i><b>Vos coordonnées</b></div>
 <div class="rf"><label>Prénom<input autocomplete="given-name" id="rp" placeholder="Claire"/></label><label>Nom<input autocomplete="family-name" id="rn" placeholder="Martin"/></label>
 <label>Téléphone<input autocomplete="tel" id="rt" placeholder="06 12 34 56 78" type="tel"/></label><label>E-mail <span style="text-transform:none;letter-spacing:0;font-weight:500">(confirmation)</span><input autocomplete="email" id="rm" placeholder="claire@exemple.fr" type="email"/></label>
-<label class="w2">Un message pour le salon ? <span style="text-transform:none;letter-spacing:0;font-weight:500">(facultatif)</span><textarea id="rg" placeholder="Longueur actuelle, allergie, première visite…"></textarea></label></div></div>
+<label class="w2">Un message pour le salon ? <span style="text-transform:none;letter-spacing:0;font-weight:500">(facultatif)</span><textarea id="rg" placeholder="Longueur actuelle, première visite…"></textarea></label></div></div>
 <div id="paystep"><div class="st"><i>5</i><b>Paiement en ligne</b></div><div class="pay" id="pay"><div class="pay-h"><b>Paiement sécurisé</b><span class="stripe">stripe</span></div>
 <div class="pay-demo">Mode démonstration : aucune carte réelle n’est débitée. Utilisez 4242 4242 4242 4242, une date future et un code à 3 chiffres. (4000 0000 0000 0002 simule une carte refusée.)</div>
 <label>Numéro de carte<input autocomplete="cc-number" id="spc" inputmode="numeric" maxlength="23" placeholder="1234 1234 1234 1234"/></label>
 <div class="pay-r"><label>Expiration<input autocomplete="cc-exp" id="spe" inputmode="numeric" maxlength="7" placeholder="MM / AA"/></label><label>Code (CVC)<input autocomplete="cc-csc" id="spv" inputmode="numeric" maxlength="4" placeholder="123"/></label></div>
 <div class="pay-load"><i></i><span>Paiement en cours auprès de Stripe…</span></div>
-<p class="pay-n">🔒 Vos données bancaires sont saisies et conservées par Stripe, jamais par l’établissement ni par Devanture Web.</p></div></div>
+<p class="pay-n">🔒 Vos données bancaires sont saisies et conservées par Stripe, jamais par l’établissement ni par Devanture Web.</p>
+<label class="pay-ck"><input id="spk" type="checkbox"/><span>J’accepte les conditions de vente et d’annulation de l’établissement. Je demande que la prestation soit réalisée à la date choisie, avant la fin du délai de rétractation de 14 jours, et je reconnais perdre ce droit une fois la prestation entièrement réalisée.</span></label></div></div>
 <div class="recap2" hidden="" id="rc"></div>
 <div class="rerr" id="re" role="alert"></div>
 <button class="rgo" id="rb" type="button">Confirmer mon rendez-vous</button>
@@ -223,6 +224,7 @@ function spInit(){var c=document.getElementById('spc'),e=document.getElementById
 function stripePay(amount){
   return new Promise(function(ok,ko){
     var n=document.getElementById('spc').value.replace(/\D/g,''),ex=document.getElementById('spe').value.replace(/\D/g,''),cv=document.getElementById('spv').value.replace(/\D/g,''),box=document.getElementById('pay');
+    var ck=document.getElementById('spk');if(ck&&!ck.checked){ko('Cochez la case pour accepter les conditions de vente et d’annulation.');return}
     if(!luhn(n)){ko('Numéro de carte invalide.');return}
     var mm=+ex.slice(0,2),yy=2000+(+ex.slice(2,4)),now=new Date();
     if(ex.length<4||mm<1||mm>12||yy<now.getFullYear()||(yy===now.getFullYear()&&mm<now.getMonth()+1)){ko('Date d’expiration invalide ou dépassée.');return}
@@ -273,6 +275,6 @@ $('#rb').onclick=function(){
   if(stripeOn()){btn.disabled=true;e.textContent='';stripePay(dep(p)).then(function(pay){book(pay)},function(m){btn.disabled=false;e.textContent=m})}else book(null)};
 $('#rx').onclick=function(){if(!S.last)return;var st=store();st.del.push(S.last.id);if(S.last.pay){st.ref=st.ref||[];st.ref.push({id:S.last.id,a:S.last.pay.a})}save(st);
   $('#rs').innerHTML='<b>Rendez-vous annulé.</b><br>Le créneau est de nouveau libre.';$('#rcp').innerHTML=S.last.pay?'<span class="recpt">Paiement de '+money(S.last.pay.a)+' remboursé sur votre carte •••• '+S.last.pay.last4+' (5 à 10 jours)</span>':'';$('#rx').hidden=true;$('#rl').hidden=true;S.last=null};
-$('#ra').onclick=function(ev){ev.preventDefault();$('#rl').hidden=false;$('#rx').hidden=false;S.last=null;['#spc','#spe','#spv'].forEach(function(x){$(x).value=''});S.p=null;S.day=null;S.t=null;['#rp','#rn','#rt','#rm','#rg'].forEach(function(s){$(s).value=''});$('#rdvw').classList.remove('done');all3()};
+$('#ra').onclick=function(ev){ev.preventDefault();$('#rl').hidden=false;$('#rx').hidden=false;S.last=null;['#spc','#spe','#spv'].forEach(function(x){$(x).value=''});$('#spk').checked=false;S.p=null;S.day=null;S.t=null;['#rp','#rn','#rt','#rm','#rg'].forEach(function(s){$(s).value=''});$('#rdvw').classList.remove('done');all3()};
 all3();spInit();
 })();</script></body></html>

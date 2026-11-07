@@ -14,36 +14,41 @@ CATS = [
 FAQ = [
     # ---------- Offre et prix ----------
     ("offre", "prix", "Quel est le prix exact ?",
-     "<p>Deux formules, avec un engagement de 12 mois. <strong>Essentiel : 60 € HT (72 € TTC) par mois</strong> (720 € HT (864 € TTC) sur l’année). <strong>Pro : 100 € HT (120 € TTC) par mois</strong> (1 200 € HT (240 € TTC) sur l’année), avec la réservation en ligne et une adresse mail pro incluse. Il n’y a pas de frais de création à part : le site, le nom de domaine, l’hébergement, l’espace client et le guide pub sont compris dans les deux.</p>"
+     "<p>Deux formules, avec un engagement de 12 mois. <strong>Essentiel : 60 € HT (72 € TTC) par mois</strong> (720 € HT (864 € TTC) sur l’année). <strong>Pro : 100 € HT (120 € TTC) par mois</strong> (1 200 € HT (1 440 € TTC) sur l’année), avec la réservation en ligne, le paiement en ligne par Stripe sans commission et une adresse mail pro incluse. Il n’y a pas de frais de création à part : le site, le nom de domaine, l’hébergement, l’espace client et le guide pub sont compris dans les deux.</p>"
      "<p>Chaque adresse mail professionnelle supplémentaire coûte <strong>4 € HT (4,80 € TTC) par mois</strong>. Vous pouvez simuler votre total sur la page <a href=\"/offre\">Offre et prix</a>.</p>"),
     ("offre", "essentiel-pro", "Quelle différence entre Essentiel et Pro ?",
      "<p>L’<strong>Essentiel</strong> est le site vitrine complet : site sur mesure, nom de domaine, hébergement, espace client, 1 modification par mois et guide pub.</p>"
-     "<p>Le <strong>Pro</strong> ajoute un <strong>outil de réservation en ligne</strong> avec un agenda, un <strong>éditeur en libre-service</strong> pour changer vous-même textes, prix, horaires et photos, <strong>3 modifications par mois réalisées par nous</strong> au lieu d’une, et inclut <strong>1 adresse mail professionnelle</strong>. Il convient aux activités qui prennent des rendez-vous : coiffeur, esthétique, bien-être, coach, garage, restaurant.</p>"
+     "<p>Le <strong>Pro</strong> ajoute un <strong>outil de réservation en ligne</strong> avec un agenda, le <strong>paiement en ligne par Stripe</strong> si vous le souhaitez (sans aucune commission de notre part), un <strong>éditeur en libre-service</strong> pour changer vous-même textes, prix, horaires et photos, <strong>3 modifications par mois réalisées par nous</strong> au lieu d’une, et inclut <strong>1 adresse mail professionnelle</strong>. Il convient aux activités qui prennent des rendez-vous : coiffeur, esthétique, bien-être, coach, garage, restaurant.</p>"
      "<p>La réservation fait partie de <strong>votre propre site</strong> : vos clients réservent chez vous, et vous suivez votre planning et vos statistiques (réservations et personnes par jour, par période, par tranche horaire) depuis votre site. Voyez l’exemple du <a href=\"/exemples/bistro\">site d’un restaurant</a>.</p>"),
     ("offre", "reservation", "Comment fonctionne la réservation en ligne ?",
      "<p>Sur votre site, un client choisit une prestation, un jour et un créneau libre, puis laisse son nom et son téléphone. Le créneau n’est alors plus proposé aux autres : pas de double réservation. Les réservations apparaissent dans l’agenda de votre espace client.</p>"
-     "<p>Nous paramétrons pour vous vos prestations, leurs durées et vos horaires d’ouverture. Ne sont pas compris : les rappels par SMS et la synchronisation avec un autre agenda. Nous pouvons en parler sur devis.</p>"),
+     "<p>Nous paramétrons pour vous vos prestations, leurs durées et vos horaires d’ouverture. Si vous le souhaitez, vos clients paient leur prestation en ligne au moment de réserver (voir la question sur Stripe). Ne sont pas compris : les rappels par SMS et la synchronisation avec un autre agenda. Nous pouvons en parler sur devis.</p><p><strong>Professions de santé et de soins</strong> (médecin, kiné, ostéopathe, psychologue…) : un rendez-vous chez un praticien peut révéler une information de santé, qui doit être hébergée chez un hébergeur certifié HDS. Notre hébergement ne l’est pas : nous ne proposons donc pas la réservation en ligne à ces professions pour le moment. La formule Essentiel leur reste ouverte.</p>"),
+    ("offre", "stripe", "Comment fonctionne le paiement en ligne par Stripe ?",
+     "<p>Avec la formule Pro, si vous le souhaitez, vos clients règlent leur prestation par carte au moment de réserver. Vous connectez <strong>votre propre compte Stripe</strong> depuis votre espace (Stripe vérifie votre identité et celle de votre entreprise). L’argent arrive <strong>directement sur votre compte Stripe</strong>, puis sur votre compte bancaire : il ne passe jamais par nous.</p>"
+     "<p><strong>Nous ne prenons aucune commission</strong> sur vos ventes : vous payez seulement votre abonnement. Seuls les frais de Stripe s’appliquent, prélevés par Stripe sur chaque paiement selon ses <a href=\"https://stripe.com/fr/pricing\" rel=\"noopener\" target=\"_blank\">tarifs publiés</a>. Vous pouvez activer ou couper le paiement en ligne quand vous voulez.</p>"),
+    ("offre", "stripe-vendeur", "Qui gère les remboursements et les règles de vente ?",
+     "<p>Vous, car vous êtes le vendeur. Vous fixez vos prix (affichés TTC) et vos conditions d’annulation et de remboursement ; nous vous fournissons un modèle à compléter. Vous remboursez un client en un clic depuis votre espace. Les contestations de paiement et leurs frais sont traités par Stripe avec vous. Tout est détaillé à l’<a href=\"/cgv#art-12\">article 12 des CGV</a>.</p>"),
     ("offre", "changer-formule", "Puis-je passer de l’Essentiel au Pro ?",
      "<p>Oui, à tout moment : le Pro s’applique au début du mois suivant, et une nouvelle période de 12 mois commence à ce moment-là. Le passage du Pro à l’Essentiel se fait à l’échéance de la période en cours.</p>"),
     ("offre", "inclus", "Qu’est-ce qui est inclus dans l’abonnement ?",
-     "<ul><li>Un site vitrine sur mesure, adapté au téléphone</li><li>Le nom de domaine, réservé et renouvelé chaque année pendant l’engagement</li><li>L’hébergement, avec certificat HTTPS</li><li>Un espace client pour suivre votre commande et modifier votre site</li><li>1 modification par mois, réalisée par nous sur demande</li><li>Un logo simple, créé pour vous si vous n’en avez pas</li><li>Le guide pub, pas à pas, pour vous faire connaître</li></ul>"),
+     "<ul><li>Un site vitrine sur mesure, adapté au téléphone</li><li>Le nom de domaine, réservé et renouvelé chaque année pendant l’engagement</li><li>L’hébergement, avec certificat HTTPS</li><li>Un espace client pour suivre votre commande et demander vos modifications</li><li>1 modification par mois, réalisée par nous sur demande</li><li>Un logo simple, créé pour vous si vous n’en avez pas</li><li>Le guide pub, pas à pas, pour vous faire connaître</li></ul>"),
     ("offre", "logo", "Et si je n’ai pas de logo ?",
      "<p>Pas de souci : nous en créons un <strong>simple</strong> pour vous, compris dans les deux formules. Il se compose du nom de votre commerce en belle typographie, avec au besoin un petit symbole. Vous avez <strong>une proposition et une série de retouches</strong>. Si vous avez déjà un logo, nous utilisons le vôtre.</p>"
      "<p>Un logo plus élaboré, une charte graphique complète ou des déclinaisons (enseigne, véhicule, flyers) font l’objet d’un devis. Le logo créé pour vous vous appartient, une fois les sommes dues réglées.</p>"),
     ("offre", "non-inclus", "Qu’est-ce qui n’est pas inclus ?",
-     "<p>Ne sont pas compris : la publicité faite pour vous, le référencement payant, une boutique en ligne, un système de réservation en ligne (compris dans la formule Pro), un logo élaboré ou une charte graphique, une refonte complète du design, et les séances photo. Si vous avez besoin d’un de ces points, nous en parlons et nous faisons un devis séparé.</p>"),
+     "<p>Ne sont pas compris : la publicité faite pour vous, le référencement payant, une boutique en ligne complète (vente de produits avec panier et livraison), un logo élaboré ou une charte graphique, une refonte complète du design, et les séances photo. Si vous avez besoin d’un de ces points, nous en parlons et nous faisons un devis séparé.</p>"),
     ("offre", "engagement-12", "Pourquoi un engagement de 12 mois ?",
      "<p>Le nom de domaine se renouvelle à l’année, et la création du site demande du temps de notre côté. L’engagement de 12 mois permet de garder un prix mensuel bas et fixe. Le prix ne change pas pendant l’engagement.</p>"),
     ("offre", "ht-ttc", "Les prix sont-ils hors taxes ou toutes taxes comprises ?",
      "<p>Nous indiquons les <strong>deux</strong> : le prix hors taxes (HT) et le prix toutes taxes comprises (TTC), avec une TVA à 20 %. Par exemple, l’Essentiel est à 60 € HT, soit 72 € TTC par mois. Le détail de la TVA figure sur chaque facture.</p>"),
     ("offre", "paiement", "Comment se règle l’abonnement ?",
-     "<p>Le paiement est mensuel et d’avance, par carte bancaire ou prélèvement SEPA, via un prestataire de paiement sécurisé. Nous ne conservons jamais vos coordonnées bancaires. Le premier mois est réglé à la validation de votre commande. Les modalités exactes vous sont confirmées avant tout paiement.</p>"),
+     "<p>Le paiement est mensuel et d’avance, par carte bancaire ou prélèvement SEPA, via un prestataire de paiement agréé. Nous ne conservons jamais vos coordonnées bancaires. Le premier mois est réglé à la validation de votre commande (sauf contrat signé chez vous : voir le droit de rétractation). Une facture est disponible dans votre espace à chaque échéance.</p>"),
 
     # ---------- Commande et délais ----------
     ("commande", "commander", "Comment commander ?",
      "<p>Remplissez la <a href=\"/commander\">demande en ligne</a>. Elle est sans engagement et sans paiement. Nous vous répondons pour valider les détails, puis vous acceptez les conditions et réglez le premier mois. Les 8 étapes sont décrites <a href=\"/#etapes\">sur la page d’accueil</a>.</p>"),
     ("commande", "delai", "En combien de temps mon site est-il en ligne ?",
-     "<p>La livraison se fait sous <strong>5 jours ouvrés après réception de tous vos contenus</strong> : textes, photos, horaires, tarifs, adresse. Le délai commence quand le dossier est complet. La date prévue est affichée dans votre espace client.</p>"),
+     "<p>L’aperçu est livré en général sous <strong>5 jours ouvrés après réception de tous vos contenus</strong> (délai indicatif) : textes, photos, horaires, tarifs, adresse. Le délai commence quand le dossier est complet. La date prévue est affichée dans votre espace client.</p>"),
     ("commande", "besoin", "De quoi ai-je besoin pour commencer ?",
      "<ul><li>Votre activité et le nom du commerce</li><li>Adresse et téléphone</li><li>Horaires d’ouverture</li><li>Tarifs et durées des prestations</li><li>Quelques photos de votre commerce</li><li>Vos couleurs, si vous en avez</li><li>Le nom de domaine souhaité</li></ul>"),
     ("commande", "sans-photos", "Je n’ai ni photos ni textes prêts, que faire ?",
@@ -55,7 +60,7 @@ FAQ = [
 
     # ---------- Modifications ----------
     ("modif", "modifier", "Comment je modifie mon site ?",
-     "<p>Depuis votre espace client, avec l’éditeur : vous remplacez un texte ou une photo, vous ajoutez ou supprimez un bloc. Vous ne changez pas la mise en page, ce qui évite de casser le site. Vous pouvez tester le principe sur la <a href=\"/#apres\">démonstration de l’accueil</a>.</p>"),
+     "<p>Depuis votre espace client. Avec l’Essentiel, vous nous demandez une modification par mois et nous la réalisons. Avec le Pro, vous utilisez en plus l’éditeur en libre-service : vous remplacez un texte ou une photo, vous ajoutez ou supprimez un bloc. Vous ne changez pas la mise en page, ce qui évite de casser le site. Vous pouvez tester le principe sur la <a href=\"/#apres\">démonstration de l’accueil</a>.</p>"),
     ("modif", "une-par-mois", "Que veut dire « 1 modification par mois » ?",
      "<p>Chaque mois, vous nous demandez une modification (trois avec la formule Pro) depuis votre espace client, et nous la réalisons : remplacer un texte, remplacer une photo, ajouter un bloc ou en supprimer un. Le compteur est visible dans votre espace client. Avec le Pro, l’éditeur en libre-service vous permet en plus de changer vous-même textes, prix, horaires et photos, sans limite. Une modification non utilisée ne se cumule pas avec le mois suivant.</p>"),
     ("modif", "annuler", "Puis-je annuler une modification ?",
@@ -89,25 +94,25 @@ FAQ = [
 
     # ---------- Contrat et résiliation ----------
     ("contrat", "duree", "Combien de temps dure l’engagement ?",
-     "<p>12 mois à partir de la mise en ligne de l’abonnement. Le prix reste le même pendant cette durée. Un rappel vous est envoyé 60 jours avant la fin.</p>"),
+     "<p>12 mois à partir de la mise en ligne de votre site. Le prix reste le même pendant cette durée. Un rappel vous est envoyé avant la date limite pour résilier.</p>"),
     ("contrat", "reconduction", "Que se passe-t-il à la fin des 12 mois ?",
-     "<p>L’abonnement est reconduit pour 12 mois, sauf si vous nous prévenez par écrit au moins 30 jours avant la date d’échéance. Vous recevez un rappel 60 jours avant. Le détail figure dans les <a href=\"/cgv\">conditions générales de vente</a>.</p>"),
+     "<p>L’abonnement est reconduit pour 12 mois, sauf si vous nous prévenez au moins 30 jours avant la date d’échéance. Vous recevez un rappel par écrit avant cette date limite. Le détail figure dans les <a href=\"/cgv\">conditions générales de vente</a>.</p>"),
     ("contrat", "resilier", "Comment résilier ?",
-     "<p>Par écrit (e-mail ou courrier), avec un préavis de 30 jours avant l’échéance des 12 mois. Un bouton de demande de résiliation est aussi proposé dans votre espace client, rubrique « Abonnement ».</p>"),
+     "<p>Par écrit (e-mail ou courrier), ou avec le bouton « Demander la résiliation » de votre espace client (rubrique « Abonnement »), avec un préavis de 30 jours avant l’échéance des 12 mois. Vous recevez un accusé de réception par e-mail.</p>"),
     ("contrat", "avant-terme", "Puis-je arrêter avant la fin des 12 mois ?",
      "<p>L’abonnement est un engagement de 12 mois : les mensualités restantes restent dues, sauf manquement grave de notre part. C’est le prix de la mensualité basse.</p>"),
     ("contrat", "fin-site", "Que devient mon site après la résiliation ?",
      "<p>Il est mis hors ligne à la date de fin. Vous pouvez demander la récupération de vos textes et photos, et le transfert de votre nom de domaine. Les adresses mail sont fermées 30 jours plus tard.</p>"),
     ("contrat", "retractation", "Ai-je un droit de rétractation ?",
-     "<p>L’offre s’adresse aux professionnels. Le droit de rétractation prévu pour les consommateurs ne s’applique donc pas. Avant tout paiement, votre demande reste sans engagement : vous pouvez y renoncer librement.</p>"),
+     "<p><strong>Commande en ligne :</strong> l’offre s’adresse aux professionnels et aux associations ; le droit de rétractation des consommateurs ne s’applique pas aux commandes passées à distance. Avant tout paiement, votre demande reste sans engagement.</p><p><strong>Contrat signé chez vous</strong> (dans votre commerce, en notre présence) : si vous employez 5 salariés au plus, vous disposez de <strong>14 jours</strong> pour vous rétracter, sans frais ni justification, avec le formulaire de l’<a href=\"/cgv#art-17\">article 17 des CGV</a>. Aucun paiement ne vous est demandé pendant les 7 premiers jours.</p>"),
 
     # ---------- Données et sécurité ----------
     ("donnees", "donnees", "Que faites-vous de mes données ?",
      "<p>Nous utilisons vos informations uniquement pour répondre à votre demande, créer votre site et gérer votre abonnement. Nous ne les vendons pas. Tout est expliqué dans la <a href=\"/confidentialite\">politique de confidentialité</a>.</p>"),
     ("donnees", "formulaire-site", "Et les messages envoyés par les visiteurs de mon site ?",
-     "<p>Les messages du formulaire de contact de votre site vous sont destinés. Pour ces données, c’est vous qui êtes responsable du traitement. Nous préremplissons les mentions utiles sur votre site.</p>"),
+     "<p>Les messages, réservations et paiements de vos clients vous appartiennent : vous êtes responsable de ces données et nous agissons pour votre compte, comme sous-traitant (<a href=\"/cgv#art-18\">article 18 des CGV</a>). Nous vous fournissons des modèles de mentions légales et de politique de confidentialité pour votre site, que vous complétez.</p>"),
     ("donnees", "carte", "Mes coordonnées bancaires sont-elles en sécurité ?",
-     "<p>Le paiement est géré par un prestataire spécialisé. Vos numéros de carte ne passent pas par nos serveurs et ne sont jamais enregistrés par nous.</p>"),
+     "<p>Les paiements sont gérés par des prestataires agréés, dont Stripe pour le paiement en ligne sur votre site. Les numéros de carte ne passent jamais par nos serveurs et ne sont jamais enregistrés par nous.</p>"),
     ("donnees", "cookies", "Utilisez-vous des cookies ?",
-     "<p>Peu. Votre choix de thème et vos préférences sont mémorisés dans votre navigateur. Le suivi des campagnes (UTM) n’est activé qu’avec votre accord. Vous pouvez changer d’avis à tout moment via « Gérer les cookies » en bas de page, ou lire la <a href=\"/cookies\">page cookies</a>.</p>"),
+     "<p>Peu : un cookie de connexion à votre espace, votre choix sur les cookies, votre thème et, dans les sites d’exemple, les réservations simulées, mémorisés dans votre navigateur. Nos polices sont hébergées chez nous, sans appel à Google. Le suivi des campagnes (UTM) n’est activé qu’avec votre accord. Vous pouvez changer d’avis à tout moment via « Gérer les cookies » en bas de page, ou lire la <a href=\"/cookies\">page cookies</a>.</p>"),
 ]

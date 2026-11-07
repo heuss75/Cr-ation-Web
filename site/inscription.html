@@ -22,12 +22,8 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="https://accueil.ouvert.workers.dev/inscription">
 <script>(function(){try{var t=localStorage.getItem('sv_theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}})()</script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,700&display=swap">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,600&family=Geist+Mono:wght@400;500&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@600;800&family=Caveat:wght@600;700&family=Barlow+Condensed:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Anton&family=Fraunces:opsz,wght@9..144,500;9..144,700&display=swap" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,600&family=Geist+Mono:wght@400;500&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@600;800&family=Caveat:wght@600;700&family=Barlow+Condensed:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Anton&family=Fraunces:opsz,wght@9..144,500;9..144,700&display=swap"></noscript>
-<link rel="stylesheet" href="/assets/site.css?v=3804ceba">
+<link rel="stylesheet" href="/assets/fonts/fonts.css">
+<link rel="stylesheet" href="/assets/site.css?v=d56b0083">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
@@ -128,7 +124,7 @@
     <p class="errmsg" id="code-e" role="alert"></p>
     <p class="sub"><button type="button" class="linkbtn" id="code-resend">Renvoyer le code</button> · <button type="button" class="linkbtn" id="code-change">Changer d’e-mail</button></p>
   </div>
-  <div class="field"><label class="check" for="f-cgv"><input type="checkbox" id="f-cgv" name="cgv" data-req aria-required="true" aria-describedby="cgv-e"><span>J’agis pour mon activité professionnelle et j’ai lu les <a href="/cgv" target="_blank" rel="noopener">conditions générales de vente</a> et la <a href="/confidentialite" target="_blank" rel="noopener">politique de confidentialité</a>.</span></label><p class="errmsg" id="cgv-e" role="alert"></p></div>
+  <div class="field"><label class="check" for="f-cgv"><input type="checkbox" id="f-cgv" name="cgv" data-req aria-required="true" aria-describedby="cgv-e"><span>J’agis pour mon activité professionnelle ou pour une association (pas en tant que consommateur), et j’ai pris connaissance des <a href="/cgv" target="_blank" rel="noopener">conditions générales de vente</a> et la <a href="/confidentialite" target="_blank" rel="noopener">politique de confidentialité</a>.</span></label><p class="errmsg" id="cgv-e" role="alert"></p></div>
   <div><button class="btn" type="submit"><span class="lbl">Créer mon compte</span></button></div>
   <p class="sub">Déjà un compte ? <a href="/connexion">Se connecter</a>. Créer un compte est gratuit et sans engagement.</p>
 </form>
@@ -144,7 +140,7 @@
     <div><h3>Légal</h3><ul><li><a href="/mentions-legales">Mentions légales</a></li><li><a href="/cgv">Conditions générales de vente</a></li><li><a href="/confidentialite">Confidentialité</a></li><li><a href="/cookies">Cookies</a></li><li><button type="button" class="lnk" data-cookies>Gérer les cookies</button></li></ul></div>
     <div><h3>Contact</h3><ul><li><a href="/contact">Nous contacter</a></li><li><a href="/inscription">Faire une demande</a></li><li><a href="/connexion">Espace client</a></li><li><button type="button" class="lnk" data-copy-url="page">Copier le lien de cette page</button></li></ul></div>
   </div>
-  <div class="ftbot"><span>© 2026 Devanture Web</span><span>Site mis à jour le <time datetime="2026-11-01">1 novembre 2026</time></span></div>
+  <div class="ftbot"><span>© 2026 Devanture Web</span><span>Site mis à jour le <time datetime="2026-11-07">7 novembre 2026</time></span></div>
 </footer>
 <div class="fab-wrap">
   <div class="fpanel" id="fpanel" hidden>
@@ -167,7 +163,7 @@
     <label class="switch"><input type="checkbox" id="ck-utm"><span><b>Suivi des campagnes (UTM)</b><small>Garde 30 jours l’origine de votre visite et la joint à votre demande.</small></span></label>
   </div>
   <div class="row">
-    <button type="button" class="btn ghost" id="ck-no">Tout refuser</button>
+    <button type="button" class="btn" id="ck-no">Tout refuser</button>
     <button type="button" class="btn ghost" id="ck-cfg">Personnaliser</button>
     <button type="button" class="btn" id="ck-yes">Tout accepter</button>
   </div>
@@ -182,7 +178,7 @@
   </form>
 </dialog>
 
-<script>window.SITE={v:"3804ceba",email:""};</script>
-<script src="/assets/site.js?v=3804ceba" defer></script>
+<script>window.SITE={v:"d56b0083",email:""};</script>
+<script src="/assets/site.js?v=d56b0083" defer></script>
 </body>
 </html>

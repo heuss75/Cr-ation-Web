@@ -119,7 +119,7 @@ WIDGET_HTML = """<div class="bk"><div class="rdvw" id="rdvw">
 <div><div class="st"><i>4</i><b>Vos coordonnées</b></div>
 <div class="rf"><label>Prénom<input id="rp" autocomplete="given-name" placeholder="Claire"></label><label>Nom<input id="rn" autocomplete="family-name" placeholder="Martin"></label>
 <label>Téléphone<input id="rt" type="tel" autocomplete="tel" placeholder="06 12 34 56 78"></label><label>E-mail <span style="text-transform:none;letter-spacing:0;font-weight:500">(confirmation)</span><input id="rm" type="email" autocomplete="email" placeholder="claire@exemple.fr"></label>
-<label class="w2">Un message pour le salon ? <span style="text-transform:none;letter-spacing:0;font-weight:500">(facultatif)</span><textarea id="rg" placeholder="Longueur actuelle, allergie, première visite…"></textarea></label></div></div>
+<label class="w2">Un message pour le salon ? <span style="text-transform:none;letter-spacing:0;font-weight:500">(facultatif)</span><textarea id="rg" placeholder="Longueur actuelle, première visite…"></textarea></label></div></div>
 <div id="paystep"><div class="st"><i>5</i><b>Paiement en ligne</b></div>@@PAY@@</div>
 <div class="recap2" id="rc" hidden></div>
 <div class="rerr" id="re" role="alert"></div>
@@ -167,7 +167,7 @@ $('#rb').onclick=function(){
   if(stripeOn()){btn.disabled=true;e.textContent='';stripePay(dep(p)).then(function(pay){book(pay)},function(m){btn.disabled=false;e.textContent=m})}else book(null)};
 $('#rx').onclick=function(){if(!S.last)return;var st=store();st.del.push(S.last.id);if(S.last.pay){st.ref=st.ref||[];st.ref.push({id:S.last.id,a:S.last.pay.a})}save(st);
   $('#rs').innerHTML='<b>Rendez-vous annulé.</b><br>Le créneau est de nouveau libre.';$('#rcp').innerHTML=S.last.pay?'<span class="recpt">Paiement de '+money(S.last.pay.a)+' remboursé sur votre carte •••• '+S.last.pay.last4+' (5 à 10 jours)</span>':'';$('#rx').hidden=true;$('#rl').hidden=true;S.last=null};
-$('#ra').onclick=function(ev){ev.preventDefault();$('#rl').hidden=false;$('#rx').hidden=false;S.last=null;['#spc','#spe','#spv'].forEach(function(x){$(x).value=''});S.p=null;S.day=null;S.t=null;['#rp','#rn','#rt','#rm','#rg'].forEach(function(s){$(s).value=''});$('#rdvw').classList.remove('done');all3()};
+$('#ra').onclick=function(ev){ev.preventDefault();$('#rl').hidden=false;$('#rx').hidden=false;S.last=null;['#spc','#spe','#spv'].forEach(function(x){$(x).value=''});$('#spk').checked=false;S.p=null;S.day=null;S.t=null;['#rp','#rn','#rt','#rm','#rg'].forEach(function(s){$(s).value=''});$('#rdvw').classList.remove('done');all3()};
 all3();spInit();
 """
 

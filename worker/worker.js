@@ -3,18 +3,19 @@ const REPO = 'https://raw.githubusercontent.com/heuss75/Cr-ation-Web/main/site';
 const ROUTES = {
   '/': 'index.html', '/offre': 'offre.html', '/faq': 'faq.html', '/contact': 'contact.html', '/commander': 'commander.html', '/connexion': 'connexion.html',
   '/mentions-legales': 'mentions-legales.html', '/cgv': 'cgv.html', '/confidentialite': 'confidentialite.html', '/cookies': 'cookies.html', '/guide-messagerie': 'guide-messagerie.html',
-  '/reservation-demo': 'reservation-demo.html', '/inscription': 'inscription.html', '/admin': 'admin.html', '/espace': 'espace.html', '/mot-de-passe-oublie': 'mot-de-passe-oublie.html', '/reinitialiser': 'reinitialiser.html', '/exemples/bistro': 'exemples/bistro.html', '/exemples/salon': 'exemples/salon.html', '/exemples/artisan': 'exemples/artisan.html', '/exemples/bistro-reservation-client': 'exemples/bistro-reservation-client.html', '/exemples/bistro-reservation-interne': 'exemples/bistro-reservation-interne.html', '/exemples/osteo-reservation-interne': 'exemples/osteo-reservation-interne.html', '/exemples/salon-reservation-interne': 'exemples/salon-reservation-interne.html',
+  '/reservation-demo': 'reservation-demo.html', '/inscription': 'inscription.html', '/admin': 'admin.html', '/espace': 'espace.html', '/mot-de-passe-oublie': 'mot-de-passe-oublie.html', '/reinitialiser': 'reinitialiser.html', '/exemples/bistro': 'exemples/bistro.html', '/exemples/salon': 'exemples/salon.html', '/exemples/artisan': 'exemples/artisan.html', '/exemples/bistro-reservation-client': 'exemples/bistro-reservation-client.html', '/exemples/bistro-reservation-interne': 'exemples/bistro-reservation-interne.html', '/exemples/salon-reservation-interne': 'exemples/salon-reservation-interne.html',
 };
 const TYPES = {
   html: 'text/html; charset=utf-8', css: 'text/css; charset=utf-8', js: 'text/javascript; charset=utf-8', json: 'application/json; charset=utf-8',
-  txt: 'text/plain; charset=utf-8', xml: 'application/xml; charset=utf-8', svg: 'image/svg+xml', woff2: 'font/woff2', png: 'image/png',
+  txt: 'text/plain; charset=utf-8', xml: 'application/xml; charset=utf-8', svg: 'image/svg+xml', woff2: 'font/woff2', woff: 'font/woff', png: 'image/png',
   jpg: 'image/jpeg', webp: 'image/webp', ico: 'image/x-icon',
 };
 const SEC = {
   'x-content-type-options': 'nosniff', 'referrer-policy': 'strict-origin-when-cross-origin', 'x-frame-options': 'SAMEORIGIN',
   'permissions-policy': 'camera=(), microphone=(), geolocation=()', 'strict-transport-security': 'max-age=31536000',
-  'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'",
+  'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'",
 };
+const CGV_VERSION = '2026-11-07'; // date de la version des CGV en ligne : à changer à chaque mise à jour des CGV
 const FORMULES = ['essentiel', 'pro'];
 // Démo de réservation : mardi au samedi, 9h-12h et 14h-18h, créneaux de 30 min (mêmes règles que tools/src/booking.js)
 const UNITS = ['09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30'];
@@ -93,6 +94,7 @@ async function demande(req, env, url) {
     await ensureSchema(env);
     await env.DB.prepare('INSERT INTO demandes (ref, nom, email, tel, commerce, activite, metier, ville, domaine, mails, message, utm, page, ip_hash, ua, formule, compte_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)')
       .bind(ref, t('nom', 80), t('email', 120), t('tel', 20), t('commerce', 80), ACTIVITES.includes(t('activite', 20)) ? t('activite', 20) : 'autre', (t('metier', 60) || null), t('ville', 60), t('domaine', 70), parseInt(b.mails, 10) || 0, t('message', 1000), utm, t('page', 60), iph, (req.headers.get('user-agent') || '').slice(0, 200), t('formule', 12), user.id).run();
+    await log(env, user.id, null, 'cgv_lues', 'Demande ' + ref + ' : CGV et politique de confidentialité version ' + CGV_VERSION + ' (prise de connaissance)');
   } catch (_) {
     return json({ ok: false }, 500);
   }
@@ -223,6 +225,7 @@ async function inscription(req, env, url) {
       throw e;
     }
     await log(env, id, null, 'inscription', '');
+    await log(env, id, null, 'cgv_lues', 'CGV et politique de confidentialité version ' + CGV_VERSION + ' (prise de connaissance)');
     let parrain = null;
     if (typeof b.parrain === 'string' && b.parrain.trim()) { try { await ensureSchema(env); const r = await appliquerParrain(env, id, b.parrain); parrain = r.ok ? 'ok' : r.error; } catch (_) { parrain = 'erreur'; } }
     const token = await newSession(env, id);
@@ -876,7 +879,7 @@ function joursOuvres(iso, n) {
   return d.toISOString().slice(0, 10);
 }
 function ecartJours(a, b) { return Math.round((new Date(b.slice(0, 10) + 'T12:00:00Z') - new Date(a.slice(0, 10) + 'T12:00:00Z')) / 86400000); }
-// CGV art. 17 : résiliation à l'échéance de la période de 12 mois, avec 30 jours de préavis
+// CGV art. 16 : résiliation à l'échéance de la période de 12 mois, avec 30 jours de préavis
 function effetResiliation(debut, today) {
   if (!debut) return { effet: today, decale: false, echeance: null };
   let e = plusMois(debut, 12); while (e <= today) e = plusMois(e, 12);
@@ -1169,6 +1172,8 @@ async function espaceV2(req, env, url, p, u, lecture) {
     await env.DB.prepare('INSERT INTO resiliations (compte_id, motif, message, effet, decale) VALUES (?,?,?,?,?)').bind(u.id, motif, txt(b.message, 800), eff.effet, eff.decale ? 1 : 0).run();
     await log(env, u.id, null, 'resiliation_demandee', motif + ' / effet ' + eff.effet);
     await notifier(env, u.id, 'Demande de résiliation reçue', 'Nous avons bien reçu votre demande. Elle prendra effet le ' + eff.effet.split('-').reverse().join('/') + '. Vous pouvez l’annuler tant qu’elle n’est pas traitée.');
+    { const fr = (x) => x.split('-').reverse().join('/'), msg = 'Bonjour,\n\nNous accusons réception de votre demande de résiliation, reçue le ' + fr(today) + '.\nElle prendra effet le ' + fr(eff.effet) + '. Jusque-là, votre site reste en ligne.\nVous pouvez annuler cette demande depuis votre espace client tant qu’elle n’a pas été traitée.\n\nCe message vous est envoyé à titre de confirmation : conservez-le.';
+      await envoyerMail(env, u.email, 'Accusé de réception de votre demande de résiliation', msg, '<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.55;color:#111">' + escH(msg).replace(/\n/g, '<br>') + '</div>'); }
     return json({ ok: true, effet: eff.effet, decale: eff.decale });
   }
   if (p === '/api/espace/resiliation-annuler') {
