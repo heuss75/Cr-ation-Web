@@ -24,7 +24,8 @@ HTML = """<div class="pay" id="pay"><div class="pay-h"><b>Paiement sécurisé</b
 <label>Numéro de carte<input id="spc" inputmode="numeric" autocomplete="cc-number" placeholder="1234 1234 1234 1234" maxlength="23"></label>
 <div class="pay-r"><label>Expiration<input id="spe" inputmode="numeric" autocomplete="cc-exp" placeholder="MM / AA" maxlength="7"></label><label>Code (CVC)<input id="spv" inputmode="numeric" autocomplete="cc-csc" placeholder="123" maxlength="4"></label></div>
 <div class="pay-load"><i></i><span>Paiement en cours auprès de Stripe…</span></div>
-<p class="pay-n">🔒 Vos données bancaires sont saisies et conservées par Stripe, jamais par l’établissement ni par Devanture Web.</p></div>"""
+<p class="pay-n">🔒 Vos données bancaires sont saisies et conservées par Stripe, jamais par l’établissement ni par Devanture Web.</p>
+<p class="pay-n">En payant, vous acceptez les conditions de vente et d’annulation de l’établissement, et vous demandez que la prestation ait lieu à la date choisie. Vous pouvez annuler avant le rendez-vous et être remboursé selon ces conditions.</p></div>"""
 
 JS = r"""
 function luhn(n){var s=0,d=false;for(var i=n.length-1;i>=0;i--){var x=+n.charAt(i);if(d){x*=2;if(x>9)x-=9}s+=x;d=!d}return n.length>=13&&s%10===0}

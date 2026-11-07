@@ -662,7 +662,7 @@
       var f = document.createElement('figure'); f.className = 'avis-c';
       var st = document.createElement('p'); st.className = 'st'; st.setAttribute('role', 'img'); st.setAttribute('aria-label', a.note + ' sur 5'); st.textContent = '★★★★★'.slice(0, a.note) + '☆☆☆☆☆'.slice(0, 5 - a.note); f.appendChild(st);
       if (a.commentaire) { var q = document.createElement('blockquote'); q.textContent = '« ' + a.commentaire + ' »'; f.appendChild(q); }
-      var c = document.createElement('figcaption'), b = document.createElement('b'); b.textContent = a.nom; c.appendChild(b); if (a.commerce) c.appendChild(document.createTextNode(', ' + a.commerce)); f.appendChild(c); al.appendChild(f);
+      var c = document.createElement('figcaption'), b = document.createElement('b'); b.textContent = a.nom; c.appendChild(b); if (a.commerce) c.appendChild(document.createTextNode(', ' + a.commerce)); if (a.date) { var dt = document.createElement('small'); dt.className = 'avis-d'; dt.textContent = 'Avis du ' + a.date.split('-').reverse().join('/'); c.appendChild(document.createElement('br')); c.appendChild(dt); } f.appendChild(c); al.appendChild(f);
     });
   }).catch(function () {});
   /* mesure de fréquentation : un compteur par page et par jour, sans cookie ni identifiant, "Ne pas me suivre" respecté */

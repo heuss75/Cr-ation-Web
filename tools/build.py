@@ -17,13 +17,13 @@ SRC = os.path.join(ROOT, "tools", "src")
 SITE_NAME = "Devanture Web"
 BASE_URL = "https://accueil.ouvert.workers.dev"   # à remplacer par le vrai domaine
 INDEXABLE = False                                  # passer à True au lancement (retire le noindex)
-UPDATED_HUMAN = "1 novembre 2026"
-UPDATED_ISO = "2026-11-01"
+UPDATED_HUMAN = "7 novembre 2026"
+UPDATED_ISO = "2026-11-07"
 CONTACT_EMAIL = ""                                 # adresse pro, quand elle existe (active les boutons « copier »)
 
 # Identité de l'éditeur : tout champ vide apparaît en jaune « À compléter » dans les textes légaux.
 EDITOR = dict(site_name=SITE_NAME, nom="", statut="", siret="", adresse="", tel="", email=CONTACT_EMAIL,
-              directeur="", tva="", tribunal="")
+              directeur="", tva="", tribunal="", immat="")
 
 
 def rd(p):
@@ -323,7 +323,7 @@ offre_body = phead("Offre et prix", "Deux formules, tout compris",
     <div class="card pro"><span class="tag">En plus, avec le Pro</span><h3>Pro · 100 € HT (120 € TTC)</h3><ul>
       <li>Tout l’Essentiel</li><li>Éditeur en libre-service : textes, prix, horaires, photos</li><li>3 modifications par mois réalisées par nous</li><li>Outil de réservation en ligne : prestation, jour, créneau</li><li>Agenda dans l’espace client</li><li>1 adresse mail pro incluse, avec le guide d’installation de la messagerie</li><li>Prestations, durées et horaires paramétrés par nous</li></ul></div>
     <div class="card no"><span class="tag">Non inclus</span><h3>À prévoir à part</h3><ul>
-      <li>Publicité faite pour vous</li><li>Référencement payant</li><li>Logo élaboré et charte graphique</li><li>Boutique en ligne et paiement en ligne</li><li>Rappels par SMS</li><li>Refonte complète du design</li><li>Séance photo</li></ul><p class="sub" style="margin-top:12px">Mail pro supplémentaire : 4 € HT (4,80 € TTC) par mois et par adresse.</p></div>
+      <li>Publicité faite pour vous</li><li>Référencement payant</li><li>Logo élaboré et charte graphique</li><li>Boutique en ligne complète (vente de produits)</li><li>Rappels par SMS</li><li>Refonte complète du design</li><li>Séance photo</li></ul><p class="sub" style="margin-top:12px">Mail pro supplémentaire : 4 € HT (4,80 € TTC) par mois et par adresse.</p></div>
   </div>
 </section>
 
@@ -447,7 +447,7 @@ cmd_body = phead("Demande", "Demandez votre site", "Quelques informations suffis
     <textarea id="f-message" name="message" maxlength="1000" aria-describedby="message-e message-h" placeholder="Votre activité, ce que vous attendez du site, vos échéances…"></textarea>
     <small class="h" id="message-h">Merci de ne pas saisir d’informations sensibles (santé, banque).</small><p class="errmsg" id="message-e" role="alert"></p></div>
   <div class="hp" aria-hidden="true"><label>Ne pas remplir<input type="text" name="site_web_url" tabindex="-1" autocomplete="off"></label></div>
-  <div class="field"><label class="check" for="f-cgv"><input type="checkbox" id="f-cgv" name="cgv" data-req aria-required="true" aria-describedby="cgv-e"><span>J’agis pour mon activité professionnelle et j’ai lu les <a href="/cgv" target="_blank" rel="noopener">conditions générales de vente</a> et la <a href="/confidentialite" target="_blank" rel="noopener">politique de confidentialité</a>.</span></label><p class="errmsg" id="cgv-e" role="alert"></p></div>
+  <div class="field"><label class="check" for="f-cgv"><input type="checkbox" id="f-cgv" name="cgv" data-req aria-required="true" aria-describedby="cgv-e"><span>J’agis pour mon activité professionnelle ou pour une association (pas en tant que consommateur), et j’ai lu les <a href="/cgv" target="_blank" rel="noopener">conditions générales de vente</a> et la <a href="/confidentialite" target="_blank" rel="noopener">politique de confidentialité</a>.</span></label><p class="errmsg" id="cgv-e" role="alert"></p></div>
   <p class="sub">Vos informations servent uniquement à répondre à votre demande. Aucun paiement n’est demandé à cette étape.</p>
   <div><button class="btn" id="d-send" type="submit"><span class="lbl">Envoyer ma demande</span>""" + icon("loader", "ic spin") + """</button></div>
 </form>
@@ -496,7 +496,7 @@ signup_body = phead("Inscription", "Créez votre compte", "Un compte est nécess
     <p class="errmsg" id="code-e" role="alert"></p>
     <p class="sub"><button type="button" class="linkbtn" id="code-resend">Renvoyer le code</button> · <button type="button" class="linkbtn" id="code-change">Changer d’e-mail</button></p>
   </div>
-  <div class="field"><label class="check" for="f-cgv"><input type="checkbox" id="f-cgv" name="cgv" data-req aria-required="true" aria-describedby="cgv-e"><span>J’agis pour mon activité professionnelle et j’ai lu les <a href="/cgv" target="_blank" rel="noopener">conditions générales de vente</a> et la <a href="/confidentialite" target="_blank" rel="noopener">politique de confidentialité</a>.</span></label><p class="errmsg" id="cgv-e" role="alert"></p></div>
+  <div class="field"><label class="check" for="f-cgv"><input type="checkbox" id="f-cgv" name="cgv" data-req aria-required="true" aria-describedby="cgv-e"><span>J’agis pour mon activité professionnelle ou pour une association (pas en tant que consommateur), et j’ai lu les <a href="/cgv" target="_blank" rel="noopener">conditions générales de vente</a> et la <a href="/confidentialite" target="_blank" rel="noopener">politique de confidentialité</a>.</span></label><p class="errmsg" id="cgv-e" role="alert"></p></div>
   <div><button class="btn" type="submit"><span class="lbl">Créer mon compte</span></button></div>
   <p class="sub">Déjà un compte ? <a href="/connexion">Se connecter</a>. Créer un compte est gratuit et sans engagement.</p>
 </form>
@@ -759,4 +759,6 @@ wr("robots.txt", "User-agent: *\nAllow: /\nSitemap: %s/sitemap.xml\n" % BASE_URL
 if INDEXABLE:
     urls = "".join("<url><loc>%s%s</loc><lastmod>%s</lastmod></url>" % (BASE_URL, "" if s == "index" else "/" + s, UPDATED_ISO) for s, _ in PAGES if s != "connexion")
     wr("sitemap.xml", '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">%s</urlset>' % urls)
+import fonts_local
+fonts_local.rewrite(OUT)
 print("OK  version=%s  pages=%d  recherche=%d entrées  css=%dko" % (VER, len(PAGES) + 1, len(entries), len(css) // 1024))

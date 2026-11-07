@@ -428,4 +428,5 @@ for name, fn in (("bistro", bistro), ("salon", salon), ("artisan", artisan)) + t
 import sys; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); os.chdir(ROOT); import bistro_resa; bistro_resa.write_all(OUT)
 import salon_resa; salon_resa.write_all(OUT)
 import osteo_resa; osteo_resa.write_all(OUT)
+import fonts_local; fonts_local.rewrite(OUT)
 print("exemples OK")
