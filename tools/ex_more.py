@@ -562,10 +562,7 @@ footer.ft{margin-top:100px;background:var(--g);color:#bccdc9;padding:60px 0 34px
 <div class="split" style="margin-top:80px"><div><h2>Venir au cabinet</h2><p>27 cours Saint-Louis, 33300 Bordeaux<br>Tram C, arrêt Chartrons, à 3 minutes à pied. Parking Saint-Louis à 100 m. Cabinet de plain-pied, accessible aux personnes à mobilité réduite.</p><p>05 56 00 00 00<br>cabinet@lemaire-osteo.fr</p><p style="margin-top:18px"><a class="cta" href="#/contact">@@CAL@@Prendre rendez-vous</a></p></div><img src="/assets/ex/os-hero.jpg" alt="" style="object-position:left center"></div></div></section></div>
 
 <div class="view" data-v="contact"><div class="ph2"><div class="w"><span class="eb c">Rendez-vous en ligne</span><h1>Choisissez votre créneau</h1><p class="sub">Un SMS de confirmation, un rappel la veille. Annulation gratuite jusqu’à 24 h avant.</p></div></div>
-<section class="sec" style="padding-top:10px"><div class="w"><div class="bk"><div><div class="lab">1 · Jour</div><div class="days" id="days"></div><div class="lab" style="margin-top:28px">2 · Heure</div><div class="slots" id="slots"></div></div>
-<div class="card"><div class="lab">3 · Vous</div><div class="rec" id="rec"><b>Aucun créneau choisi</b><span>Sélectionnez un jour puis une heure.</span></div>
-<form id="bf"><label>Nom et prénom<input required placeholder="Marie Durand"></label><label>Téléphone<input required placeholder="06 00 00 00 00" inputmode="tel"></label><label>Motif<select id="mot"><option>Tête / mâchoire</option><option>Nuque / cervicales</option><option>Épaule</option><option>Haut du dos</option><option>Bas du dos / lombaires</option><option>Coude / poignet</option><option>Hanche / bassin</option><option>Genou / jambe</option><option>Bébé / enfant</option><option>Grossesse</option><option>Autre</option></select></label><button class="go" type="submit" id="bgo" disabled>Confirmer le rendez-vous</button></form><div class="done" id="done"><b>C’est noté.</b><span id="dt"></span></div></div></div>
-<div class="ct"><div class="box"><span class="t">Horaires</span><ul class="hr" id="hr" style="margin-top:10px"><li data-d="1"><span>Lundi</span><span>9 h – 19 h</span></li><li data-d="2"><span>Mardi</span><span>9 h – 19 h</span></li><li data-d="3"><span>Mercredi</span><span>9 h – 18 h</span></li><li data-d="4"><span>Jeudi</span><span>9 h – 19 h</span></li><li data-d="5"><span>Vendredi</span><span>9 h – 17 h</span></li><li data-d="6"><span>Samedi</span><span>9 h – 13 h</span></li><li data-d="0"><span>Dimanche</span><span>Fermé</span></li></ul></div>
+<section class="sec" style="padding-top:10px"><div class="w">@@RZ@@<div class="resa-demo" style="margin-top:34px;border-radius:14px">Vous êtes le cabinet ? Voyez ce que vous recevez de votre côté : agenda, statistiques de réservation. <a href="/exemples/osteo-reservation-interne" target="_blank" rel="noopener">Ouvrir l’espace du cabinet →</a></div><div class="ct"><div class="box"><span class="t">Horaires</span><ul class="hr" id="hr" style="margin-top:10px"><li data-d="1"><span>Lundi</span><span>9 h – 19 h</span></li><li data-d="2"><span>Mardi</span><span>9 h – 19 h</span></li><li data-d="3"><span>Mercredi</span><span>9 h – 18 h</span></li><li data-d="4"><span>Jeudi</span><span>9 h – 19 h</span></li><li data-d="5"><span>Vendredi</span><span>9 h – 17 h</span></li><li data-d="6"><span>Samedi</span><span>9 h – 13 h</span></li><li data-d="0"><span>Dimanche</span><span>Fermé</span></li></ul></div>
 <div class="box"><span class="t">Adresse</span><h3>27 cours Saint-Louis</h3><p>33300 Bordeaux<br>Tram C, arrêt Chartrons<br>Parking Saint-Louis à 100 m</p></div><div class="box"><span class="t">Nous joindre</span><h3>05 56 00 00 00</h3><p>cabinet@lemaire-osteo.fr<br>Réponse sous 24 h, du lundi au samedi.</p></div></div></div></section></div>
 
 </main>
@@ -590,22 +587,15 @@ $('bu').onclick=function(){$('nv').classList.toggle('on')};
 $('rs').onclick=function(){if(api)api.reset();else{intro();$('rs').classList.remove('on')}};
 hs.forEach(function(h){h.onclick=function(){show(h.dataset.z);if(api)api.select(h.dataset.z,true)};h.onkeydown=function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();show(h.dataset.z)}}});
 $('zl').onclick=function(e){var b=e.target.closest('button');if(b){show(b.dataset.z);if(api)api.select(b.dataset.z,true)}};
-pan.onclick=function(e){var m=e.target.getAttribute&&e.target.getAttribute('data-m');if(m)$('mot').value=m};
+pan.onclick=function(e){var m=e.target.getAttribute&&e.target.getAttribute('data-m');if(m)D.dispatchEvent(new CustomEvent('osteo-motif',{detail:m}))};
 intro();
-var days=$('days'),slots=$('slots'),rec=$('rec'),go=$('bgo'),sel={d:null,t:null};
-var M={1:[9,10,11,14,15,16,17,18],2:[9,10,11,14,15,16,17,18],3:[9,10,11,14,15,16,17],4:[9,10,11,14,15,16,17,18],5:[9,10,11,14,15,16],6:[9,10,11,12],0:[]};
-function hash(s){var h=0;for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;return Math.abs(h)}
-function fmt(d){return d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}
-var out=[],n=new Date();n.setHours(12);for(var i=1;out.length<8&&i<30;i++){var d=new Date(n);d.setDate(n.getDate()+i);if(d.getDay()!==0)out.push(d)}
-function avail(d){var key=d.toISOString().slice(0,10);return (M[d.getDay()]||[]).filter(function(h){return hash(key+h)%100<62})}
-out.forEach(function(d){var b=D.createElement('button');b.type='button';b.className='dy'+(avail(d).length?'':' full');b.innerHTML=d.toLocaleDateString('fr-FR',{weekday:'short'}).replace('.','')+'<b>'+d.getDate()+'</b>'+d.toLocaleDateString('fr-FR',{month:'short'}).replace('.','');
- b.onclick=function(){sel.d=d;sel.t=null;[].forEach.call(days.children,function(x){x.classList.remove('on')});b.classList.add('on');draw();upd()};days.appendChild(b)});
-function draw(){slots.innerHTML='';var a=avail(sel.d);(M[sel.d.getDay()]||[]).forEach(function(h){var b=D.createElement('button');b.type='button';var ok=a.indexOf(h)>-1;b.className='sl2'+(ok?'':' x');b.textContent=h+' h 00';b.onclick=function(){sel.t=h;[].forEach.call(slots.children,function(x){x.classList.remove('on')});b.classList.add('on');upd()};slots.appendChild(b)})}
-function upd(){if(sel.d&&sel.t){rec.innerHTML='<b>'+fmt(sel.d)+'</b><span>à '+sel.t+' h 00 · consultation d’une heure</span>';go.disabled=false}else{rec.innerHTML='<b>'+(sel.d?fmt(sel.d):'Aucun créneau choisi')+'</b><span>'+(sel.d?'Choisissez maintenant une heure.':'Sélectionnez un jour puis une heure.')+'</span>';go.disabled=true}}
-for(var k=0;k<days.children.length;k++){if(days.children[k].className.indexOf('full')<0){days.children[k].click();break}}
-$('bf').onsubmit=function(e){e.preventDefault();if(!sel.t)return;$('bf').style.display='none';$('done').classList.add('on');$('dt').textContent=fmt(sel.d)+' à '+sel.t+' h 00. Un SMS de confirmation vous est envoyé, avec un rappel la veille.'};
 var li=D.querySelector('#hr li[data-d="'+new Date().getDay()+'"]');if(li)li.classList.add('today');
 route()})()</script>"""
     js = js.replace("@@ZJ@@", zj)
+    import osteo_resa
+    _wh, _wc, _wj = osteo_resa.widget()
+    body = body.replace("@@RZ@@", _wh)
+    css += _wc
+    js += "<script>" + _wj + "</script>"
     return page("Cabinet Lemaire · Ostéopathe à Bordeaux Chartrons", "Ostéopathe D.O. à Bordeaux Chartrons : adultes, enfants, nourrissons, femmes enceintes. Rendez-vous en ligne.",
                 "family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Inter:wght@400;500;600", css, body, js)

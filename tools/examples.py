@@ -385,7 +385,7 @@ import json, re
 from bs4 import BeautifulSoup, NavigableString, Comment
 
 SKIP_TAGS = {"script", "style", "svg", "noscript", "form", "select", "option", "textarea", "button", "head", "title"}
-SKIP_CLASS = {"back", "demo-bar", "bk", "err", "resa-demo", "resa-box"}
+SKIP_CLASS = {"back", "demo-bar", "bk", "err", "resa-demo", "resa-box", "rz"}
 
 def editable(html, slug):
     """Repère chaque texte et chaque photo du site avec un identifiant stable (data-k) pour l'éditeur du client."""
@@ -429,4 +429,5 @@ for name, fn in (("bistro", bistro), ("salon", salon), ("artisan", artisan)) + t
     print(name, len(champs), "champs modifiables")
 import sys; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); os.chdir(ROOT); import bistro_resa; bistro_resa.write_all(OUT)
 import salon_resa; salon_resa.write_all(OUT)
+import osteo_resa; osteo_resa.write_all(OUT)
 print("exemples OK")
