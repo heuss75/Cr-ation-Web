@@ -1,7 +1,7 @@
 // Worker Cloudflare : sert le site depuis GitHub (dossier /site) et reçoit les demandes du formulaire (base D1).
 const REPO = 'https://raw.githubusercontent.com/heuss75/Cr-ation-Web/main/site';
 const ROUTES = {
-  '/': 'index.html', '/offre': 'offre.html', '/faq': 'faq.html', '/commander': 'commander.html', '/connexion': 'connexion.html',
+  '/': 'index.html', '/offre': 'offre.html', '/faq': 'faq.html', '/contact': 'contact.html', '/commander': 'commander.html', '/connexion': 'connexion.html',
   '/mentions-legales': 'mentions-legales.html', '/cgv': 'cgv.html', '/confidentialite': 'confidentialite.html', '/cookies': 'cookies.html', '/guide-messagerie': 'guide-messagerie.html',
   '/reservation-demo': 'reservation-demo.html', '/inscription': 'inscription.html', '/admin': 'admin.html', '/espace': 'espace.html', '/mot-de-passe-oublie': 'mot-de-passe-oublie.html', '/reinitialiser': 'reinitialiser.html', '/exemples/bistro': 'exemples/bistro.html', '/exemples/salon': 'exemples/salon.html', '/exemples/artisan': 'exemples/artisan.html', '/exemples/bistro-reservation-client': 'exemples/bistro-reservation-client.html', '/exemples/bistro-reservation-interne': 'exemples/bistro-reservation-interne.html', '/exemples/osteo-reservation-interne': 'exemples/osteo-reservation-interne.html', '/exemples/salon-reservation-interne': 'exemples/salon-reservation-interne.html',
 };

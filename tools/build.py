@@ -141,7 +141,7 @@ FOOTER = """
     <div class="brand"><b>Devanture <em>Web</em></b><p>Des sites vitrines clé en main pour les commerces et les indépendants : domaine, hébergement, espace client et guide pub inclus.</p></div>
     <div><h3>Offre</h3><ul><li><a href="/offre">Offre et prix</a></li><li><a href="/#etapes">Comment ça marche</a></li><li><a href="/faq">FAQ</a></li><li><a href="/guide-messagerie">Guide messagerie</a></li></ul></div>
     <div><h3>Légal</h3><ul><li><a href="/mentions-legales">Mentions légales</a></li><li><a href="/cgv">Conditions générales de vente</a></li><li><a href="/confidentialite">Confidentialité</a></li><li><a href="/cookies">Cookies</a></li><li><button type="button" class="lnk" data-cookies>Gérer les cookies</button></li></ul></div>
-    <div><h3>Contact</h3><ul><li><a href="/inscription">Faire une demande</a></li><li><a href="/connexion">Espace client</a></li>%(email)s<li><button type="button" class="lnk" data-copy-url="page">Copier le lien de cette page</button></li></ul></div>
+    <div><h3>Contact</h3><ul><li><a href="/contact">Nous contacter</a></li><li><a href="/inscription">Faire une demande</a></li><li><a href="/connexion">Espace client</a></li>%(email)s<li><button type="button" class="lnk" data-copy-url="page">Copier le lien de cette page</button></li></ul></div>
   </div>
   <div class="ftbot"><span>© 2026 %(name)s</span><span>Site mis à jour le <time datetime="%(iso)s">%(human)s</time></span></div>
 </footer>
@@ -681,10 +681,32 @@ resa_body = phead("Réservation en ligne", "La réservation se trouve sur le sit
 </div>
 </div>
 """
+# ------------------------------------------------------------------ Nous contacter
+if CONTACT_EMAIL:
+    mail_card = ('<article class="bn"><span class="bi">' + icon("mail") + '</span><h3>Par e-mail</h3><p><a href="mailto:%s"><b>%s</b></a><br>Nous répondons dès que possible, du lundi au vendredi.</p></article>' % (CONTACT_EMAIL, CONTACT_EMAIL))
+else:
+    mail_card = ('<article class="bn"><span class="bi">' + icon("mail") + '</span><h3>Par e-mail</h3><p>Écrivez-nous depuis le formulaire de votre espace client : nous répondons dès que possible, du lundi au vendredi.</p></article>')
+cq = "\n".join(qhtml[:8])
+contact_body = phead("Nous contacter", "Nous contacter", "Une question avant de commander, une modification, un souci ? Voici comment nous joindre. Les réponses aux questions les plus fréquentes sont juste en dessous.") + """
+<div class="wrap">
+  <div class="bn-grid">
+    """ + mail_card + """
+    <article class="bn"><span class="bi">""" + icon("chat") + """</span><h3>Depuis votre espace client</h3><p>Si vous êtes déjà client, écrivez-nous depuis votre espace : votre commande et votre site sont déjà liés à votre message. <a href="/connexion">Accéder à mon espace</a></p></article>
+    <article class="bn"><span class="bi">""" + icon("help") + """</span><h3>Pas encore client ?</h3><p>Faites votre demande de site en 3 minutes, sans engagement et sans paiement. <a href="/inscription">Faire ma demande</a></p></article>
+  </div>
+  <h2 style="margin-top:56px">Questions fréquentes</h2>
+  <div class="qlist" id="clist">
+""" + cq + """
+  </div>
+  <p style="margin-top:18px"><a href="/faq">Voir toute la FAQ →</a></p>
+  <div style="height:72px"></div>
+</div>
+"""
+page("contact", "Nous contacter", "Comment contacter Devanture Web : e-mail, espace client, demande de site, et réponses aux questions fréquentes.", contact_body, cur="faq")
 page("reservation-demo", "Réservation en ligne", "La réservation en ligne fait partie du site du commerçant : voyez l’exemple du restaurant, côté clients et côté restaurateur.", resa_body, cur="offre")
 
 # ------------------------------------------------------------------ index de recherche
-PAGES = [("index", "Accueil"), ("offre", "Offre et prix"), ("faq", "FAQ"), ("commander", "Commander"), ("inscription", "Inscription"), ("connexion", "Connexion"),
+PAGES = [("index", "Accueil"), ("offre", "Offre et prix"), ("faq", "FAQ"), ("contact", "Nous contacter"), ("commander", "Commander"), ("inscription", "Inscription"), ("connexion", "Connexion"),
          ("mentions-legales", "Mentions légales"), ("cgv", "CGV"), ("confidentialite", "Confidentialité"), ("cookies", "Cookies"), ("guide-messagerie", "Guide messagerie"), ("reservation-demo", "Démo réservation")]
 entries = []
 for slug, label in PAGES:
