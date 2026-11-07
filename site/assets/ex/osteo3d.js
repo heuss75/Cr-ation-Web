@@ -29,9 +29,9 @@ function circleTex(label, sel) {
   const c = document.createElement('canvas'); c.width = c.height = 128;
   const g = c.getContext('2d');
   g.beginPath(); g.arc(64, 64, 46, 0, 6.2832);
-  g.fillStyle = sel ? '#ffffff' : '#c4552d'; g.fill();
-  g.lineWidth = 7; g.strokeStyle = sel ? '#c4552d' : '#ffffff'; g.stroke();
-  g.fillStyle = sel ? '#c4552d' : '#ffffff'; g.font = '700 46px system-ui,sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillStyle = sel ? '#ffffff' : '#b99c64'; g.fill();
+  g.lineWidth = 7; g.strokeStyle = sel ? '#b99c64' : '#ffffff'; g.stroke();
+  g.fillStyle = sel ? '#b99c64' : '#ffffff'; g.font = '700 46px system-ui,sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
   g.fillText(label, 64, 68);
   const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; return t;
 }
@@ -44,7 +44,7 @@ function ringTex() {
 function glowTex() {
   const c = document.createElement('canvas'); c.width = c.height = 256;
   const g = c.getContext('2d'), gr = g.createRadialGradient(128, 128, 0, 128, 128, 128);
-  gr.addColorStop(0, 'rgba(196,85,45,.55)'); gr.addColorStop(.5, 'rgba(196,85,45,.12)'); gr.addColorStop(1, 'rgba(196,85,45,0)');
+  gr.addColorStop(0, 'rgba(185,156,100,.55)'); gr.addColorStop(.5, 'rgba(185,156,100,.12)'); gr.addColorStop(1, 'rgba(185,156,100,0)');
   g.fillStyle = gr; g.fillRect(0, 0, 256, 256);
   const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; return t;
 }
@@ -66,7 +66,7 @@ export function init({ el, onSelect }) {
   scene.add(new T.AmbientLight(0xfff4e6, .5));
   scene.add(new T.HemisphereLight(0xffffff, 0x1b1e23, .75));
   const key = new T.DirectionalLight(0xfff0dc, 2.2); key.position.set(90, 210, 170); scene.add(key);
-  const rim = new T.DirectionalLight(0xff7a45, 2.8); rim.position.set(-130, 130, -170); scene.add(rim);
+  const rim = new T.DirectionalLight(0xffd9a0, 2.8); rim.position.set(-130, 130, -170); scene.add(rim);
   const fill = new T.DirectionalLight(0x9fb4c8, .7); fill.position.set(-110, 60, 130); scene.add(fill);
 
   // matières : une par zone, pour pouvoir éclairer la zone choisie
@@ -169,7 +169,7 @@ export function init({ el, onSelect }) {
   // ---- sol lumineux + anneau
   const glow = new T.Mesh(new T.PlaneGeometry(120, 120), new T.MeshBasicMaterial({ map: glowTex(), transparent: true, depthWrite: false }));
   glow.rotation.x = -Math.PI / 2; glow.position.y = .05; scene.add(glow);
-  const ring = new T.Mesh(new T.RingGeometry(31, 31.5, 72), new T.MeshBasicMaterial({ color: 0xc4552d, transparent: true, opacity: .55, side: T.DoubleSide }));
+  const ring = new T.Mesh(new T.RingGeometry(31, 31.5, 72), new T.MeshBasicMaterial({ color: 0xb99c64, transparent: true, opacity: .55, side: T.DoubleSide }));
   ring.rotation.x = -Math.PI / 2; ring.position.y = .1; scene.add(ring);
 
   // ---- points cliquables
@@ -245,7 +245,7 @@ export function init({ el, onSelect }) {
       h.sp.material.opacity = Math.max(0, Math.min(1, op)) * (on ? 1 : .96); h.sp.scale.setScalar(on ? s * 1.15 : s);
       h.rg.material.opacity = on ? 0 : (1 - pulse) * .7 * Math.max(0, Math.min(1, op)); h.rg.scale.setScalar(s * (1 + pulse * 1.1));
     });
-    IDS.forEach(id => { const on = id === sel; M[id].emissive.setHex(on ? 0xc4552d : 0x000000); M[id].emissiveIntensity = on ? .45 + Math.sin(now / 280) * .18 : 0; });
+    IDS.forEach(id => { const on = id === sel; M[id].emissive.setHex(on ? 0xb99c64 : 0x000000); M[id].emissiveIntensity = on ? .45 + Math.sin(now / 280) * .18 : 0; });
     ring.material.opacity = .4 + Math.sin(now / 900) * .12;
     renderer.render(scene, camera);
     if (run && vis) raf = requestAnimationFrame(frame);
