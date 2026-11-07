@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Paiement d'acompte « Stripe » pour les sites d'exemple (démonstration).
+"""Paiement « Stripe » pour les sites d'exemple (démonstration).
 Aucune carte réelle n'est débitée : le parcours reproduit ce que fait la vraie intégration (Stripe Checkout / Connect) :
 saisie de carte, refus possible, reçu, remboursement à l'annulation. Sur un vrai site, la carte est saisie dans les champs
 sécurisés de Stripe : elle ne passe jamais par nos serveurs."""
@@ -19,7 +19,7 @@ CSS = r"""
 .recpt{display:inline-flex;gap:8px;align-items:center;background:#f1f0ff;color:#4b43d6;border-radius:10px;padding:8px 14px;font-size:13.5px;font-weight:600;margin-top:6px}
 """
 
-HTML = """<div class="pay" id="pay"><div class="pay-h"><b>Paiement sécurisé de l’acompte</b><span class="stripe">stripe</span></div>
+HTML = """<div class="pay" id="pay"><div class="pay-h"><b>Paiement sécurisé</b><span class="stripe">stripe</span></div>
 <div class="pay-demo">Mode démonstration : aucune carte réelle n’est débitée. Utilisez 4242 4242 4242 4242, une date future et un code à 3 chiffres. (4000 0000 0000 0002 simule une carte refusée.)</div>
 <label>Numéro de carte<input id="spc" inputmode="numeric" autocomplete="cc-number" placeholder="1234 1234 1234 1234" maxlength="23"></label>
 <div class="pay-r"><label>Expiration<input id="spe" inputmode="numeric" autocomplete="cc-exp" placeholder="MM / AA" maxlength="7"></label><label>Code (CVC)<input id="spv" inputmode="numeric" autocomplete="cc-csc" placeholder="123" maxlength="4"></label></div>

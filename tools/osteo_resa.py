@@ -31,7 +31,7 @@ function hhmm(m){return pad(Math.floor(m/60))+':'+pad(m%60)}
 function dur(m){var h=Math.floor(m/60),r=m%60;return h?(h+' h'+(r?' '+pad(r):'')):(r+' min')}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function byT(id){for(var i=0;i<TYPES.length;i++)if(TYPES[i].id===id)return TYPES[i]}
-function dep(t){return Math.min(t.p,Math.max(10,Math.ceil(t.p*.3/5)*5))}
+function dep(t){return t.p}
 function stripeOn(){try{return localStorage.getItem('osteo-set-stripe')!=='0'}catch(e){return true}}
 function payOf(r){if(r.pay)return r.pay.a;if(r.chan==='web')return dep(byT(r.type));return 0}
 var TODAY=iso(new Date());
@@ -122,7 +122,7 @@ WIDGET_HTML = """<div class="rz" id="rz"><div class="rl">
 <label id="nl">Date de naissance du patient<input id="rb" type="date"></label><label class="w2">Un message pour Léa ? (facultatif)<textarea id="rg" placeholder="Depuis quand, ce qui soulage ou aggrave, radios récentes…"></textarea></label></div>
 <label class="ck"><input type="checkbox" id="c1" checked><span>Je souhaite recevoir un SMS de rappel la veille du rendez-vous.</span></label>
 <label class="ck"><input type="checkbox" id="c2"><span>J’accepte que mes informations (y compris de santé) soient utilisées par le cabinet pour gérer ce rendez-vous. Elles ne sont ni revendues ni partagées.</span></label></div>
-<div class="step" id="paystep"><div class="sh"><i>7</i><b>Acompte pour garantir le rendez-vous</b></div>@@PAY@@</div>
+<div class="step" id="paystep"><div class="sh"><i>7</i><b>Paiement en ligne</b></div>@@PAY@@</div>
 </div>
 <aside class="side"><div class="rc"><h3>Votre rendez-vous</h3><ul id="ru"></ul><div class="tot"><span>Tarif de la séance</span><b id="rp2">—</b></div><button type="button" class="rgo" id="rg2">Confirmer mon rendez-vous</button><div class="rerr" id="re" role="alert"></div><p class="fine">Annulation gratuite jusqu’à 24 h avant. Un rendez-vous manqué sans prévenir est facturé 30 €. Paiement sur place : carte, espèces ou chèque.</p></div></aside>
 <div class="rok" id="rk"><div class="big">✓</div><h3>Rendez-vous confirmé</h3><div class="ref" id="rr"></div><p class="sm" id="rs"></p><p>Un e-mail de confirmation vous est envoyé, avec un rappel par SMS la veille.</p>
@@ -149,8 +149,8 @@ function drawTime(){var el=$('#tl'),h=$('#th');
   h.textContent=any?'Les horaires barrés sont déjà pris. Durée prévue : '+dur(ty().min)+'.':'Plus de créneau ce jour-là : essayez un autre jour ou un autre praticien.'}
 function who(){if(S.day&&S.t!==null){var w=freePra(S.day,S.t,ty().min,busyList(S.day),S.pra);return w}return S.pra}
 function drawRec(){var t=ty(),w=S.day&&S.t!==null?who():S.pra;
-  var L=[['Patient',t.n+' · '+t.age],['Situation',S.sit==='n'?'Première consultation':'Déjà suivi(e)'],['Motif',S.mo||'À préciser sur place'],['Avec',w>=0?PRA[w].n:'Premier praticien libre'],['Quand',S.day&&S.t!==null?label(S.day)+' à '+hm(S.t):'À choisir'],['Durée',dur(t.min)]].concat(stripeOn()?[['Acompte',money(dep(t))+' · solde '+money(t.p-dep(t))+' au cabinet']]:[]);
-  $('#ru').innerHTML=L.map(function(x){return'<li><span>'+x[0]+'</span><b>'+esc(x[1])+'</b></li>'}).join('');$('#rp2').textContent=eur(t.p);$('#paystep').hidden=!stripeOn();$('#rg2').textContent=stripeOn()?'Payer l’acompte de '+money(dep(t))+' et confirmer':'Confirmer mon rendez-vous';
+  var L=[['Patient',t.n+' · '+t.age],['Situation',S.sit==='n'?'Première consultation':'Déjà suivi(e)'],['Motif',S.mo||'À préciser sur place'],['Avec',w>=0?PRA[w].n:'Premier praticien libre'],['Quand',S.day&&S.t!==null?label(S.day)+' à '+hm(S.t):'À choisir'],['Durée',dur(t.min)]].concat(stripeOn()?[['Paiement',money(dep(t))+' · réglé en ligne']]:[]);
+  $('#ru').innerHTML=L.map(function(x){return'<li><span>'+x[0]+'</span><b>'+esc(x[1])+'</b></li>'}).join('');$('#rp2').textContent=eur(t.p);$('#paystep').hidden=!stripeOn();$('#rg2').textContent=stripeOn()?'Payer '+money(dep(t))+' et confirmer':'Confirmer mon rendez-vous';
   $('#nl').style.display=(S.ty==='en'||S.ty==='nr')?'':'none';
   $('#sith').textContent=S.sit==='n'?'Apportez vos radios, IRM et comptes rendus récents : ils m’aident à adapter le soin.':'Je retrouve votre dossier : inutile de tout raconter à nouveau.'}
 function all5(){drawTy();drawMo();drawPra();drawDay();drawTime();drawRec();$('#re').textContent=''}
@@ -175,13 +175,13 @@ $('#rg2').onclick=function(){
     if(pay)r.pay=pay;st.res.push(r);save(st);S.last=r;
     $('#rr').textContent=ref;
     $('#rs').innerHTML='<b>'+esc(label(S.day))+' à '+hm(S.t)+'</b><br>'+esc(t.n)+' · '+dur(t.min)+' · '+eur(t.p)+' · avec '+esc(PRA[w].n)+'<br>Merci '+esc(pr)+', votre rendez-vous est réservé.';
-    $('#rcp').innerHTML=pay?'<span class="recpt">🔒 Acompte de '+money(pay.a)+' réglé par '+pay.brand+' •••• '+pay.last4+' · reçu '+pay.id+'</span><p style="margin-top:8px;color:var(--mut)">Le solde de '+money(t.p-pay.a)+' se règle au cabinet.</p>':'';
+    $('#rcp').innerHTML=pay?'<span class="recpt">🔒 Paiement de '+money(pay.a)+' réglé par '+pay.brand+' •••• '+pay.last4+' · reçu '+pay.id+'</span><p style="margin-top:8px;color:var(--mut)">Rien à régler sur place.</p>':'';
     $('#ics').href='data:text/calendar;charset=utf-8,'+encodeURIComponent(ics(r));
     $('#rli').href='/exemples/osteo-reservation-interne?d='+S.day+'&n='+id;
     $('#rtip').innerHTML='<b>Avant le rendez-vous</b><br>'+(S.sit==='n'?'Venez avec vos radios, IRM et comptes rendus récents, et une tenue confortable. ':'')+'Arrivez 5 minutes en avance. Cabinet de plain-pied, tram C arrêt Chartrons.';
     btn.disabled=false;$('#rz').classList.add('done');$('#rz').scrollIntoView({block:'start',behavior:'smooth'})}
   if(stripeOn()){btn.disabled=true;e.textContent='';stripePay(dep(t)).then(function(pay){book(pay)},function(m){btn.disabled=false;e.textContent=m})}else book(null)};
-$('#rcn').onclick=function(){if(!S.last)return;var st=store();st.del.push(S.last.id);if(S.last.pay){st.ref=st.ref||[];st.ref.push({id:S.last.id,a:S.last.pay.a})}save(st);$('#rs').innerHTML='<b>Rendez-vous annulé.</b><br>Le créneau est de nouveau libre. Vous recevez un e-mail de confirmation d’annulation.';$('#rcp').innerHTML=S.last.pay?'<span class="recpt">Acompte de '+money(S.last.pay.a)+' remboursé sur votre carte •••• '+S.last.pay.last4+' (5 à 10 jours)</span>':'';$('#rcn').style.display='none';$('#ics').style.display='none'};
+$('#rcn').onclick=function(){if(!S.last)return;var st=store();st.del.push(S.last.id);if(S.last.pay){st.ref=st.ref||[];st.ref.push({id:S.last.id,a:S.last.pay.a})}save(st);$('#rs').innerHTML='<b>Rendez-vous annulé.</b><br>Le créneau est de nouveau libre. Vous recevez un e-mail de confirmation d’annulation.';$('#rcp').innerHTML=S.last.pay?'<span class="recpt">Paiement de '+money(S.last.pay.a)+' remboursé sur votre carte •••• '+S.last.pay.last4+' (5 à 10 jours)</span>':'';$('#rcn').style.display='none';$('#ics').style.display='none'};
 $('#rna').onclick=function(){S.day=null;S.t=null;S.last=null;['#rp','#rn','#rt','#rm','#rg','#rb'].forEach(function(s){$(s).value=''});$('#c2').checked=false;['#spc','#spe','#spv'].forEach(function(x){$(x).value=''});$('#rcn').style.display='';$('#ics').style.display='';$('#rz').classList.remove('done');all5()};
 spInit();document.addEventListener('osteo-motif',function(e){S.mo=e.detail;drawMo();drawRec()});
 all5();
@@ -256,7 +256,7 @@ INT_BODY = """<div class="swbar"><b>Site d’exemple · Cabinet Lemaire</b><a hr
 
 <section class="view on" id="v-dash"><div class="head"><div><h1>Tableau de bord</h1><p>Vos réservations en un coup d’œil</p></div><div class="sp"></div><div class="seg" id="per"><button data-p="7">7 jours</button><button data-p="30" class="on">30 jours</button><button data-p="90">90 jours</button></div></div>
 <div class="kpis" id="kp"></div>
-<div class="card" style="margin-bottom:18px"><h2>Acomptes en ligne (Stripe)</h2><p class="sub">Encaissés directement sur votre compte, sans commission de notre part</p><div class="pm" id="pm"></div></div>
+<div class="card" style="margin-bottom:18px"><h2>Paiements en ligne (Stripe)</h2><p class="sub">Encaissés directement sur votre compte, sans commission de notre part</p><div class="pm" id="pm"></div></div>
 <div class="cards"><div class="card c8"><h2>Rendez-vous par semaine</h2><p class="sub">Les 8 dernières semaines, la semaine en cours et la suivante · en doré, les rendez-vous pris en ligne</p><div class="bars" id="wk"></div></div>
 <div class="card c4"><h2>Prochain rendez-vous</h2><p class="sub" id="nxs"></p><div id="nx"></div></div>
 <div class="card c6"><h2>Motifs de consultation</h2><p class="sub">Ce qui amène vos patients</p><div class="hz" id="mt"></div></div>
@@ -274,7 +274,7 @@ INT_BODY = """<div class="swbar"><b>Site d’exemple · Cabinet Lemaire</b><a hr
 <section class="view" id="v-regl"><div class="head"><div><h1>Réglages</h1><p>Comment fonctionne la réservation en ligne</p></div></div>
 <div class="cards"><div class="card c6"><h2>Réservation en ligne</h2><p class="sub">Ce que vos patients voient sur le site</p><div class="set" id="st1"></div></div>
 <div class="card c6"><h2>Horaires d’ouverture</h2><p class="sub">Les créneaux proposés suivent ces horaires</p><ul class="hz" style="gap:0" id="hh"></ul></div>
-<div class="card c12"><h2>Paiement en ligne · Stripe</h2><p class="sub">Acompte demandé à la réservation pour limiter les rendez-vous non honorés. Aucune commission : seuls les frais de Stripe s’appliquent.</p><div class="sconn"><span><b id="sct">Compte Stripe connecté</b><small id="scs"></small></span><span class="tgw"><small>Acompte à la réservation</small><button class="tgl on" id="tgs" aria-label="Activer l’acompte"></button></span></div></div>
+<div class="card c12"><h2>Paiement en ligne · Stripe</h2><p class="sub">Le client règle sa prestation en ligne, au moment de réserver. Aucune commission : seuls les frais de Stripe s’appliquent.</p><div class="sconn"><span><b id="sct">Compte Stripe connecté</b><small id="scs"></small></span><span class="tgw"><small>Paiement en ligne</small><button class="tgl on" id="tgs" aria-label="Activer le paiement en ligne"></button></span></div></div>
 <div class="card c12"><h2>Durées et tarifs</h2><p class="sub">Les types de consultation proposés à la réservation</p><table class="tbl"><thead><tr><th>Type</th><th>Durée</th><th>Tarif</th><th>Patients</th></tr></thead><tbody id="tt"></tbody></table></div></div></section>
 
 </main></div>
@@ -378,7 +378,7 @@ function setStatut(id,s){var st=store();st.st=st.st||{};st.st[id]=s;save(st)}
 document.addEventListener('click',function(e){
   var b=e.target.closest('[data-id]');
   if(b&&!b.closest('#md')&&b.dataset.d){var r=find(b.dataset.id,b.dataset.d);if(!r)return;var ty=byT(r.type),fut=r.iso>=TODAY;
-    modal('<h3>'+esc(r.nom)+'</h3><p>'+pill(r.statut)+(r.nouveau?' <span class="pill w">Nouveau patient</span>':'')+'</p><dl><dt>Quand</dt><dd>'+label(r.iso)+' à '+hm(r.t)+'</dd><dt>Consultation</dt><dd>'+ty.n+' · '+dur(r.dur)+' · '+eur(ty.p)+'</dd><dt>Motif</dt><dd>'+esc(r.motif)+'</dd><dt>Praticien</dt><dd>'+PRA[r.who].n+'</dd><dt>Réservé via</dt><dd>'+({web:'le site internet',tel:'le téléphone',place:'sur place'})[r.chan]+'</dd>'+(r.tel?'<dt>Téléphone</dt><dd>'+esc(r.tel)+'</dd>':'')+(r.mail?'<dt>E-mail</dt><dd>'+esc(r.mail)+'</dd>':'')+(r.msg?'<dt>Message</dt><dd>'+esc(r.msg)+'</dd>':'')+(r.ref?'<dt>Référence</dt><dd>'+esc(r.ref)+'</dd>':'')+(payOf(r)?'<dt>Acompte</dt><dd>'+money(payOf(r))+' payé en ligne (Stripe) · '+(r.statut==='annulé'?'remboursé':(r.statut==='absent'?'conservé':'solde '+money(byT(r.type).p-payOf(r))+' au cabinet'))+'</dd>':'')+'</dl><div class="acts">'+(r.statut==='confirmé'&&!fut?'<button class="btn" data-act="fait" data-id="'+r.id+'" data-d="'+r.iso+'">Marquer présent</button><button class="btn o" data-act="absent" data-id="'+r.id+'" data-d="'+r.iso+'">Absent</button>':'')+(r.statut==='confirmé'&&fut?'<button class="btn d" data-act="annulé" data-id="'+r.id+'" data-d="'+r.iso+'">Annuler le rendez-vous</button>':'')+'<button class="btn o" data-x>Fermer</button></div>');return}
+    modal('<h3>'+esc(r.nom)+'</h3><p>'+pill(r.statut)+(r.nouveau?' <span class="pill w">Nouveau patient</span>':'')+'</p><dl><dt>Quand</dt><dd>'+label(r.iso)+' à '+hm(r.t)+'</dd><dt>Consultation</dt><dd>'+ty.n+' · '+dur(r.dur)+' · '+eur(ty.p)+'</dd><dt>Motif</dt><dd>'+esc(r.motif)+'</dd><dt>Praticien</dt><dd>'+PRA[r.who].n+'</dd><dt>Réservé via</dt><dd>'+({web:'le site internet',tel:'le téléphone',place:'sur place'})[r.chan]+'</dd>'+(r.tel?'<dt>Téléphone</dt><dd>'+esc(r.tel)+'</dd>':'')+(r.mail?'<dt>E-mail</dt><dd>'+esc(r.mail)+'</dd>':'')+(r.msg?'<dt>Message</dt><dd>'+esc(r.msg)+'</dd>':'')+(r.ref?'<dt>Référence</dt><dd>'+esc(r.ref)+'</dd>':'')+(payOf(r)?'<dt>Paiement</dt><dd>'+money(payOf(r))+' payé en ligne (Stripe) · '+(r.statut==='annulé'?'remboursé':(r.statut==='absent'?'conservé':'réglé intégralement'))+'</dd>':'')+'</dl><div class="acts">'+(r.statut==='confirmé'&&!fut?'<button class="btn" data-act="fait" data-id="'+r.id+'" data-d="'+r.iso+'">Marquer présent</button><button class="btn o" data-act="absent" data-id="'+r.id+'" data-d="'+r.iso+'">Absent</button>':'')+(r.statut==='confirmé'&&fut?'<button class="btn d" data-act="annulé" data-id="'+r.id+'" data-d="'+r.iso+'">Annuler le rendez-vous</button>':'')+'<button class="btn o" data-x>Fermer</button></div>');return}
   var a=e.target.closest('[data-act]');if(a){var id=a.dataset.id;if(id.charAt(0)==='u'||id.charAt(0)==='m'){var st=store();st.st=st.st||{};}setStatut(id,a.dataset.act);close();refresh();toast(a.dataset.act==='annulé'?'Rendez-vous annulé : le créneau est libre.':'Statut mis à jour.');return}
   if(e.target.closest('[data-x]')||e.target===$('#md')){close();return}
 });
@@ -394,12 +394,12 @@ $('#nw').onclick=function(){
 function drawPay(){
   var on=stripeOn(),i,st=store(),inn=0,fut=0,fees=0,refs=0,keep=0,dd=0;
   all(cur).forEach(function(r){if(r.statut!=='annulé')dd+=payOf(r)});
-  $('#kp').insertAdjacentHTML('beforeend','<div class="kpi"><small>Acomptes du jour</small><b>'+money(dd)+'</b><i>payés en ligne via Stripe</i></div>');
+  $('#kp').insertAdjacentHTML('beforeend','<div class="kpi"><small>Paiements du jour</small><b>'+money(dd)+'</b><i>payés en ligne via Stripe</i></div>');
   for(i=-30;i<=14;i++){var d=parse(TODAY);d.setDate(d.getDate()+i);var s=iso(d);all(s).forEach(function(r){var a=payOf(r);if(!a||r.statut==='annulé')return;if(i<=0){inn+=a;fees+=feeOf(a);if(r.statut==='absent')keep+=a}else fut+=a})}
   (st.ref||[]).forEach(function(x){refs+=x.a});
-  $('#pm').innerHTML='<div><small>Acomptes encaissés (30 jours)</small><b>'+money(inn)+'</b></div><div><small>Acomptes à venir (14 jours)</small><b>'+money(fut)+'</b></div><div><small>Gardés (patients absents)</small><b>'+money(keep)+'</b></div><div><small>Frais Stripe estimés · remboursés '+money(refs)+'</small><b>'+money(fees)+'</b></div>';
-  $('#tgs').classList.toggle('on',on);$('#sct').textContent=on?'Compte Stripe connecté':'Acompte désactivé';$('#scs').textContent=on?'Virements automatiques vers votre compte bancaire · IBAN FR76 •••• •••• 4821':'Vos patients réservent sans payer. Réactivez l’acompte pour limiter les absences.'}
-$('#tgs').onclick=function(){try{localStorage.setItem('osteo-set-stripe',stripeOn()?'0':'1')}catch(e){}refresh();toast(stripeOn()?'Acompte activé sur le site.':'Acompte désactivé sur le site.')};
+  $('#pm').innerHTML='<div><small>Paiements encaissés (30 jours)</small><b>'+money(inn)+'</b></div><div><small>Paiements à venir (14 jours)</small><b>'+money(fut)+'</b></div><div><small>Non remboursés (absents)</small><b>'+money(keep)+'</b></div><div><small>Frais Stripe estimés · remboursés '+money(refs)+'</small><b>'+money(fees)+'</b></div>';
+  $('#tgs').classList.toggle('on',on);$('#sct').textContent=on?'Compte Stripe connecté':'Paiement désactivé';$('#scs').textContent=on?'Virements automatiques vers votre compte bancaire · IBAN FR76 •••• •••• 4821':'Vos patients réservent sans payer. Réactivez le paiement en ligne.'}
+$('#tgs').onclick=function(){try{localStorage.setItem('osteo-set-stripe',stripeOn()?'0':'1')}catch(e){}refresh();toast(stripeOn()?'Paiement en ligne activé.':'Paiement désactivé sur le site.')};
 function refresh(){drawDash();drawPay();drawAg();drawList()}
 function shift(n){var d=cur;do{d=addDays(d,n)}while(!isOpenDay(d));cur=d;drawAg()}
 $('#pv').onclick=function(){shift(-1)};$('#nxd').onclick=function(){shift(1)};

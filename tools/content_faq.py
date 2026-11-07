@@ -22,7 +22,7 @@ FAQ = [
      "<p>La réservation fait partie de <strong>votre propre site</strong> : vos clients réservent chez vous, et vous suivez votre planning et vos statistiques (réservations et personnes par jour, par période, par tranche horaire) depuis votre site. Voyez l’exemple du <a href=\"/exemples/bistro\">site d’un restaurant</a>.</p>"),
     ("offre", "reservation", "Comment fonctionne la réservation en ligne ?",
      "<p>Sur votre site, un client choisit une prestation, un jour et un créneau libre, puis laisse son nom et son téléphone. Le créneau n’est alors plus proposé aux autres : pas de double réservation. Les réservations apparaissent dans l’agenda de votre espace client.</p>"
-     "<p>Nous paramétrons pour vous vos prestations, leurs durées et vos horaires d’ouverture. Ne sont pas compris : le paiement ou l’acompte en ligne, les rappels par SMS et la synchronisation avec un autre agenda. Nous pouvons en parler sur devis.</p>"),
+     "<p>Nous paramétrons pour vous vos prestations, leurs durées et vos horaires d’ouverture. Ne sont pas compris : les rappels par SMS et la synchronisation avec un autre agenda. Nous pouvons en parler sur devis.</p>"),
     ("offre", "changer-formule", "Puis-je passer de l’Essentiel au Pro ?",
      "<p>Oui, à tout moment : le Pro s’applique au début du mois suivant, et une nouvelle période de 12 mois commence à ce moment-là. Le passage du Pro à l’Essentiel se fait à l’échéance de la période en cours.</p>"),
     ("offre", "inclus", "Qu’est-ce qui est inclus dans l’abonnement ?",
