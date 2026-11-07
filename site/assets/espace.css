@@ -236,3 +236,13 @@ ul.list{margin:10px 0 0;padding-left:20px;display:grid;gap:8px;line-height:1.5}
 .gp-plan{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.gp-wk{background:var(--soft);border-radius:12px;padding:12px 14px;font-size:13px}.gp-wk h3{margin:0 0 8px;font-size:14px}
 .gp-foot{font-size:12px;text-align:center}
 @media(max-width:760px){.gp-hero,.gp-plan{grid-template-columns:1fr}}
+.form label.check{display:flex;flex-direction:row;gap:10px;align-items:flex-start;font-weight:500;line-height:1.45}
+.form label.check input{width:18px;height:18px;padding:0;flex:none;margin-top:2px;accent-color:var(--pri,#3B4BD8)}
+.form label .err{display:block;font-size:12.5px;margin-top:4px}
+.revt tfoot th,.revt tfoot td{padding-top:8px}
+.rcp{border:1px solid var(--line);border-radius:14px;padding:4px 16px;margin:10px 0}
+.rcp-r{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--line);align-items:flex-start}.rcp-r:first-child{border-top:0}
+.rcp-r small{display:block;color:var(--mut);font-size:12.5px}.rcp-v{white-space:nowrap;font-variant-numeric:tabular-nums}.rcp-r.tot{font-weight:700}
+.form label.check{justify-content:flex-start;text-align:left}
+@media(max-width:620px){.invoice{padding:20px;overflow-x:auto}.inv-t{min-width:520px;font-size:12.5px}}
+@media print{.invoice{overflow:visible}.inv-t{min-width:0}}
