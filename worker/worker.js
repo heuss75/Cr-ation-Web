@@ -945,7 +945,6 @@ async function commandePayee(env, cmdId, o) {
     await envoyerMail(env, cpt.email, 'Paiement reçu · facture ' + (f && f.numero), t, htmlMail(t));
   }
 }
-function plusJours(iso, n) { const d = new Date(String(iso).slice(0, 10) + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
 
 // Crée, met à jour ou arrête l'abonnement mensuel Stripe selon l'abonnement en base (appelé après chaque changement côté admin).
 async function syncStripeAbo(env, cid) {
