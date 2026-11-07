@@ -131,7 +131,7 @@ footer.ft{margin-top:100px;background:var(--g);color:#bccdc9;padding:60px 0 34px
 <label id="nl">Date de naissance du patient<input id="rb" type="date"/></label><label class="w2">Un message pour Léa ? (facultatif)<textarea id="rg" placeholder="Depuis quand, ce qui soulage ou aggrave, radios récentes…"></textarea></label></div>
 <label class="ck"><input checked="" id="c1" type="checkbox"/><span>Je souhaite recevoir un SMS de rappel la veille du rendez-vous.</span></label>
 <label class="ck"><input id="c2" type="checkbox"/><span>J’accepte que mes informations (y compris de santé) soient utilisées par le cabinet pour gérer ce rendez-vous. Elles ne sont ni revendues ni partagées.</span></label></div>
-<div class="step" id="paystep"><div class="sh"><i>7</i><b>Acompte pour garantir le rendez-vous</b></div><div class="pay" id="pay"><div class="pay-h"><b>Paiement sécurisé de l’acompte</b><span class="stripe">stripe</span></div>
+<div class="step" id="paystep"><div class="sh"><i>7</i><b>Paiement en ligne</b></div><div class="pay" id="pay"><div class="pay-h"><b>Paiement sécurisé</b><span class="stripe">stripe</span></div>
 <div class="pay-demo">Mode démonstration : aucune carte réelle n’est débitée. Utilisez 4242 4242 4242 4242, une date future et un code à 3 chiffres. (4000 0000 0000 0002 simule une carte refusée.)</div>
 <label>Numéro de carte<input autocomplete="cc-number" id="spc" inputmode="numeric" maxlength="23" placeholder="1234 1234 1234 1234"/></label>
 <div class="pay-r"><label>Expiration<input autocomplete="cc-exp" id="spe" inputmode="numeric" maxlength="7" placeholder="MM / AA"/></label><label>Code (CVC)<input autocomplete="cc-csc" id="spv" inputmode="numeric" maxlength="4" placeholder="123"/></label></div>
@@ -223,7 +223,7 @@ function hhmm(m){return pad(Math.floor(m/60))+':'+pad(m%60)}
 function dur(m){var h=Math.floor(m/60),r=m%60;return h?(h+' h'+(r?' '+pad(r):'')):(r+' min')}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function byT(id){for(var i=0;i<TYPES.length;i++)if(TYPES[i].id===id)return TYPES[i]}
-function dep(t){return Math.min(t.p,Math.max(10,Math.ceil(t.p*.3/5)*5))}
+function dep(t){return t.p}
 function stripeOn(){try{return localStorage.getItem('osteo-set-stripe')!=='0'}catch(e){return true}}
 function payOf(r){if(r.pay)return r.pay.a;if(r.chan==='web')return dep(byT(r.type));return 0}
 var TODAY=iso(new Date());
@@ -315,8 +315,8 @@ function drawTime(){var el=$('#tl'),h=$('#th');
   h.textContent=any?'Les horaires barrés sont déjà pris. Durée prévue : '+dur(ty().min)+'.':'Plus de créneau ce jour-là : essayez un autre jour ou un autre praticien.'}
 function who(){if(S.day&&S.t!==null){var w=freePra(S.day,S.t,ty().min,busyList(S.day),S.pra);return w}return S.pra}
 function drawRec(){var t=ty(),w=S.day&&S.t!==null?who():S.pra;
-  var L=[['Patient',t.n+' · '+t.age],['Situation',S.sit==='n'?'Première consultation':'Déjà suivi(e)'],['Motif',S.mo||'À préciser sur place'],['Avec',w>=0?PRA[w].n:'Premier praticien libre'],['Quand',S.day&&S.t!==null?label(S.day)+' à '+hm(S.t):'À choisir'],['Durée',dur(t.min)]].concat(stripeOn()?[['Acompte',money(dep(t))+' · solde '+money(t.p-dep(t))+' au cabinet']]:[]);
-  $('#ru').innerHTML=L.map(function(x){return'<li><span>'+x[0]+'</span><b>'+esc(x[1])+'</b></li>'}).join('');$('#rp2').textContent=eur(t.p);$('#paystep').hidden=!stripeOn();$('#rg2').textContent=stripeOn()?'Payer l’acompte de '+money(dep(t))+' et confirmer':'Confirmer mon rendez-vous';
+  var L=[['Patient',t.n+' · '+t.age],['Situation',S.sit==='n'?'Première consultation':'Déjà suivi(e)'],['Motif',S.mo||'À préciser sur place'],['Avec',w>=0?PRA[w].n:'Premier praticien libre'],['Quand',S.day&&S.t!==null?label(S.day)+' à '+hm(S.t):'À choisir'],['Durée',dur(t.min)]].concat(stripeOn()?[['Paiement',money(dep(t))+' · réglé en ligne']]:[]);
+  $('#ru').innerHTML=L.map(function(x){return'<li><span>'+x[0]+'</span><b>'+esc(x[1])+'</b></li>'}).join('');$('#rp2').textContent=eur(t.p);$('#paystep').hidden=!stripeOn();$('#rg2').textContent=stripeOn()?'Payer '+money(dep(t))+' et confirmer':'Confirmer mon rendez-vous';
   $('#nl').style.display=(S.ty==='en'||S.ty==='nr')?'':'none';
   $('#sith').textContent=S.sit==='n'?'Apportez vos radios, IRM et comptes rendus récents : ils m’aident à adapter le soin.':'Je retrouve votre dossier : inutile de tout raconter à nouveau.'}
 function all5(){drawTy();drawMo();drawPra();drawDay();drawTime();drawRec();$('#re').textContent=''}
@@ -341,13 +341,13 @@ $('#rg2').onclick=function(){
     if(pay)r.pay=pay;st.res.push(r);save(st);S.last=r;
     $('#rr').textContent=ref;
     $('#rs').innerHTML='<b>'+esc(label(S.day))+' à '+hm(S.t)+'</b><br>'+esc(t.n)+' · '+dur(t.min)+' · '+eur(t.p)+' · avec '+esc(PRA[w].n)+'<br>Merci '+esc(pr)+', votre rendez-vous est réservé.';
-    $('#rcp').innerHTML=pay?'<span class="recpt">🔒 Acompte de '+money(pay.a)+' réglé par '+pay.brand+' •••• '+pay.last4+' · reçu '+pay.id+'</span><p style="margin-top:8px;color:var(--mut)">Le solde de '+money(t.p-pay.a)+' se règle au cabinet.</p>':'';
+    $('#rcp').innerHTML=pay?'<span class="recpt">🔒 Paiement de '+money(pay.a)+' réglé par '+pay.brand+' •••• '+pay.last4+' · reçu '+pay.id+'</span><p style="margin-top:8px;color:var(--mut)">Rien à régler sur place.</p>':'';
     $('#ics').href='data:text/calendar;charset=utf-8,'+encodeURIComponent(ics(r));
     $('#rli').href='/exemples/osteo-reservation-interne?d='+S.day+'&n='+id;
     $('#rtip').innerHTML='<b>Avant le rendez-vous</b><br>'+(S.sit==='n'?'Venez avec vos radios, IRM et comptes rendus récents, et une tenue confortable. ':'')+'Arrivez 5 minutes en avance. Cabinet de plain-pied, tram C arrêt Chartrons.';
     btn.disabled=false;$('#rz').classList.add('done');$('#rz').scrollIntoView({block:'start',behavior:'smooth'})}
   if(stripeOn()){btn.disabled=true;e.textContent='';stripePay(dep(t)).then(function(pay){book(pay)},function(m){btn.disabled=false;e.textContent=m})}else book(null)};
-$('#rcn').onclick=function(){if(!S.last)return;var st=store();st.del.push(S.last.id);if(S.last.pay){st.ref=st.ref||[];st.ref.push({id:S.last.id,a:S.last.pay.a})}save(st);$('#rs').innerHTML='<b>Rendez-vous annulé.</b><br>Le créneau est de nouveau libre. Vous recevez un e-mail de confirmation d’annulation.';$('#rcp').innerHTML=S.last.pay?'<span class="recpt">Acompte de '+money(S.last.pay.a)+' remboursé sur votre carte •••• '+S.last.pay.last4+' (5 à 10 jours)</span>':'';$('#rcn').style.display='none';$('#ics').style.display='none'};
+$('#rcn').onclick=function(){if(!S.last)return;var st=store();st.del.push(S.last.id);if(S.last.pay){st.ref=st.ref||[];st.ref.push({id:S.last.id,a:S.last.pay.a})}save(st);$('#rs').innerHTML='<b>Rendez-vous annulé.</b><br>Le créneau est de nouveau libre. Vous recevez un e-mail de confirmation d’annulation.';$('#rcp').innerHTML=S.last.pay?'<span class="recpt">Paiement de '+money(S.last.pay.a)+' remboursé sur votre carte •••• '+S.last.pay.last4+' (5 à 10 jours)</span>':'';$('#rcn').style.display='none';$('#ics').style.display='none'};
 $('#rna').onclick=function(){S.day=null;S.t=null;S.last=null;['#rp','#rn','#rt','#rm','#rg','#rb'].forEach(function(s){$(s).value=''});$('#c2').checked=false;['#spc','#spe','#spv'].forEach(function(x){$(x).value=''});$('#rcn').style.display='';$('#ics').style.display='';$('#rz').classList.remove('done');all5()};
 spInit();document.addEventListener('osteo-motif',function(e){S.mo=e.detail;drawMo();drawRec()});
 all5();

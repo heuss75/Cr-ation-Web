@@ -39,7 +39,7 @@ function dur(m){var h=Math.floor(m/60),r=m%60;return h?(h+' h'+(r?' '+pad(r):'')
 function eur(p,from){return (from?'dès ':'')+p+' €'}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function byId(id){for(var i=0;i<PREST.length;i++)if(PREST[i].id===id)return PREST[i]}
-function dep(p){return Math.min(p.p,Math.max(10,Math.ceil(p.p*.3/5)*5))}
+function dep(p){return p.p}
 function stripeOn(){try{return localStorage.getItem('salon-set-stripe')!=='0'}catch(e){return true}}
 function payOf(r){if(r.pay)return r.pay.a;if(r.web)return dep(byId(r.p));return 0}
 var TODAY=iso(new Date());
@@ -120,12 +120,12 @@ WIDGET_HTML = """<div class="bk"><div class="rdvw" id="rdvw">
 <div class="rf"><label>Prénom<input id="rp" autocomplete="given-name" placeholder="Claire"></label><label>Nom<input id="rn" autocomplete="family-name" placeholder="Martin"></label>
 <label>Téléphone<input id="rt" type="tel" autocomplete="tel" placeholder="06 12 34 56 78"></label><label>E-mail <span style="text-transform:none;letter-spacing:0;font-weight:500">(confirmation)</span><input id="rm" type="email" autocomplete="email" placeholder="claire@exemple.fr"></label>
 <label class="w2">Un message pour le salon ? <span style="text-transform:none;letter-spacing:0;font-weight:500">(facultatif)</span><textarea id="rg" placeholder="Longueur actuelle, allergie, première visite…"></textarea></label></div></div>
-<div id="paystep"><div class="st"><i>5</i><b>Acompte pour garantir votre créneau</b></div>@@PAY@@</div>
+<div id="paystep"><div class="st"><i>5</i><b>Paiement en ligne</b></div>@@PAY@@</div>
 <div class="recap2" id="rc" hidden></div>
 <div class="rerr" id="re" role="alert"></div>
 <button type="button" class="rgo" id="rb">Confirmer mon rendez-vous</button>
 </div>
-<div class="rok" id="rk"><div class="big">✓</div><h3>Rendez-vous confirmé</h3><div class="ref" id="rr"></div><p id="rs"></p><p>Un e-mail de confirmation vous est envoyé, avec un rappel la veille. Vous pouvez modifier ou annuler jusqu’à 24 h avant.</p><div id="rcp"></div><p><button type="button" class="lnk" id="rx">Annuler ce rendez-vous (acompte remboursé)</button></p><a class="l" id="rl" href="/exemples/salon-reservation-interne" target="_blank" rel="noopener">Voir ce rendez-vous dans l’agenda du salon (espace interne) →</a><br><a class="l" href="#rdv" id="ra">Prendre un autre rendez-vous</a></div>
+<div class="rok" id="rk"><div class="big">✓</div><h3>Rendez-vous confirmé</h3><div class="ref" id="rr"></div><p id="rs"></p><p>Un e-mail de confirmation vous est envoyé, avec un rappel la veille. Vous pouvez modifier ou annuler jusqu’à 24 h avant.</p><div id="rcp"></div><p><button type="button" class="lnk" id="rx">Annuler ce rendez-vous (paiement remboursé)</button></p><a class="l" id="rl" href="/exemples/salon-reservation-interne" target="_blank" rel="noopener">Voir ce rendez-vous dans l’agenda du salon (espace interne) →</a><br><a class="l" href="#rdv" id="ra">Prendre un autre rendez-vous</a></div>
 </div></div>"""
 
 WIDGET_JS = r"""
@@ -142,8 +142,8 @@ function drawT(){var el=$('#tl'),p=S.p?byId(S.p):null,hint=$('#th');
   sl.forEach(function(x){if(x.w>=0)any=true;h+='<button type="button" class="tc2'+(S.t===x.t&&x.w>=0?' on':'')+'" data-t="'+x.t+'"'+(x.w<0?' disabled':'')+'>'+hhmm(x.t)+'</button>'});
   el.innerHTML=h;if(S.t!==null&&!sl.some(function(x){return x.t===S.t&&x.w>=0}))S.t=null;
   hint.textContent=any?'Les horaires barrés sont déjà pris. Durée prévue : '+dur(p.min)+'.':'Plus de créneau ce jour-là pour cette prestation : essayez un autre jour.';}
-function drawR(){var r=$('#rc'),p=S.p?byId(S.p):null;if(p&&S.day&&S.t!==null){r.hidden=false;r.innerHTML='<span>✂ '+esc(p.n)+'</span><span>📅 '+label(S.day)+' à '+hm(S.t)+'</span><span>⏱ '+dur(p.min)+'</span><span>💶 '+eur(p.p,p.from)+'</span>'+(stripeOn()?'<span>🔒 Acompte : '+money(dep(p))+'</span>':'')}else r.hidden=true}
-function drawPay(){var p=S.p?byId(S.p):null,on=stripeOn();$('#paystep').hidden=!on;$('#rb').textContent=on&&p?'Payer l’acompte de '+money(dep(p))+' et confirmer':'Confirmer mon rendez-vous'}
+function drawR(){var r=$('#rc'),p=S.p?byId(S.p):null;if(p&&S.day&&S.t!==null){r.hidden=false;r.innerHTML='<span>✂ '+esc(p.n)+'</span><span>📅 '+label(S.day)+' à '+hm(S.t)+'</span><span>⏱ '+dur(p.min)+'</span><span>💶 '+eur(p.p,p.from)+'</span>'+(stripeOn()?'<span>🔒 Paiement : '+money(dep(p))+'</span>':'')}else r.hidden=true}
+function drawPay(){var p=S.p?byId(S.p):null,on=stripeOn();$('#paystep').hidden=!on;$('#rb').textContent=on&&p?'Payer '+money(dep(p))+' et confirmer':'Confirmer mon rendez-vous'}
 function all3(){drawP();drawD();drawT();drawR();drawPay();$('#re').textContent=''}
 $('#pl').onclick=function(e){var b=e.target.closest('.pc');if(!b)return;S.p=b.dataset.id;S.t=null;all3();if(!S.day)$('#dl').scrollIntoView({block:'nearest',behavior:'smooth'})};
 $('#dl').onclick=function(e){var b=e.target.closest('.dc');if(!b)return;S.day=b.dataset.d;S.t=null;all3()};
@@ -161,12 +161,12 @@ $('#rb').onclick=function(){
     var rec={id:id,iso:S.day,t:S.t,dur:p.min,p:p.id,who:w,nom:pr+' '+nm,tel:tel,mail:mail,msg:$('#rg').value.trim(),web:1,ref:ref};if(pay)rec.pay=pay;
     st.res.push(rec);save(st);S.last=rec;
     $('#rr').textContent=ref;$('#rs').innerHTML='<b>'+esc(label(S.day))+' à '+hm(S.t)+'</b><br>'+esc(p.n)+' · '+dur(p.min)+' · '+eur(p.p,p.from)+' · avec '+STY[w].n+'<br>Merci '+esc(pr)+', votre rendez-vous est réservé.';
-    $('#rcp').innerHTML=pay?'<span class="recpt">🔒 Acompte de '+money(pay.a)+' réglé par '+pay.brand+' •••• '+pay.last4+' · reçu '+pay.id+'</span><p style="margin-top:6px">Le solde de '+money(Math.max(0,p.p-pay.a))+' se règle au salon.</p>':'';
+    $('#rcp').innerHTML=pay?'<span class="recpt">🔒 Paiement de '+money(pay.a)+' réglé par '+pay.brand+' •••• '+pay.last4+' · reçu '+pay.id+'</span><p style="margin-top:6px">Rien à régler sur place.</p>':'';
     $('#rx').hidden=false;$('#rl').href='/exemples/salon-reservation-interne?d='+S.day+'&n='+id;
     btn.disabled=false;$('#rdvw').classList.add('done');$('#rdvw').scrollIntoView({block:'start',behavior:'smooth'})}
   if(stripeOn()){btn.disabled=true;e.textContent='';stripePay(dep(p)).then(function(pay){book(pay)},function(m){btn.disabled=false;e.textContent=m})}else book(null)};
 $('#rx').onclick=function(){if(!S.last)return;var st=store();st.del.push(S.last.id);if(S.last.pay){st.ref=st.ref||[];st.ref.push({id:S.last.id,a:S.last.pay.a})}save(st);
-  $('#rs').innerHTML='<b>Rendez-vous annulé.</b><br>Le créneau est de nouveau libre.';$('#rcp').innerHTML=S.last.pay?'<span class="recpt">Acompte de '+money(S.last.pay.a)+' remboursé sur votre carte •••• '+S.last.pay.last4+' (5 à 10 jours)</span>':'';$('#rx').hidden=true;$('#rl').hidden=true;S.last=null};
+  $('#rs').innerHTML='<b>Rendez-vous annulé.</b><br>Le créneau est de nouveau libre.';$('#rcp').innerHTML=S.last.pay?'<span class="recpt">Paiement de '+money(S.last.pay.a)+' remboursé sur votre carte •••• '+S.last.pay.last4+' (5 à 10 jours)</span>':'';$('#rx').hidden=true;$('#rl').hidden=true;S.last=null};
 $('#ra').onclick=function(ev){ev.preventDefault();$('#rl').hidden=false;$('#rx').hidden=false;S.last=null;['#spc','#spe','#spv'].forEach(function(x){$(x).value=''});S.p=null;S.day=null;S.t=null;['#rp','#rn','#rt','#rm','#rg'].forEach(function(s){$(s).value=''});$('#rdvw').classList.remove('done');all3()};
 all3();spInit();
 """
@@ -226,8 +226,8 @@ INT_BODY = """<div class="swbar"><b>Site d’exemple · Maison Olive</b><a href=
 <div class="kpis" id="kp"></div>
 <div class="grid"><div class="card"><h2>Planning par coiffeur</h2><div id="pl"></div></div>
 <div style="display:grid;gap:16px"><div class="card"><h2>Liste du jour</h2><ul class="ls" id="ls"></ul></div><div class="card"><h2>Par type de prestation</h2><div class="bars" id="br"></div></div></div></div>
-<div class="card" style="margin-top:16px"><h2>Paiements en ligne (Stripe)</h2><p class="sub2" id="pms">Acomptes versés par vos clients à la réservation</p><div class="pm" id="pm"></div>
-<div class="sconn"><span><b id="sct">Compte Stripe connecté</b><small id="scs">Virements automatiques vers votre compte bancaire · IBAN FR76 •••• •••• 4821</small></span><span class="tgw"><small>Acompte à la réservation</small><button class="tgl on" id="tgs" aria-label="Activer l’acompte"></button></span></div></div>
+<div class="card" style="margin-top:16px"><h2>Paiements en ligne (Stripe)</h2><p class="sub2" id="pms">Paiements Stripe reçus de vos clients</p><div class="pm" id="pm"></div>
+<div class="sconn"><span><b id="sct">Compte Stripe connecté</b><small id="scs">Virements automatiques vers votre compte bancaire · IBAN FR76 •••• •••• 4821</small></span><span class="tgw"><small>Paiement en ligne</small><button class="tgl on" id="tgs" aria-label="Activer le paiement en ligne"></button></span></div></div>
 </div>
 <div class="mdl" id="md" hidden><div class="box" id="mb"></div></div>
 <div class="demo-bar"><span>Exemple réalisé par Devanture Web · noms et rendez-vous fictifs · les rendez-vous pris ici restent dans votre navigateur · sur un vrai site, cet espace est protégé par un mot de passe et réservé au salon</span><a href="/#avant" target="_top">← Retour à l’offre</a></div><div class="toast" id="toast" role="status"></div>"""
@@ -257,20 +257,20 @@ function draw(){
 }
 function drawPay(){
   var on=stripeOn(),L=all(cur),dd=0;L.forEach(function(r){dd+=payOf(r)});
-  $('#kp').insertAdjacentHTML('beforeend','<div class="kpi"><small>Acomptes du jour</small><b>'+money(dd)+'</b><i>payés en ligne via Stripe</i></div>');
+  $('#kp').insertAdjacentHTML('beforeend','<div class="kpi"><small>Paiements du jour</small><b>'+money(dd)+'</b><i>payés en ligne via Stripe</i></div>');
   var inn=0,fut=0,fees=0,nb=0,i,st=store(),refs=0;
   for(i=-30;i<=14;i++){var d=parse(TODAY);d.setDate(d.getDate()+i);var s=iso(d);all(s).forEach(function(r){var a=payOf(r);if(!a)return;if(i<=0){inn+=a;fees+=feeOf(a);nb++}else fut+=a})}
   (st.ref||[]).forEach(function(x){refs+=x.a});
-  $('#pm').innerHTML='<div><small>Acomptes encaissés (30 jours)</small><b>'+money(inn)+'</b></div><div><small>Acomptes à venir (14 jours)</small><b>'+money(fut)+'</b></div><div><small>Frais Stripe estimés</small><b>'+money(fees)+'</b></div><div><small>Remboursés</small><b>'+money(refs)+'</b></div>';
-  $('#tgs').classList.toggle('on',on);$('#sct').textContent=on?'Compte Stripe connecté':'Acompte désactivé';$('#scs').textContent=on?'Virements automatiques vers votre compte bancaire · IBAN FR76 •••• •••• 4821':'Vos clients réservent sans payer. Réactivez l’acompte pour limiter les absences.'}
-$('#tgs').onclick=function(){try{localStorage.setItem('salon-set-stripe',stripeOn()?'0':'1')}catch(e){}draw();toast(stripeOn()?'Acompte activé sur le site.':'Acompte désactivé sur le site.')};
+  $('#pm').innerHTML='<div><small>Paiements encaissés (30 jours)</small><b>'+money(inn)+'</b></div><div><small>Paiements à venir (14 jours)</small><b>'+money(fut)+'</b></div><div><small>Frais Stripe estimés</small><b>'+money(fees)+'</b></div><div><small>Remboursés</small><b>'+money(refs)+'</b></div>';
+  $('#tgs').classList.toggle('on',on);$('#sct').textContent=on?'Compte Stripe connecté':'Paiement désactivé';$('#scs').textContent=on?'Virements automatiques vers votre compte bancaire · IBAN FR76 •••• •••• 4821':'Vos clients réservent sans payer. Réactivez le paiement en ligne.'}
+$('#tgs').onclick=function(){try{localStorage.setItem('salon-set-stripe',stripeOn()?'0':'1')}catch(e){}draw();toast(stripeOn()?'Paiement en ligne activé.':'Paiement désactivé sur le site.')};
 function find(id){return all(cur).filter(function(r){return r.id===id})[0]}
 function modal(h){$('#mb').innerHTML=h;$('#md').hidden=false}
 function close(){$('#md').hidden=true}
 document.addEventListener('click',function(e){
   var b=e.target.closest('[data-id]');
   if(b&&(b.classList.contains('ev')||b.closest('.ls'))){var r=find(b.dataset.id);if(!r)return;var p=byId(r.p);
-    modal('<h3>'+esc(r.nom)+'</h3><dl><dt>Prestation</dt><dd>'+esc(p.n)+' · '+dur(r.dur)+'</dd><dt>Quand</dt><dd>'+label(cur)+' à '+hm(r.t)+'</dd><dt>Avec</dt><dd>'+STY[r.who].n+'</dd><dt>Prix</dt><dd>'+eur(p.p,p.from)+'</dd>'+(payOf(r)?'<dt>Acompte</dt><dd>'+money(payOf(r))+' payé en ligne (Stripe)</dd>':'')+(r.tel?'<dt>Téléphone</dt><dd>'+esc(r.tel)+'</dd>':'')+(r.mail?'<dt>E-mail</dt><dd>'+esc(r.mail)+'</dd>':'')+(r.msg?'<dt>Message</dt><dd>'+esc(r.msg)+'</dd>':'')+'<dt>Origine</dt><dd>'+(r.web?'Site internet'+(r.ref?' · '+r.ref:''):'Téléphone / sur place')+'</dd></dl><div class="acts"><button class="btn d" data-del="'+r.id+'">Annuler ce rendez-vous</button><button class="btn o" data-x="1">Fermer</button></div>');return}
+    modal('<h3>'+esc(r.nom)+'</h3><dl><dt>Prestation</dt><dd>'+esc(p.n)+' · '+dur(r.dur)+'</dd><dt>Quand</dt><dd>'+label(cur)+' à '+hm(r.t)+'</dd><dt>Avec</dt><dd>'+STY[r.who].n+'</dd><dt>Prix</dt><dd>'+eur(p.p,p.from)+'</dd>'+(payOf(r)?'<dt>Paiement</dt><dd>'+money(payOf(r))+' payé en ligne (Stripe)</dd>':'')+(r.tel?'<dt>Téléphone</dt><dd>'+esc(r.tel)+'</dd>':'')+(r.mail?'<dt>E-mail</dt><dd>'+esc(r.mail)+'</dd>':'')+(r.msg?'<dt>Message</dt><dd>'+esc(r.msg)+'</dd>':'')+'<dt>Origine</dt><dd>'+(r.web?'Site internet'+(r.ref?' · '+r.ref:''):'Téléphone / sur place')+'</dd></dl><div class="acts"><button class="btn d" data-del="'+r.id+'">Annuler ce rendez-vous</button><button class="btn o" data-x="1">Fermer</button></div>');return}
   if(e.target.closest('[data-x]')||e.target===$('#md')){close();return}
   var d=e.target.closest('[data-del]');if(d){var st=store();st.del.push(d.dataset.del);save(st);close();draw();toast('Rendez-vous annulé : le créneau est de nouveau libre.');return}
 });
