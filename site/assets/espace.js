@@ -149,7 +149,7 @@
   }
   function vAbo() {
     var a = E.abonnement; main.appendChild(head('Mon abonnement', 'Formule, prix et engagement'));
-    if (!a) { main.appendChild(h('div', { class: 'card' }, h('h2', { text: 'Formule ' + lab(E.formule) }), h('p', { class: 'sub', text: 'Votre abonnement démarre à la mise en ligne de votre site. Aucun paiement n’a été demandé à ce stade.' }), h('p', { text: eurT(PRIX[E.formule]) + ' par mois, engagement de 12 mois.' }))); var rc0 = resilCard(); if (rc0) main.appendChild(rc0); return; }
+    if (!a) { var cb = h('div'); main.appendChild(cb); cb.appendChild(h('p', { class: 'empty', text: 'Chargement…' })); loadCmd().then(function () { cmdCard(cb); var rc0 = resilCard(); if (rc0) main.appendChild(rc0); }); return; }
     var tot = PRIX[a.formule] + MAILP * (a.mails_sup || 0), fin = a.debut ? addMonths(a.debut, 12) : null;
     main.appendChild(h('div', { class: 'card' }, h('div', { class: 'tbar' }, h('h2', { text: 'Formule ' + lab(a.formule) }), pill(a.statut)),
       h('dl', { class: 'dl' }, [['Total par mois', eurT(tot)], ['Formule', eurT(PRIX[a.formule])], ['Mails pro en plus', (a.mails_sup || 0) + ' × ' + eurT(MAILP)], ['Début', dOnly(a.debut)], ['Fin de l’engagement de 12 mois', fin ? dOnly(fin) : '—']].map(function (x) { return h('div', null, h('dt', { text: x[0] }), h('dd', { text: x[1] })); }))));
@@ -374,61 +374,113 @@
       g('book', 'Guide publicité et visibilité', 'Fiche Google, avis, référencement, réseaux, publicité : les actions qui font venir des clients.', 'Ouvrir le guide', function () { go('guidepub'); })));
   }
 
-  /* ===== factures ===== */
-  var EMET = { nom: 'Devanture Web', l1: '[Raison sociale à compléter]', adr: '[Adresse à compléter]', siret: '[à compléter]', tva: '[FR… à compléter]', mail: 'contact@devantureweb.fr', ok: false };
-  var LOGO = '<svg width="54" height="54" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 20 12 8h40l4 12"/><path d="M8 20a6 6 0 0 0 12 0 6 6 0 0 0 12 0 6 6 0 0 0 12 0 6 6 0 0 0 12 0"/><path d="M12 33v23h40V33"/><path d="M26 56V42h12v14"/><path d="M41 38l11 4.5-4.6 1.8-1.8 4.7z" fill="#17C26E" stroke="#17C26E" stroke-width="1.5"/></svg>';
+  /* ===== commande (récapitulatif, CGV, paiement) et factures émises par le serveur ===== */
   var fe = function (n) { return (Math.round(n * 100) / 100).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €'; };
+  var LOGO = '<svg width="54" height="54" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 20 12 8h40l4 12"/><path d="M8 20a6 6 0 0 0 12 0 6 6 0 0 0 12 0 6 6 0 0 0 12 0 6 6 0 0 0 12 0"/><path d="M12 33v23h40V33"/><path d="M26 56V42h12v14"/><path d="M41 38l11 4.5-4.6 1.8-1.8 4.7z" fill="#17C26E" stroke="#17C26E" stroke-width="1.5"/></svg>';
   var MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
   function moisLong(ym) { var m = +ym.slice(5, 7); return MOIS[m - 1] + ' ' + ym.slice(0, 4); }
-  /* formule et nombre d'adresses payantes en vigueur un mois donné (YYYY-MM), selon l'historique des changements appliqués */
-  function etatMois(k) {
-    var ab = E.abonnement, ch = (P && P.changements || []).filter(function (c) { return c.statut === 'applique'; });
-    if (!ch.length) return { formule: ab.formule, mails: ab.mails_sup || 0 };
-    var f = ch[0].de, m = ch[0].mails_avant || 0;
-    ch.forEach(function (c) { if (c.effet.slice(0, 7) <= k) { f = c.vers; m = c.mails_apres || 0; } });
-    return { formule: f, mails: m };
+  var CMD = null;
+  function loadCmd() { return api('/api/espace/commande').then(function (r) { CMD = r.j && r.j.ok ? r.j : null; return CMD; }); }
+  function dFr(iso) { return String(iso || '').slice(0, 10).split('-').reverse().join('/'); }
+  function recapTable(rc) {
+    var row = function (a, b, cls) { return h('div', { class: 'rcp-r ' + (cls || '') }, a, h('span', { class: 'rcp-v', text: b })); };
+    return h('div', { class: 'rcp' }, rc.lignes.map(function (l) { return row(h('span', null, h('b', { text: l[0] }), h('small', { text: l[1] + (l[2] > 1 ? ' · ' + l[2] + ' × ' + fe(l[3]) + ' HT' : '') })), fe(l[2] * l[3]) + ' HT'); }),
+      row(h('b', { text: 'Total par mois' }), fe(rc.ht) + ' HT', 'tot'),
+      rc.franchise ? row(h('span', { text: 'TVA non applicable, art. 293 B du CGI' }), '') : row(h('span', { text: 'TVA ' + Math.round(rc.taux * 100) + ' %' }), fe(rc.tva)),
+      rc.franchise ? null : row(h('b', { text: 'Total TTC par mois' }), fe(rc.ttc), 'tot'));
   }
-  function mesFactures() {
-    var ab = E.abonnement, d = D(); if (!ab || !ab.debut || !d) return [];
-    var nowK = new Date().toISOString().slice(0, 7), fin = ab.statut === 'resilie' && ab.fin ? String(ab.fin).slice(0, 7) : nowK, out = [], y = +ab.debut.slice(0, 4), m = +ab.debut.slice(5, 7), day = ab.debut.slice(8, 10) || '01';
-    for (var n = 0; n < 36; n++) {
-      var k = y + '-' + (m < 10 ? '0' : '') + m; if (k > fin || k > nowK || k + '-' + day > new Date().toISOString().slice(0, 10)) break;
-      var et = etatMois(k), fm = et.formule, lignes = [fm === 'pro' ? ['Abonnement Pro', 'Site web + nom de domaine + adresse mail pro · ' + MOIS[m - 1] + ' ' + y, 1, 100] : ['Abonnement Essentiel', 'Site web + nom de domaine · ' + MOIS[m - 1] + ' ' + y, 1, 60]];
-      if (et.mails > 0) lignes.push([fm === 'pro' ? 'Adresses mail pro supplémentaires' : 'Adresses mail pro', fm === 'pro' ? 'Adresses en plus de celle incluse' : 'Adresse mail à 4 € HT par mois', et.mails, 4]);
-      var cu = P && P.parrainage ? P.parrainage.credits.filter(function (c) { return (c.mois_offert || (c.utilise_le || '').slice(0, 7)) === k; }).length : 0;
-      if (cu) lignes.push(['Mois offert (parrainage)', 'Remise de 100 % sur l’abonnement du mois', cu, -(fm === 'pro' ? 100 : 60)]);
-      var ht = lignes.reduce(function (t, l) { return t + l[2] * l[3]; }, 0), tva = Math.round(ht * 20) / 100;
-      out.push({ id: k, num: 'F-' + y + (m < 10 ? '0' : '') + m + '-' + String(d.id).padStart(4, '0'), date: day + '/' + (m < 10 ? '0' : '') + m + '/' + y, periode: MOIS[m - 1].charAt(0).toUpperCase() + MOIS[m - 1].slice(1) + ' ' + y, lignes: lignes, ht: ht, tva: tva, ttc: ht + tva, statut: k === nowK && ab.statut === 'impaye' ? 'A régler' : 'Payée' });
-      m++; if (m > 12) { m = 1; y++; }
+  function cmdCard(box) {
+    box.textContent = ''; var C = CMD;
+    if (!C) { box.appendChild(h('div', { class: 'card' }, h('p', { class: 'empty', text: 'Impossible de charger votre commande. Réessayez dans un instant.' }))); return; }
+    var c = C.commande, rc = C.recap, dem = C.demande;
+    if (!dem) { box.appendChild(h('div', { class: 'card' }, h('h2', { text: 'Votre commande' }), h('p', { class: 'sub', text: 'Faites d’abord votre demande de site : nous la préparons avec vous avant la commande.' }), h('a', { class: 'btn', href: '/commander', text: 'Faire ma demande' }))); return; }
+    if (c && c.statut === 'payee') {
+      box.appendChild(h('div', { class: 'card' }, h('div', { class: 'tbar' }, h('h2', { text: 'Commande validée et payée' }), h('span', { class: 'pill ok', text: 'Payée' })), h('p', { class: 'sub', text: 'Premier mois réglé le ' + dt(c.paye_at) + '. Votre abonnement de 12 mois démarre à la mise en ligne de votre site. Vous avez accepté les CGV du ' + dFr(c.cgv_version) + '.' }), h('button', { type: 'button', class: 'btn ghost', text: 'Voir mes factures', onclick: function () { go('factures'); } })));
+      return;
     }
-    return out.reverse();
+    if (c && c.statut === 'acceptee') {
+      var card = h('div', { class: 'card' }, h('div', { class: 'tbar' }, h('h2', { text: 'Dernière étape : le paiement du premier mois' }), h('span', { class: 'pill warn', text: 'À payer' })), h('p', { class: 'sub', text: 'Vous avez accepté les conditions générales de vente (version du ' + dFr(c.cgv_version) + ') le ' + dt(c.accepte_at) + '. Une confirmation vous a été envoyée par e-mail, avec les CGV.' }), recapTable(rc));
+      var er = h('p', { class: 'err', role: 'alert', hidden: 'hidden' });
+      if (/paiement=ok/.test(location.search)) card.appendChild(h('div', { class: 'infobox', style: 'margin-top:14px' }, h('b', { text: 'Paiement en cours de confirmation' }), h('p', { class: 'sub', style: 'margin:6px 0 0', text: 'Stripe nous confirme votre paiement dans quelques instants (quelques jours pour un prélèvement SEPA). Actualisez la page un peu plus tard.' })));
+      else if (C.payable_le && new Date().toISOString().slice(0, 10) < C.payable_le) card.appendChild(h('div', { class: 'infobox', style: 'margin-top:14px' }, h('b', { text: 'Contrat signé hors établissement' }), h('p', { class: 'sub', style: 'margin:6px 0 0', text: 'La loi interdit tout paiement pendant 7 jours. Le paiement sera possible à partir du ' + dOnly(C.payable_le) + '. Vous pouvez vous rétracter pendant 14 jours avec le formulaire reçu par e-mail.' })));
+      else if (!C.paiement_dispo) card.appendChild(h('div', { class: 'infobox', style: 'margin-top:14px' }, h('b', { text: 'Le paiement en ligne ouvre très bientôt' }), h('p', { class: 'sub', style: 'margin:6px 0 0', text: 'Votre commande est bien enregistrée. Nous vous prévenons dès que vous pouvez régler le premier mois ; rien n’est à faire d’ici là.' })));
+      else card.appendChild(h('div', { style: 'margin-top:16px' }, h('button', { type: 'button', class: 'btn', text: 'Payer le premier mois · ' + fe(rc.franchise ? rc.ht : rc.ttc), disabled: E.lecture ? 'disabled' : null, onclick: function (ev) { var bt = ev.currentTarget; bt.disabled = true; er.hidden = true; api('/api/espace/payer', 'POST', {}).then(function (x) { if (x.j.ok && x.j.url) location.href = x.j.url; else { bt.disabled = false; er.textContent = x.j.error === 'delai-7-jours' ? 'Le paiement sera possible à partir du ' + dOnly(x.j.le) + '.' : 'Le paiement n’a pas pu démarrer. Réessayez dans un instant.'; er.hidden = false; } }); } }), er, h('p', { class: 'sub', style: 'margin-top:8px', text: 'Paiement sécurisé par Stripe, par carte ou prélèvement SEPA. Les mois suivants seront prélevés automatiquement à partir de la mise en ligne.' })));
+      box.appendChild(card); return;
+    }
+    // formulaire de commande
+    var f = {}, inp = function (k, ph, ml, extra) { f[k] = h('input', Object.assign({ type: 'text', maxlength: String(ml), placeholder: ph, autocomplete: 'off' }, extra || {})); return f[k]; };
+    var eb = {}, errOf = function (k) { eb[k] = h('span', { class: 'err', hidden: 'hidden' }); return eb[k]; };
+    var asso = h('input', { type: 'checkbox' }), pro = h('input', { type: 'checkbox' }), cgv = h('input', { type: 'checkbox' }), exa = h('input', { type: 'checkbox' });
+    var lieuD = h('input', { type: 'radio', name: 'lieu', value: 'distance', checked: 'checked' }), lieuH = h('input', { type: 'radio', name: 'lieu', value: 'hors_etablissement' });
+    var exaBox = h('label', { class: 'check wide', hidden: 'hidden' }, exa, h('span', { text: 'Je demande que la création de mon site commence avant la fin du délai de rétractation de 14 jours. Si je me rétracte ensuite, je paierai un montant proportionnel au travail déjà réalisé.' }));
+    [lieuD, lieuH].forEach(function (r) { r.addEventListener('change', function () { exaBox.hidden = !lieuH.checked; }); });
+    var ger = h('p', { class: 'err', role: 'alert', hidden: 'hidden' });
+    box.appendChild(h('div', { class: 'card' },
+      h('h2', { text: 'Valider ma commande' }), h('p', { class: 'sub', text: 'Vérifiez le récapitulatif, complétez vos informations de facturation, puis acceptez les conditions générales de vente.' }),
+      h('h3', { text: 'Récapitulatif', style: 'margin-top:14px' }), h('p', { class: 'sub', text: 'Formule ' + (rc.formule === 'pro' ? 'Pro' : 'Essentiel') + ' · engagement de 12 mois à compter de la mise en ligne de votre site · paiement mensuel d’avance.' }), recapTable(rc),
+      h('p', { class: 'sub', style: 'margin-top:8px', text: 'Pour changer de formule ou d’options avant de valider, écrivez-nous depuis l’onglet Aide.' }),
+      h('h3', { text: 'Facturation', style: 'margin-top:18px' }),
+      h('div', { class: 'form' },
+        h('label', { class: 'wide' }, 'Nom de l’entreprise ou de l’association', inp('raison_sociale', 'Ex. : Maison Olive SARL', 120, { value: dem.commerce || '' }), errOf('raison_sociale')),
+        h('label', null, 'SIREN ou SIRET', inp('siren', '9 ou 14 chiffres', 20, { inputmode: 'numeric' }), errOf('siren')),
+        h('label', null, 'N° de TVA intracommunautaire (facultatif)', inp('tva_intra', 'FR…', 20), errOf('tva_intra')),
+        h('label', { class: 'check wide' }, asso, h('span', { text: 'Je suis une association sans numéro SIREN' })),
+        h('label', { class: 'wide' }, 'Adresse de facturation', inp('adresse', 'N° et rue', 160), errOf('adresse')),
+        h('label', null, 'Code postal', inp('cp', 'Ex. : 14000', 10, { inputmode: 'numeric' }), errOf('cp')),
+        h('label', null, 'Ville', inp('ville', 'Ex. : Caen', 80, { value: dem.ville || '' }), errOf('ville'))),
+      h('h3', { text: 'Où signez-vous ce contrat ?', style: 'margin-top:18px' }),
+      h('div', { class: 'form' }, h('label', { class: 'check wide' }, lieuD, h('span', { text: 'En ligne, à distance (cas habituel)' })), h('label', { class: 'check wide' }, lieuH, h('span', { text: 'En rendez-vous avec nous, dans mon commerce' })), exaBox),
+      h('div', { class: 'form', style: 'margin-top:12px' },
+        h('label', { class: 'check wide' }, pro, h('span', { text: 'Je commande pour mon activité professionnelle ou pour une association, et non en tant que consommateur.' })), errOf('pro'),
+        h('label', { class: 'check wide' }, cgv, h('span', null, 'J’ai lu et j’accepte les ', h('a', { href: '/cgv', target: '_blank', rel: 'noopener', text: 'conditions générales de vente' }), ' (version du ' + dFr(C.cgv_version) + ') et la ', h('a', { href: '/confidentialite', target: '_blank', rel: 'noopener', text: 'politique de confidentialité' }), '.')), errOf('cgv'), errOf('lieu')),
+      ger,
+      h('button', { type: 'button', class: 'btn', style: 'margin-top:14px', text: 'J’accepte et je valide ma commande', disabled: E.lecture ? 'disabled' : null, onclick: function (ev) {
+        var bt = ev.currentTarget; Object.keys(eb).forEach(function (k) { eb[k].hidden = true; }); ger.hidden = true; bt.disabled = true;
+        var body = { raison_sociale: f.raison_sociale.value, siren: f.siren.value, tva_intra: f.tva_intra.value, adresse: f.adresse.value, cp: f.cp.value, ville: f.ville.value, association: asso.checked, lieu: lieuH.checked ? 'hors_etablissement' : 'distance', execution_anticipee: lieuH.checked && exa.checked, pro: pro.checked, cgv: cgv.checked, cgv_version: C.cgv_version };
+        api('/api/espace/commande', 'POST', body).then(function (x) {
+          bt.disabled = false;
+          if (x.j.ok) { flash('Commande validée. Un e-mail de confirmation vous a été envoyé.'); loadCmd().then(function () { cmdCard(box); }); return; }
+          if (x.j.errors) { Object.keys(x.j.errors).forEach(function (k) { if (eb[k]) { eb[k].textContent = x.j.errors[k]; eb[k].hidden = false; } }); ger.textContent = 'Vérifiez les champs signalés.'; }
+          else ger.textContent = x.j.error === 'deja-abonne' ? 'Votre abonnement est déjà en place.' : 'La commande n’a pas pu être enregistrée. Réessayez dans un instant.';
+          ger.hidden = false;
+        });
+      } }),
+      h('p', { class: 'sub', style: 'margin-top:8px', text: 'Étape suivante : le paiement du premier mois. Le contrat est conclu en français.' })));
+  }
+  function vFactures() {
+    main.appendChild(head('Factures', 'Vos factures d’abonnement'));
+    var box = h('div'); main.appendChild(box); box.appendChild(h('p', { class: 'empty', text: 'Chargement…' }));
+    loadCmd().then(function (C) {
+      box.textContent = '';
+      var l = C ? C.factures : [];
+      if (!l.length) { box.appendChild(h('div', { class: 'card' }, h('h2', { text: 'Vos factures' }), h('p', { class: 'sub', text: 'Votre première facture est émise au paiement du premier mois, puis une facture chaque mois.' }), h('p', { class: 'empty', text: 'Aucune facture pour le moment.' }))); return; }
+      var tb = h('tbody'); l.forEach(function (f) { tb.appendChild(h('tr', null, h('td', null, h('b', { text: f.numero })), h('td', { text: f.periode }), h('td', { text: dFr(f.date_emission) }), h('td', { class: 'num', text: fe(f.total_ttc) }), h('td', null, h('span', { class: 'pill ' + (f.statut === 'payee' ? 'ok' : 'bad'), text: f.statut === 'payee' ? 'Payée' : 'À régler' })), h('td', { class: 'num' }, h('button', { type: 'button', class: 'btn sm', onclick: function () { FAC.id = f.id; go('facture'); } }, 'Voir / PDF')))); });
+      box.appendChild(h('div', { class: 'card' }, h('div', { class: 'tablewrap' }, h('table', { class: 'revt' }, h('thead', null, h('tr', null, ['Facture', 'Période', 'Date', 'Total', 'Statut', ''].map(function (x, i) { return h('th', { text: x, class: i === 3 || i === 5 ? 'num' : '' }); }))), tb)),
+        h('p', { class: 'sub', style: 'margin-top:10px', text: 'Chaque facture est aussi disponible au format électronique européen (fichier XML), à transmettre à votre comptable.' })));
+    });
   }
   var FAC = { id: null };
-  function vFactures() {
-    main.appendChild(head('Factures', 'Vos factures d’abonnement, à télécharger en PDF'));
-    var l = mesFactures();
-    if (!l.length) { main.appendChild(h('div', { class: 'card' }, h('h2', { text: 'Vos factures' }), h('p', { class: 'sub', text: 'Votre abonnement démarre à la mise en ligne de votre site. Vos factures apparaîtront ici dès ce moment.' }), h('p', { class: 'empty', text: 'Aucune facture pour le moment.' }))); return; }
-    var tb = h('tbody'); l.forEach(function (f) { var tr = h('tr', null, h('td', null, h('b', { text: f.num })), h('td', { text: f.periode }), h('td', { text: f.date }), h('td', { class: 'num', text: fe(f.ttc) }), h('td', null, pill(f.statut === 'Payée' ? 'actif' : 'impaye')), h('td', { class: 'num' }, h('button', { type: 'button', class: 'btn sm', onclick: function () { FAC.id = f.id; go('facture'); } }, 'Voir / PDF'))); tb.appendChild(tr); });
-    main.appendChild(h('div', { class: 'card' }, h('div', { class: 'tablewrap' }, h('table', { class: 'revt' }, h('thead', null, h('tr', null, ['Facture', 'Période', 'Date', 'Total TTC', 'Statut', ''].map(function (x, i) { return h('th', { text: x, class: i === 3 || i === 5 ? 'num' : '' }); }))), tb))));
-  }
   function vFacture() {
-    var f = mesFactures().filter(function (x) { return x.id === FAC.id; })[0], d = D();
-    if (!f) { main.appendChild(h('div', { class: 'card' }, h('p', { class: 'empty', text: 'Facture introuvable.' }), h('button', { type: 'button', class: 'btn', text: '← Mes factures', onclick: function () { go('factures'); } }))); return; }
-    main.appendChild(head('Facture ' + f.num, f.periode, [h('button', { type: 'button', class: 'btn ghost', text: '← Mes factures', onclick: function () { go('factures'); } }), h('button', { type: 'button', class: 'btn', text: '⬇ Télécharger en PDF', onclick: function () { window.print(); } })]));
-    var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
-    var rows = f.lignes.map(function (l) { return '<tr><td><b>' + esc(l[0]) + '</b><small>' + esc(l[1]) + '</small></td><td class="n">' + l[2] + '</td><td class="n">' + fe(l[3]) + '</td><td class="n">20 %</td><td class="n">' + fe(l[2] * l[3]) + '</td></tr>'; }).join('');
-    var html = (EMET.ok ? '' : '<div class="inv-ex">EXEMPLE DE FACTURE · informations de l’entreprise à compléter</div>') +
-      '<div class="inv-top"><div class="inv-brand">' + LOGO + '<div><b>Devanture <em>Web</em></b><small>Site vitrine pour commerçants</small></div></div><div class="inv-ft"><h1>FACTURE</h1><p>N° ' + esc(f.num) + '</p><p><span class="inv-badge' + (f.statut === 'Payée' ? '' : ' warn') + '">' + (f.statut === 'Payée' ? 'Payée' : 'À régler') + '</span></p></div></div>' +
-      '<div class="inv-meta"><div><span>Date d’émission</span><b>' + esc(f.date) + '</b></div><div><span>Échéance</span><b>' + esc(f.date) + '</b></div><div><span>Période</span><b>' + esc(f.periode) + '</b></div><div><span>Mode de paiement</span><b>Prélèvement SEPA</b></div></div>' +
-      '<div class="inv-parties"><div><h2>Émetteur</h2><b>' + esc(EMET.nom) + '</b><p>' + esc(EMET.l1) + '</p><p>' + esc(EMET.adr) + '</p><p>SIRET : ' + esc(EMET.siret) + '</p><p>N° TVA : ' + esc(EMET.tva) + '</p><p>' + esc(EMET.mail) + '</p></div>' +
-      '<div><h2>Facturé à</h2><b>' + esc(d.commerce) + '</b><p>' + esc(E.compte.nom) + '</p><p>' + esc(d.ville) + '</p><p>' + esc(E.compte.email) + '</p>' + (d.domaine ? '<p>Site : ' + esc(d.domaine) + '</p>' : '') + '</div></div>' +
-      '<table class="inv-t"><thead><tr><th>Désignation</th><th class="n">Qté</th><th class="n">Prix unitaire HT</th><th class="n">TVA</th><th class="n">Total HT</th></tr></thead><tbody>' + rows + '</tbody></table>' +
-      '<div class="inv-tot"><div><span>Total HT</span><b>' + fe(f.ht) + '</b></div><div><span>TVA 20 %</span><b>' + fe(f.tva) + '</b></div><div class="g"><span>Total TTC</span><span>' + fe(f.ttc) + '</span></div></div>' +
-      '<div class="inv-pay"><div><h2>Paiement</h2><p>' + (f.statut === 'Payée' ? 'Réglée le ' + esc(f.date) + ' par prélèvement.' : 'À régler par prélèvement SEPA.') + '</p></div><div><h2>Engagement</h2><p>Abonnement mensuel, engagement de 12 mois. Résiliation selon les conditions générales de vente.</p></div></div>' +
-      '<div class="inv-legal"><b>Pénalités de retard :</b> 3 fois le taux d’intérêt légal. <b>Indemnité forfaitaire de recouvrement :</b> 40 €. <b>Escompte :</b> aucun pour paiement anticipé. Facture établie en euros. Prestation : abonnement de création, d’hébergement et d’entretien d’un site vitrine.</div>';
-    var box = h('div', { class: 'invoice' }); box.innerHTML = html; main.appendChild(box);
+    var box = h('div'); main.appendChild(box); box.appendChild(h('p', { class: 'empty', text: 'Chargement…' }));
+    api('/api/espace/facture?id=' + encodeURIComponent(FAC.id || '')).then(function (r) {
+      box.textContent = '';
+      var f = r.j && r.j.ok ? r.j.facture : null;
+      if (!f) { box.appendChild(h('div', { class: 'card' }, h('p', { class: 'empty', text: 'Facture introuvable.' }), h('button', { type: 'button', class: 'btn', text: '← Mes factures', onclick: function () { go('factures'); } }))); return; }
+      box.appendChild(head('Facture ' + f.numero, f.periode, [h('button', { type: 'button', class: 'btn ghost', text: '← Mes factures', onclick: function () { go('factures'); } }), h('a', { class: 'btn ghost', href: '/api/espace/facture-xml?id=' + f.id, text: '⬇ Fichier électronique (XML)' }), h('button', { type: 'button', class: 'btn', text: '⬇ Télécharger en PDF', onclick: function () { window.print(); } })]));
+      var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+      var em = f.emetteur, cl = f.client, fr = !!em.tva_franchise, taux = Math.round(f.taux_tva * 100) + ' %';
+      var rows = f.lignes.map(function (l) { return '<tr><td><b>' + esc(l[0]) + '</b><small>' + esc(l[1]) + '</small></td><td class="n">' + l[2] + '</td><td class="n">' + fe(l[3]) + '</td><td class="n">' + (fr ? '—' : taux) + '</td><td class="n">' + fe(l[2] * l[3]) + '</td></tr>'; }).join('');
+      var html = '<div class="inv-top"><div class="inv-brand">' + LOGO + '<div><b>Devanture <em>Web</em></b><small>Site vitrine pour commerçants</small></div></div><div class="inv-ft"><h1>FACTURE</h1><p>N° ' + esc(f.numero) + '</p><p><span class="inv-badge' + (f.statut === 'payee' ? '' : ' warn') + '">' + (f.statut === 'payee' ? 'Payée' : 'À régler') + '</span></p></div></div>' +
+        '<div class="inv-meta"><div><span>Date d’émission</span><b>' + esc(dFr(f.date_emission)) + '</b></div><div><span>Date d’échéance</span><b>' + esc(dFr(f.date_emission)) + '</b></div><div><span>Période de la prestation</span><b>' + esc(f.periode) + '</b></div><div><span>Nature de l’opération</span><b>Prestation de services</b></div></div>' +
+        '<div class="inv-parties"><div><h2>Émetteur</h2><b>' + esc(em.nom) + '</b>' + (em.forme ? '<p>' + esc(em.forme) + '</p>' : '') + '<p>' + esc(em.adresse) + '</p><p>' + esc(em.cp) + ' ' + esc(em.ville) + '</p><p>SIREN : ' + esc(em.siren) + ' · SIRET : ' + esc(em.siret) + '</p>' + (fr ? '' : '<p>N° TVA : ' + esc(em.tva) + '</p>') + '<p>' + esc(em.email) + '</p></div>' +
+        '<div><h2>Client</h2><b>' + esc(cl.raison_sociale) + '</b><p>' + esc(cl.adresse) + '</p><p>' + esc(cl.cp) + ' ' + esc(cl.ville) + '</p>' + (cl.siren ? '<p>SIREN : ' + esc(cl.siren) + '</p>' : '') + (cl.tva_intra ? '<p>N° TVA : ' + esc(cl.tva_intra) + '</p>' : '') + (cl.email ? '<p>' + esc(cl.email) + '</p>' : '') + '</div></div>' +
+        '<table class="inv-t"><thead><tr><th>Désignation</th><th class="n">Qté</th><th class="n">Prix unitaire HT</th><th class="n">TVA</th><th class="n">Total HT</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+        '<div class="inv-tot"><div><span>Total HT</span><b>' + fe(f.total_ht) + '</b></div>' + (fr ? '<div><span>TVA non applicable, art. 293 B du CGI</span><b></b></div><div class="g"><span>Net à payer</span><span>' + fe(f.total_ttc) + '</span></div>' : '<div><span>TVA ' + taux + '</span><b>' + fe(f.tva) + '</b></div><div class="g"><span>Total TTC</span><span>' + fe(f.total_ttc) + '</span></div>') + '</div>' +
+        '<div class="inv-pay"><div><h2>Paiement</h2><p>' + (f.statut === 'payee' ? 'Réglée le ' + esc(dFr(f.paye_le)) + (f.paiement ? ' · ' + esc(f.paiement) : '') + '.' : 'À régler à réception.') + '</p></div><div><h2>Engagement</h2><p>Abonnement mensuel, engagement de 12 mois, selon les conditions générales de vente acceptées à la commande.</p></div></div>' +
+        '<div class="inv-legal"><b>Pénalités de retard :</b> trois fois le taux d’intérêt légal. <b>Indemnité forfaitaire pour frais de recouvrement</b> (client professionnel) : 40 €. <b>Escompte :</b> aucun pour paiement anticipé. Facture établie en euros.</div>';
+      var inv = h('div', { class: 'invoice' }); inv.innerHTML = html; box.appendChild(inv);
+    });
   }
-
   /* ===== parcours, dossier, résiliation, parrainage, avis ===== */
   var P = null;
   function loadP() { return api('/api/espace/parcours').then(function (r) { P = r.s === 200 && r.j.ok ? r.j : null; }).catch(function () { P = null; }); }
