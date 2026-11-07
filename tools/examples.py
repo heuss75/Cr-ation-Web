@@ -192,12 +192,12 @@ document.querySelectorAll('form.quote').forEach(function(f){f.onsubmit=function(
 def page(title, desc, fonts, css, body, js=""):
     return f'''<!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>{title}</title><meta name="description" content="{desc}"><meta name="robots" content="noindex">
+<script>if(window.self!==window.top)document.documentElement.className+=' emb'</script><title>{title}</title><meta name="description" content="{desc}"><meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?{fonts}&display=swap">
 <style>*{{box-sizing:border-box}}html{{scroll-behavior:smooth}}body{{margin:0}}img,svg{{max-width:100%}}a{{color:inherit;text-decoration:none}}h1,h2,h3,h4,p,ul,figure{{margin:0;padding:0}}ul{{list-style:none}}
 .resa-tab{{position:fixed;left:0;top:50%;z-index:100;transform:translateY(-50%) rotate(180deg);writing-mode:vertical-rl;background:#f2efe8;color:#161616;font:600 13px/1 system-ui,sans-serif;letter-spacing:.04em;padding:18px 11px;border-radius:0 12px 12px 0;box-shadow:4px 0 16px #0004;border:1px solid #0002;border-left:0}}.resa-tab:hover{{background:#fff}}@media(max-width:600px){{.resa-tab{{top:auto;bottom:96px;transform:rotate(180deg);padding:13px 8px;font-size:11.5px}}}}.back{{position:fixed;right:0;top:50%;z-index:100;transform:translateY(-50%);writing-mode:vertical-rl;background:#111;color:#fff;font:600 13px/1 system-ui,sans-serif;letter-spacing:.04em;padding:18px 11px;border-radius:12px 0 0 12px;box-shadow:-4px 0 16px #0004;transition:padding .2s}}.back:hover{{padding-right:16px;background:#000}}.back b{{display:inline-block;margin-top:8px;font-weight:700}}@media(max-width:600px){{.back{{font-size:12px;padding:14px 9px;top:auto;bottom:90px;transform:none}}}}
-{css}{BK_CSS}.sl{{position:relative;display:block;width:100%;height:100%}}.sl img{{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}}</style></head><body>{body}
+{css}{BK_CSS}.emb *,.emb *:before,.emb *:after{{animation-duration:.001s!important;animation-delay:0s!important;animation-iteration-count:1!important;transition-duration:.001s!important;transition-delay:0s!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;scroll-behavior:auto!important}}.sl{{position:relative;display:block;width:100%;height:100%}}.sl img{{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}}</style></head><body>{body}
 {BK_JS}
 <a class="back" href="/" id="back" target="_top">Découvrez-nous en cliquant ici <b>→</b></a>
 <script>(function(){{var b=document.getElementById('back');if(window.self!==window.top){{b.remove();[].forEach.call(document.querySelectorAll('.resa-tab'),function(t){{t.remove()}});return}}}})()</script>
