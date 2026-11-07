@@ -59,9 +59,23 @@ footer{background:#241c15;color:#bfae96;padding-block:30px;font-size:14px}footer
 .rok h3{font:600 1.6rem 'Cormorant Garamond',serif}.rok .ref{display:inline-block;margin:10px 0;font:700 1.05rem monospace;background:#eef3ef;padding:7px 14px;border-radius:10px;letter-spacing:.06em}
 .rok p{color:var(--mut);max-width:440px;margin:6px auto}.rok a.l{display:inline-block;margin-top:12px;font-weight:700;color:var(--sage);text-decoration:underline}
 .rdvw.done>.rst{display:none}.rdvw.done .rok{display:block}
-.resa-demo{position:sticky;top:0;z-index:60;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;background:var(--gold2);color:#241c15;font:700 14px/1.3 'Jost',system-ui,sans-serif;padding:9px 14px;min-height:46px}
+.resa-demo{display:none;color:#241c15;font:700 14px/1.3 'Jost',system-ui,sans-serif;padding:9px 14px;min-height:46px}
 .resa-demo a{background:#241c15;color:#fff;padding:8px 16px;border-radius:99px;font-size:13.5px}.resa-demo a:hover{background:#000}
 @media(max-width:700px){.pgrid,.rf{grid-template-columns:minmax(0,1fr)}}
+.rdvw{--pay-ln:var(--line);--pay-mut:var(--mut)}.lnk{background:none;border:0;color:#b3261e;font-weight:700;text-decoration:underline;cursor:pointer;font:inherit}
+
+.pay{border:1.5px solid var(--pay-ln,#e4ded2);border-radius:16px;padding:18px 20px;background:#fff;display:grid;gap:12px}
+.pay-h{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.pay-h b{font-weight:700}
+.pay .stripe{font:800 1.05rem/1 system-ui,sans-serif;letter-spacing:-.02em;color:#635bff;background:#635bff14;padding:6px 10px;border-radius:8px}
+.pay-demo{background:#fff8e6;border:1px solid #f0dfae;color:#6e5a1a;border-radius:10px;padding:9px 12px;font-size:13px;line-height:1.4}
+.pay label{display:grid;gap:5px;font:600 12px/1.2 system-ui,sans-serif;letter-spacing:.05em;text-transform:uppercase;color:var(--pay-mut,#666)}
+.pay input{font:500 16px system-ui,sans-serif;padding:12px 14px;border-radius:10px;border:1.5px solid var(--pay-ln,#e4ded2);background:#fff;color:#111;width:100%;letter-spacing:0;text-transform:none}
+.pay input:focus{outline:0;border-color:#635bff;box-shadow:0 0 0 3px #635bff22}.pay-r{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pay-n{font-size:12.5px;color:var(--pay-mut,#666);margin:0}
+.pay-load{display:none;align-items:center;gap:10px;font-size:14px;color:var(--pay-mut,#666)}.pay.busy .pay-load{display:flex}.pay.busy label,.pay.busy .pay-r{opacity:.5;pointer-events:none}
+.pay-load i{width:18px;height:18px;border-radius:50%;border:2.5px solid #635bff44;border-top-color:#635bff;animation:payspin .8s linear infinite}@keyframes payspin{to{transform:rotate(360deg)}}
+.pay[hidden]{display:none!important}
+.recpt{display:inline-flex;gap:8px;align-items:center;background:#f1f0ff;color:#4b43d6;border-radius:10px;padding:8px 14px;font-size:13.5px;font-weight:600;margin-top:6px}
 .rdvone{max-width:860px;margin:0 auto}.rdvone>*{min-width:0}.smap{margin-top:16px;border-radius:12px;height:140px;background:#eef3ef;position:relative;overflow:hidden;border:1px solid var(--line)}.smap:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(35deg,transparent 0 34px,#dfe7e1 34px 38px),repeating-linear-gradient(-55deg,transparent 0 44px,#e6ece7 44px 47px)}.smap i{position:absolute;left:50%;top:50%;width:18px;height:18px;margin:-18px 0 0 -9px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--gold)}
 .bk{display:grid;gap:14px}.bk h3{margin:0}.bk .lab{font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--bkm,var(--mut));margin-bottom:6px;display:block}
 .bk .chips{display:flex;gap:8px;flex-wrap:wrap}.bk button.c{font:700 14px inherit;font-family:inherit;padding:10px 14px;border-radius:12px;border:1.5px solid var(--bkl,var(--line));background:transparent;color:inherit;cursor:pointer;min-width:46px}
@@ -87,11 +101,17 @@ footer{background:#241c15;color:#bfae96;padding-block:30px;font-size:14px}footer
 <div class="rf"><label>Prénom<input autocomplete="given-name" id="rp" placeholder="Claire"/></label><label>Nom<input autocomplete="family-name" id="rn" placeholder="Martin"/></label>
 <label>Téléphone<input autocomplete="tel" id="rt" placeholder="06 12 34 56 78" type="tel"/></label><label>E-mail <span style="text-transform:none;letter-spacing:0;font-weight:500">(confirmation)</span><input autocomplete="email" id="rm" placeholder="claire@exemple.fr" type="email"/></label>
 <label class="w2">Un message pour le salon ? <span style="text-transform:none;letter-spacing:0;font-weight:500">(facultatif)</span><textarea id="rg" placeholder="Longueur actuelle, allergie, première visite…"></textarea></label></div></div>
+<div id="paystep"><div class="st"><i>5</i><b>Acompte pour garantir votre créneau</b></div><div class="pay" id="pay"><div class="pay-h"><b>Paiement sécurisé de l’acompte</b><span class="stripe">stripe</span></div>
+<div class="pay-demo">Mode démonstration : aucune carte réelle n’est débitée. Utilisez 4242 4242 4242 4242, une date future et un code à 3 chiffres. (4000 0000 0000 0002 simule une carte refusée.)</div>
+<label>Numéro de carte<input autocomplete="cc-number" id="spc" inputmode="numeric" maxlength="23" placeholder="1234 1234 1234 1234"/></label>
+<div class="pay-r"><label>Expiration<input autocomplete="cc-exp" id="spe" inputmode="numeric" maxlength="7" placeholder="MM / AA"/></label><label>Code (CVC)<input autocomplete="cc-csc" id="spv" inputmode="numeric" maxlength="4" placeholder="123"/></label></div>
+<div class="pay-load"><i></i><span>Paiement en cours auprès de Stripe…</span></div>
+<p class="pay-n">🔒 Vos données bancaires sont saisies et conservées par Stripe, jamais par l’établissement ni par Devanture Web.</p></div></div>
 <div class="recap2" hidden="" id="rc"></div>
 <div class="rerr" id="re" role="alert"></div>
 <button class="rgo" id="rb" type="button">Confirmer mon rendez-vous</button>
 </div>
-<div class="rok" id="rk"><div class="big">✓</div><h3>Rendez-vous confirmé</h3><div class="ref" id="rr"></div><p id="rs"></p><p>Un e-mail de confirmation vous est envoyé, avec un rappel la veille. Vous pouvez modifier ou annuler jusqu’à 24 h avant.</p><a class="l" href="/exemples/salon-reservation-interne" id="rl" rel="noopener" target="_blank">Voir ce rendez-vous dans l’agenda du salon (espace interne) →</a><br/><a class="l" href="#rdv" id="ra">Prendre un autre rendez-vous</a></div>
+<div class="rok" id="rk"><div class="big">✓</div><h3>Rendez-vous confirmé</h3><div class="ref" id="rr"></div><p id="rs"></p><p>Un e-mail de confirmation vous est envoyé, avec un rappel la veille. Vous pouvez modifier ou annuler jusqu’à 24 h avant.</p><div id="rcp"></div><p><button class="lnk" id="rx" type="button">Annuler ce rendez-vous (acompte remboursé)</button></p><a class="l" href="/exemples/salon-reservation-interne" id="rl" rel="noopener" target="_blank">Voir ce rendez-vous dans l’agenda du salon (espace interne) →</a><br/><a class="l" href="#rdv" id="ra">Prendre un autre rendez-vous</a></div>
 </div></div></div></div></div></section>
 <section id="contact" style="background:#fff;border-top:1px solid var(--line)"><div class="w"><div class="sh"><p class="e" data-k="t101">Horaires et accès</p><h2 data-k="t102">Venez nous voir</h2></div><div class="res"><div class="box"><h3 data-k="t103">Horaires d’ouverture</h3><ul class="hrs" style="margin-top:10px"><li><span data-k="t104">Lundi</span><span data-k="t105">Fermé</span></li><li><span data-k="t106">Mardi – Vendredi</span><span data-k="t107">9 h – 12 h · 14 h – 18 h</span></li><li><span data-k="t108">Samedi</span><span data-k="t109">9 h – 17 h</span></li><li><span data-k="t110">Dimanche</span><span data-k="t111">Fermé</span></li></ul></div>
 <div class="box"><h3 data-k="t112">Adresse</h3><p style="margin-top:12px;color:var(--mut);font-size:15px;line-height:1.8"><svg aria-hidden="true" fill="none" height="18" stroke="var(--gold)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24" width="18"><path d="M12 21s7-6.500 7-11a7 7 0 0 0-14 0c0 4.500 7 11 7 11z"></path><circle cx="12" cy="10" r="2.500"></circle></svg><span data-k="t113"> 18 rue Saint-Pierre, 14000 Caen</span><br/><svg aria-hidden="true" fill="none" height="18" stroke="var(--gold)" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24" width="18"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"></path></svg><span data-k="t114"> 02 00 00 00 00</span></p><div aria-hidden="true" class="smap"><i></i></div><p style="margin-top:16px"><a class="btn" href="#rdv"><svg aria-hidden="true" fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24" width="18"><rect height="15" rx="2" width="16" x="4" y="5"></rect><path d="M4 10h16M9 3v4M15 3v4"></path></svg><span data-k="t115">Prendre rendez-vous</span></a></p></div></div></div></section></main>
@@ -160,6 +180,9 @@ function dur(m){var h=Math.floor(m/60),r=m%60;return h?(h+' h'+(r?' '+pad(r):'')
 function eur(p,from){return (from?'dès ':'')+p+' €'}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function byId(id){for(var i=0;i<PREST.length;i++)if(PREST[i].id===id)return PREST[i]}
+function dep(p){return Math.min(p.p,Math.max(10,Math.ceil(p.p*.3/5)*5))}
+function stripeOn(){try{return localStorage.getItem('salon-set-stripe')!=='0'}catch(e){return true}}
+function payOf(r){if(r.pay)return r.pay.a;if(r.web)return dep(byId(r.p));return 0}
 var TODAY=iso(new Date());
 function hours(s){var w=parse(s).getDay();if(w===0||w===1)return[];if(w===6)return[[540,1020]];return[[540,720],[840,1080]]}
 function startTimes(s,min){var out=[];hours(s).forEach(function(h){for(var t=h[0];t+min<=h[1];t+=30)out.push(t)});return out}
@@ -173,11 +196,11 @@ function seeded(s){
     var t=st[(g>>6)%st.length],seg=[t,t+p.min],ok=true;
     busy[w].forEach(function(b){if(overlap(b,seg))ok=false});
     if(!ok)continue;busy[w].push(seg);
-    out.push({id:'g'+s+i,iso:s,t:t,dur:p.min,p:p.id,who:w,nom:NOMS[(g>>9)%NOMS.length],web:0});
+    out.push({id:'g'+s+i,iso:s,t:t,dur:p.min,p:p.id,who:w,nom:NOMS[hash(s+'n'+i)%NOMS.length],web:(hash(s+'w'+i)%100<45?1:0)});
   }
   return out;
 }
-function store(){try{var o=JSON.parse(localStorage.getItem(KEY));if(o&&o.res)return o}catch(e){}return{res:[],del:[]}}
+function store(){try{var o=JSON.parse(localStorage.getItem(KEY));if(o&&o.res)return o}catch(e){}return{res:[],del:[],ref:[]}}
 function save(o){try{localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}}
 function all(s){var st=store();return seeded(s).concat(st.res.filter(function(r){return r.iso===s})).filter(function(r){return st.del.indexOf(r.id)<0}).sort(function(a,b){return a.t-b.t})}
 function isOpenDay(s){return hours(s).length>0}
@@ -193,8 +216,27 @@ function slotsFor(s,p){
   return startTimes(s,p.min).map(function(t){return{t:t,w:(s<TODAY||t<=lim)?-1:freeStylist(s,t,p,list)}});
 }
 
+function luhn(n){var s=0,d=false;for(var i=n.length-1;i>=0;i--){var x=+n.charAt(i);if(d){x*=2;if(x>9)x-=9}s+=x;d=!d}return n.length>=13&&s%10===0}
+function spInit(){var c=document.getElementById('spc'),e=document.getElementById('spe');if(!c)return;
+ c.addEventListener('input',function(){var v=c.value.replace(/\D/g,'').slice(0,19);c.value=v.replace(/(.{4})/g,'$1 ').trim()});
+ e.addEventListener('input',function(){var v=e.value.replace(/\D/g,'').slice(0,4);e.value=v.length>2?v.slice(0,2)+' / '+v.slice(2):v})}
+function stripePay(amount){
+  return new Promise(function(ok,ko){
+    var n=document.getElementById('spc').value.replace(/\D/g,''),ex=document.getElementById('spe').value.replace(/\D/g,''),cv=document.getElementById('spv').value.replace(/\D/g,''),box=document.getElementById('pay');
+    if(!luhn(n)){ko('Numéro de carte invalide.');return}
+    var mm=+ex.slice(0,2),yy=2000+(+ex.slice(2,4)),now=new Date();
+    if(ex.length<4||mm<1||mm>12||yy<now.getFullYear()||(yy===now.getFullYear()&&mm<now.getMonth()+1)){ko('Date d’expiration invalide ou dépassée.');return}
+    if(cv.length<3){ko('Code de sécurité invalide.');return}
+    box.classList.add('busy');
+    setTimeout(function(){box.classList.remove('busy');
+      if(n==='4000000000000002'){ko('Votre carte a été refusée. Essayez une autre carte.');return}
+      if(n==='4000000000009995'){ko('Fonds insuffisants. Essayez une autre carte.');return}
+      ok({id:'pi_3'+Math.random().toString(36).slice(2,12).toUpperCase(),last4:n.slice(-4),brand:n.charAt(0)==='4'?'Visa':(n.charAt(0)==='5'?'Mastercard':(n.charAt(0)==='3'?'American Express':'Carte')),a:amount,t:Date.now()})},1500)})}
+function feeOf(a){return Math.round((a*0.015+0.25)*100)/100}
+function money(n){return (Math.round(n*100)/100).toLocaleString('fr-FR',{minimumFractionDigits:(n%1?2:0),maximumFractionDigits:2})+' €'}
+
 var $=function(s){return document.querySelector(s)};
-var S={p:null,day:null,t:null,days:[]};
+var S={p:null,day:null,t:null,days:[],last:null};
 (function(){var d=new Date();d.setHours(12,0,0,0);while(S.days.length<14){var s=iso(d);if(isOpenDay(s)&&(s>TODAY||slotsFor(s,PREST[3]).some(function(x){return x.w>=0})))S.days.push(s);d.setDate(d.getDate()+1)}})();
 function drawP(){var h='';CATS.forEach(function(c,ci){h+='<div class="pcat">'+c+'</div><div class="pgrid">';
   PREST.forEach(function(p){if(p.cat!==ci)return;h+='<button type="button" class="pc'+(S.p===p.id?' on':'')+'" data-id="'+p.id+'"><span><b>'+p.n+'</b><small>'+p.d+'</small></span><em>'+eur(p.p,p.from)+'<small>'+dur(p.min)+'</small></em></button>'});
@@ -206,8 +248,9 @@ function drawT(){var el=$('#tl'),p=S.p?byId(S.p):null,hint=$('#th');
   sl.forEach(function(x){if(x.w>=0)any=true;h+='<button type="button" class="tc2'+(S.t===x.t&&x.w>=0?' on':'')+'" data-t="'+x.t+'"'+(x.w<0?' disabled':'')+'>'+hhmm(x.t)+'</button>'});
   el.innerHTML=h;if(S.t!==null&&!sl.some(function(x){return x.t===S.t&&x.w>=0}))S.t=null;
   hint.textContent=any?'Les horaires barrés sont déjà pris. Durée prévue : '+dur(p.min)+'.':'Plus de créneau ce jour-là pour cette prestation : essayez un autre jour.';}
-function drawR(){var r=$('#rc'),p=S.p?byId(S.p):null;if(p&&S.day&&S.t!==null){r.hidden=false;r.innerHTML='<span>✂ '+esc(p.n)+'</span><span>📅 '+label(S.day)+' à '+hm(S.t)+'</span><span>⏱ '+dur(p.min)+'</span><span>💶 '+eur(p.p,p.from)+'</span>'}else r.hidden=true}
-function all3(){drawP();drawD();drawT();drawR();$('#re').textContent=''}
+function drawR(){var r=$('#rc'),p=S.p?byId(S.p):null;if(p&&S.day&&S.t!==null){r.hidden=false;r.innerHTML='<span>✂ '+esc(p.n)+'</span><span>📅 '+label(S.day)+' à '+hm(S.t)+'</span><span>⏱ '+dur(p.min)+'</span><span>💶 '+eur(p.p,p.from)+'</span>'+(stripeOn()?'<span>🔒 Acompte : '+money(dep(p))+'</span>':'')}else r.hidden=true}
+function drawPay(){var p=S.p?byId(S.p):null,on=stripeOn();$('#paystep').hidden=!on;$('#rb').textContent=on&&p?'Payer l’acompte de '+money(dep(p))+' et confirmer':'Confirmer mon rendez-vous'}
+function all3(){drawP();drawD();drawT();drawR();drawPay();$('#re').textContent=''}
 $('#pl').onclick=function(e){var b=e.target.closest('.pc');if(!b)return;S.p=b.dataset.id;S.t=null;all3();if(!S.day)$('#dl').scrollIntoView({block:'nearest',behavior:'smooth'})};
 $('#dl').onclick=function(e){var b=e.target.closest('.dc');if(!b)return;S.day=b.dataset.d;S.t=null;all3()};
 $('#tl').onclick=function(e){var b=e.target.closest('.tc2');if(!b||b.disabled)return;S.t=+b.dataset.t;all3()};
@@ -219,11 +262,17 @@ $('#rb').onclick=function(){
   if(tel.replace(/\D/g,'').length<8){e.textContent='Indiquez un numéro de téléphone valide.';return}
   if(mail&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)){e.textContent='Cette adresse e-mail ne semble pas valide.';return}
   var w=freeStylist(S.day,S.t,p,all(S.day));if(w<0||S.day<TODAY){e.textContent='Ce créneau vient d’être pris. Choisissez-en un autre.';drawT();return}
-  var st=store(),id='u'+Date.now(),ref='RDV-'+Math.random().toString(36).slice(2,8).toUpperCase();
-  st.res.push({id:id,iso:S.day,t:S.t,dur:p.min,p:p.id,who:w,nom:pr+' '+nm,tel:tel,mail:mail,msg:$('#rg').value.trim(),web:1,ref:ref});save(st);
-  $('#rr').textContent=ref;$('#rs').innerHTML='<b>'+esc(label(S.day))+' à '+hm(S.t)+'</b><br>'+esc(p.n)+' · '+dur(p.min)+' · '+eur(p.p,p.from)+' · avec '+STY[w].n+'<br>Merci '+esc(pr)+', votre rendez-vous est réservé.';
-  $('#rl').href='/exemples/salon-reservation-interne?d='+S.day+'&n='+id;
-  $('#rdvw').classList.add('done');$('#rdvw').scrollIntoView({block:'start',behavior:'smooth'})};
-$('#ra').onclick=function(ev){ev.preventDefault();S.p=null;S.day=null;S.t=null;['#rp','#rn','#rt','#rm','#rg'].forEach(function(s){$(s).value=''});$('#rdvw').classList.remove('done');all3()};
-all3();
+  var btn=$('#rb');
+  function book(pay){var st=store(),id='u'+Date.now(),ref='RDV-'+Math.random().toString(36).slice(2,8).toUpperCase();
+    var rec={id:id,iso:S.day,t:S.t,dur:p.min,p:p.id,who:w,nom:pr+' '+nm,tel:tel,mail:mail,msg:$('#rg').value.trim(),web:1,ref:ref};if(pay)rec.pay=pay;
+    st.res.push(rec);save(st);S.last=rec;
+    $('#rr').textContent=ref;$('#rs').innerHTML='<b>'+esc(label(S.day))+' à '+hm(S.t)+'</b><br>'+esc(p.n)+' · '+dur(p.min)+' · '+eur(p.p,p.from)+' · avec '+STY[w].n+'<br>Merci '+esc(pr)+', votre rendez-vous est réservé.';
+    $('#rcp').innerHTML=pay?'<span class="recpt">🔒 Acompte de '+money(pay.a)+' réglé par '+pay.brand+' •••• '+pay.last4+' · reçu '+pay.id+'</span><p style="margin-top:6px">Le solde de '+money(Math.max(0,p.p-pay.a))+' se règle au salon.</p>':'';
+    $('#rx').hidden=false;$('#rl').href='/exemples/salon-reservation-interne?d='+S.day+'&n='+id;
+    btn.disabled=false;$('#rdvw').classList.add('done');$('#rdvw').scrollIntoView({block:'start',behavior:'smooth'})}
+  if(stripeOn()){btn.disabled=true;e.textContent='';stripePay(dep(p)).then(function(pay){book(pay)},function(m){btn.disabled=false;e.textContent=m})}else book(null)};
+$('#rx').onclick=function(){if(!S.last)return;var st=store();st.del.push(S.last.id);if(S.last.pay){st.ref=st.ref||[];st.ref.push({id:S.last.id,a:S.last.pay.a})}save(st);
+  $('#rs').innerHTML='<b>Rendez-vous annulé.</b><br>Le créneau est de nouveau libre.';$('#rcp').innerHTML=S.last.pay?'<span class="recpt">Acompte de '+money(S.last.pay.a)+' remboursé sur votre carte •••• '+S.last.pay.last4+' (5 à 10 jours)</span>':'';$('#rx').hidden=true;$('#rl').hidden=true;S.last=null};
+$('#ra').onclick=function(ev){ev.preventDefault();$('#rl').hidden=false;$('#rx').hidden=false;S.last=null;['#spc','#spe','#spv'].forEach(function(x){$(x).value=''});S.p=null;S.day=null;S.t=null;['#rp','#rn','#rt','#rm','#rg'].forEach(function(s){$(s).value=''});$('#rdvw').classList.remove('done');all3()};
+all3();spInit();
 })();</script></body></html>

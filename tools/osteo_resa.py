@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
-"""Réservation du site d'exemple « Cabinet Lemaire » (ostéopathe) :
+"""
+Réservation du site d'exemple « Cabinet Lemaire » (ostéopathe) :
  - prise de rendez-vous EXTERNE, détaillée (type de patient, motif, praticien, jour, heure, coordonnées, consentement)
  - espace INTERNE (site/exemples/osteo-reservation-interne.html) : tableau de bord et statistiques, agenda, liste des rendez-vous, réglages
 Les deux partagent les mêmes données, mémorisées dans le navigateur : un rendez-vous pris sur le site apparaît tout de suite
 dans l'espace interne. Tout est fictif."""
+import stripe_demo
 
 CORE = r"""
 var KEY='osteo-demo-rdv-v1';
@@ -29,6 +31,9 @@ function hhmm(m){return pad(Math.floor(m/60))+':'+pad(m%60)}
 function dur(m){var h=Math.floor(m/60),r=m%60;return h?(h+' h'+(r?' '+pad(r):'')):(r+' min')}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function byT(id){for(var i=0;i<TYPES.length;i++)if(TYPES[i].id===id)return TYPES[i]}
+function dep(t){return Math.min(t.p,Math.max(10,Math.ceil(t.p*.3/5)*5))}
+function stripeOn(){try{return localStorage.getItem('osteo-set-stripe')!=='0'}catch(e){return true}}
+function payOf(r){if(r.pay)return r.pay.a;if(r.chan==='web')return dep(byT(r.type));return 0}
 var TODAY=iso(new Date());
 function daysBetween(a,b){return Math.round((parse(b)-parse(a))/864e5)}
 function addDays(s,n){var d=parse(s);d.setDate(d.getDate()+n);return iso(d)}
@@ -62,7 +67,7 @@ function seeded(s){
   }
   return out;
 }
-function store(){try{var o=JSON.parse(localStorage.getItem(KEY));if(o&&o.res)return o}catch(e){}return{res:[],del:[],st:{}}}
+function store(){try{var o=JSON.parse(localStorage.getItem(KEY));if(o&&o.res)return o}catch(e){}return{res:[],del:[],st:{},ref:[]}}
 function save(o){try{localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}}
 function all(s){var st=store(),L=seeded(s).concat(st.res.filter(function(r){return r.iso===s}));
   return L.filter(function(r){return st.del.indexOf(r.id)<0}).map(function(r){var o=st.st&&st.st[r.id];if(o){r=JSON.parse(JSON.stringify(r));r.statut=o}return r}).sort(function(a,b){return a.t-b.t})}
@@ -82,7 +87,7 @@ function eur(p){return p+' €'}
 """
 
 # ---------------------------------------------------------------- widget externe
-WIDGET_CSS = r"""
+WIDGET_CSS = stripe_demo.CSS + r"""
 .rz{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:34px;margin-top:40px;align-items:start}.rz>*{min-width:0}
 .rz .step{background:#fff;border-radius:22px;padding:28px 30px;box-shadow:0 8px 30px #032a2a0d;margin-bottom:18px}
 .rz .sh{display:flex;gap:14px;align-items:center;margin-bottom:16px}.rz .sh i{flex:none;display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--g);color:#fff;font:500 15px 'Inter',sans-serif;font-style:normal}.rz .sh b{font:500 1.45rem/1.15 'Newsreader',Georgia,serif;color:var(--g)}.rz .sh small{margin-left:auto;color:var(--mut);font-size:13px}
@@ -100,7 +105,7 @@ WIDGET_CSS = r"""
 .rz .rok{display:none;grid-column:1/-1;background:#fff;border-radius:26px;padding:46px 34px;text-align:center;box-shadow:0 8px 30px #032a2a0d}.rz.done>.rl,.rz.done>.side{display:none}.rz.done .rok{display:block}
 .rz .rok .big{width:72px;height:72px;border-radius:50%;background:var(--g);color:var(--gold);display:grid;place-items:center;margin:0 auto 16px;font-size:34px}.rz .rok h3{font:500 2.2rem/1.1 'Newsreader',Georgia,serif;color:var(--g)}.rz .rok .ref{display:inline-block;margin:14px 0;font:600 1.05rem ui-monospace,monospace;background:var(--bg);padding:8px 16px;border-radius:10px;letter-spacing:.08em;color:var(--g)}.rz .rok .sm{color:var(--ink);font-size:1.12rem;margin:6px 0}.rz .rok p{color:var(--mut);max-width:520px;margin:8px auto}.rz .rok .act{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:24px}.rz .rok .act a,.rz .rok .act button{display:inline-flex;align-items:center;gap:8px;padding:14px 22px;border-radius:10px;font:500 15px 'Inter',sans-serif;cursor:pointer;border:1.5px solid var(--g);background:transparent;color:var(--g)}.rz .rok .act .pr{background:var(--g);color:#fff}.rz .rok .act .dg{border-color:#b3261e;color:#b3261e}.rz .rok .act a:hover,.rz .rok .act button:hover{background:var(--g);color:#fff}.rz .rok .act .dg:hover{background:#b3261e;color:#fff}.rz .rok .tip{margin:26px auto 0;background:var(--bg);border-radius:16px;padding:18px 22px;max-width:560px;text-align:left;font-size:14.5px;color:var(--mut)}.rz .rok .tip b{color:var(--g)}
 .rz [hidden]{display:none!important}
-.resa-demo{background:var(--gold2);color:var(--g);font:500 14px/1.3 'Inter',sans-serif;padding:11px 14px;text-align:center}.resa-demo a{display:inline-block;margin-left:12px;background:var(--g);color:#fff;padding:8px 16px;border-radius:99px;font-size:13.5px}
+.rz{--pay-ln:var(--ln);--pay-mut:var(--mut)}.rz .lnk{background:none;border:0;color:#b3261e;font:500 15px Inter,sans-serif;text-decoration:underline;cursor:pointer;padding:14px 10px}.resa-demo{background:var(--gold2);color:var(--g);font:500 14px/1.3 'Inter',sans-serif;padding:11px 14px;text-align:center}.resa-demo a{display:inline-block;margin-left:12px;background:var(--g);color:#fff;padding:8px 16px;border-radius:99px;font-size:13.5px}
 @media(max-width:980px){.rz{grid-template-columns:1fr}.rz .side{position:static}.rz .tgrid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:600px){.rz .tg,.rz .pg,.rz .rf{grid-template-columns:minmax(0,1fr)}.rz .step{padding:22px 18px}.rz .tgrid{grid-template-columns:repeat(3,minmax(0,1fr))}.rz .rok{padding:34px 18px}}
 """
@@ -117,10 +122,11 @@ WIDGET_HTML = """<div class="rz" id="rz"><div class="rl">
 <label id="nl">Date de naissance du patient<input id="rb" type="date"></label><label class="w2">Un message pour Léa ? (facultatif)<textarea id="rg" placeholder="Depuis quand, ce qui soulage ou aggrave, radios récentes…"></textarea></label></div>
 <label class="ck"><input type="checkbox" id="c1" checked><span>Je souhaite recevoir un SMS de rappel la veille du rendez-vous.</span></label>
 <label class="ck"><input type="checkbox" id="c2"><span>J’accepte que mes informations (y compris de santé) soient utilisées par le cabinet pour gérer ce rendez-vous. Elles ne sont ni revendues ni partagées.</span></label></div>
+<div class="step" id="paystep"><div class="sh"><i>7</i><b>Acompte pour garantir le rendez-vous</b></div>@@PAY@@</div>
 </div>
 <aside class="side"><div class="rc"><h3>Votre rendez-vous</h3><ul id="ru"></ul><div class="tot"><span>Tarif de la séance</span><b id="rp2">—</b></div><button type="button" class="rgo" id="rg2">Confirmer mon rendez-vous</button><div class="rerr" id="re" role="alert"></div><p class="fine">Annulation gratuite jusqu’à 24 h avant. Un rendez-vous manqué sans prévenir est facturé 30 €. Paiement sur place : carte, espèces ou chèque.</p></div></aside>
 <div class="rok" id="rk"><div class="big">✓</div><h3>Rendez-vous confirmé</h3><div class="ref" id="rr"></div><p class="sm" id="rs"></p><p>Un e-mail de confirmation vous est envoyé, avec un rappel par SMS la veille.</p>
-<div class="act"><a id="ics" class="pr" download="rendez-vous-cabinet-lemaire.ics" href="#">Ajouter à mon agenda</a><button type="button" id="rcn" class="dg">Annuler ce rendez-vous</button><button type="button" id="rna">Prendre un autre rendez-vous</button><a id="rli" href="/exemples/osteo-reservation-interne" target="_blank" rel="noopener">Voir côté cabinet</a></div>
+<div id="rcp"></div><div class="act"><a id="ics" class="pr" download="rendez-vous-cabinet-lemaire.ics" href="#">Ajouter à mon agenda</a><button type="button" id="rcn" class="dg">Annuler ce rendez-vous</button><button type="button" id="rna">Prendre un autre rendez-vous</button><a id="rli" href="/exemples/osteo-reservation-interne" target="_blank" rel="noopener">Voir côté cabinet</a></div>
 <div class="tip" id="rtip"></div></div></div>"""
 
 WIDGET_JS = r"""
@@ -143,8 +149,8 @@ function drawTime(){var el=$('#tl'),h=$('#th');
   h.textContent=any?'Les horaires barrés sont déjà pris. Durée prévue : '+dur(ty().min)+'.':'Plus de créneau ce jour-là : essayez un autre jour ou un autre praticien.'}
 function who(){if(S.day&&S.t!==null){var w=freePra(S.day,S.t,ty().min,busyList(S.day),S.pra);return w}return S.pra}
 function drawRec(){var t=ty(),w=S.day&&S.t!==null?who():S.pra;
-  var L=[['Patient',t.n+' · '+t.age],['Situation',S.sit==='n'?'Première consultation':'Déjà suivi(e)'],['Motif',S.mo||'À préciser sur place'],['Avec',w>=0?PRA[w].n:'Premier praticien libre'],['Quand',S.day&&S.t!==null?label(S.day)+' à '+hm(S.t):'À choisir'],['Durée',dur(t.min)]];
-  $('#ru').innerHTML=L.map(function(x){return'<li><span>'+x[0]+'</span><b>'+esc(x[1])+'</b></li>'}).join('');$('#rp2').textContent=eur(t.p);
+  var L=[['Patient',t.n+' · '+t.age],['Situation',S.sit==='n'?'Première consultation':'Déjà suivi(e)'],['Motif',S.mo||'À préciser sur place'],['Avec',w>=0?PRA[w].n:'Premier praticien libre'],['Quand',S.day&&S.t!==null?label(S.day)+' à '+hm(S.t):'À choisir'],['Durée',dur(t.min)]].concat(stripeOn()?[['Acompte',money(dep(t))+' · solde '+money(t.p-dep(t))+' au cabinet']]:[]);
+  $('#ru').innerHTML=L.map(function(x){return'<li><span>'+x[0]+'</span><b>'+esc(x[1])+'</b></li>'}).join('');$('#rp2').textContent=eur(t.p);$('#paystep').hidden=!stripeOn();$('#rg2').textContent=stripeOn()?'Payer l’acompte de '+money(dep(t))+' et confirmer':'Confirmer mon rendez-vous';
   $('#nl').style.display=(S.ty==='en'||S.ty==='nr')?'':'none';
   $('#sith').textContent=S.sit==='n'?'Apportez vos radios, IRM et comptes rendus récents : ils m’aident à adapter le soin.':'Je retrouve votre dossier : inutile de tout raconter à nouveau.'}
 function all5(){drawTy();drawMo();drawPra();drawDay();drawTime();drawRec();$('#re').textContent=''}
@@ -157,38 +163,44 @@ $('#tl').onclick=function(e){var b=e.target.closest('.ts');if(!b||b.disabled)ret
 function ics(r){var d=r.iso.replace(/-/g,''),a=pad(Math.floor(r.t/60))+pad(r.t%60)+'00',e2=r.t+r.dur,b=pad(Math.floor(e2/60))+pad(e2%60)+'00';
   return 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Cabinet Lemaire//FR\r\nBEGIN:VEVENT\r\nUID:'+r.ref+'@cabinet-lemaire\r\nDTSTART:'+d+'T'+a+'\r\nDTEND:'+d+'T'+b+'\r\nSUMMARY:Ostéopathe · Cabinet Lemaire\r\nLOCATION:27 cours Saint-Louis\\, 33300 Bordeaux\r\nDESCRIPTION:Rendez-vous '+r.ref+'. Annulation gratuite jusqu’à 24 h avant.\r\nEND:VEVENT\r\nEND:VCALENDAR'}
 $('#rg2').onclick=function(){
-  var t=ty(),pr=$('#rp').value.trim(),nm=$('#rn').value.trim(),tel=$('#rt').value.trim(),mail=$('#rm').value.trim(),e=$('#re');
+  var t=ty(),pr=$('#rp').value.trim(),nm=$('#rn').value.trim(),tel=$('#rt').value.trim(),mail=$('#rm').value.trim(),e=$('#re'),btn=$('#rg2');
   if(!S.day||S.t===null){e.textContent='Choisissez un jour et une heure.';return}
   if(pr.length<2||nm.length<2){e.textContent='Indiquez votre prénom et votre nom.';return}
   if(tel.replace(/\D/g,'').length<8){e.textContent='Indiquez un numéro de téléphone valide.';return}
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)){e.textContent='Indiquez une adresse e-mail valide pour recevoir la confirmation.';return}
   if(!$('#c2').checked){e.textContent='Merci de cocher l’autorisation d’utilisation de vos informations.';return}
   var w=freePra(S.day,S.t,t.min,busyList(S.day),S.pra);if(w<0||S.day<TODAY){e.textContent='Ce créneau vient d’être pris. Choisissez-en un autre.';all5();return}
-  var st=store(),id='u'+Date.now(),ref='RDV-'+Math.random().toString(36).slice(2,8).toUpperCase();
-  var r={id:id,iso:S.day,t:S.t,dur:t.min,type:t.id,motif:S.mo||'Autre',who:w,nom:pr+' '+nm,tel:tel,mail:mail,msg:$('#rg').value.trim(),nouveau:S.sit==='n',statut:'confirmé',chan:'web',lead:Math.max(0,daysBetween(TODAY,S.day)),web:1,ref:ref,sms:$('#c1').checked?1:0,created:Date.now()};
-  st.res.push(r);save(st);S.last=r;
-  $('#rr').textContent=ref;
-  $('#rs').innerHTML='<b>'+esc(label(S.day))+' à '+hm(S.t)+'</b><br>'+esc(t.n)+' · '+dur(t.min)+' · '+eur(t.p)+' · avec '+esc(PRA[w].n)+'<br>Merci '+esc(pr)+', votre rendez-vous est réservé.';
-  $('#ics').href='data:text/calendar;charset=utf-8,'+encodeURIComponent(ics(r));
-  $('#rli').href='/exemples/osteo-reservation-interne?d='+S.day+'&n='+id;
-  $('#rtip').innerHTML='<b>Avant le rendez-vous</b><br>'+(S.sit==='n'?'Venez avec vos radios, IRM et comptes rendus récents, et une tenue confortable. ':'')+'Arrivez 5 minutes en avance. Cabinet de plain-pied, tram C arrêt Chartrons.';
-  $('#rz').classList.add('done');$('#rz').scrollIntoView({block:'start',behavior:'smooth'})};
-$('#rcn').onclick=function(){if(!S.last)return;var st=store();st.del.push(S.last.id);save(st);$('#rs').innerHTML='<b>Rendez-vous annulé.</b><br>Le créneau est de nouveau libre. Vous recevez un e-mail de confirmation d’annulation.';$('#rcn').style.display='none';$('#ics').style.display='none'};
-$('#rna').onclick=function(){S.day=null;S.t=null;S.last=null;['#rp','#rn','#rt','#rm','#rg','#rb'].forEach(function(s){$(s).value=''});$('#c2').checked=false;$('#rcn').style.display='';$('#ics').style.display='';$('#rz').classList.remove('done');all5()};
-document.addEventListener('osteo-motif',function(e){S.mo=e.detail;drawMo();drawRec()});
+  function book(pay){var st=store(),id='u'+Date.now(),ref='RDV-'+Math.random().toString(36).slice(2,8).toUpperCase();
+    var r={id:id,iso:S.day,t:S.t,dur:t.min,type:t.id,motif:S.mo||'Autre',who:w,nom:pr+' '+nm,tel:tel,mail:mail,msg:$('#rg').value.trim(),nouveau:S.sit==='n',statut:'confirmé',chan:'web',lead:Math.max(0,daysBetween(TODAY,S.day)),web:1,ref:ref,sms:$('#c1').checked?1:0,created:Date.now()};
+    if(pay)r.pay=pay;st.res.push(r);save(st);S.last=r;
+    $('#rr').textContent=ref;
+    $('#rs').innerHTML='<b>'+esc(label(S.day))+' à '+hm(S.t)+'</b><br>'+esc(t.n)+' · '+dur(t.min)+' · '+eur(t.p)+' · avec '+esc(PRA[w].n)+'<br>Merci '+esc(pr)+', votre rendez-vous est réservé.';
+    $('#rcp').innerHTML=pay?'<span class="recpt">🔒 Acompte de '+money(pay.a)+' réglé par '+pay.brand+' •••• '+pay.last4+' · reçu '+pay.id+'</span><p style="margin-top:8px;color:var(--mut)">Le solde de '+money(t.p-pay.a)+' se règle au cabinet.</p>':'';
+    $('#ics').href='data:text/calendar;charset=utf-8,'+encodeURIComponent(ics(r));
+    $('#rli').href='/exemples/osteo-reservation-interne?d='+S.day+'&n='+id;
+    $('#rtip').innerHTML='<b>Avant le rendez-vous</b><br>'+(S.sit==='n'?'Venez avec vos radios, IRM et comptes rendus récents, et une tenue confortable. ':'')+'Arrivez 5 minutes en avance. Cabinet de plain-pied, tram C arrêt Chartrons.';
+    btn.disabled=false;$('#rz').classList.add('done');$('#rz').scrollIntoView({block:'start',behavior:'smooth'})}
+  if(stripeOn()){btn.disabled=true;e.textContent='';stripePay(dep(t)).then(function(pay){book(pay)},function(m){btn.disabled=false;e.textContent=m})}else book(null)};
+$('#rcn').onclick=function(){if(!S.last)return;var st=store();st.del.push(S.last.id);if(S.last.pay){st.ref=st.ref||[];st.ref.push({id:S.last.id,a:S.last.pay.a})}save(st);$('#rs').innerHTML='<b>Rendez-vous annulé.</b><br>Le créneau est de nouveau libre. Vous recevez un e-mail de confirmation d’annulation.';$('#rcp').innerHTML=S.last.pay?'<span class="recpt">Acompte de '+money(S.last.pay.a)+' remboursé sur votre carte •••• '+S.last.pay.last4+' (5 à 10 jours)</span>':'';$('#rcn').style.display='none';$('#ics').style.display='none'};
+$('#rna').onclick=function(){S.day=null;S.t=null;S.last=null;['#rp','#rn','#rt','#rm','#rg','#rb'].forEach(function(s){$(s).value=''});$('#c2').checked=false;['#spc','#spe','#spv'].forEach(function(x){$(x).value=''});$('#rcn').style.display='';$('#ics').style.display='';$('#rz').classList.remove('done');all5()};
+spInit();document.addEventListener('osteo-motif',function(e){S.mo=e.detail;drawMo();drawRec()});
 all5();
 for(var k=0;k<S.days.length;k++){if(dayFree(S.days[k])){S.day=S.days[k];break}}all5();
 """
 
 
 def widget():
-    return WIDGET_HTML, WIDGET_CSS, "(function(){" + CORE + WIDGET_JS + "})();"
+    return WIDGET_HTML.replace("@@PAY@@", stripe_demo.HTML), WIDGET_CSS, "(function(){" + CORE + stripe_demo.JS + WIDGET_JS + "})();"
 
 
 # ---------------------------------------------------------------- espace interne
 FONTS = "family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Inter:wght@400;500;600"
 
 INT_CSS = r"""
+.pm{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:12px 0}.pm div{background:#f4f1e8;border-radius:14px;padding:14px 16px}.pm small{display:block;color:var(--mut);font-size:12.5px}.pm b{display:block;font:500 1.8rem/1.2 'Newsreader',serif;color:var(--g)}
+.sconn{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;border:1.5px solid #e4ddc9;border-radius:14px;padding:14px 16px}.sconn small{display:block;color:var(--mut)}.tgw{display:flex;gap:10px;align-items:center}.pill.x{background:#e8f0ee;color:var(--g)}
+.tgl{position:relative;width:46px;height:26px;border-radius:99px;background:#cfd6d3;border:0;transition:.2s;flex:none;cursor:pointer}.tgl:after{content:"";position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s}.tgl.on{background:var(--g)}.tgl.on:after{left:23px}
+@media(max-width:700px){.pm{grid-template-columns:1fr 1fr}}
 *{box-sizing:border-box}:root{--g:#032a2a;--g2:#0a3d3b;--gold:#b99c64;--gold2:#e8dcc2;--bg:#f6f4ef;--card:#fff;--ink:#0f2a29;--mut:#5f6b69;--ln:#e4ded2}
 body{margin:0;font:400 15px/1.5 'Inter',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
 h1,h2,h3,p,ul,dl,dd{margin:0;padding:0}ul{list-style:none}button{font:inherit;color:inherit;cursor:pointer}a{color:inherit;text-decoration:none}
@@ -244,6 +256,7 @@ INT_BODY = """<div class="swbar"><b>Site d’exemple · Cabinet Lemaire</b><a hr
 
 <section class="view on" id="v-dash"><div class="head"><div><h1>Tableau de bord</h1><p>Vos réservations en un coup d’œil</p></div><div class="sp"></div><div class="seg" id="per"><button data-p="7">7 jours</button><button data-p="30" class="on">30 jours</button><button data-p="90">90 jours</button></div></div>
 <div class="kpis" id="kp"></div>
+<div class="card" style="margin-bottom:18px"><h2>Acomptes en ligne (Stripe)</h2><p class="sub">Encaissés directement sur votre compte, sans commission de notre part</p><div class="pm" id="pm"></div></div>
 <div class="cards"><div class="card c8"><h2>Rendez-vous par semaine</h2><p class="sub">Les 8 dernières semaines, la semaine en cours et la suivante · en doré, les rendez-vous pris en ligne</p><div class="bars" id="wk"></div></div>
 <div class="card c4"><h2>Prochain rendez-vous</h2><p class="sub" id="nxs"></p><div id="nx"></div></div>
 <div class="card c6"><h2>Motifs de consultation</h2><p class="sub">Ce qui amène vos patients</p><div class="hz" id="mt"></div></div>
@@ -261,6 +274,7 @@ INT_BODY = """<div class="swbar"><b>Site d’exemple · Cabinet Lemaire</b><a hr
 <section class="view" id="v-regl"><div class="head"><div><h1>Réglages</h1><p>Comment fonctionne la réservation en ligne</p></div></div>
 <div class="cards"><div class="card c6"><h2>Réservation en ligne</h2><p class="sub">Ce que vos patients voient sur le site</p><div class="set" id="st1"></div></div>
 <div class="card c6"><h2>Horaires d’ouverture</h2><p class="sub">Les créneaux proposés suivent ces horaires</p><ul class="hz" style="gap:0" id="hh"></ul></div>
+<div class="card c12"><h2>Paiement en ligne · Stripe</h2><p class="sub">Acompte demandé à la réservation pour limiter les rendez-vous non honorés. Aucune commission : seuls les frais de Stripe s’appliquent.</p><div class="sconn"><span><b id="sct">Compte Stripe connecté</b><small id="scs"></small></span><span class="tgw"><small>Acompte à la réservation</small><button class="tgl on" id="tgs" aria-label="Activer l’acompte"></button></span></div></div>
 <div class="card c12"><h2>Durées et tarifs</h2><p class="sub">Les types de consultation proposés à la réservation</p><table class="tbl"><thead><tr><th>Type</th><th>Durée</th><th>Tarif</th><th>Patients</th></tr></thead><tbody id="tt"></tbody></table></div></div></section>
 
 </main></div>
@@ -364,7 +378,7 @@ function setStatut(id,s){var st=store();st.st=st.st||{};st.st[id]=s;save(st)}
 document.addEventListener('click',function(e){
   var b=e.target.closest('[data-id]');
   if(b&&!b.closest('#md')&&b.dataset.d){var r=find(b.dataset.id,b.dataset.d);if(!r)return;var ty=byT(r.type),fut=r.iso>=TODAY;
-    modal('<h3>'+esc(r.nom)+'</h3><p>'+pill(r.statut)+(r.nouveau?' <span class="pill w">Nouveau patient</span>':'')+'</p><dl><dt>Quand</dt><dd>'+label(r.iso)+' à '+hm(r.t)+'</dd><dt>Consultation</dt><dd>'+ty.n+' · '+dur(r.dur)+' · '+eur(ty.p)+'</dd><dt>Motif</dt><dd>'+esc(r.motif)+'</dd><dt>Praticien</dt><dd>'+PRA[r.who].n+'</dd><dt>Réservé via</dt><dd>'+({web:'le site internet',tel:'le téléphone',place:'sur place'})[r.chan]+'</dd>'+(r.tel?'<dt>Téléphone</dt><dd>'+esc(r.tel)+'</dd>':'')+(r.mail?'<dt>E-mail</dt><dd>'+esc(r.mail)+'</dd>':'')+(r.msg?'<dt>Message</dt><dd>'+esc(r.msg)+'</dd>':'')+(r.ref?'<dt>Référence</dt><dd>'+esc(r.ref)+'</dd>':'')+'</dl><div class="acts">'+(r.statut==='confirmé'&&!fut?'<button class="btn" data-act="fait" data-id="'+r.id+'" data-d="'+r.iso+'">Marquer présent</button><button class="btn o" data-act="absent" data-id="'+r.id+'" data-d="'+r.iso+'">Absent</button>':'')+(r.statut==='confirmé'&&fut?'<button class="btn d" data-act="annulé" data-id="'+r.id+'" data-d="'+r.iso+'">Annuler le rendez-vous</button>':'')+'<button class="btn o" data-x>Fermer</button></div>');return}
+    modal('<h3>'+esc(r.nom)+'</h3><p>'+pill(r.statut)+(r.nouveau?' <span class="pill w">Nouveau patient</span>':'')+'</p><dl><dt>Quand</dt><dd>'+label(r.iso)+' à '+hm(r.t)+'</dd><dt>Consultation</dt><dd>'+ty.n+' · '+dur(r.dur)+' · '+eur(ty.p)+'</dd><dt>Motif</dt><dd>'+esc(r.motif)+'</dd><dt>Praticien</dt><dd>'+PRA[r.who].n+'</dd><dt>Réservé via</dt><dd>'+({web:'le site internet',tel:'le téléphone',place:'sur place'})[r.chan]+'</dd>'+(r.tel?'<dt>Téléphone</dt><dd>'+esc(r.tel)+'</dd>':'')+(r.mail?'<dt>E-mail</dt><dd>'+esc(r.mail)+'</dd>':'')+(r.msg?'<dt>Message</dt><dd>'+esc(r.msg)+'</dd>':'')+(r.ref?'<dt>Référence</dt><dd>'+esc(r.ref)+'</dd>':'')+(payOf(r)?'<dt>Acompte</dt><dd>'+money(payOf(r))+' payé en ligne (Stripe) · '+(r.statut==='annulé'?'remboursé':(r.statut==='absent'?'conservé':'solde '+money(byT(r.type).p-payOf(r))+' au cabinet'))+'</dd>':'')+'</dl><div class="acts">'+(r.statut==='confirmé'&&!fut?'<button class="btn" data-act="fait" data-id="'+r.id+'" data-d="'+r.iso+'">Marquer présent</button><button class="btn o" data-act="absent" data-id="'+r.id+'" data-d="'+r.iso+'">Absent</button>':'')+(r.statut==='confirmé'&&fut?'<button class="btn d" data-act="annulé" data-id="'+r.id+'" data-d="'+r.iso+'">Annuler le rendez-vous</button>':'')+'<button class="btn o" data-x>Fermer</button></div>');return}
   var a=e.target.closest('[data-act]');if(a){var id=a.dataset.id;if(id.charAt(0)==='u'||id.charAt(0)==='m'){var st=store();st.st=st.st||{};}setStatut(id,a.dataset.act);close();refresh();toast(a.dataset.act==='annulé'?'Rendez-vous annulé : le créneau est libre.':'Statut mis à jour.');return}
   if(e.target.closest('[data-x]')||e.target===$('#md')){close();return}
 });
@@ -377,11 +391,20 @@ $('#nw').onclick=function(){
     var w=freePra(cur,m,t.min,busyList(cur),-1);if(w<0){$('#ne').textContent='Ce créneau vient d’être pris.';return}
     var st=store();st.res.push({id:'m'+Date.now(),iso:cur,t:m,dur:t.min,type:t.id,motif:'Autre',who:w,nom:n,tel:$('#ntl').value.trim(),nouveau:false,statut:'confirmé',chan:'place',lead:0,web:0});save(st);close();refresh();toast('Rendez-vous ajouté à l’agenda.')}};
 /* ---------- navigation ---------- */
-function refresh(){drawDash();drawAg();drawList()}
+function drawPay(){
+  var on=stripeOn(),i,st=store(),inn=0,fut=0,fees=0,refs=0,keep=0,dd=0;
+  all(cur).forEach(function(r){if(r.statut!=='annulé')dd+=payOf(r)});
+  $('#kp').insertAdjacentHTML('beforeend','<div class="kpi"><small>Acomptes du jour</small><b>'+money(dd)+'</b><i>payés en ligne via Stripe</i></div>');
+  for(i=-30;i<=14;i++){var d=parse(TODAY);d.setDate(d.getDate()+i);var s=iso(d);all(s).forEach(function(r){var a=payOf(r);if(!a||r.statut==='annulé')return;if(i<=0){inn+=a;fees+=feeOf(a);if(r.statut==='absent')keep+=a}else fut+=a})}
+  (st.ref||[]).forEach(function(x){refs+=x.a});
+  $('#pm').innerHTML='<div><small>Acomptes encaissés (30 jours)</small><b>'+money(inn)+'</b></div><div><small>Acomptes à venir (14 jours)</small><b>'+money(fut)+'</b></div><div><small>Gardés (patients absents)</small><b>'+money(keep)+'</b></div><div><small>Frais Stripe estimés · remboursés '+money(refs)+'</small><b>'+money(fees)+'</b></div>';
+  $('#tgs').classList.toggle('on',on);$('#sct').textContent=on?'Compte Stripe connecté':'Acompte désactivé';$('#scs').textContent=on?'Virements automatiques vers votre compte bancaire · IBAN FR76 •••• •••• 4821':'Vos patients réservent sans payer. Réactivez l’acompte pour limiter les absences.'}
+$('#tgs').onclick=function(){try{localStorage.setItem('osteo-set-stripe',stripeOn()?'0':'1')}catch(e){}refresh();toast(stripeOn()?'Acompte activé sur le site.':'Acompte désactivé sur le site.')};
+function refresh(){drawDash();drawPay();drawAg();drawList()}
 function shift(n){var d=cur;do{d=addDays(d,n)}while(!isOpenDay(d));cur=d;drawAg()}
 $('#pv').onclick=function(){shift(-1)};$('#nxd').onclick=function(){shift(1)};
 $('#td').onclick=function(){var d=TODAY;while(!isOpenDay(d))d=addDays(d,1);cur=d;drawAg()};
-$('#per').onclick=function(e){var b=e.target.closest('button');if(!b)return;per=+b.dataset.p;[].forEach.call($('#per').children,function(x){x.classList.toggle('on',x===b)});drawDash()};
+$('#per').onclick=function(e){var b=e.target.closest('button');if(!b)return;per=+b.dataset.p;[].forEach.call($('#per').children,function(x){x.classList.toggle('on',x===b)});drawDash();drawPay()};
 var tabs=[].slice.call(document.querySelectorAll('.sb button.t'));
 function go(v){tabs.forEach(function(t){t.classList.toggle('on',t.dataset.v===v)});[].forEach.call(document.querySelectorAll('.view'),function(x){x.classList.toggle('on',x.id==='v-'+v)});try{history.replaceState(null,'','#'+v)}catch(e){}window.scrollTo(0,0)}
 tabs.forEach(function(t){t.onclick=function(){go(t.dataset.v)}});
@@ -400,6 +423,7 @@ def interne():
 <style>{INT_CSS}</style></head><body>
 {body}
 <script>(function(){{{CORE}
+{stripe_demo.JS}
 {INT_JS}
 }})();</script></body></html>"""
 
