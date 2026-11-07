@@ -57,197 +57,217 @@ def dial(uid="dl"):
 
 
 def garage():
-    page, slot, svg, ico = H["page"], H["slot"], H["svg"], H["ico"]
+    page, ico = H["page"], H["ico"]
     css = r'''
-:root{--bg:#fff;--p:#f3f1ea;--p2:#fff;--ink:#111;--mut:#555a63;--or:#1a3cff;--y:#ffd400;--ln:#dcd9cf}
+:root{--bg:#050607;--p:#0c0d0f;--p2:#111316;--ink:#f4f5f7;--mut:#9ea3ab;--red:#e11d2e;--red2:#ff3b4a;--ln:#23262b}
 html,body{overflow-x:clip}
-body{background:var(--bg);color:var(--ink);font:400 17px/1.6 'Barlow',system-ui,sans-serif}
-.c{font-family:'Barlow Condensed','Arial Narrow','Liberation Sans Narrow',sans-serif;text-transform:uppercase;letter-spacing:.01em}
-.w{max-width:1280px;margin:0 auto;padding:0 28px}
-.top{background:#111;font-size:14px}.top .w{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:9px;padding-bottom:9px;color:#c9ccd2}.top .live{color:#fff}
-.live{display:inline-flex;align-items:center;gap:8px;font-weight:600;color:var(--ink)}.live i{width:9px;height:9px;border-radius:50%;background:#2fd06a;box-shadow:0 0 0 0 #2fd06a99;animation:pl 2s infinite}.live.off i{background:#e0483a;animation:none}
-@keyframes pl{70%{box-shadow:0 0 0 9px #2fd06a00}100%{box-shadow:0 0 0 0 #2fd06a00}}
-@media(prefers-reduced-motion:reduce){.live i,.mq div{animation:none}}
-header.g{position:sticky;top:0;z-index:40;background:#fffffff2;backdrop-filter:blur(12px);border-bottom:1px solid var(--ln)}
-header.g .w{display:flex;justify-content:space-between;align-items:center;height:78px;gap:20px}@media(max-width:600px){header.g .w{height:64px;gap:10px;padding:0 14px}header.g .lg{font-size:1.25rem;gap:8px}header.g .lg small{display:none}header.g .bt{padding:12px 14px;font-size:14px}header.o .lg{font-size:1.4rem}}
-.lg{display:flex;align-items:center;gap:12px;font:800 1.9rem/1 'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.04em}.lg small{display:block;font:600 .62rem/1 'Barlow',sans-serif;letter-spacing:.3em;color:var(--mut);margin-top:5px}
-.lg i{display:grid;place-items:center;width:44px;height:44px;background:var(--y);clip-path:polygon(0 0,100% 0,100% 70%,70% 100%,0 100%)}
-nav.g{display:flex;gap:30px;font:600 15px 'Barlow',sans-serif;text-transform:uppercase;letter-spacing:.1em}nav.g a{color:var(--mut)}nav.g a:hover{color:var(--or)}
-.bt{display:inline-flex;align-items:center;gap:10px;background:var(--y);color:#111;font:700 16px/1 'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.08em;padding:17px 26px;border:0;cursor:pointer;clip-path:polygon(0 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%);transition:.2s}
-.bt:hover{background:#111;color:#fff}.bt.o{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 2px var(--ln);clip-path:none}.bt.o:hover{box-shadow:inset 0 0 0 2px var(--or);background:transparent;color:var(--or)}
-.hero{position:relative;overflow:hidden;background:#1a3cff;color:#fff}.hero .lead{color:#dbe3ff}.hero .tg{border-color:#ffffff66;color:#fff}.hero .tg b{color:var(--y)}.hero h1.c em{color:var(--y)}.hero .lb{color:var(--y)}
-.hero:before{content:"";position:absolute;inset:0;background:radial-gradient(900px 520px at 78% 40%,#ffffff22,transparent 60%),repeating-linear-gradient(90deg,#ffffff0f 0 1px,transparent 1px 90px)}
-.hero .w{position:relative;display:grid;grid-template-columns:1.05fr 1fr;gap:20px;align-items:center;padding-top:70px;padding-bottom:40px}
-.tg{display:inline-flex;gap:10px;align-items:center;border:1px solid var(--ln);padding:8px 14px;font:600 13px/1 'Barlow',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}.tg b{color:var(--or)}
-h1.c{font-weight:800;font-size:clamp(3.2rem,7.4vw,7.4rem);line-height:.88;margin:26px 0 22px;letter-spacing:-.005em}h1.c em{font-style:normal;color:var(--or)}
-.lead{color:var(--mut);font-size:1.18rem;max-width:30em}
-.devis{margin-top:32px;background:#fff;color:#111;box-shadow:8px 8px 0 #111;padding:22px;display:grid;grid-template-columns:auto 1fr 1fr auto;gap:12px;align-items:end;max-width:760px}
-.devis label{display:grid;gap:7px;font:600 12px 'Barlow',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}
-.plate{display:flex;align-items:stretch;background:#fff;border-radius:6px;overflow:hidden;height:50px;min-width:190px;box-shadow:0 0 0 2px #111}.plate b{width:30px;background:#133b9c;color:#fff;display:grid;place-items:end center;padding-bottom:4px;font:700 11px 'Barlow'}.plate input{border:0;outline:0;font:800 1.55rem 'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.12em;text-align:center;width:100%;color:#111;background:#fff}
-.devis select{height:50px;background:var(--p2);color:var(--ink);border:1px solid var(--ln);font:500 16px 'Barlow',sans-serif;padding:0 12px}
-.est{grid-column:1/-1;display:none;align-items:center;gap:16px;border-top:1px dashed var(--ln);padding-top:16px;flex-wrap:wrap}.est.on{display:flex}.est b{font:800 2.4rem/1 'Barlow Condensed',sans-serif;color:var(--or)}.est .bt{margin-left:auto}.est span{color:var(--mut);font-size:15px}
-.stage{position:relative}.stage>svg:not(.dl){display:block;width:100%;height:auto}.stage .dl{position:absolute;right:3%;top:-16%;width:27%;height:auto;opacity:.96;z-index:2}
-.kpi{position:relative;display:grid;grid-template-columns:repeat(4,1fr);background:#111;color:#fff}
-.kpi div{padding:24px 28px;border-right:1px solid #2b2e35}.kpi div:last-child{border:0}.kpi b{display:block;font:800 2.5rem/1 'Barlow Condensed',sans-serif;color:var(--y)}.kpi span{color:#aeb2ba;font-size:15px}
-section.s{padding:100px 0;border-bottom:1px solid var(--ln)}#forfaits,#equipe{background:var(--p)}.sg{border-color:#111}.sv{background:#fff}
-.lb{font:600 13px/1 'Barlow',sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--or);display:flex;gap:10px;align-items:center}.lb:before{content:"";width:28px;height:2px;background:var(--or)}
-h2.c{font-weight:800;font-size:clamp(2.6rem,5.4vw,4.8rem);line-height:.92;margin:16px 0 0}
-.sg{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--ln);border:1px solid var(--ln);margin-top:48px}
-.sv{background:var(--bg);padding:34px 30px 30px;position:relative;display:flex;flex-direction:column;gap:10px;transition:background .25s}.sv:hover{background:var(--y)}.sv:hover .n,.sv:hover p,.sv:hover small{color:#111}
-.sv .n{font:700 .95rem 'Barlow Condensed',sans-serif;color:var(--or);letter-spacing:.2em}.sv h3{font:800 2rem/1 'Barlow Condensed',sans-serif;text-transform:uppercase}.sv p{color:var(--mut);font-size:15.5px}
-.sv .pr{margin-top:auto;padding-top:14px;display:flex;align-items:baseline;justify-content:space-between;border-top:1px solid var(--ln)}.sv .pr b{font:800 2.2rem/1 'Barlow Condensed',sans-serif}.sv .pr small{color:var(--mut)}
-.sv .du{position:absolute;right:24px;top:30px;font:600 12px 'Barlow';letter-spacing:.14em;text-transform:uppercase;border:1px solid var(--ln);padding:6px 9px;color:var(--mut)}
-.why{display:grid;grid-template-columns:1fr 1fr;gap:70px;align-items:center}
-.pt{display:grid;gap:0;margin-top:36px;border-top:1px solid var(--ln)}.pt div{display:grid;grid-template-columns:60px 1fr;gap:18px;padding:22px 0;border-bottom:1px solid var(--ln)}.pt i{display:grid;place-items:center;width:52px;height:52px;border:1px solid var(--ln);color:var(--or)}.pt h4{font:700 1.5rem/1 'Barlow Condensed',sans-serif;text-transform:uppercase}.pt p{color:var(--mut);font-size:15.5px;margin-top:4px}
-.bay{position:relative;aspect-ratio:1.05;background:#111;box-shadow:10px 10px 0 var(--y);overflow:hidden}.bay .sl svg{width:100%;height:100%}
-.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:52px;position:relative}.steps:before{content:"";position:absolute;left:0;right:0;top:34px;height:2px;background:var(--ln)}
-.st{position:relative;padding-right:30px}.st .nb{width:70px;height:70px;background:var(--bg);border:2px solid var(--or);display:grid;place-items:center;font:800 2rem 'Barlow Condensed',sans-serif;color:var(--or);position:relative}.st h4{font:800 1.7rem/1 'Barlow Condensed',sans-serif;text-transform:uppercase;margin:20px 0 8px}.st p{color:var(--mut);font-size:15.5px}
-.mq{overflow:hidden;white-space:nowrap;padding:26px 0;background:var(--y);color:#111}.mq div{display:inline-block;animation:mqa 44s linear infinite}.mq span{font:700 2rem/1 'Barlow Condensed',sans-serif;text-transform:uppercase;color:#111;margin:0 34px;letter-spacing:.06em}.mq b{color:#1a3cff}
-@keyframes mqa{to{transform:translateX(-50%)}}
-.rev{display:grid;grid-template-columns:.8fr 1.2fr;gap:50px;margin-top:48px;align-items:stretch}
-.score{background:var(--p);border:1px solid var(--ln);padding:36px;display:flex;flex-direction:column;justify-content:center}.score b{font:800 7rem/.9 'Barlow Condensed',sans-serif;color:var(--or)}.score span{color:var(--or);letter-spacing:5px;font-size:1.4rem}.score p{color:var(--mut);margin-top:10px}
-.rl{display:grid;gap:14px}.rq{background:var(--p);border:1px solid var(--ln);padding:24px 28px;border-left:3px solid var(--or)}.rq p{font-size:1.1rem}.rq small{display:block;margin-top:10px;color:var(--mut)}
-.team{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:48px}.tm{background:var(--p);border:1px solid var(--ln)}.tm .av{aspect-ratio:1.2;background:linear-gradient(160deg,#2a2d33,#14161a);position:relative;overflow:hidden}.tm .av .sl svg{width:100%;height:100%}.tm div.t{padding:22px 24px}.tm h4{font:800 1.7rem/1 'Barlow Condensed',sans-serif;text-transform:uppercase}.tm p{color:var(--mut);font-size:15px;margin-top:6px}
-.contact{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:48px}.bx{background:var(--p);border:1px solid var(--ln);padding:34px}
-.hr li{display:flex;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--ln)}.hr li:last-child{border:0}.hr li.today{color:var(--or);font-weight:700}
-.map{aspect-ratio:1.7;background:#15181c;border:1px solid var(--ln);margin-bottom:18px;overflow:hidden}.map svg{width:100%;height:100%;display:block}
-form.rd{display:grid;gap:14px}.rd label{display:grid;gap:7px;font:600 12px 'Barlow',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}.rd input,.rd select,.rd textarea{font:500 16px 'Barlow',sans-serif;background:var(--p2);color:var(--ink);border:1px solid var(--ln);padding:14px;border-radius:0}.rd input:focus,.rd select:focus,.rd textarea:focus{outline:0;border-color:var(--or)}.rd .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.slots{display:flex;gap:8px;flex-wrap:wrap}.slots button{background:var(--p2);color:var(--ink);border:1px solid var(--ln);padding:11px 14px;font:600 15px 'Barlow',sans-serif;cursor:pointer}.slots button.on,.slots button:hover{border-color:var(--or);color:var(--or)}
-.ok{display:none;border:1px solid #0a8a3c;color:#0a8a3c;padding:16px 18px;font-weight:600}.ok.on{display:block}
-.faq details{border-bottom:1px solid var(--ln);padding:22px 0}.faq summary{cursor:pointer;font:700 1.6rem/1.1 'Barlow Condensed',sans-serif;text-transform:uppercase;list-style:none;display:flex;justify-content:space-between;gap:20px}.faq summary::-webkit-details-marker{display:none}.faq summary:after{content:"+";color:var(--or);font-size:1.8rem;line-height:1}.faq details[open] summary:after{content:"–"}.faq p{color:var(--mut);margin-top:12px;max-width:48em}
-footer.ft{background:#111;color:#fff;padding:64px 0 36px}footer.ft .w{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:36px}footer.ft h4{font:700 1.1rem 'Barlow Condensed',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--y);margin-bottom:14px}footer.ft li{margin:8px 0;color:#aeb2ba;font-size:15px}.lg2{font:800 2.4rem/1 'Barlow Condensed',sans-serif;text-transform:uppercase}.legal{grid-column:1/-1;border-top:1px solid #2b2e35;padding-top:24px;color:#6f7580;font-size:13px}
-/* ===== effets 3D ===== */
-.stage{perspective:1200px;padding-bottom:46px}
-.stage>svg:not(.dl){transform:perspective(1100px) rotateY(calc(var(--ry,0)*1deg)) rotateX(calc(var(--rx,0)*1deg)) translateZ(30px);will-change:transform;filter:drop-shadow(0 30px 24px #0007)}
-.stage .dl{transform:translate3d(calc(var(--ry,0)*-5px),calc(var(--rx,0)*5px),0) rotateY(calc(var(--ry,0)*-1deg));will-change:transform}
-.stage:after{content:"";position:absolute;left:-10%;right:-10%;bottom:-6px;height:150px;z-index:-1;background:repeating-linear-gradient(90deg,#ffffff33 0 2px,transparent 2px 60px),repeating-linear-gradient(0deg,#ffffff33 0 2px,transparent 2px 38px);transform:perspective(500px) rotateX(68deg);transform-origin:50% 100%;-webkit-mask:linear-gradient(0deg,#000,transparent);mask:linear-gradient(0deg,#000,transparent);animation:fl 1.6s linear infinite}
-@keyframes fl{to{background-position:0 0,0 38px}}
-.wh{animation:sp 1.5s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
-.hero h1.c{text-shadow:1px 1px 0 #0d28b8,2px 2px 0 #0d28b8,3px 3px 0 #0d28b8,4px 4px 0 #0d28b8,5px 5px 0 #0d28b8,6px 6px 0 #0d28b8,7px 7px 14px #0006}
-.hero h1.c em{text-shadow:1px 1px 0 #b39500,2px 2px 0 #b39500,3px 3px 0 #b39500,4px 4px 0 #b39500,5px 5px 0 #b39500,6px 6px 0 #b39500,7px 7px 14px #0006}
-.sv,.tm{transform-style:preserve-3d;will-change:transform}.sv{transition:background .25s,box-shadow .25s}.sv.tl,.tm.tl{z-index:3;box-shadow:0 26px 40px -14px #0007}
-.sv:after,.tm:after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(240px circle at var(--gx,50%) var(--gy,50%),#ffffff55,transparent 60%);opacity:0;transition:opacity .25s}.sv.tl:after,.tm.tl:after{opacity:1}.tm{position:relative}
-.st .nb{transition:transform .7s cubic-bezier(.2,.8,.2,1),background .3s,color .3s;transform-style:preserve-3d}.st:hover .nb{transform:rotateY(360deg);background:var(--or);color:#fff}
-.score b{display:inline-block;text-shadow:1px 1px 0 #0d28b8,2px 2px 0 #0d28b8,3px 3px 0 #0d28b8,4px 4px 0 #0d28b8,5px 5px 0 #0d28b8,6px 6px 12px #0005}
-.bay{transform:perspective(1000px) rotateY(-9deg) rotateX(3deg);transition:transform .5s}.bay:hover{transform:perspective(1000px) rotateY(0) rotateX(0)}
-.rq{transition:transform .35s}.rq:hover{transform:perspective(700px) translateZ(20px) rotateX(-3deg) translateX(8px);box-shadow:0 18px 30px -12px #0005}
-.rv{opacity:0;transform:perspective(900px) rotateX(16deg) translateY(46px);transform-origin:50% 100%;transition:opacity .8s,transform .9s cubic-bezier(.2,.8,.2,1)}.rv.in{opacity:1;transform:none}
-.sg .rv.in{transform:none}
-@media(max-width:980px){.bay{transform:none}.stage:after{height:90px}}
-@media(prefers-reduced-motion:reduce){.wh,.stage:after{animation:none}.rv{opacity:1;transform:none}.stage>svg:not(.dl){transform:none}}
-@media(max-width:980px){.hero .w,.why,.rev,.contact{grid-template-columns:1fr}.devis{grid-template-columns:1fr}.plate{min-width:0}.sg,.team{grid-template-columns:1fr}.kpi{grid-template-columns:1fr 1fr}.steps{grid-template-columns:1fr 1fr;row-gap:36px}.steps:before{display:none}nav.g{display:none}footer.ft .w{grid-template-columns:1fr 1fr}.dl{display:none}section.s{padding:68px 0}}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.65 'Montserrat',system-ui,sans-serif}
+.w{max-width:1200px;margin:0 auto;padding:0 28px}
+.view{display:none}.view.on{display:block;animation:vin .6s cubic-bezier(.2,.8,.2,1)}@keyframes vin{from{opacity:0;transform:translateY(14px)}}
+/* ---- en-tête (pages intérieures) ---- */
+header.gh{position:sticky;top:0;z-index:50;background:#050607e6;backdrop-filter:blur(14px);border-bottom:1px solid var(--ln)}body.home header.gh{display:none}
+header.gh .w{display:flex;align-items:center;gap:26px;height:76px}
+.lg{display:block;font:300 .8rem/1.1 'Montserrat',sans-serif;letter-spacing:.5em;color:var(--mut)}.lg b{display:block;font:500 1.25rem/1.1 'Montserrat',sans-serif;letter-spacing:.2em;color:#fff;margin-top:3px}
+nav.mn{display:flex;gap:6px;margin:0 auto}nav.mn a{padding:10px 18px;font:500 12.5px 'Montserrat',sans-serif;letter-spacing:.18em;text-transform:uppercase;color:var(--mut);position:relative;white-space:nowrap;transition:.25s}nav.mn a:hover{color:#fff}nav.mn a.on{color:#fff;box-shadow:inset 0 -2px 0 var(--red)}
+.pill{display:inline-flex;align-items:center;gap:14px;border:2px solid var(--red);border-radius:99px;padding:14px 30px;font:600 15px 'Montserrat',sans-serif;color:#fff;background:#0000;cursor:pointer;transition:.3s;box-shadow:0 0 0 #e11d2e00}.pill:hover{background:var(--red);box-shadow:0 0 38px #e11d2e66}.pill svg{transition:.3s}.pill:hover svg{transform:translateX(5px)}
+.pill.sm{padding:11px 22px;font-size:12.5px;letter-spacing:.12em;text-transform:uppercase}.pill.f{background:var(--red)}.pill.f:hover{background:var(--red2)}
+.bur{display:none;margin-left:auto;background:none;border:1.5px solid var(--ln);border-radius:10px;width:46px;height:46px;color:#fff;cursor:pointer}
+/* ---- accueil / hero ---- */
+.hero{position:relative;min-height:100vh;min-height:100svh;display:grid;place-items:center;overflow:hidden;background:#050607;isolation:isolate}
+.hero .bg{position:absolute;inset:-30px;background:url(/assets/ex/gar-hero.jpg) 62% center/cover no-repeat;z-index:-2;transition:transform .25s ease-out;will-change:transform}
+.hero:after{content:"";position:absolute;inset:0;background:radial-gradient(60% 60% at 40% 50%,#0000 0,#05060766 100%);z-index:-1}
+.hero .glow{position:absolute;inset:0;z-index:-1;background:radial-gradient(420px 420px at var(--mx,70%) var(--my,40%),#e11d2e22,#0000 70%);pointer-events:none}
+.ht{text-align:center;padding:0 22px;transform:translateX(-4%)}
+.hk{display:flex;align-items:center;justify-content:center;gap:34px}.hk:before,.hk:after{content:"";height:1px;width:clamp(30px,8vw,120px);background:#ffffffa0}
+.hk span{font:300 clamp(1.4rem,3.6vw,3.2rem)/1 'Montserrat',sans-serif;letter-spacing:.55em;margin-right:-.55em;color:#fff}
+.hn{font:500 clamp(2.3rem,9.4vw,7.6rem)/1 'Montserrat',sans-serif;letter-spacing:.09em;margin:22px 0 0;color:#fff;text-shadow:0 0 60px #0008}
+.hs{margin:34px 0 46px;font:400 clamp(.62rem,1.45vw,1.1rem)/1.9 'Montserrat',sans-serif;letter-spacing:.34em;text-transform:uppercase;color:#d7d9dd}
+.chev{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);width:44px;height:44px;display:grid;place-items:center;color:#fff;animation:bob 2.2s ease-in-out infinite;border:0;background:none;cursor:pointer}@keyframes bob{50%{transform:translate(-50%,8px)}}
+.hero .ht>*{opacity:0;animation:rise .9s cubic-bezier(.2,.8,.2,1) forwards}.hero .hn{animation-delay:.15s}.hero .hs{animation-delay:.3s}.hero .pill{animation-delay:.45s}@keyframes rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+.hero .ht .pill{padding:20px 60px;font-size:1.18rem}
+@media(prefers-reduced-motion:reduce){.hero .ht>*{animation:none;opacity:1}.chev{animation:none}}
+/* ---- sections ---- */
+.sec{padding:100px 0}.sec.alt{background:var(--p)}
+.eb{font:500 12px/1 'Montserrat',sans-serif;letter-spacing:.38em;text-transform:uppercase;color:var(--red2)}
+h2.t{font:500 clamp(1.7rem,3.6vw,2.8rem)/1.15 'Montserrat',sans-serif;letter-spacing:.04em;margin:16px 0 0}
+.sub{color:var(--mut);max-width:38em;margin-top:14px}
+.ph{padding:90px 0 60px;background:radial-gradient(70% 120% at 85% 0%,#e11d2e24,#0000 60%),var(--bg);border-bottom:1px solid var(--ln)}
+.ph h1{font:500 clamp(2rem,5vw,3.8rem)/1.1 'Montserrat',sans-serif;letter-spacing:.06em;margin-top:18px}.ph p{color:var(--mut);max-width:40em;margin-top:16px;font-size:1.08rem}
+.tri{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:48px}
+.tc{display:block;position:relative;background:var(--p2);border:1px solid var(--ln);border-radius:22px;padding:38px 32px;overflow:hidden;transition:transform .25s ease-out,border-color .3s,box-shadow .3s;transform-style:preserve-3d;will-change:transform}.tc:hover{border-color:var(--red);box-shadow:0 20px 60px #e11d2e22}
+.tc:before{content:"";position:absolute;inset:0;background:radial-gradient(300px 200px at var(--px,50%) var(--py,0%),#e11d2e20,#0000 70%);opacity:0;transition:.3s}.tc:hover:before{opacity:1}
+.tc .n{font:300 3.4rem/1 'Montserrat',sans-serif;color:#ffffff1c;letter-spacing:.04em}.tc h3{font:500 1.35rem/1.2 'Montserrat',sans-serif;letter-spacing:.06em;margin:18px 0 10px;transform:translateZ(30px)}.tc p{color:var(--mut);font-size:15px}.tc .go{display:inline-block;margin-top:20px;font:600 12.5px 'Montserrat',sans-serif;letter-spacing:.18em;text-transform:uppercase;color:var(--red2)}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:2px;background:var(--ln);border:1px solid var(--ln);border-radius:20px;overflow:hidden;margin-top:56px}.stats div{background:var(--p2);padding:30px 24px;text-align:center}.stats b{display:block;font:300 2.8rem/1 'Montserrat',sans-serif;color:#fff}.stats b i{font-style:normal;color:var(--red2)}.stats span{display:block;margin-top:10px;color:var(--mut);font-size:13px;letter-spacing:.1em;text-transform:uppercase}
+/* ---- prestations ---- */
+.tabs{display:flex;gap:10px;flex-wrap:wrap;margin:40px 0 28px}.tab{font:500 12.5px 'Montserrat',sans-serif;letter-spacing:.16em;text-transform:uppercase;border:1.5px solid var(--ln);background:none;color:var(--mut);padding:13px 24px;border-radius:99px;cursor:pointer;transition:.25s}.tab:hover{color:#fff;border-color:#fff4}.tab.on{background:var(--red);border-color:var(--red);color:#fff}
+.sv{display:block}.sv[hidden]{display:none}
+.sr{display:grid;grid-template-columns:64px minmax(0,1fr) 150px 140px;gap:24px;align-items:center;padding:28px 6px;border-top:1px solid var(--ln);transition:.3s}.sr:last-child{border-bottom:1px solid var(--ln)}.sr:hover{background:#ffffff06;padding-left:18px}
+.sr .no{font:300 1.9rem/1 'Montserrat',sans-serif;color:var(--red2)}.sr h3{font:500 1.2rem/1.25 'Montserrat',sans-serif;letter-spacing:.04em}.sr p{color:var(--mut);font-size:14.5px;margin-top:6px}.sr .du{color:var(--mut);font-size:13.5px}.sr .pr{text-align:right;font:500 1.4rem/1.1 'Montserrat',sans-serif}.sr .pr small{display:block;color:var(--mut);font:400 11px 'Montserrat',sans-serif;letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px}
+.eng{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin-top:60px}.eng div{border:1px solid var(--ln);border-radius:18px;padding:26px 22px;background:var(--p2)}.eng svg{color:var(--red2);margin-bottom:12px}.eng b{display:block;font:500 1rem 'Montserrat',sans-serif;letter-spacing:.04em;margin-bottom:6px}.eng span{color:var(--mut);font-size:14px;display:block}
+/* ---- véhicules ---- */
+.vg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin-top:10px}
+.vc{background:var(--p2);border:1px solid var(--ln);border-radius:22px;overflow:hidden;transition:transform .25s ease-out,border-color .3s,box-shadow .3s;will-change:transform}.vc:hover{border-color:var(--red);box-shadow:0 20px 60px #e11d2e22}
+.vc .im{background:radial-gradient(70% 80% at 50% 100%,#e11d2e33,#0000 70%),#0a0b0d;padding:20px 14px 0}.vc .im svg{display:block;width:100%;height:auto}
+.vc{display:flex;flex-direction:column}.vc .bd{padding:24px 26px 28px;display:flex;flex-direction:column;flex:1}.vc .pf{margin-top:auto}.vc .im svg.fl{transform:scaleX(-1)}.vc .tg{font:500 11px 'Montserrat',sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--red2)}.vc h3{font:500 1.25rem/1.2 'Montserrat',sans-serif;letter-spacing:.03em;margin:8px 0 12px}
+.vc ul{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}.vc li{border:1px solid var(--ln);border-radius:99px;padding:5px 13px;font-size:12.5px;color:var(--mut)}
+.vc .pf{display:flex;justify-content:space-between;align-items:center;gap:12px}.vc .pf b{font:500 1.55rem 'Montserrat',sans-serif}.vc .pf a{font:600 12px 'Montserrat',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--red2);cursor:pointer}
+/* ---- à propos ---- */
+.dual{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}.dual img{width:100%;border-radius:22px;display:block;aspect-ratio:4/3;object-fit:cover;object-position:75% 40%;border:1px solid var(--ln)}
+.dual p{color:#cfd2d8;margin-top:18px}
+.team{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:44px}.tm{border:1px solid var(--ln);border-radius:20px;padding:30px 26px;background:var(--p2)}.tm i{display:grid;place-items:center;width:64px;height:64px;border-radius:50%;border:1.5px solid var(--red);font:500 1.15rem 'Montserrat',sans-serif;font-style:normal;margin-bottom:18px}.tm b{display:block;font:500 1.1rem 'Montserrat',sans-serif;letter-spacing:.04em}.tm em{display:block;font:400 12px 'Montserrat',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--red2);font-style:normal;margin:6px 0 12px}.tm span{display:block;color:var(--mut);font-size:14.5px}
+.val{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:44px}.val div{border-left:2px solid var(--red);padding:4px 0 4px 22px}.val b{display:block;font:500 1.1rem 'Montserrat',sans-serif;letter-spacing:.04em;margin-bottom:8px}.val span{color:var(--mut);font-size:15px;display:block}
+.rev{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:44px}.rev figure{border:1px solid var(--ln);border-radius:20px;padding:28px;background:var(--p2)}.rev .st{color:var(--red2);letter-spacing:.2em}.rev blockquote{margin:12px 0 16px;color:#d4d7dc;font-size:15.5px}.rev figcaption{color:var(--mut);font-size:13px}
+/* ---- contact ---- */
+.cg{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:34px;align-items:start;margin-top:10px}
+.rv{background:var(--p2);border:1px solid var(--ln);border-radius:24px;padding:34px}.rv h2{font:500 1.5rem 'Montserrat',sans-serif;letter-spacing:.04em;margin-bottom:6px}.rv .lab{font:500 11.5px 'Montserrat',sans-serif;letter-spacing:.22em;text-transform:uppercase;color:var(--red2);margin:26px 0 12px}
+.rv .days{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px}.rv .dy{flex:none;min-width:64px;border:1.5px solid var(--ln);background:none;color:#fff;border-radius:14px;padding:10px 6px;text-align:center;font:500 11.5px/1.3 'Montserrat',sans-serif;cursor:pointer;text-transform:uppercase;letter-spacing:.08em;transition:.2s}.rv .dy b{display:block;font:300 1.7rem/1.15 'Montserrat',sans-serif}.rv .dy:hover{border-color:#fff6}.rv .dy.on{background:var(--red);border-color:var(--red)}.rv .dy.full{opacity:.3;pointer-events:none}
+.rv .slots{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.rv .sl2{border:1.5px solid var(--ln);background:none;color:#fff;border-radius:12px;padding:11px 0;font:500 14px 'Montserrat',sans-serif;cursor:pointer;transition:.2s}.rv .sl2:hover{border-color:#fff6}.rv .sl2.on{background:var(--red);border-color:var(--red)}.rv .sl2.x{opacity:.3;text-decoration:line-through;pointer-events:none}
+.rv form{display:grid;grid-template-columns:1fr 1fr;gap:14px}.rv label{display:grid;gap:7px;font:500 11.5px 'Montserrat',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}.rv label.w2{grid-column:1/-1}
+.rv input,.rv select,.rv textarea{font:400 16px 'Montserrat',sans-serif;padding:14px 16px;border:1.5px solid var(--ln);border-radius:12px;background:#0a0b0d;color:#fff;width:100%}.rv input:focus,.rv select:focus,.rv textarea:focus{outline:0;border-color:var(--red)}.rv textarea{min-height:90px}
+.rv .rec{background:#0a0b0d;border:1px solid var(--ln);border-radius:14px;padding:14px 18px;margin-bottom:6px}.rv .rec b{display:block;font:500 1rem 'Montserrat',sans-serif}.rv .rec span{color:var(--mut);font-size:14px}
+.rv .go{grid-column:1/-1;margin-top:6px;background:var(--red);color:#fff;border:0;border-radius:99px;padding:18px;font:600 15px 'Montserrat',sans-serif;letter-spacing:.08em;cursor:pointer;transition:.3s}.rv .go:hover:not(:disabled){background:var(--red2);box-shadow:0 0 38px #e11d2e66}.rv .go:disabled{opacity:.4;cursor:not-allowed}
+.rv .done{display:none;text-align:center;padding:26px 6px}.rv .done.on{display:block}.rv .done .ok{width:68px;height:68px;border-radius:50%;border:1.5px solid var(--red);display:grid;place-items:center;margin:0 auto 16px;color:var(--red2);font-size:30px}.rv .done b{display:block;font:500 1.6rem 'Montserrat',sans-serif}.rv .done span{display:block;color:var(--mut);margin-top:10px}
+.inf{display:grid;gap:18px}.inf .bx{background:var(--p2);border:1px solid var(--ln);border-radius:20px;padding:26px 28px}.inf .t{font:500 11.5px 'Montserrat',sans-serif;letter-spacing:.24em;text-transform:uppercase;color:var(--red2)}.inf h3{font:500 1.35rem 'Montserrat',sans-serif;margin:12px 0 6px}.inf p{color:var(--mut);font-size:15px}
+.hrs{margin-top:12px}.hrs li{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--ln);font-size:14.5px;color:#d4d7dc}.hrs li:last-child{border:0}.hrs li.today{color:#fff}.hrs li.today span:first-child:after{content:" · aujourd’hui";color:var(--red2)}
+.live{display:inline-flex;align-items:center;gap:9px;margin-top:12px;font-size:14px;color:#d4d7dc}.live i{width:9px;height:9px;border-radius:50%;background:#2fd06a;box-shadow:0 0 0 0 #2fd06a99;animation:pl 2s infinite}.live.off i{background:var(--red);animation:none}@keyframes pl{70%{box-shadow:0 0 0 9px #2fd06a00}100%{box-shadow:0 0 0 0 #2fd06a00}}
+.map{border-radius:20px;border:1px solid var(--ln);overflow:hidden}.map svg{display:block;width:100%;height:auto}
+/* ---- pied ---- */
+footer.ft{background:#030304;border-top:1px solid var(--ln);padding:64px 0 34px;color:var(--mut);font-size:14.5px}body.home footer.ft{display:none}
+footer.ft .w{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:34px}footer.ft h4{font:500 11.5px 'Montserrat',sans-serif;letter-spacing:.24em;text-transform:uppercase;color:#fff;margin-bottom:14px}footer.ft li{padding:4px 0}footer.ft a:hover{color:#fff}.legal{grid-column:1/-1;border-top:1px solid var(--ln);padding-top:22px;margin-top:10px;font-size:12.5px}
+.rise{opacity:0;transform:translateY(26px);transition:opacity .8s cubic-bezier(.2,.8,.2,1),transform .8s cubic-bezier(.2,.8,.2,1)}.rise.in{opacity:1;transform:none}
+@media(max-width:1000px){nav.mn,header.gh .pill{display:none}.bur{display:grid;place-items:center}nav.mn.on{display:flex;flex-direction:column;position:absolute;left:0;right:0;top:76px;background:#050607;border-bottom:1px solid var(--ln);padding:14px 20px}.tri,.vg,.team,.val,.rev{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.stats,.eng{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.dual,.cg{grid-template-columns:minmax(0,1fr)}footer.ft .w{grid-template-columns:1fr 1fr}.sr{grid-template-columns:48px minmax(0,1fr) 120px}.sr .du{display:none}}
+@media(max-width:640px){.w{padding:0 20px}.sec{padding:70px 0}.ph{padding:60px 0 40px}.tri,.vg,.team,.val,.rev,.eng{grid-template-columns:minmax(0,1fr)}.hk{gap:16px}.hk span{letter-spacing:.4em;margin-right:-.4em}.hero .bg{background-position:76% center}.ht{transform:none}.hero .ht .pill{padding:17px 36px;font-size:1rem}.hs{letter-spacing:.2em;margin:26px 0 36px}.sr{grid-template-columns:40px minmax(0,1fr);gap:14px;padding:22px 4px}.sr .pr{grid-column:2;text-align:left;margin-top:2px}.rv{padding:24px 18px}.rv form{grid-template-columns:minmax(0,1fr)}.rv .slots{grid-template-columns:repeat(3,minmax(0,1fr))}.stats b{font-size:2.1rem}header.gh .w{gap:12px}footer.ft .w{grid-template-columns:minmax(0,1fr)}}
 '''
-    svc = [("Vidange + filtres", "Huile moteur, filtre à huile, à air et d’habitacle. Niveaux et contrôle visuel offerts.", "79", "1 h"),
-           ("Freinage avant", "Plaquettes et disques, purge du liquide, essai routier. Pièces de marque garanties.", "189", "2 h"),
-           ("Pneus ×4", "Montage, équilibrage et géométrie inclus. Toutes marques, devis comparatif sur demande.", "229", "1 h 30"),
-           ("Climatisation", "Recharge, contrôle d’étanchéité et traitement antibactérien de l’habitacle.", "69", "1 h"),
-           ("Pré-contrôle technique", "On vérifie les 133 points du contrôle et on corrige avant de passer. Zéro mauvaise surprise.", "39", "45 min"),
-           ("Courroie de distribution", "Kit complet, pompe à eau et galets. Garantie 24 mois pièces et main-d’œuvre.", "449", "4 h")]
-    cards = "".join('<article class="sv"><span class="n">0%d</span><span class="du">%s</span><h3>%s</h3><p>%s</p><div class="pr"><small>à partir de</small><b>%s €</b></div></article>' % (i + 1, du, t, d, p) for i, (t, d, p, du) in enumerate(svc))
-    brands = "".join('<span>%s</span><b>/</b>' % b for b in ["Renault", "Peugeot", "Citroën", "Dacia", "Volkswagen", "Toyota", "Ford", "Fiat", "Opel", "BMW", "Mercedes", "Audi", "Kia", "Hyundai", "Nissan", "Seat", "Skoda", "Mini", "Volvo", "Tesla"])
-    team = [("Thomas Marchand", "Gérant · mécanicien depuis 22 ans", "#ffd400"), ("Inès Boudaoud", "Diagnostic électronique & hybrides", "#1a3cff"), ("Karim Lopes", "Freinage, pneus et trains roulants", "#ffc61a")]
-    tms = ""
-    for i, (n, r, c) in enumerate(team):
-        ini = "".join(w[0] for w in n.split())
-        av = svg(400, 330, '<defs><linearGradient id="av%d" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#23262c"/><stop offset="1" stop-color="#0f1013"/></linearGradient></defs><rect width="400" height="330" fill="url(#av%d)"/>'
-                 '<g opacity=".16" stroke="%s" stroke-width="2">%s</g><path d="M-20 330 L140 -10 L200 -10 L40 330Z" fill="%s" opacity=".9"/>'
-                 '<text x="212" y="226" font-family="Barlow Condensed,Arial Narrow,sans-serif" font-weight="800" font-size="190" fill="none" stroke="#f2f3f5" stroke-width="2.5" letter-spacing="2">%s</text>'
-                 '<path d="M250 52 l54 0 M250 70 l30 0" stroke="%s" stroke-width="4"/>' % (i, i, c, "".join('<path d="M%d 0 V330"/>' % x for x in range(0, 400, 26)), c, ini, c))
-        tms += '<div class="tm"><div class="av">%s</div><div class="t"><h4>%s</h4><p>%s</p></div></div>' % (slot("garage-equipe-%d" % (i + 1), av), n, r)
-    bay = slot("garage-atelier", svg(600, 570, '<defs><linearGradient id="fl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1b1e23"/><stop offset="1" stop-color="#0d0e10"/></linearGradient></defs><rect width="600" height="570" fill="url(#fl)"/>'
-        + "".join('<rect x="%d" y="70" width="12" height="260" fill="#2a2d33"/>' % x for x in (90, 498))
-        + '<rect x="60" y="62" width="480" height="22" fill="#2f333a"/><path d="M60 62H540" stroke="#ffd400" stroke-width="3"/>'
-        + '<g transform="translate(-60 190) scale(.78)">' + car_art("bay") + '</g>'
-        + '<rect x="0" y="470" width="600" height="100" fill="#0a0b0d"/><path d="M0 470H600" stroke="#ffd400" stroke-width="2" stroke-dasharray="26 18"/>'))
-    mapsvg = svg(600, 350, '<rect width="600" height="350" fill="#14171b"/><path d="M0 110H600M0 240H600M170 0V350M390 0V350" stroke="#232830" stroke-width="22"/><path d="M0 300Q300 250 600 300" stroke="#1a2a3a" stroke-width="34" fill="none"/><path d="M0 110H600M170 0V350" stroke="#ffd400" stroke-width="2" opacity=".5"/>'
-                 '<path d="M270 160 q26-58 52 0 q0 32-26 58 q-26-26-26-58z" fill="#ffd400"/><circle cx="296" cy="158" r="10" fill="#0b0c0e"/>')
-    faq = '''<details><summary>Faut-il prendre rendez-vous ?</summary><p>Pour les entretiens oui, c’est plus simple pour tout le monde. Pour une panne ou un voyant allumé, venez directement : on vous prend en charge dans la journée.</p></details>
-<details><summary>Mon entretien annule-t-il la garantie constructeur ?</summary><p>Non. Depuis le règlement européen, vous pouvez entretenir votre véhicule dans le garage de votre choix sans perdre la garantie, à condition de suivre le carnet. Nous utilisons des pièces de qualité équivalente d’origine et tamponnons votre carnet.</p></details>
-<details><summary>Prêtez-vous un véhicule ?</summary><p>Oui, une citadine de courtoisie est prêtée gratuitement pour les réparations de plus de deux heures, sur réservation.</p></details>
-<details><summary>Le devis est-il gratuit et définitif ?</summary><p>Il est gratuit, écrit, détaillé pièce par pièce. Nous ne lançons aucun travail supplémentaire sans votre accord signé ou par message.</p></details>
-<details><summary>Travaillez-vous sur les véhicules hybrides et électriques ?</summary><p>Oui. Inès est habilitée pour les véhicules hybrides et électriques (habilitation B2VL / BR). Diagnostic, freinage, climatisation et batterie 12 V.</p></details>'''
-    body = '''
-<header class="g"><div class="w"><a class="lg" href="#top"><i>@@GEAR@@</i><span>Garage Marchand<small>MÉCANIQUE &amp; PNEUS · NANTES</small></span></a>
-<nav class="g"><a href="#forfaits">Forfaits</a><a href="#garanties">Garanties</a><a href="#equipe">Équipe</a><a href="#avis">Avis</a><a href="#rdv">Contact</a></nav><a class="bt" href="#rdv">Prendre rendez-vous</a></div></header>
-<main id="top"><section class="hero"><div class="w"><div>
-<span class="tg"><b>●</b> Garage indépendant · toutes marques</span>
-<h1 class="c">Une réparation <em>claire,</em> un prix annoncé.</h1>
-<p class="lead">Devis écrit avant d’ouvrir le capot, pièces de marque, véhicule de courtoisie. Chez Marchand, la facture finale est celle du devis.</p>
-<form class="devis" id="dv"><label>Immatriculation<span class="plate"><b>F</b><input id="im" placeholder="AB-123-CD" maxlength="9" aria-label="Plaque"></span></label>
-<label>Intervention<select id="sv"><option value="79">Vidange + filtres</option><option value="189">Freinage avant</option><option value="229">Pneus ×4</option><option value="69">Climatisation</option><option value="39">Pré-contrôle technique</option><option value="449">Courroie de distribution</option></select></label>
-<label>Véhicule<select id="vh"><option value="1">Citadine</option><option value="1.2">Berline / break</option><option value="1.45">SUV / utilitaire</option></select></label>
-<button class="bt" type="submit">Estimer</button>
-<div class="est" id="est"><b id="ev">—</b><span>Estimation tout compris, main-d’œuvre incluse. Le devis définitif est écrit et gratuit.</span><a class="bt" href="#rdv">Réserver ce créneau</a></div></form></div>
-<div class="stage"><svg class="dl" viewBox="0 0 300 300" aria-hidden="true">@@DIAL@@</svg>@@CAR@@</div></div>
-<div class="kpi"><div><b>4,8 / 5</b><span>312 avis Google</span></div><div><b>Devis écrit</b><span>gratuit et sans surprise</span></div><div><b>12 mois</b><span>garantie pièces et main-d’œuvre</span></div><div><b>Citadine</b><span>de courtoisie offerte</span></div></div></section>
+    chev = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l6 6 6-6M6 13l6 6 6-6"/></svg>'
+    arr = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M14 6l6 6-6 6"/></svg>'
+    sh = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.500 8-8 9-4.500-1-8-4-8-9V6z"/><path d="M8.500 12l2.500 2.500L16 9.500"/></svg>'
+    car = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16l1.500-5.500A2 2 0 0 1 8.400 9h7.200a2 2 0 0 1 1.900 1.500L19 16M3 16h18v3H3zM7 19v1.500M17 19v1.500"/><circle cx="7.500" cy="16" r=".6"/><circle cx="16.500" cy="16" r=".6"/></svg>'
+    clk = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'
+    cash = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.500"/><path d="M6 9.500v5M18 9.500v5"/></svg>'
 
-<section class="s" id="forfaits"><div class="w"><span class="lb">Nos forfaits</span><h2 class="c">Des prix affichés,<br>pas des « à partir de… peut-être ».</h2><div class="sg">@@CARDS@@</div>
-<p style="color:var(--mut);margin-top:22px;font-size:15px">Tarifs TTC pour une citadine, pièces et main-d’œuvre comprises. Berlines, SUV et utilitaires : voir l’estimation ci-dessus.</p></div></section>
+    def srv(n, t, d, du, p, pre="à partir de"):
+        return '<div class="sr"><span class="no">%s</span><div><h3>%s</h3><p>%s</p></div><span class="du">%s</span><div class="pr"><small>%s</small>%s</div></div>' % (n, t, d, du, pre, p)
+    ent = "".join([
+        srv("01", "Vidange et filtres", "Huile moteur, filtre à huile, contrôle des niveaux et des 21 points de sécurité.", "45 min", "89 €"),
+        srv("02", "Révision constructeur", "Entretien selon le carnet, pièces d’origine ou équivalentes, carnet d’entretien tamponné.", "2 h", "149 €"),
+        srv("03", "Pneumatiques", "Montage, équilibrage, géométrie. Pneus été, hiver et toutes saisons de toutes marques.", "1 h", "25 € / pneu"),
+        srv("04", "Freinage", "Plaquettes et disques, purge du liquide de frein, essai sur route.", "1 h 30", "119 €"),
+        srv("05", "Climatisation", "Recharge, contrôle d’étanchéité, désinfection de l’habitacle.", "1 h", "79 €"),
+        srv("06", "Batterie et démarrage", "Test gratuit, remplacement, reprogrammation si nécessaire.", "30 min", "99 €")])
+    rep = "".join([
+        srv("07", "Diagnostic électronique", "Lecture des défauts, valise multimarque, compte rendu écrit remis le jour même.", "45 min", "49 €"),
+        srv("08", "Embrayage", "Kit complet, volant moteur contrôlé, garantie 12 mois pièces et main d’œuvre.", "1 jour", "590 €"),
+        srv("09", "Distribution", "Courroie, galets, pompe à eau. Le remplacement qui évite la casse moteur.", "1 jour", "450 €"),
+        srv("10", "Échappement et FAP", "Réparation, nettoyage ou remplacement du filtre à particules.", "½ jour", "120 €"),
+        srv("11", "Suspension et direction", "Amortisseurs, rotules, biellettes, parallélisme.", "½ jour", "180 €"),
+        srv("12", "Carrosserie légère", "Rayures, pare-chocs, débosselage sans peinture, devis photo sous 24 h.", "sur devis", "90 €")])
+    ven = "".join([
+        srv("13", "Véhicules d’occasion contrôlés", "Chaque voiture passe 120 points de contrôle et se vend avec son historique complet.", "—", "6 900 €", "à partir de"),
+        srv("14", "Garantie 12 mois", "Incluse sur tous nos véhicules, pièces et main d’œuvre, valable dans tout le réseau.", "—", "incluse", ""),
+        srv("15", "Reprise de votre véhicule", "Estimation gratuite en 15 minutes, paiement immédiat, démarches administratives faites par nos soins.", "15 min", "gratuite", ""),
+        srv("16", "Financement", "Location longue durée ou crédit, réponse de principe le jour même.", "—", "dès 129 € / mois")])
 
-<div class="mq" aria-hidden="true"><div>@@BR@@@@BR@@</div></div>
+    PAL = {"v1": ("#e9ebef", "#c3c8cf", "#8e949d"), "v2": ("#3f6d9c", "#264a73", "#14284a"), "v3": ("#4a4f58", "#2b2f36", "#15171b"), "v4": ("#7cae9c", "#4c7c6c", "#27453b"), "v5": ("#b33a2f", "#7e231d", "#4a1410"), "v6": ("#d9b26a", "#a8803f", "#6b4c20")}
 
-<section class="s" id="garanties"><div class="w why"><div><span class="lb">Pourquoi Marchand</span><h2 class="c">Ce que vous ne verrez pas<br>ailleurs.</h2>
-<div class="pt"><div><i>@@I1@@</i><span><h4>Devis écrit, signé, définitif</h4><p>Aucun travail supplémentaire sans votre accord. Vous recevez le détail pièce par pièce.</p></span></div>
-<div><i>@@I2@@</i><span><h4>Garantie 12 mois</h4><p>Pièces et main-d’œuvre, dans tout notre réseau de garages partenaires en France.</p></span></div>
-<div><i>@@I3@@</i><span><h4>Vos anciennes pièces rendues</h4><p>Sur demande, on vous rend les pièces remplacées : vous voyez ce qui a vraiment été changé.</p></span></div></div></div>
-<div class="bay">@@BAY@@</div></div></section>
+    def vcar(uid, tag, name, spec, price, t):
+        art = car_art(uid).replace("#ffd400", "#e11d2e")
+        c1, c2, c3 = PAL[uid]
+        art = art.replace("#3a3f48", c1).replace("#1f2329", c2).replace("#121417", c3)
+        return ('<div class="vc" data-t="%s"><div class="im"><svg class="%s" viewBox="0 100 800 260" role="img" aria-label="%s">%s</svg></div><div class="bd"><div class="tg">%s</div><h3>%s</h3><ul>%s</ul><div class="pf"><b>%s</b><a data-v="%s">Je suis intéressé</a></div></div></div>'
+                % (t, 'fl' if uid in ('v2', 'v4', 'v6') else '', name, art, tag, name, "".join("<li>%s</li>" % x for x in spec), price, name))
+    veh = "".join([
+        vcar("v1", "Citadine", "Peugeot 208 1.2 PureTech", ["2021", "38 000 km", "Essence", "Manuelle"], "13 490 €", "citadine"),
+        vcar("v2", "SUV", "Renault Captur Intens", ["2020", "52 000 km", "Diesel", "Auto"], "15 900 €", "suv"),
+        vcar("v3", "Berline", "Volkswagen Golf 8 Life", ["2022", "29 000 km", "Essence", "Auto"], "21 900 €", "berline"),
+        vcar("v4", "Électrique", "Renault Zoé R135", ["2021", "41 000 km", "Électrique", "Batterie louée"], "11 800 €", "electrique"),
+        vcar("v5", "SUV", "Toyota C-HR Hybride", ["2021", "47 000 km", "Hybride", "Auto"], "22 500 €", "suv"),
+        vcar("v6", "Citadine", "Citroën C3 Feel", ["2019", "61 000 km", "Essence", "Manuelle"], "9 600 €", "citadine")])
+    hrs = "".join('<li data-d="%d"><span>%s</span><span>%s</span></li>' % x for x in (
+        (1, "Lundi", "8 h – 12 h · 14 h – 18 h 30"), (2, "Mardi", "8 h – 12 h · 14 h – 18 h 30"), (3, "Mercredi", "8 h – 12 h · 14 h – 18 h 30"),
+        (4, "Jeudi", "8 h – 12 h · 14 h – 18 h 30"), (5, "Vendredi", "8 h – 12 h · 14 h – 17 h 30"), (6, "Samedi", "9 h – 12 h"), (0, "Dimanche", "Fermé")))
+    mapsvg = ('<svg viewBox="0 0 400 220" role="img" aria-label="Plan"><rect width="400" height="220" fill="#0b0c0e"/><g stroke="#23262b" stroke-width="10" fill="none"><path d="M-10 60 L410 90"/><path d="M-10 160 L410 140"/><path d="M120 -10 L150 230"/><path d="M290 -10 L270 230"/></g>'
+              '<g stroke="#1a1c20" stroke-width="3" fill="none"><path d="M-10 110 L410 118"/><path d="M200 -10 L205 230"/></g><circle cx="205" cy="116" r="28" fill="#e11d2e" opacity=".15"/><circle cx="205" cy="116" r="9" fill="#e11d2e"/><circle cx="205" cy="116" r="3.500" fill="#fff"/>'
+              '<text x="222" y="108" fill="#fff" font-family="Montserrat,sans-serif" font-size="12" font-weight="600">Garage Marchand</text></svg>')
+    nav = '<a href="#/prestations" data-n="prestations">Prestations</a><a href="#/vehicules" data-n="vehicules">Véhicules</a><a href="#/apropos" data-n="apropos">Qui sommes-nous</a><a href="#/contact" data-n="contact">Contact</a>'
+    body = '''<header class="gh"><div class="w"><a class="lg" href="#/"><span>GARAGE</span><b>MARCHAND</b></a><nav class="mn" id="nv">@@NAV@@</nav><a class="pill sm" href="#/contact">Prendre rendez-vous</a><button class="bur" id="bu" aria-label="Menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button></div></header>
+<main>
+<div class="view on" data-v="home">
+<section class="hero" id="hero"><div class="bg" id="hbg"></div><div class="glow" id="hgl"></div><div class="ht"><div class="hk"><span>GARAGE</span></div><h1 class="hn">MARCHAND</h1><p class="hs">Entretien · Réparation · Vente de véhicules</p><a class="pill" href="#/prestations"><span>Découvrir nos prestations</span>@@ARR@@</a></div><button class="chev" id="chv" aria-label="Voir la suite">@@CHEV@@</button></section>
+<section class="sec" id="suite"><div class="w"><span class="eb">Notre savoir-faire</span><h2 class="t">Tout pour votre voiture, au même endroit.</h2><p class="sub">Depuis 1998 à Mérignac, nous entretenons, réparons et vendons des véhicules de toutes marques. Un devis clair avant chaque intervention, et votre voiture rendue propre.</p>
+<div class="tri"><a class="tc" href="#/prestations" data-tab="ent"><span class="n">01</span><h3>Entretien</h3><p>Vidange, révision, pneus, freins, climatisation. Toutes marques, sans perdre la garantie constructeur.</p><span class="go">Voir les tarifs</span></a><a class="tc" href="#/prestations" data-tab="rep"><span class="n">02</span><h3>Réparation</h3><p>Diagnostic électronique, embrayage, distribution, carrosserie légère. Devis écrit, aucune surprise.</p><span class="go">Voir les tarifs</span></a><a class="tc" href="#/vehicules"><span class="n">03</span><h3>Vente de véhicules</h3><p>Occasions contrôlées en 120 points, garanties 12 mois, reprise et financement possibles.</p><span class="go">Voir les véhicules</span></a></div>
+<div class="stats"><div><b>25<i>+</i></b><span>ans d’expérience</span></div><div><b>12 000</b><span>véhicules entretenus</span></div><div><b>4,9<i>/5</i></b><span>sur 380 avis</span></div><div><b>24<i> h</i></b><span>devis sous 24 heures</span></div></div>
+<p style="text-align:center;margin-top:50px"><a class="pill f" href="#/contact"><span>Prendre rendez-vous</span>@@ARR@@</a></p></div></section>
+</div>
 
-<section class="s"><div class="w"><span class="lb">Comment ça se passe</span><h2 class="c">Quatre étapes, aucune surprise.</h2>
-<div class="steps"><div class="st"><div class="nb">1</div><h4>Vous réservez</h4><p>En ligne, par téléphone ou en passant. Créneau confirmé par SMS.</p></div><div class="st"><div class="nb">2</div><h4>Diagnostic</h4><p>Contrôle complet et devis écrit envoyé sur votre téléphone.</p></div><div class="st"><div class="nb">3</div><h4>Réparation</h4><p>Après votre accord uniquement. Un message à chaque étape.</p></div><div class="st"><div class="nb">4</div><h4>Remise des clés</h4><p>Essai routier, facture conforme au devis, pièces anciennes rendues.</p></div></div></div></section>
+<div class="view" data-v="prestations"><div class="ph"><div class="w"><span class="eb">Nos prestations</span><h1>Entretien, réparation, vente</h1><p>Des tarifs affichés, des délais annoncés et un devis écrit avant toute intervention.</p></div></div>
+<section class="sec" style="padding-top:20px"><div class="w"><div class="tabs" id="tb"><button class="tab on" data-g="ent">Entretien</button><button class="tab" data-g="rep">Réparation</button><button class="tab" data-g="ven">Vente de véhicules</button></div>
+<div class="sv" data-g="ent">@@ENT@@</div><div class="sv" data-g="rep" hidden>@@REP@@</div><div class="sv" data-g="ven" hidden>@@VEN@@</div>
+<div class="eng"><div>@@SH@@<b>Garantie 12 mois</b><span>Pièces et main d’œuvre, sur toutes nos réparations.</span></div><div>@@CLK@@<b>Délais tenus</b><span>Une heure de restitution annoncée, respectée.</span></div><div>@@CAR@@<b>Véhicule de courtoisie</b><span>Sur réservation, pour les interventions d’une journée.</span></div><div>@@CASH@@<b>Paiement en 3 fois</b><span>Sans frais dès 300 € de facture.</span></div></div>
+<p style="text-align:center;margin-top:54px"><a class="pill f" href="#/contact"><span>Demander un devis</span>@@ARR@@</a></p></div></section></div>
 
-<section class="s" id="equipe"><div class="w"><span class="lb">L’équipe</span><h2 class="c">Trois mécaniciens,<br>un seul interlocuteur.</h2><div class="team">@@TEAM@@</div></div></section>
+<div class="view" data-v="vehicules"><div class="ph"><div class="w"><span class="eb">Véhicules à vendre</span><h1>Occasions contrôlées</h1><p>120 points de contrôle, historique complet, garantie 12 mois incluse. Reprise de votre ancien véhicule possible.</p></div></div>
+<section class="sec" style="padding-top:20px"><div class="w"><div class="tabs" id="vt"><button class="tab on" data-t="all">Tous</button><button class="tab" data-t="citadine">Citadines</button><button class="tab" data-t="berline">Berlines</button><button class="tab" data-t="suv">SUV</button><button class="tab" data-t="electrique">Électriques</button></div>
+<div class="vg" id="vg">@@VEH@@</div></div></section></div>
 
-<section class="s" id="avis"><div class="w"><span class="lb">Avis clients</span><h2 class="c">Ils reviennent. C’est bon signe.</h2>
-<div class="rev"><div class="score"><b>4,8</b><span>★★★★★</span><p>312 avis Google · 96 % de clients qui nous recommandent</p></div>
-<div class="rl"><div class="rq"><p>« Devis reçu par SMS en 20 minutes, voiture rendue le soir même. Le prix était exactement celui annoncé. »</p><small>Nadia K. · Peugeot 308</small></div>
-<div class="rq"><p>« Enfin un garage qui m’explique ce qui est urgent et ce qui peut attendre. Je n’irai plus ailleurs. »</p><small>Marc D. · Renault Clio</small></div>
-<div class="rq"><p>« Inès a trouvé la panne électrique que deux autres garages n’avaient pas vue. Chapeau. »</p><small>Hugo L. · Toyota Yaris hybride</small></div></div></div></div></section>
+<div class="view" data-v="apropos"><div class="ph"><div class="w"><span class="eb">Qui sommes-nous</span><h1>Un garage de famille, depuis 1998</h1><p>Trois mécaniciens, un carrossier, une hôtesse d’accueil. Et une idée simple : expliquer avant de facturer.</p></div></div>
+<section class="sec"><div class="w"><div class="dual"><div><span class="eb">Notre histoire</span><h2 class="t">Ouvert par Alain, repris par Julien.</h2><p>Alain Marchand ouvre l’atelier en 1998, à Mérignac, avec un pont et un tableau noir. Son fils Julien prend la suite en 2018 et agrandit : quatre ponts, une valise de diagnostic multimarque, un espace d’exposition pour les véhicules d’occasion.</p><p>Nous gardons la même règle : vous montrer la pièce usée, expliquer la panne, annoncer le prix avant de toucher à quoi que ce soit.</p><p style="margin-top:28px"><a class="pill sm" href="#/contact"><span>Nous rencontrer</span>@@ARR@@</a></p></div><img src="/assets/ex/gar-car.jpg" alt=""></div>
+<div class="team"><div class="tm"><i>JM</i><b>Julien Marchand</b><em>Gérant, mécanicien</em><span>Dix-sept ans d’atelier. Il reçoit chaque client et valide chaque devis.</span></div><div class="tm"><i>KB</i><b>Karim Benali</b><em>Chef d’atelier</em><span>Spécialiste diagnostic et électronique embarquée, formé hybride et électrique.</span></div><div class="tm"><i>ML</i><b>Marion Leroy</b><em>Accueil et ventes</em><span>Elle vous conseille sur les véhicules, la reprise et le financement.</span></div></div>
+<div class="val"><div><b>Transparence</b><span>Devis écrit, pièces montrées, facture détaillée ligne par ligne.</span></div><div><b>Qualité</b><span>Pièces d’origine ou équivalentes de première monte, garanties 12 mois.</span></div><div><b>Proximité</b><span>Une heure de restitution tenue, et un appel si le planning change.</span></div></div>
+<div class="rev"><figure><div class="st">★★★★★</div><blockquote>« Diagnostic clair, devis respecté et voiture rendue à l’heure. Je ne vais plus ailleurs. »</blockquote><figcaption>Sophie R. · révision</figcaption></figure><figure><div class="st">★★★★★</div><blockquote>« Ils m’ont montré la plaquette usée avant de la changer. Ça change tout. »</blockquote><figcaption>Nicolas B. · freinage</figcaption></figure><figure><div class="st">★★★★★</div><blockquote>« Acheté ma Golf ici, historique complet et garantie respectée. Aucun souci. »</blockquote><figcaption>Camille D. · achat</figcaption></figure></div></div></section></div>
 
-<section class="s" id="rdv"><div class="w"><span class="lb">Horaires &amp; rendez-vous</span><h2 class="c">Passez nous voir<br>ou réservez en 30 secondes.</h2>
-<div class="contact"><div class="bx"><div class="map">@@MAP@@</div><ul class="hr" id="hr"><li data-d="1"><span>Lundi</span><b>8 h – 12 h 30 · 14 h – 18 h 30</b></li><li data-d="2"><span>Mardi</span><b>8 h – 12 h 30 · 14 h – 18 h 30</b></li><li data-d="3"><span>Mercredi</span><b>8 h – 12 h 30 · 14 h – 18 h 30</b></li><li data-d="4"><span>Jeudi</span><b>8 h – 12 h 30 · 14 h – 18 h 30</b></li><li data-d="5"><span>Vendredi</span><b>8 h – 12 h 30 · 14 h – 17 h 30</b></li><li data-d="6"><span>Samedi</span><b>9 h – 12 h</b></li><li data-d="0"><span>Dimanche</span><b>Fermé</b></li></ul>
-<p style="color:var(--mut);margin-top:16px;font-size:15px">12 rue de la Forge, 44000 Nantes · Tram ligne 1, arrêt Commerce · Parking gratuit devant l’atelier.</p></div>
-<div class="bx"><form class="rd" id="rd"><label>Votre nom et téléphone<input required placeholder="Nadia Kaci · 06 00 00 00 00"></label><div class="two"><label>Plaque<input placeholder="AB-123-CD"></label><label>Intervention<select><option>Entretien / vidange</option><option>Freinage</option><option>Pneus</option><option>Climatisation</option><option>Pré-contrôle technique</option><option>Panne / voyant allumé</option></select></label></div>
-<label>Jour<input type="date" required id="dt"></label><label>Créneau</label><div class="slots" id="sl"><button type="button">8 h 30</button><button type="button">10 h</button><button type="button">11 h 30</button><button type="button">14 h 30</button><button type="button">16 h</button><button type="button">17 h</button></div>
-<button class="bt" type="submit" style="justify-self:start;margin-top:8px">Confirmer le rendez-vous</button><div class="ok" id="ok">Rendez-vous demandé. Vous recevez un SMS de confirmation sous 15 minutes.</div></form></div></div></div></section>
-
-<section class="s faq"><div class="w"><span class="lb">Questions fréquentes</span><h2 class="c" style="margin-bottom:34px">On répond avant que vous demandiez.</h2>@@FAQ@@</div></section></main>
-<footer class="ft"><div class="w"><div><div class="lg2">Garage Marchand</div><p style="color:var(--mut);margin-top:12px;max-width:26em">Garage indépendant toutes marques à Nantes depuis 2009.</p></div>
-<div><h4>Atelier</h4><ul><li>Entretien &amp; vidange</li><li>Freinage</li><li>Pneus</li><li>Climatisation</li></ul></div><div><h4>Contact</h4><ul><li>02 40 00 00 00</li><li>contact@garage-marchand.fr</li><li>12 rue de la Forge, Nantes</li></ul></div><div><h4>Infos</h4><ul><li>Mentions légales</li><li>CGV</li><li>Médiation de la consommation</li></ul></div>
-<div class="legal">© 2026 Garage Marchand SAS · SIRET 000 000 000 00000 (exemple) · RCS Nantes · Hébergeur : Cloudflare, Inc.</div></div></footer>
+<div class="view" data-v="contact"><div class="ph"><div class="w"><span class="eb">Contact</span><h1>Prendre rendez-vous</h1><p>Choisissez votre créneau, nous vous confirmons par SMS. Pour une panne urgente, appelez-nous.</p></div></div>
+<section class="sec" style="padding-top:40px"><div class="w"><div class="cg"><div class="rv"><div id="rvf"><h2>Votre rendez-vous</h2><div class="lab">1 · Jour</div><div class="days" id="days"></div><div class="lab">2 · Heure</div><div class="slots" id="slots"></div>
+<div class="lab">3 · Votre véhicule</div><div class="rec" id="rec"><b>Aucun créneau choisi</b><span>Sélectionnez un jour puis une heure.</span></div>
+<form id="bf"><label>Prestation<select id="mot"><option>Entretien / révision</option><option>Vidange et filtres</option><option>Pneumatiques</option><option>Freinage</option><option>Climatisation</option><option>Diagnostic électronique</option><option>Embrayage / distribution</option><option>Carrosserie légère</option><option>Essayer un véhicule</option><option>Reprise de mon véhicule</option><option>Autre demande</option></select></label><label>Immatriculation<input placeholder="AB-123-CD"></label><label>Nom et prénom<input required placeholder="Marie Durand"></label><label>Téléphone<input required inputmode="tel" placeholder="06 00 00 00 00"></label><label class="w2">Message (facultatif)<textarea id="msg" placeholder="Voyant allumé, bruit au freinage, véhicule qui vous intéresse…"></textarea></label><button class="go" type="submit" id="bgo" disabled>Confirmer le rendez-vous</button></form></div>
+<div class="done" id="done"><div class="ok">✓</div><b>C’est noté.</b><span id="dt"></span></div></div>
+<div class="inf"><div class="bx"><span class="t">Horaires</span><ul class="hrs" id="hr">@@HRS@@</ul><div class="live" id="lv"><i></i><span id="lvt"></span></div></div><div class="bx"><span class="t">Adresse</span><h3>14 avenue de la Libération</h3><p>33700 Mérignac<br>Parking gratuit devant l’atelier.</p></div><div class="bx"><span class="t">Nous joindre</span><h3>05 56 00 00 00</h3><p>contact@garage-marchand.fr<br>Urgence panne : nous rappelons en moins de 30 minutes.</p></div><div class="map">@@MAP@@</div></div></div></div></section></div>
+</main>
+<footer class="ft"><div class="w"><div><a class="lg" href="#/"><span>GARAGE</span><b>MARCHAND</b></a><p style="margin-top:16px;max-width:24em">Entretien, réparation et vente de véhicules, à Mérignac depuis 1998.</p></div><div><h4>Pages</h4><ul><li><a href="#/prestations">Prestations</a></li><li><a href="#/vehicules">Véhicules</a></li><li><a href="#/apropos">Qui sommes-nous</a></li><li><a href="#/contact">Contact</a></li></ul></div><div><h4>Contact</h4><ul><li>05 56 00 00 00</li><li>contact@garage-marchand.fr</li></ul></div><div><h4>Infos</h4><ul><li>Mentions légales</li><li>Confidentialité</li><li>Conditions de vente</li></ul></div>
+<div class="legal">© 2026 Garage Marchand · SARL au capital de 10 000 € (exemple) · SIRET 000 000 000 00000 (exemple) · Hébergeur : Cloudflare, Inc.</div></div></footer>
 '''
-    gear = ico("alarm", 22, "#0b0c0e", 2.2)
-    body = (body.replace("@@GEAR@@", gear).replace("@@DIAL@@", dial()).replace("@@CAR@@", svg(800, 300, '<g transform="translate(0 -78)">' + car_art() + "</g>"))
-            .replace("@@CARDS@@", cards).replace("@@BR@@", brands).replace("@@BAY@@", bay).replace("@@TEAM@@", tms).replace("@@MAP@@", mapsvg).replace("@@FAQ@@", faq)
-            .replace("@@I1@@", ico("check", 24, "currentColor", 2)).replace("@@I2@@", ico("shield", 24, "currentColor", 2)).replace("@@I3@@", ico("hands", 24, "currentColor", 2)))
-    js = r'''<script>(function(){
-var H={1:[[8,12.5],[14,18.5]],2:[[8,12.5],[14,18.5]],3:[[8,12.5],[14,18.5]],4:[[8,12.5],[14,18.5]],5:[[8,12.5],[14,17.5]],6:[[9,12]],0:[]};
-function f(h){var m=Math.round((h%1)*60);return Math.floor(h)+' h'+(m?(' '+(m<10?'0'+m:m)):'')}
-function live(){var n=new Date(),d=n.getDay(),h=n.getHours()+n.getMinutes()/60,o=null,nx=null,i,r;
- for(i=0;i<(H[d]||[]).length;i++){r=H[d][i];if(h>=r[0]&&h<r[1])o=r;else if(h<r[0]&&!nx)nx=r}
- var L=document.getElementById('live'),T=document.getElementById('livet');
- if(L&&T){if(o){L.classList.remove('off');T.textContent='Ouvert · ferme à '+f(o[1])}else{L.classList.add('off');T.textContent=nx?('Fermé · ouvre à '+f(nx[0])):'Fermé · réouverture demain'}}
- var li=document.querySelector('#hr li[data-d="'+d+'"]');if(li)li.classList.add('today')}
-live();
-document.getElementById('dv').onsubmit=function(e){e.preventDefault();var p=+document.getElementById('sv').value*+document.getElementById('vh').value;
- document.getElementById('ev').textContent=Math.round(p/5)*5+' € TTC';document.getElementById('est').classList.add('on')};
-var im=document.getElementById('im');im.oninput=function(){var v=im.value.toUpperCase().replace(/[^A-Z0-9]/g,'');var o=v.slice(0,2);if(v.length>2)o+='-'+v.slice(2,5);if(v.length>5)o+='-'+v.slice(5,7);im.value=o};
-var sl=document.getElementById('sl');sl.onclick=function(e){if(e.target.tagName==='BUTTON'){Array.prototype.forEach.call(sl.children,function(b){b.classList.remove('on')});e.target.classList.add('on')}};
-document.getElementById('rd').onsubmit=function(e){e.preventDefault();document.getElementById('ok').classList.add('on')};
-var st=document.querySelector('.stage'),hero=document.querySelector('.hero'),px=null,pt=0,cx=0,cy=0,rm=matchMedia('(prefers-reduced-motion:reduce)').matches;
-if(hero)hero.addEventListener('pointermove',function(e){var r=hero.getBoundingClientRect();px=[(e.clientX-r.left)/r.width-.5,(e.clientY-r.top)/r.height-.5];pt=Date.now()});
-function tick(t){if(st&&!rm&&hero.getBoundingClientRect().bottom>0){var tx,ty;if(px&&Date.now()-pt<2500){tx=px[0]*26;ty=-px[1]*14}else{tx=Math.sin(t/1800)*14;ty=Math.cos(t/2600)*5}
- cx+=(tx-cx)*.07;cy+=(ty-cy)*.07;st.style.setProperty('--ry',cx.toFixed(2));st.style.setProperty('--rx',cy.toFixed(2))}requestAnimationFrame(tick)}
-requestAnimationFrame(tick);
-if(matchMedia('(hover:hover)').matches&&!rm)Array.prototype.forEach.call(document.querySelectorAll('.sv,.tm'),function(c){
- c.addEventListener('pointermove',function(e){var r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;c.classList.add('tl');c.style.transform='perspective(800px) rotateY('+((x-.5)*14).toFixed(1)+'deg) rotateX('+((.5-y)*14).toFixed(1)+'deg) translateZ(14px)';c.style.setProperty('--gx',(x*100)+'%');c.style.setProperty('--gy',(y*100)+'%')});
- c.addEventListener('pointerleave',function(){c.classList.remove('tl');c.style.transform=''})});
-if('IntersectionObserver' in window&&!rm){var els=document.querySelectorAll('.sv,.tm,.st,.rq,.score,.pt>div,.faq details,section.s h2.c');var io=new IntersectionObserver(function(en){en.forEach(function(x){if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target)}})},{threshold:.12});
- Array.prototype.forEach.call(els,function(el,i){el.classList.add('rv');el.style.transitionDelay=((i%3)*90)+'ms';io.observe(el)})}
-var dt=document.getElementById('dt');if(dt){var t=new Date();t.setDate(t.getDate()+1);dt.min=t.toISOString().slice(0,10)}
-})()</script>'''
-    return page("Garage Marchand · Mécanique, pneus et entretien à Nantes", "Garage indépendant toutes marques à Nantes : entretien, freinage, pneus, climatisation. Devis écrit gratuit, garantie 12 mois.",
-                "family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700", css, body, js)
-
+    body = (body.replace("@@NAV@@", nav).replace("@@ARR@@", arr).replace("@@CHEV@@", chev).replace("@@ENT@@", ent).replace("@@REP@@", rep).replace("@@VEN@@", ven)
+            .replace("@@VEH@@", veh).replace("@@HRS@@", hrs).replace("@@MAP@@", mapsvg).replace("@@SH@@", sh).replace("@@CLK@@", clk).replace("@@CAR@@", car).replace("@@CASH@@", cash))
+    js = r"""<script>(function(){
+var D=document,$=function(i){return D.getElementById(i)},views=[].slice.call(D.querySelectorAll('.view')),links=[].slice.call(D.querySelectorAll('nav.mn a'));
+function tab(g){[].forEach.call(D.querySelectorAll('#tb .tab'),function(b){b.classList.toggle('on',b.dataset.g===g)});[].forEach.call(D.querySelectorAll('.sv'),function(s){s.hidden=s.dataset.g!==g})}
+function route(){var p=(location.hash||'#/').replace(/^#\/?/,'').split('/'),v=p[0]||'home';if(!D.querySelector('.view[data-v="'+v+'"]'))v='home';
+ views.forEach(function(x){x.classList.toggle('on',x.dataset.v===v)});links.forEach(function(a){a.classList.toggle('on',a.dataset.n===v)});D.body.classList.toggle('home',v==='home');$('nv').classList.remove('on');
+ if(v==='prestations'&&p[1])tab(p[1]);window.scrollTo(0,0);rise()}
+function rise(){[].forEach.call(D.querySelectorAll('.view.on .tc,.view.on .vc,.view.on .tm,.view.on .rev figure,.view.on .val div,.view.on .stats,.view.on .eng div'),function(e){e.classList.add('rise');requestAnimationFrame(function(){setTimeout(function(){e.classList.add('in')},40)})})}
+window.addEventListener('hashchange',route);
+$('bu').onclick=function(){$('nv').classList.toggle('on')};
+D.querySelectorAll('[data-tab]').forEach(function(a){a.addEventListener('click',function(){var g=a.dataset.tab;setTimeout(function(){tab(g)},0)})});
+$('tb').onclick=function(e){var b=e.target.closest('.tab');if(b)tab(b.dataset.g)};
+$('vt').onclick=function(e){var b=e.target.closest('.tab');if(!b)return;[].forEach.call($('vt').children,function(x){x.classList.toggle('on',x===b)});[].forEach.call(D.querySelectorAll('#vg .vc'),function(c){c.hidden=!(b.dataset.t==='all'||c.dataset.t===b.dataset.t)})};
+$('vg').onclick=function(e){var a=e.target.closest('a[data-v]');if(!a)return;$('mot').value='Essayer un véhicule';$('msg').value='Je suis intéressé(e) par : '+a.dataset.v;location.hash='#/contact'};
+$('chv').onclick=function(){$('suite').scrollIntoView({behavior:'smooth'})};
+/* effets 3D : parallaxe du fond, lueur qui suit le curseur, inclinaison des cartes */
+var reduce=window.matchMedia('(prefers-reduced-motion:reduce)').matches,hero=$('hero'),bg=$('hbg'),gl=$('hgl');
+if(!reduce&&window.matchMedia('(hover:hover)').matches){
+ hero.addEventListener('mousemove',function(e){var r=hero.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;bg.style.transform='translate('+(-x*26)+'px,'+(-y*16)+'px) scale(1.03)';gl.style.setProperty('--mx',(e.clientX-r.left)+'px');gl.style.setProperty('--my',(e.clientY-r.top)+'px')});
+ hero.addEventListener('mouseleave',function(){bg.style.transform=''});
+ D.addEventListener('mousemove',function(e){var c=e.target.closest&&e.target.closest('.tc,.vc');if(!c)return;var r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;c.style.transform='perspective(900px) rotateY('+((x-.5)*8)+'deg) rotateX('+((.5-y)*8)+'deg) translateY(-4px)';c.style.setProperty('--px',x*100+'%');c.style.setProperty('--py',y*100+'%')});
+ D.addEventListener('mouseout',function(e){var c=e.target.closest&&e.target.closest('.tc,.vc');if(c&&!c.contains(e.relatedTarget))c.style.transform=''})}
+/* rendez-vous */
+var days=$('days'),slots=$('slots'),rec=$('rec'),go=$('bgo'),sel={d:null,t:null};
+var M={1:[8,9,10,11,14,15,16,17,18],2:[8,9,10,11,14,15,16,17,18],3:[8,9,10,11,14,15,16,17,18],4:[8,9,10,11,14,15,16,17,18],5:[8,9,10,11,14,15,16,17],6:[9,10,11],0:[]};
+function hash(s){var h=0;for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;return Math.abs(h)}
+function fmt(d){return d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}
+var out=[],n=new Date();n.setHours(12);for(var i=1;out.length<9&&i<30;i++){var d=new Date(n);d.setDate(n.getDate()+i);if(d.getDay()!==0)out.push(d)}
+function avail(d){var key=d.toISOString().slice(0,10);return(M[d.getDay()]||[]).filter(function(h){return hash(key+h)%100<64})}
+out.forEach(function(d){var b=D.createElement('button');b.type='button';b.className='dy'+(avail(d).length?'':' full');b.innerHTML=d.toLocaleDateString('fr-FR',{weekday:'short'}).replace('.','')+'<b>'+d.getDate()+'</b>'+d.toLocaleDateString('fr-FR',{month:'short'}).replace('.','');
+ b.onclick=function(){sel.d=d;sel.t=null;[].forEach.call(days.children,function(x){x.classList.remove('on')});b.classList.add('on');draw();upd()};days.appendChild(b)});
+function draw(){slots.innerHTML='';var a=avail(sel.d);(M[sel.d.getDay()]||[]).forEach(function(h){var b=D.createElement('button');b.type='button';var ok=a.indexOf(h)>-1;b.className='sl2'+(ok?'':' x');b.textContent=h+' h 00';b.onclick=function(){sel.t=h;[].forEach.call(slots.children,function(x){x.classList.remove('on')});b.classList.add('on');upd()};slots.appendChild(b)})}
+function upd(){if(sel.d&&sel.t){rec.innerHTML='<b>'+fmt(sel.d)+'</b><span>à '+sel.t+' h 00</span>';go.disabled=false}else{rec.innerHTML='<b>'+(sel.d?fmt(sel.d):'Aucun créneau choisi')+'</b><span>'+(sel.d?'Choisissez maintenant une heure.':'Sélectionnez un jour puis une heure.')+'</span>';go.disabled=true}}
+for(var k=0;k<days.children.length;k++){if(days.children[k].className.indexOf('full')<0){days.children[k].click();break}}
+$('bf').onsubmit=function(e){e.preventDefault();if(!sel.t)return;$('rvf').style.display='none';$('done').classList.add('on');$('dt').textContent=fmt(sel.d)+' à '+sel.t+' h 00. Un SMS de confirmation vous est envoyé, avec un rappel la veille.'};
+var li=D.querySelector('#hr li[data-d="'+new Date().getDay()+'"]');if(li)li.classList.add('today');
+(function(){var now=new Date(),dd=now.getDay(),m=now.getHours()*60+now.getMinutes(),op=false,t='Fermé actuellement';
+ if(dd>=1&&dd<=5){op=(m>=480&&m<720)||(m>=840&&m<(dd===5?1050:1110))}else if(dd===6){op=m>=540&&m<720}
+ if(op)t='Ouvert actuellement';$('lvt').textContent=t;if(!op)$('lv').classList.add('off')})();
+route()})()</script>"""
+    return page("Garage Marchand · Entretien, réparation, vente à Mérignac", "Garage à Mérignac : entretien, réparation et vente de véhicules d’occasion contrôlés. Rendez-vous en ligne.",
+                "family=Montserrat:wght@300;400;500;600", css, body, js)
 
 
 
