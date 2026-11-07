@@ -7,6 +7,7 @@
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font:400 15px/1.5 'DM Sans',system-ui,sans-serif;color:#2a1519;background:#f8f1ee}
 h1,h2,h3,p,ul{margin:0;padding:0}ul{list-style:none}button{font:inherit;color:inherit;cursor:pointer}a{color:inherit;text-decoration:none}
 .serif{font-family:'Playfair Display',Georgia,serif}
+.resa-tab{position:fixed;left:0;top:50%;z-index:100;transform:translateY(-50%) rotate(180deg);writing-mode:vertical-rl;background:#f2efe8;color:#161616;font:600 13px/1 system-ui,sans-serif;letter-spacing:.04em;padding:18px 11px;border-radius:0 12px 12px 0;box-shadow:4px 0 16px #0004;border:1px solid #0002;border-left:0}.resa-tab:hover{background:#fff}@media(max-width:600px){.resa-tab{top:auto;bottom:96px;transform:rotate(180deg);padding:13px 8px;font-size:11.5px}}
 .swbar{position:sticky;top:0;z-index:60;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;background:#1c0d10;color:#fff;font:500 13px/1.3 system-ui,sans-serif;padding:9px 14px}
 .swbar b{font-weight:700}.swbar a{padding:7px 14px;border-radius:99px;box-shadow:inset 0 0 0 1.5px #ffffff55;font-weight:700}.swbar a.on{background:#fff;color:#4a1219;box-shadow:none}.swbar a.bk{box-shadow:none;opacity:.8}
 .demo-bar{position:sticky;bottom:0;z-index:50;margin-top:30px;background:#111;color:#fff;font:500 12.5px/1.3 system-ui,sans-serif;padding:9px 14px;display:flex;gap:12px;justify-content:space-between;flex-wrap:wrap}
@@ -15,8 +16,6 @@ h1,h2,h3,p,ul{margin:0;padding:0}ul{list-style:none}button{font:inherit;color:in
 :root{--bg:#0d0f0c;--card:#15180f;--ink:#f4efe4;--mut:#b9b3a4;--gold:#e9b45f;--line:#2a2d22;--acct:#1a1205}
 body{background:var(--bg);color:var(--ink);font:400 16px/1.6 'DM Sans',system-ui,sans-serif}
 .demo-bar{position:static;margin-top:40px}
-.resa-demo{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;background:var(--gold);color:#1a1205;font:700 14px/1.3 'DM Sans',system-ui,sans-serif;padding:9px 14px;min-height:46px}
-.resa-demo a{background:#1a1205;color:#fff;padding:8px 16px;border-radius:99px;font-size:13.5px}.resa-demo a:hover{background:#000}
 .w{max-width:1180px;margin:0 auto;padding:0 24px}
 .top{border-bottom:1px solid var(--line)}.top .w{display:flex;align-items:center;gap:20px;padding-block:16px;flex-wrap:wrap}
 .logo{font:italic 600 1.5rem 'Playfair Display',serif}.top .sp{flex:1}.top a.b{font-weight:700;font-size:14px;color:var(--mut)}.top a.b:hover{color:var(--ink)}
@@ -59,7 +58,7 @@ body{background:var(--bg);color:var(--ink);font:400 16px/1.6 'DM Sans',system-ui
 </style></head><body>
 
 
-<div class="resa-demo"><span>Côté restaurateur :</span><a href="/exemples/bistro-reservation-interne" target="_blank" rel="noopener">Voir l’espace réservation interne</a></div>
+<a class="resa-tab" href="/exemples/bistro-reservation-interne" target="_blank" rel="noopener">Voir espace client →</a>
 <div class="top"><div class="w"><a class="logo serif" href="/exemples/bistro">Le Bistro du Marché</a><span class="sp"></span><a class="b" href="/exemples/bistro">← Retour au site du restaurant</a></div></div>
 <div class="ban"><img src="/assets/ex/bistro-hero.jpg" alt="" onerror="this.remove()"><div class="w"><p class="eb">Réservation en ligne</p><h1>Réserver une table</h1><p>Choisissez le nombre de couverts, le jour et l’heure. Confirmation immédiate, annulation gratuite jusqu’à 2 h avant.</p></div></div>
 <div class="wrap"><div class="card" id="card">

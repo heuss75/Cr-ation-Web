@@ -57,22 +57,50 @@ def dial(uid="dl"):
 
 
 def garage():
-    page, ico = H["page"], H["ico"]
+    page = H["page"]
+    P = {
+        "arrow": '<path d="M4 12h16M14 6l6 6-6 6"/>',
+        "cal": '<rect x="3.500" y="5" width="17" height="15" rx="2.500"/><path d="M3.500 10h17M8 3v4M16 3v4"/>',
+        "wrench": '<path d="M14.700 6.300a4 4 0 0 0-5.300 5.300L3.500 17.500a2 2 0 0 0 3 3l5.900-5.900a4 4 0 0 0 5.300-5.300l-2.600 2.600-2.400-.6-.6-2.400z"/>',
+        "gear": '<circle cx="12" cy="12" r="3"/><path d="M19.400 15a1.700 1.700 0 0 0 .3 1.800l.1.100a2 2 0 1 1-2.800 2.800l-.1-.1a1.700 1.700 0 0 0-1.800-.3 1.700 1.700 0 0 0-1 1.500V21a2 2 0 1 1-4 0v-.1a1.700 1.700 0 0 0-1.100-1.500 1.700 1.700 0 0 0-1.800.3l-.1.1a2 2 0 1 1-2.800-2.800l.1-.1a1.700 1.700 0 0 0 .3-1.800 1.700 1.700 0 0 0-1.500-1H3a2 2 0 1 1 0-4h.1a1.700 1.700 0 0 0 1.500-1.100 1.700 1.700 0 0 0-.3-1.800l-.1-.1a2 2 0 1 1 2.800-2.800l.1.100a1.700 1.700 0 0 0 1.800.3H9a1.700 1.700 0 0 0 1-1.500V3a2 2 0 1 1 4 0v.1a1.700 1.700 0 0 0 1 1.500 1.700 1.700 0 0 0 1.800-.3l.1-.1a2 2 0 1 1 2.800 2.800l-.1.100a1.700 1.700 0 0 0-.3 1.800V9a1.700 1.700 0 0 0 1.500 1H21a2 2 0 1 1 0 4h-.1a1.700 1.700 0 0 0-1.500 1z"/>',
+        "car": '<path d="M5 16l1.500-5.500A2 2 0 0 1 8.400 9h7.200a2 2 0 0 1 1.900 1.500L19 16M3 16h18v3.500H3zM6.500 19.500V21M17.500 19.500V21"/><circle cx="7.500" cy="16" r=".7"/><circle cx="16.500" cy="16" r=".7"/>',
+        "shield": '<path d="M12 3l8 3v6c0 5-3.500 8-8 9-4.500-1-8-4-8-9V6z"/><path d="M8.500 12l2.500 2.500L16 9.500"/>',
+        "phone": '<path d="M5 4h4l2 5-2.500 1.500a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/>',
+        "mail": '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>',
+        "pin": '<path d="M12 21s-7-6.200-7-11.500a7 7 0 0 1 14 0C19 14.800 12 21 12 21z"/><circle cx="12" cy="9.500" r="2.500"/>',
+        "clock": '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+        "users": '<circle cx="9" cy="8" r="3.500"/><path d="M2.500 20a6.500 6.500 0 0 1 13 0M16 4.500a3.500 3.500 0 0 1 0 7M18 14.500a6.500 6.500 0 0 1 3.500 5.500"/>',
+        "award": '<circle cx="12" cy="9" r="6"/><path d="M8.500 14L7 21l5-3 5 3-1.500-7"/><path d="M9.500 9l1.800 1.800L14.500 7.500"/>',
+        "drop": '<path d="M12 3s6 6.500 6 11a6 6 0 0 1-12 0c0-4.500 6-11 6-11z"/><path d="M9 15a3 3 0 0 0 3 3"/>',
+        "diag": '<rect x="4" y="3" width="16" height="18" rx="3"/><path d="M7 14h2.500l1.500-4 2.500 6 1.500-2H17"/>',
+        "brake": '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/>',
+        "clutch": '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 3v5M12 16v5M3 12h5M16 12h5"/>',
+        "belt": '<circle cx="7.500" cy="12" r="3.500"/><circle cx="17" cy="12" r="3.500"/><path d="M7.500 8.500h9.500M7.500 15.500h9.500"/>',
+        "snow": '<path d="M12 3v18M4.200 7.500l15.600 9M19.800 7.500l-15.600 9M9.500 4.500L12 7l2.500-2.500M9.500 19.500L12 17l2.500 2.500"/>',
+        "heart": '<path d="M12 20s-7.500-4.600-7.500-10.200A4.300 4.300 0 0 1 12 7.200a4.300 4.300 0 0 1 7.500 2.600C19.500 15.400 12 20 12 20z"/>',
+        "check": '<path d="M4.500 12.500l5 5 10-11"/>',
+        "x": '<path d="M6 6l12 12M18 6L6 18"/>',
+        "menu": '<path d="M4 7h16M4 12h16M4 17h16"/>',
+    }
+
+    def ic(n, s=22, sw=1.8):
+        return '<svg width="%d" height="%d" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="%s" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">%s</svg>' % (s, s, sw, P[n])
+    chev = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l6 6 6-6M6 13l6 6 6-6"/></svg>'
     css = r'''
-:root{--bg:#050607;--p:#0c0d0f;--p2:#111316;--ink:#f4f5f7;--mut:#9ea3ab;--red:#e11d2e;--red2:#ff3b4a;--ln:#23262b}
+:root{--bg:#050607;--p:#0b0c0e;--p2:#101215;--ink:#f4f5f7;--mut:#a3a8b0;--red:#e11d2e;--red2:#ff3b4a;--ln:#24272c}
 html,body{overflow-x:clip}
 body{background:var(--bg);color:var(--ink);font:400 16px/1.65 'Montserrat',system-ui,sans-serif}
 .w{max-width:1200px;margin:0 auto;padding:0 28px}
 .view{display:none}.view.on{display:block;animation:vin .6s cubic-bezier(.2,.8,.2,1)}@keyframes vin{from{opacity:0;transform:translateY(14px)}}
-/* ---- en-tête (pages intérieures) ---- */
-header.gh{position:sticky;top:0;z-index:50;background:#050607e6;backdrop-filter:blur(14px);border-bottom:1px solid var(--ln)}body.home header.gh{display:none}
-header.gh .w{display:flex;align-items:center;gap:26px;height:76px}
-.lg{display:block;font:300 .8rem/1.1 'Montserrat',sans-serif;letter-spacing:.5em;color:var(--mut)}.lg b{display:block;font:500 1.25rem/1.1 'Montserrat',sans-serif;letter-spacing:.2em;color:#fff;margin-top:3px}
-nav.mn{display:flex;gap:6px;margin:0 auto}nav.mn a{padding:10px 18px;font:500 12.5px 'Montserrat',sans-serif;letter-spacing:.18em;text-transform:uppercase;color:var(--mut);position:relative;white-space:nowrap;transition:.25s}nav.mn a:hover{color:#fff}nav.mn a.on{color:#fff;box-shadow:inset 0 -2px 0 var(--red)}
-.pill{display:inline-flex;align-items:center;gap:14px;border:2px solid var(--red);border-radius:99px;padding:14px 30px;font:600 15px 'Montserrat',sans-serif;color:#fff;background:#0000;cursor:pointer;transition:.3s;box-shadow:0 0 0 #e11d2e00}.pill:hover{background:var(--red);box-shadow:0 0 38px #e11d2e66}.pill svg{transition:.3s}.pill:hover svg{transform:translateX(5px)}
-.pill.sm{padding:11px 22px;font-size:12.5px;letter-spacing:.12em;text-transform:uppercase}.pill.f{background:var(--red)}.pill.f:hover{background:var(--red2)}
-.bur{display:none;margin-left:auto;background:none;border:1.5px solid var(--ln);border-radius:10px;width:46px;height:46px;color:#fff;cursor:pointer}
-/* ---- accueil / hero ---- */
+header.gh{position:sticky;top:0;z-index:50;background:#050607d9;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid #ffffff10}body.home header.gh{display:none}
+header.gh .w{display:flex;align-items:center;gap:30px;height:84px}
+.lg{display:block;font:400 .72rem/1 'Montserrat',sans-serif;letter-spacing:.55em;color:#fff}.lg b{display:block;font:600 1.4rem/1 'Montserrat',sans-serif;letter-spacing:.2em;color:#fff;margin-top:6px}
+nav.mn{display:flex;gap:4px;margin:0 0 0 auto}nav.mn a{padding:10px 17px;font:500 14px 'Montserrat',sans-serif;color:#fff;position:relative;white-space:nowrap;opacity:.85;transition:.25s}nav.mn a:hover{opacity:1}nav.mn a.on{opacity:1}nav.mn a.on:after{content:"";position:absolute;left:14px;right:14px;bottom:-14px;height:2px;background:var(--red)}
+.rdv{display:inline-flex;align-items:center;gap:10px;background:var(--red);color:#fff;border:0;border-radius:99px;padding:13px 26px;font:600 14px 'Montserrat',sans-serif;cursor:pointer;transition:.3s;white-space:nowrap}.rdv:hover{background:var(--red2);box-shadow:0 0 34px #e11d2e66}
+.pill{display:inline-flex;align-items:center;gap:14px;border:2px solid var(--red);border-radius:99px;padding:14px 30px;font:600 15px 'Montserrat',sans-serif;color:#fff;background:#0000;cursor:pointer;transition:.3s}.pill:hover{background:var(--red);box-shadow:0 0 38px #e11d2e66}.pill svg{transition:.3s}.pill:hover svg{transform:translateX(5px)}
+.pill.o{border-color:#ffffffd0}.pill.o:hover{background:#fff;color:#050607;box-shadow:0 0 30px #ffffff30}
+.bur{display:none;margin-left:auto;background:none;border:1.5px solid var(--ln);border-radius:10px;width:46px;height:46px;color:#fff;cursor:pointer;place-items:center}
+/* splash */
 .hero{position:relative;min-height:100vh;min-height:100svh;display:grid;place-items:center;overflow:hidden;background:#050607;isolation:isolate}
 .hero .bg{position:absolute;inset:-30px;background:url(/assets/ex/gar-hero.jpg) 62% center/cover no-repeat;z-index:-2;transition:transform .25s ease-out;will-change:transform}
 .hero:after{content:"";position:absolute;inset:0;background:radial-gradient(60% 60% at 40% 50%,#0000 0,#05060766 100%);z-index:-1}
@@ -86,188 +114,202 @@ nav.mn{display:flex;gap:6px;margin:0 auto}nav.mn a{padding:10px 18px;font:500 12
 .hero .ht>*{opacity:0;animation:rise .9s cubic-bezier(.2,.8,.2,1) forwards}.hero .hn{animation-delay:.15s}.hero .hs{animation-delay:.3s}.hero .pill{animation-delay:.45s}@keyframes rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
 .hero .ht .pill{padding:20px 60px;font-size:1.18rem}
 @media(prefers-reduced-motion:reduce){.hero .ht>*{animation:none;opacity:1}.chev{animation:none}}
-/* ---- sections ---- */
-.sec{padding:100px 0}.sec.alt{background:var(--p)}
-.eb{font:500 12px/1 'Montserrat',sans-serif;letter-spacing:.38em;text-transform:uppercase;color:var(--red2)}
-h2.t{font:500 clamp(1.7rem,3.6vw,2.8rem)/1.15 'Montserrat',sans-serif;letter-spacing:.04em;margin:16px 0 0}
+/* accueil */
+.h2{position:relative;overflow:hidden;isolation:isolate;border-bottom:1px solid var(--ln)}
+.h2 .car{position:absolute;right:0;top:0;bottom:0;width:62%;z-index:-2;background:url(/assets/ex/gar-h-car.jpg) 40% center/cover no-repeat;-webkit-mask-image:linear-gradient(90deg,#0000 0,#000 45%);mask-image:linear-gradient(90deg,#0000 0,#000 45%);transition:transform .3s ease-out}
+.h2:before{content:"";position:absolute;left:-120px;bottom:-40px;width:260px;height:520px;background:linear-gradient(200deg,#0000 30%,#e11d2e 100%);filter:blur(28px);opacity:.55;transform:skewX(-18deg);z-index:-1}
+.h2 .w{padding-top:96px;padding-bottom:40px}
+.h2 .k{font:400 .9rem/1 'Montserrat',sans-serif;letter-spacing:.6em;color:#e5e7ea}
+.h2 h1{font:700 clamp(2.2rem,5.2vw,4.4rem)/1.08 'Montserrat',sans-serif;letter-spacing:-.01em;margin:26px 0 0;max-width:9.6em}.h2 h1 em{font-style:normal;color:var(--red)}
+.h2 .lead{font:400 clamp(1.05rem,1.7vw,1.4rem)/1.55 'Montserrat',sans-serif;max-width:25em;margin-top:26px;color:#e8eaed}
+.h2 .bt{display:flex;gap:16px;flex-wrap:wrap;margin-top:40px}.h2 .bt .rdv{padding:17px 34px;font-size:15.5px}.h2 .bt .pill{padding:15px 32px}
+.fx{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin-top:84px}.fx div{text-align:center;padding:6px 14px}.fx div+div{border-left:1px solid #ffffff22}.fx svg{display:block;margin:0 auto 12px}.fx b{display:block;font:600 1.4rem/1.2 'Montserrat',sans-serif}.fx span{display:block;color:#d4d7dc;font-size:15.5px;margin-top:4px}
+.sec{padding:100px 0}
+.eb{font:500 12px/1 'Montserrat',sans-serif;letter-spacing:.38em;text-transform:uppercase;color:var(--red)}
+h2.t{font:700 clamp(1.7rem,3.4vw,2.6rem)/1.15 'Montserrat',sans-serif;margin:16px 0 0}
 .sub{color:var(--mut);max-width:38em;margin-top:14px}
-.ph{padding:90px 0 60px;background:radial-gradient(70% 120% at 85% 0%,#e11d2e24,#0000 60%),var(--bg);border-bottom:1px solid var(--ln)}
-.ph h1{font:500 clamp(2rem,5vw,3.8rem)/1.1 'Montserrat',sans-serif;letter-spacing:.06em;margin-top:18px}.ph p{color:var(--mut);max-width:40em;margin-top:16px;font-size:1.08rem}
-.tri{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:48px}
-.tc{display:block;position:relative;background:var(--p2);border:1px solid var(--ln);border-radius:22px;padding:38px 32px;overflow:hidden;transition:transform .25s ease-out,border-color .3s,box-shadow .3s;transform-style:preserve-3d;will-change:transform}.tc:hover{border-color:var(--red);box-shadow:0 20px 60px #e11d2e22}
-.tc:before{content:"";position:absolute;inset:0;background:radial-gradient(300px 200px at var(--px,50%) var(--py,0%),#e11d2e20,#0000 70%);opacity:0;transition:.3s}.tc:hover:before{opacity:1}
-.tc .n{font:300 3.4rem/1 'Montserrat',sans-serif;color:#ffffff1c;letter-spacing:.04em}.tc h3{font:500 1.35rem/1.2 'Montserrat',sans-serif;letter-spacing:.06em;margin:18px 0 10px;transform:translateZ(30px)}.tc p{color:var(--mut);font-size:15px}.tc .go{display:inline-block;margin-top:20px;font:600 12.5px 'Montserrat',sans-serif;letter-spacing:.18em;text-transform:uppercase;color:var(--red2)}
-.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:2px;background:var(--ln);border:1px solid var(--ln);border-radius:20px;overflow:hidden;margin-top:56px}.stats div{background:var(--p2);padding:30px 24px;text-align:center}.stats b{display:block;font:300 2.8rem/1 'Montserrat',sans-serif;color:#fff}.stats b i{font-style:normal;color:var(--red2)}.stats span{display:block;margin-top:10px;color:var(--mut);font-size:13px;letter-spacing:.1em;text-transform:uppercase}
-/* ---- prestations ---- */
-.tabs{display:flex;gap:10px;flex-wrap:wrap;margin:40px 0 28px}.tab{font:500 12.5px 'Montserrat',sans-serif;letter-spacing:.16em;text-transform:uppercase;border:1.5px solid var(--ln);background:none;color:var(--mut);padding:13px 24px;border-radius:99px;cursor:pointer;transition:.25s}.tab:hover{color:#fff;border-color:#fff4}.tab.on{background:var(--red);border-color:var(--red);color:#fff}
-.sv{display:block}.sv[hidden]{display:none}
-.sr{display:grid;grid-template-columns:64px minmax(0,1fr) 150px 140px;gap:24px;align-items:center;padding:28px 6px;border-top:1px solid var(--ln);transition:.3s}.sr:last-child{border-bottom:1px solid var(--ln)}.sr:hover{background:#ffffff06;padding-left:18px}
-.sr .no{font:300 1.9rem/1 'Montserrat',sans-serif;color:var(--red2)}.sr h3{font:500 1.2rem/1.25 'Montserrat',sans-serif;letter-spacing:.04em}.sr p{color:var(--mut);font-size:14.5px;margin-top:6px}.sr .du{color:var(--mut);font-size:13.5px}.sr .pr{text-align:right;font:500 1.4rem/1.1 'Montserrat',sans-serif}.sr .pr small{display:block;color:var(--mut);font:400 11px 'Montserrat',sans-serif;letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px}
-.eng{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin-top:60px}.eng div{border:1px solid var(--ln);border-radius:18px;padding:26px 22px;background:var(--p2)}.eng svg{color:var(--red2);margin-bottom:12px}.eng b{display:block;font:500 1rem 'Montserrat',sans-serif;letter-spacing:.04em;margin-bottom:6px}.eng span{color:var(--mut);font-size:14px;display:block}
-/* ---- véhicules ---- */
-.vg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin-top:10px}
-.vc{background:var(--p2);border:1px solid var(--ln);border-radius:22px;overflow:hidden;transition:transform .25s ease-out,border-color .3s,box-shadow .3s;will-change:transform}.vc:hover{border-color:var(--red);box-shadow:0 20px 60px #e11d2e22}
-.vc .im{background:radial-gradient(70% 80% at 50% 100%,#e11d2e33,#0000 70%),#0a0b0d;padding:20px 14px 0}.vc .im svg{display:block;width:100%;height:auto}
-.vc{display:flex;flex-direction:column}.vc .bd{padding:24px 26px 28px;display:flex;flex-direction:column;flex:1}.vc .pf{margin-top:auto}.vc .im svg.fl{transform:scaleX(-1)}.vc .tg{font:500 11px 'Montserrat',sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--red2)}.vc h3{font:500 1.25rem/1.2 'Montserrat',sans-serif;letter-spacing:.03em;margin:8px 0 12px}
-.vc ul{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}.vc li{border:1px solid var(--ln);border-radius:99px;padding:5px 13px;font-size:12.5px;color:var(--mut)}
-.vc .pf{display:flex;justify-content:space-between;align-items:center;gap:12px}.vc .pf b{font:500 1.55rem 'Montserrat',sans-serif}.vc .pf a{font:600 12px 'Montserrat',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--red2);cursor:pointer}
-/* ---- à propos ---- */
-.dual{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}.dual img{width:100%;border-radius:22px;display:block;aspect-ratio:4/3;object-fit:cover;object-position:75% 40%;border:1px solid var(--ln)}
-.dual p{color:#cfd2d8;margin-top:18px}
-.team{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:44px}.tm{border:1px solid var(--ln);border-radius:20px;padding:30px 26px;background:var(--p2)}.tm i{display:grid;place-items:center;width:64px;height:64px;border-radius:50%;border:1.5px solid var(--red);font:500 1.15rem 'Montserrat',sans-serif;font-style:normal;margin-bottom:18px}.tm b{display:block;font:500 1.1rem 'Montserrat',sans-serif;letter-spacing:.04em}.tm em{display:block;font:400 12px 'Montserrat',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--red2);font-style:normal;margin:6px 0 12px}.tm span{display:block;color:var(--mut);font-size:14.5px}
-.val{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:44px}.val div{border-left:2px solid var(--red);padding:4px 0 4px 22px}.val b{display:block;font:500 1.1rem 'Montserrat',sans-serif;letter-spacing:.04em;margin-bottom:8px}.val span{color:var(--mut);font-size:15px;display:block}
-.rev{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:44px}.rev figure{border:1px solid var(--ln);border-radius:20px;padding:28px;background:var(--p2)}.rev .st{color:var(--red2);letter-spacing:.2em}.rev blockquote{margin:12px 0 16px;color:#d4d7dc;font-size:15.5px}.rev figcaption{color:var(--mut);font-size:13px}
-/* ---- contact ---- */
-.cg{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:34px;align-items:start;margin-top:10px}
-.rv{background:var(--p2);border:1px solid var(--ln);border-radius:24px;padding:34px}.rv h2{font:500 1.5rem 'Montserrat',sans-serif;letter-spacing:.04em;margin-bottom:6px}.rv .lab{font:500 11.5px 'Montserrat',sans-serif;letter-spacing:.22em;text-transform:uppercase;color:var(--red2);margin:26px 0 12px}
-.rv .days{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px}.rv .dy{flex:none;min-width:64px;border:1.5px solid var(--ln);background:none;color:#fff;border-radius:14px;padding:10px 6px;text-align:center;font:500 11.5px/1.3 'Montserrat',sans-serif;cursor:pointer;text-transform:uppercase;letter-spacing:.08em;transition:.2s}.rv .dy b{display:block;font:300 1.7rem/1.15 'Montserrat',sans-serif}.rv .dy:hover{border-color:#fff6}.rv .dy.on{background:var(--red);border-color:var(--red)}.rv .dy.full{opacity:.3;pointer-events:none}
-.rv .slots{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.rv .sl2{border:1.5px solid var(--ln);background:none;color:#fff;border-radius:12px;padding:11px 0;font:500 14px 'Montserrat',sans-serif;cursor:pointer;transition:.2s}.rv .sl2:hover{border-color:#fff6}.rv .sl2.on{background:var(--red);border-color:var(--red)}.rv .sl2.x{opacity:.3;text-decoration:line-through;pointer-events:none}
-.rv form{display:grid;grid-template-columns:1fr 1fr;gap:14px}.rv label{display:grid;gap:7px;font:500 11.5px 'Montserrat',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}.rv label.w2{grid-column:1/-1}
-.rv input,.rv select,.rv textarea{font:400 16px 'Montserrat',sans-serif;padding:14px 16px;border:1.5px solid var(--ln);border-radius:12px;background:#0a0b0d;color:#fff;width:100%}.rv input:focus,.rv select:focus,.rv textarea:focus{outline:0;border-color:var(--red)}.rv textarea{min-height:90px}
-.rv .rec{background:#0a0b0d;border:1px solid var(--ln);border-radius:14px;padding:14px 18px;margin-bottom:6px}.rv .rec b{display:block;font:500 1rem 'Montserrat',sans-serif}.rv .rec span{color:var(--mut);font-size:14px}
-.rv .go{grid-column:1/-1;margin-top:6px;background:var(--red);color:#fff;border:0;border-radius:99px;padding:18px;font:600 15px 'Montserrat',sans-serif;letter-spacing:.08em;cursor:pointer;transition:.3s}.rv .go:hover:not(:disabled){background:var(--red2);box-shadow:0 0 38px #e11d2e66}.rv .go:disabled{opacity:.4;cursor:not-allowed}
-.rv .done{display:none;text-align:center;padding:26px 6px}.rv .done.on{display:block}.rv .done .ok{width:68px;height:68px;border-radius:50%;border:1.5px solid var(--red);display:grid;place-items:center;margin:0 auto 16px;color:var(--red2);font-size:30px}.rv .done b{display:block;font:500 1.6rem 'Montserrat',sans-serif}.rv .done span{display:block;color:var(--mut);margin-top:10px}
-.inf{display:grid;gap:18px}.inf .bx{background:var(--p2);border:1px solid var(--ln);border-radius:20px;padding:26px 28px}.inf .t{font:500 11.5px 'Montserrat',sans-serif;letter-spacing:.24em;text-transform:uppercase;color:var(--red2)}.inf h3{font:500 1.35rem 'Montserrat',sans-serif;margin:12px 0 6px}.inf p{color:var(--mut);font-size:15px}
-.hrs{margin-top:12px}.hrs li{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--ln);font-size:14.5px;color:#d4d7dc}.hrs li:last-child{border:0}.hrs li.today{color:#fff}.hrs li.today span:first-child:after{content:" · aujourd’hui";color:var(--red2)}
+/* en-têtes de pages */
+.ph{position:relative;overflow:hidden;isolation:isolate;padding:84px 0 56px}
+.ph .w{position:relative}.ph .eb{display:block}.ph h1{font:700 clamp(2rem,4.6vw,3.4rem)/1.12 'Montserrat',sans-serif;margin-top:20px;max-width:14em}.ph p{color:#dfe2e6;max-width:38em;margin-top:18px;font-size:1.02rem}
+.ph .bgi{position:absolute;right:0;top:0;bottom:0;width:62%;z-index:-2;background-size:cover;background-position:center;-webkit-mask-image:linear-gradient(90deg,#0000 0,#000 55%);mask-image:linear-gradient(90deg,#0000 0,#000 55%);opacity:.95}
+.ph.hall .bgi{background-image:url(/assets/ex/gar-p-hall.jpg)}.ph.bld .bgi{background-image:url(/assets/ex/gar-a-bld.jpg);width:58%;opacity:1}
+.ph.veh:before{content:"";position:absolute;right:-5%;top:-20px;width:60%;height:200px;background:linear-gradient(160deg,#0000 40%,#e11d2e 50%,#0000 52%);filter:blur(2px);opacity:.8;z-index:-1;transform:rotate(-3deg)}
+.ph:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#0000 60%,var(--bg));z-index:-1;pointer-events:none}
+/* prestations */
+.pg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+.pc{position:relative;display:flex;flex-direction:column;background:linear-gradient(180deg,#14161a,#0d0e11);border:1px solid var(--ln);border-radius:22px;overflow:hidden;text-align:left;color:inherit;font:inherit;cursor:pointer;padding:0;transition:transform .25s ease-out,border-color .3s,box-shadow .3s;will-change:transform}
+.pc:hover{border-color:#e11d2e99;box-shadow:0 24px 60px #e11d2e1f}
+.pc .im{height:170px;background-size:cover;background-position:center;position:relative;transition:transform .6s}.pc:hover .im{transform:scale(1.05)}.pc .imw{overflow:hidden;position:relative}.pc .imw:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#0000 35%,#101215)}
+.pc .ib{position:absolute;left:22px;top:143px;z-index:2;width:54px;height:54px;border-radius:50%;background:#2a0f13;border:1px solid #e11d2e55;display:grid;place-items:center;color:var(--red2)}
+.pc .bd{padding:42px 22px 22px;display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex:1}
+.pc h3{font:600 1.18rem/1.25 'Montserrat',sans-serif}.pc p{color:var(--mut);font-size:14.5px;margin-top:6px}
+.pc .go{flex:none;width:42px;height:42px;border-radius:50%;background:var(--red);display:grid;place-items:center;color:#fff;transition:.3s}.pc:hover .go{background:var(--red2);transform:translateX(3px)}
+.eng{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin-top:56px}.eng div{border:1px solid var(--ln);border-radius:18px;padding:24px 22px;background:var(--p2)}.eng svg{color:var(--red2);margin-bottom:12px}.eng b{display:block;font:600 1rem 'Montserrat',sans-serif;margin-bottom:6px}.eng span{color:var(--mut);font-size:14px;display:block}
+/* modale */
+.mdl{position:fixed;inset:0;z-index:90;background:#000000b8;backdrop-filter:blur(6px);display:grid;place-items:center;padding:18px;overflow-y:auto}.mdl[hidden]{display:none}
+.mdl .box{position:relative;background:#101215;border:1px solid var(--ln);border-radius:26px;max-width:620px;width:100%;overflow:hidden;box-shadow:0 40px 100px #000;animation:vin .35s cubic-bezier(.2,.8,.2,1)}
+.mdl .mi{height:210px;background-size:cover;background-position:center;position:relative}.mdl .mi:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#0000 40%,#101215)}
+.mdl .x{position:absolute;right:14px;top:14px;z-index:3;width:42px;height:42px;border-radius:50%;border:0;background:#000a;color:#fff;cursor:pointer;display:grid;place-items:center}
+.mdl .mb{padding:6px 32px 32px}.mdl h3{font:700 1.7rem/1.2 'Montserrat',sans-serif}.mdl .d{color:#cfd3d9;margin-top:10px}.mdl ul{display:grid;gap:10px;margin:20px 0}.mdl li{display:flex;gap:12px;align-items:flex-start;color:#e3e5e8;font-size:15px}.mdl li svg{flex:none;color:var(--red2);margin-top:3px}
+.mdl .row{display:flex;gap:26px;flex-wrap:wrap;border-top:1px solid var(--ln);border-bottom:1px solid var(--ln);padding:16px 0;margin-bottom:22px}.mdl .row small{display:block;color:var(--mut);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase}.mdl .row b{font:600 1.35rem 'Montserrat',sans-serif}.mdl .acts{display:flex;gap:12px;flex-wrap:wrap}
+/* véhicules */
+.chips{display:flex;gap:12px;flex-wrap:wrap;margin:36px 0 34px}.chip{font:500 14px 'Montserrat',sans-serif;border:1.5px solid #ffffff28;background:#ffffff08;color:#fff;padding:13px 26px;border-radius:99px;cursor:pointer;transition:.25s}.chip:hover{border-color:#ffffff80}.chip.on{background:var(--red);border-color:var(--red)}
+.vg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+.vc{background:linear-gradient(180deg,#14161a,#0d0e11);border:1px solid var(--ln);border-radius:22px;overflow:hidden;transition:transform .25s ease-out,border-color .3s,box-shadow .3s;will-change:transform;position:relative}.vc:hover{border-color:#e11d2e99;box-shadow:0 24px 60px #e11d2e1f}
+.vc .im{height:220px;background-size:cover;background-position:center;position:relative}.vc .hb{position:absolute;right:14px;top:14px;width:40px;height:40px;border-radius:50%;border:0;background:#000b;color:#fff;cursor:pointer;display:grid;place-items:center;transition:.25s}.vc .hb:hover{transform:scale(1.1)}.vc .hb.on{color:var(--red2)}.vc .hb.on svg{fill:var(--red2)}
+.vc .bd{padding:22px 24px 24px;position:relative}.vc h3{font:600 1.2rem/1.2 'Montserrat',sans-serif}.vc .s{color:var(--mut);font-size:15px;margin-top:4px}.vc .y{color:#dfe2e6;font-size:15px;margin-top:4px}.vc .pr{font:700 1.7rem 'Montserrat',sans-serif;color:var(--red2);margin-top:14px}
+.vc .go{position:absolute;right:22px;bottom:22px;width:44px;height:44px;border-radius:50%;border:0;background:#ffffff18;color:#fff;cursor:pointer;display:grid;place-items:center;transition:.3s}.vc .go:hover{background:var(--red)}
+.empty{display:none;grid-column:1/-1;border:1px dashed var(--ln);border-radius:20px;padding:44px 24px;text-align:center;color:var(--mut)}.empty.on{display:block}
+/* à propos */
+.sts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:6px;padding:34px 0;border-top:1px solid #ffffff14;border-bottom:1px solid #ffffff14}.sts div{text-align:center;padding:0 14px}.sts div+div{border-left:1px solid #ffffff1c}.sts svg{color:var(--red2);margin:0 auto 10px;display:block}.sts b{display:block;font:600 1.7rem/1.2 'Montserrat',sans-serif}.sts span{color:#d4d7dc;font-size:15px}
+.dual{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:70px;align-items:center;margin-top:70px}.dual img{width:100%;aspect-ratio:3/2;object-fit:cover;border-radius:22px;display:block;border:1px solid var(--ln)}.dual h2{font:600 1.9rem/1.2 'Montserrat',sans-serif}.dual ul{display:grid;gap:18px;margin-top:28px}.dual li{display:flex;gap:16px;align-items:center;font-size:1.1rem}.dual li svg{color:var(--red2);flex:none}
+.team{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:70px}.tm{border:1px solid var(--ln);border-radius:20px;padding:28px 26px;background:var(--p2)}.tm i{display:grid;place-items:center;width:60px;height:60px;border-radius:50%;border:1.5px solid var(--red);font:600 1.05rem 'Montserrat',sans-serif;font-style:normal;margin-bottom:16px}.tm b{display:block;font:600 1.1rem 'Montserrat',sans-serif}.tm em{display:block;font:500 11.5px 'Montserrat',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--red2);font-style:normal;margin:6px 0 10px}.tm span{display:block;color:var(--mut);font-size:14.5px}
+.rev{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:44px}.rev figure{border:1px solid var(--ln);border-radius:20px;padding:26px;background:var(--p2)}.rev .st{color:var(--red2);letter-spacing:.2em}.rev blockquote{margin:12px 0 14px;color:#d4d7dc;font-size:15.5px}.rev figcaption{color:var(--mut);font-size:13px}
+/* contact */
+.cg{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,440px);gap:60px;align-items:start;padding-top:70px}
+.cg h1{font:700 clamp(2rem,4.2vw,3.1rem)/1.12 'Montserrat',sans-serif;margin-top:20px}.cg .lede{color:#dfe2e6;margin-top:18px;max-width:30em}
+.ci{display:grid;gap:0;margin-top:34px}.ci a,.ci div{display:flex;gap:18px;align-items:center;padding:18px 0;border-bottom:1px solid var(--ln);font-size:1.02rem}.ci i{flex:none;width:46px;height:46px;border-radius:50%;background:var(--red);display:grid;place-items:center;font-style:normal}
+.fc{background:linear-gradient(180deg,#14161a,#0d0e11);border:1px solid var(--ln);border-radius:24px;padding:32px}.fc.pulse{animation:pulse 1.4s ease}@keyframes pulse{0%{box-shadow:0 0 0 0 #e11d2e99}100%{box-shadow:0 0 0 24px #e11d2e00}}
+.fc label{display:grid;gap:8px;font:500 13px 'Montserrat',sans-serif;color:#d4d7dc;margin-bottom:16px}.fc input,.fc textarea{font:400 16px 'Montserrat',sans-serif;padding:15px 16px;border:1.5px solid var(--ln);border-radius:12px;background:#07080a;color:#fff;width:100%}.fc input:focus,.fc textarea:focus{outline:0;border-color:var(--red)}.fc textarea{min-height:130px;resize:vertical}
+.fc .rdv{width:100%;justify-content:center;padding:17px;font-size:15px}.fc .er{color:#ff8a93;font-size:14px;min-height:20px;margin-bottom:8px}
+.fc .ok{display:none;text-align:center;padding:30px 6px}.fc .ok.on{display:block}.fc .ok .c{width:68px;height:68px;border-radius:50%;border:1.5px solid var(--red);display:grid;place-items:center;margin:0 auto 16px;color:var(--red2)}.fc .ok b{display:block;font:700 1.5rem 'Montserrat',sans-serif}.fc .ok span{display:block;color:var(--mut);margin-top:10px}
+.cb{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;margin-top:46px;padding-bottom:30px}
+.bx{background:linear-gradient(180deg,#14161a,#0d0e11);border:1px solid var(--ln);border-radius:22px;padding:28px 30px}.bx h3{font:600 1.15rem 'Montserrat',sans-serif;margin-bottom:12px}
+.hrs li{display:flex;justify-content:space-between;gap:14px;padding:10px 0;border-bottom:1px solid var(--ln);font-size:15px;color:#dfe2e6}.hrs li:last-child{border:0}.hrs li.today{color:#fff}.hrs li.today span:first-child:after{content:" · aujourd’hui";color:var(--red2)}
 .live{display:inline-flex;align-items:center;gap:9px;margin-top:12px;font-size:14px;color:#d4d7dc}.live i{width:9px;height:9px;border-radius:50%;background:#2fd06a;box-shadow:0 0 0 0 #2fd06a99;animation:pl 2s infinite}.live.off i{background:var(--red);animation:none}@keyframes pl{70%{box-shadow:0 0 0 9px #2fd06a00}100%{box-shadow:0 0 0 0 #2fd06a00}}
-.map{border-radius:20px;border:1px solid var(--ln);overflow:hidden}.map svg{display:block;width:100%;height:auto}
-/* ---- pied ---- */
+.map{padding:0;overflow:hidden}.map svg{display:block;width:100%;height:100%;min-height:240px}
 footer.ft{background:#030304;border-top:1px solid var(--ln);padding:64px 0 34px;color:var(--mut);font-size:14.5px}body.home footer.ft{display:none}
-footer.ft .w{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:34px}footer.ft h4{font:500 11.5px 'Montserrat',sans-serif;letter-spacing:.24em;text-transform:uppercase;color:#fff;margin-bottom:14px}footer.ft li{padding:4px 0}footer.ft a:hover{color:#fff}.legal{grid-column:1/-1;border-top:1px solid var(--ln);padding-top:22px;margin-top:10px;font-size:12.5px}
+footer.ft .w{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:34px}footer.ft h4{font:600 11.5px 'Montserrat',sans-serif;letter-spacing:.24em;text-transform:uppercase;color:#fff;margin-bottom:14px}footer.ft li{padding:4px 0}footer.ft a:hover{color:#fff}.legal{grid-column:1/-1;border-top:1px solid var(--ln);padding-top:22px;margin-top:10px;font-size:12.5px}
 .rise{opacity:0;transform:translateY(26px);transition:opacity .8s cubic-bezier(.2,.8,.2,1),transform .8s cubic-bezier(.2,.8,.2,1)}.rise.in{opacity:1;transform:none}
-@media(max-width:1000px){nav.mn,header.gh .pill{display:none}.bur{display:grid;place-items:center}nav.mn.on{display:flex;flex-direction:column;position:absolute;left:0;right:0;top:76px;background:#050607;border-bottom:1px solid var(--ln);padding:14px 20px}.tri,.vg,.team,.val,.rev{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.stats,.eng{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.dual,.cg{grid-template-columns:minmax(0,1fr)}footer.ft .w{grid-template-columns:1fr 1fr}.sr{grid-template-columns:48px minmax(0,1fr) 120px}.sr .du{display:none}}
-@media(max-width:640px){.w{padding:0 20px}.sec{padding:70px 0}.ph{padding:60px 0 40px}.tri,.vg,.team,.val,.rev,.eng{grid-template-columns:minmax(0,1fr)}.hk{gap:16px}.hk span{letter-spacing:.4em;margin-right:-.4em}.hero .bg{background-position:76% center}.ht{transform:none}.hero .ht .pill{padding:17px 36px;font-size:1rem}.hs{letter-spacing:.2em;margin:26px 0 36px}.sr{grid-template-columns:40px minmax(0,1fr);gap:14px;padding:22px 4px}.sr .pr{grid-column:2;text-align:left;margin-top:2px}.rv{padding:24px 18px}.rv form{grid-template-columns:minmax(0,1fr)}.rv .slots{grid-template-columns:repeat(3,minmax(0,1fr))}.stats b{font-size:2.1rem}header.gh .w{gap:12px}footer.ft .w{grid-template-columns:minmax(0,1fr)}}
+.band{margin-top:70px;text-align:center;border:1px solid var(--ln);border-radius:26px;padding:56px 26px;background:radial-gradient(70% 140% at 50% 120%,#e11d2e33,#0000),var(--p2)}.band h2{font:700 clamp(1.5rem,3vw,2.2rem)/1.2 'Montserrat',sans-serif}.band p{color:var(--mut);margin:12px 0 26px}
+@media(max-width:1000px){nav.mn,header.gh>.w>.rdv{display:none}.bur{display:grid}nav.mn.on{display:flex;flex-direction:column;position:absolute;left:0;right:0;top:84px;background:#050607;border-bottom:1px solid var(--ln);padding:14px 20px}nav.mn.on a.on:after{display:none}nav.mn.on .rdv{display:inline-flex;margin-top:10px}.pg,.vg,.team,.rev{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.eng{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.dual,.cg,.cb{grid-template-columns:minmax(0,1fr);gap:34px}footer.ft .w{grid-template-columns:1fr 1fr}.fx{grid-template-columns:minmax(0,1fr) minmax(0,1fr);row-gap:30px}.fx div:nth-child(3){border-left:0}.h2 .car{width:100%;opacity:.5}.ph .bgi{width:100%;opacity:.35}}
+@media(max-width:640px){.w{padding:0 20px}.sec{padding:70px 0}.h2 .w{padding-top:64px}.h2 .k{letter-spacing:.4em}.pg,.vg,.team,.rev,.eng{grid-template-columns:minmax(0,1fr)}.hk{gap:16px}.hk span{letter-spacing:.4em;margin-right:-.4em}.hero .bg{background-position:76% center}.ht{transform:none}.hero .ht .pill{padding:17px 36px;font-size:1rem}.hs{letter-spacing:.2em;margin:26px 0 36px}.sts b{font-size:1.3rem}.sts div{padding:0 6px}.ph{padding:56px 0 36px}.fc{padding:24px 18px}.mdl .mb{padding:4px 22px 26px}footer.ft .w{grid-template-columns:minmax(0,1fr)}.h2 .bt .rdv,.h2 .bt .pill{width:100%;justify-content:center}.fx{margin-top:56px}header.gh .w{height:72px}nav.mn.on{top:72px}.fx b{font-size:1.15rem}.fx span{font-size:14px}.dual li{font-size:1rem}}
 '''
-    chev = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l6 6 6-6M6 13l6 6 6-6"/></svg>'
-    arr = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M14 6l6 6-6 6"/></svg>'
-    sh = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.500 8-8 9-4.500-1-8-4-8-9V6z"/><path d="M8.500 12l2.500 2.500L16 9.500"/></svg>'
-    car = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16l1.500-5.500A2 2 0 0 1 8.400 9h7.200a2 2 0 0 1 1.900 1.500L19 16M3 16h18v3H3zM7 19v1.500M17 19v1.500"/><circle cx="7.500" cy="16" r=".6"/><circle cx="16.500" cy="16" r=".6"/></svg>'
-    clk = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'
-    cash = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.500"/><path d="M6 9.500v5M18 9.500v5"/></svg>'
-
-    def srv(n, t, d, du, p, pre="à partir de"):
-        return '<div class="sr"><span class="no">%s</span><div><h3>%s</h3><p>%s</p></div><span class="du">%s</span><div class="pr"><small>%s</small>%s</div></div>' % (n, t, d, du, pre, p)
-    ent = "".join([
-        srv("01", "Vidange et filtres", "Huile moteur, filtre à huile, contrôle des niveaux et des 21 points de sécurité.", "45 min", "89 €"),
-        srv("02", "Révision constructeur", "Entretien selon le carnet, pièces d’origine ou équivalentes, carnet d’entretien tamponné.", "2 h", "149 €"),
-        srv("03", "Pneumatiques", "Montage, équilibrage, géométrie. Pneus été, hiver et toutes saisons de toutes marques.", "1 h", "25 € / pneu"),
-        srv("04", "Freinage", "Plaquettes et disques, purge du liquide de frein, essai sur route.", "1 h 30", "119 €"),
-        srv("05", "Climatisation", "Recharge, contrôle d’étanchéité, désinfection de l’habitacle.", "1 h", "79 €"),
-        srv("06", "Batterie et démarrage", "Test gratuit, remplacement, reprogrammation si nécessaire.", "30 min", "99 €")])
-    rep = "".join([
-        srv("07", "Diagnostic électronique", "Lecture des défauts, valise multimarque, compte rendu écrit remis le jour même.", "45 min", "49 €"),
-        srv("08", "Embrayage", "Kit complet, volant moteur contrôlé, garantie 12 mois pièces et main d’œuvre.", "1 jour", "590 €"),
-        srv("09", "Distribution", "Courroie, galets, pompe à eau. Le remplacement qui évite la casse moteur.", "1 jour", "450 €"),
-        srv("10", "Échappement et FAP", "Réparation, nettoyage ou remplacement du filtre à particules.", "½ jour", "120 €"),
-        srv("11", "Suspension et direction", "Amortisseurs, rotules, biellettes, parallélisme.", "½ jour", "180 €"),
-        srv("12", "Carrosserie légère", "Rayures, pare-chocs, débosselage sans peinture, devis photo sous 24 h.", "sur devis", "90 €")])
-    ven = "".join([
-        srv("13", "Véhicules d’occasion contrôlés", "Chaque voiture passe 120 points de contrôle et se vend avec son historique complet.", "—", "6 900 €", "à partir de"),
-        srv("14", "Garantie 12 mois", "Incluse sur tous nos véhicules, pièces et main d’œuvre, valable dans tout le réseau.", "—", "incluse", ""),
-        srv("15", "Reprise de votre véhicule", "Estimation gratuite en 15 minutes, paiement immédiat, démarches administratives faites par nos soins.", "15 min", "gratuite", ""),
-        srv("16", "Financement", "Location longue durée ou crédit, réponse de principe le jour même.", "—", "dès 129 € / mois")])
-
-    PAL = {"v1": ("#e9ebef", "#c3c8cf", "#8e949d"), "v2": ("#3f6d9c", "#264a73", "#14284a"), "v3": ("#4a4f58", "#2b2f36", "#15171b"), "v4": ("#7cae9c", "#4c7c6c", "#27453b"), "v5": ("#b33a2f", "#7e231d", "#4a1410"), "v6": ("#d9b26a", "#a8803f", "#6b4c20")}
-
-    def vcar(uid, tag, name, spec, price, t):
-        art = car_art(uid).replace("#ffd400", "#e11d2e")
-        c1, c2, c3 = PAL[uid]
-        art = art.replace("#3a3f48", c1).replace("#1f2329", c2).replace("#121417", c3)
-        return ('<div class="vc" data-t="%s"><div class="im"><svg class="%s" viewBox="0 100 800 260" role="img" aria-label="%s">%s</svg></div><div class="bd"><div class="tg">%s</div><h3>%s</h3><ul>%s</ul><div class="pf"><b>%s</b><a data-v="%s">Je suis intéressé</a></div></div></div>'
-                % (t, 'fl' if uid in ('v2', 'v4', 'v6') else '', name, art, tag, name, "".join("<li>%s</li>" % x for x in spec), price, name))
-    veh = "".join([
-        vcar("v1", "Citadine", "Peugeot 208 1.2 PureTech", ["2021", "38 000 km", "Essence", "Manuelle"], "13 490 €", "citadine"),
-        vcar("v2", "SUV", "Renault Captur Intens", ["2020", "52 000 km", "Diesel", "Auto"], "15 900 €", "suv"),
-        vcar("v3", "Berline", "Volkswagen Golf 8 Life", ["2022", "29 000 km", "Essence", "Auto"], "21 900 €", "berline"),
-        vcar("v4", "Électrique", "Renault Zoé R135", ["2021", "41 000 km", "Électrique", "Batterie louée"], "11 800 €", "electrique"),
-        vcar("v5", "SUV", "Toyota C-HR Hybride", ["2021", "47 000 km", "Hybride", "Auto"], "22 500 €", "suv"),
-        vcar("v6", "Citadine", "Citroën C3 Feel", ["2019", "61 000 km", "Essence", "Manuelle"], "9 600 €", "citadine")])
+    PRES = [
+        ("ent", "drop", "Entretien & révision", "Vidange, filtres, contrôles…", "gar-p-oil.jpg", "à partir de 89 €", "45 min à 2 h",
+         "Un entretien régulier garde votre voiture fiable et préserve la garantie constructeur.",
+         ["Vidange huile moteur et filtre à huile", "Filtres à air, habitacle et carburant", "Contrôle des 21 points de sécurité", "Carnet d’entretien tamponné"]),
+        ("dia", "diag", "Diagnostic", "Recherche de pannes, valise multimarque", "gar-p-diag.jpg", "à partir de 49 €", "45 min",
+         "Un voyant s’allume ou un bruit apparaît : nous trouvons la cause avant de toucher à quoi que ce soit.",
+         ["Lecture des défauts avec valise multimarque", "Test des capteurs et de l’électronique", "Compte rendu écrit remis le jour même", "Devis détaillé avant toute réparation"]),
+        ("fre", "brake", "Freinage", "Disques, plaquettes, liquide de frein", "gar-p-brake.jpg", "à partir de 119 €", "1 h 30",
+         "Le freinage ne se négocie pas : nous contrôlons, remplaçons et testons sur route.",
+         ["Plaquettes et disques, avant et arrière", "Purge et remplacement du liquide de frein", "Contrôle des étriers et flexibles", "Essai sur route systématique"]),
+        ("emb", "clutch", "Embrayage", "Remplacement, kit complet", "gar-p-clutch.jpg", "à partir de 590 €", "1 jour",
+         "Kit complet monté par nos mécaniciens, volant moteur contrôlé, garanti 12 mois.",
+         ["Kit embrayage complet (disque, mécanisme, butée)", "Contrôle et remplacement du volant moteur si besoin", "Purge et réglage de la commande", "Garantie 12 mois pièces et main d’œuvre"]),
+        ("dis", "belt", "Distribution", "Courroie, pompe à eau…", "gar-p-belt.jpg", "à partir de 450 €", "1 jour",
+         "Le remplacement qui évite la casse moteur, effectué selon le calendrier du constructeur.",
+         ["Courroie ou chaîne de distribution", "Galets, tendeur et pompe à eau", "Calage vérifié et essai moteur", "Facture détaillée ligne par ligne"]),
+        ("cli", "snow", "Climatisation", "Entretien, recharge, diagnostic", "gar-p-vent.jpg", "à partir de 79 €", "1 h",
+         "Une climatisation qui refroidit vraiment, sans odeur, été comme hiver.",
+         ["Recharge en gaz et contrôle d’étanchéité", "Remplacement du filtre d’habitacle", "Désinfection de l’habitacle", "Diagnostic du compresseur"]),
+    ]
+    import json as _json
+    pdata = {p[0]: dict(t=p[2], i=p[4], pr=p[5], du=p[6], d=p[7], l=p[8]) for p in PRES}
+    cards = "".join('<button type="button" class="pc" data-p="%s"><div class="imw"><div class="im" style="background-image:url(/assets/ex/%s)"></div></div><span class="ib">%s</span><div class="bd"><div><h3>%s</h3><p>%s</p></div><span class="go">%s</span></div></button>'
+                    % (p[0], p[4], ic(p[1], 24, 1.6), p[2], p[3], ic("arrow", 18)) for p in PRES)
+    VEH = [
+        ("v1", "berline", "Mercedes Classe A", "A 250e – Hybride", "2021 · 62 100 km", "29 900 €", "gar-v1.jpg", ["Hybride rechargeable 218 ch", "Boîte automatique 8 rapports", "Première main, carnet complet", "Garantie 12 mois incluse"]),
+        ("v2", "berline", "BMW Série 3", "320d – BVA", "2020 · 78 400 km", "26 900 €", "gar-v2.jpg", ["Diesel 190 ch, boîte automatique", "Pack M Sport, toit ouvrant", "Entretien constructeur à jour", "Garantie 12 mois incluse"]),
+        ("v3", "suv", "Peugeot 3008", "1.5 BlueHDi – Allure", "2019 · 89 200 km", "18 900 €", "gar-v3.jpg", ["Diesel 130 ch, boîte automatique", "Caméra de recul, GPS", "Contrôle technique vierge", "Garantie 12 mois incluse"]),
+    ]
+    vdata = {v[0]: dict(t=v[2], s=v[3], y=v[4], p=v[5], i=v[6], l=v[7]) for v in VEH}
+    vehs = "".join('<div class="vc" data-t="%s"><div class="im" style="background-image:url(/assets/ex/%s)"><button type="button" class="hb" aria-label="Ajouter aux favoris">%s</button></div><div class="bd"><h3>%s</h3><div class="s">%s</div><div class="y">%s</div><div class="pr">%s</div><button type="button" class="go" data-v="%s" aria-label="Voir le détail">%s</button></div></div>'
+                   % (v[1], v[6], ic("heart", 20), v[2], v[3], v[4], v[5], v[0], ic("arrow", 18)) for v in VEH)
     hrs = "".join('<li data-d="%d"><span>%s</span><span>%s</span></li>' % x for x in (
-        (1, "Lundi", "8 h – 12 h · 14 h – 18 h 30"), (2, "Mardi", "8 h – 12 h · 14 h – 18 h 30"), (3, "Mercredi", "8 h – 12 h · 14 h – 18 h 30"),
-        (4, "Jeudi", "8 h – 12 h · 14 h – 18 h 30"), (5, "Vendredi", "8 h – 12 h · 14 h – 17 h 30"), (6, "Samedi", "9 h – 12 h"), (0, "Dimanche", "Fermé")))
-    mapsvg = ('<svg viewBox="0 0 400 220" role="img" aria-label="Plan"><rect width="400" height="220" fill="#0b0c0e"/><g stroke="#23262b" stroke-width="10" fill="none"><path d="M-10 60 L410 90"/><path d="M-10 160 L410 140"/><path d="M120 -10 L150 230"/><path d="M290 -10 L270 230"/></g>'
-              '<g stroke="#1a1c20" stroke-width="3" fill="none"><path d="M-10 110 L410 118"/><path d="M200 -10 L205 230"/></g><circle cx="205" cy="116" r="28" fill="#e11d2e" opacity=".15"/><circle cx="205" cy="116" r="9" fill="#e11d2e"/><circle cx="205" cy="116" r="3.500" fill="#fff"/>'
-              '<text x="222" y="108" fill="#fff" font-family="Montserrat,sans-serif" font-size="12" font-weight="600">Garage Marchand</text></svg>')
-    nav = '<a href="#/prestations" data-n="prestations">Prestations</a><a href="#/vehicules" data-n="vehicules">Véhicules</a><a href="#/apropos" data-n="apropos">Qui sommes-nous</a><a href="#/contact" data-n="contact">Contact</a>'
-    body = '''<header class="gh"><div class="w"><a class="lg" href="#/"><span>GARAGE</span><b>MARCHAND</b></a><nav class="mn" id="nv">@@NAV@@</nav><a class="pill sm" href="#/contact">Prendre rendez-vous</a><button class="bur" id="bu" aria-label="Menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button></div></header>
+        (1, "Lundi", "8h00 – 12h00 · 14h00 – 18h30"), (2, "Mardi", "8h00 – 12h00 · 14h00 – 18h30"), (3, "Mercredi", "8h00 – 12h00 · 14h00 – 18h30"),
+        (4, "Jeudi", "8h00 – 12h00 · 14h00 – 18h30"), (5, "Vendredi", "8h00 – 12h00 · 14h00 – 17h30"), (6, "Samedi", "8h00 – 12h00"), (0, "Dimanche", "Fermé")))
+    mapsvg = ('<svg viewBox="0 0 400 240" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Plan"><rect width="400" height="240" fill="#0b0c0e"/><g stroke="#1d2024" stroke-width="12" fill="none"><path d="M-10 70 L410 100"/><path d="M-10 170 L410 150"/><path d="M110 -10 L140 250"/><path d="M290 -10 L270 250"/></g>'
+              '<g stroke="#15171a" stroke-width="4" fill="none"><path d="M-10 120 L410 128"/><path d="M200 -10 L205 250"/><path d="M-10 30 L410 20"/></g><circle cx="205" cy="126" r="30" fill="#e11d2e" opacity=".16"/><path d="M205 142s-12-10.500-12-19a12 12 0 0 1 24 0c0 8.500-12 19-12 19z" fill="#e11d2e"/><circle cx="205" cy="123" r="4.500" fill="#fff"/>'
+              '<text x="226" y="118" fill="#fff" font-family="Montserrat,sans-serif" font-size="12" font-weight="600">Garage Marchand</text></svg>')
+    nav = '<a href="#/accueil" data-n="accueil">Accueil</a><a href="#/prestations" data-n="prestations">Prestations</a><a href="#/vehicules" data-n="vehicules">Véhicules</a><a href="#/apropos" data-n="apropos">Qui sommes-nous</a><a href="#/contact" data-n="contact">Contact</a>'
+    rdv = '<a class="rdv" href="#/contact">%s<span>Prendre rendez-vous</span></a>' % ic("cal", 18)
+    body = '''<header class="gh"><div class="w"><a class="lg" href="#/accueil"><span>GARAGE</span><b>MARCHAND</b></a><nav class="mn" id="nv">@@NAV@@@@RDV@@</nav><button class="bur" id="bu" aria-label="Menu">@@MENU@@</button></div></header>
 <main>
-<div class="view on" data-v="home">
-<section class="hero" id="hero"><div class="bg" id="hbg"></div><div class="glow" id="hgl"></div><div class="ht"><div class="hk"><span>GARAGE</span></div><h1 class="hn">MARCHAND</h1><p class="hs">Entretien · Réparation · Vente de véhicules</p><a class="pill" href="#/prestations"><span>Découvrir nos prestations</span>@@ARR@@</a></div><button class="chev" id="chv" aria-label="Voir la suite">@@CHEV@@</button></section>
-<section class="sec" id="suite"><div class="w"><span class="eb">Notre savoir-faire</span><h2 class="t">Tout pour votre voiture, au même endroit.</h2><p class="sub">Depuis 1998 à Mérignac, nous entretenons, réparons et vendons des véhicules de toutes marques. Un devis clair avant chaque intervention, et votre voiture rendue propre.</p>
-<div class="tri"><a class="tc" href="#/prestations" data-tab="ent"><span class="n">01</span><h3>Entretien</h3><p>Vidange, révision, pneus, freins, climatisation. Toutes marques, sans perdre la garantie constructeur.</p><span class="go">Voir les tarifs</span></a><a class="tc" href="#/prestations" data-tab="rep"><span class="n">02</span><h3>Réparation</h3><p>Diagnostic électronique, embrayage, distribution, carrosserie légère. Devis écrit, aucune surprise.</p><span class="go">Voir les tarifs</span></a><a class="tc" href="#/vehicules"><span class="n">03</span><h3>Vente de véhicules</h3><p>Occasions contrôlées en 120 points, garanties 12 mois, reprise et financement possibles.</p><span class="go">Voir les véhicules</span></a></div>
-<div class="stats"><div><b>25<i>+</i></b><span>ans d’expérience</span></div><div><b>12 000</b><span>véhicules entretenus</span></div><div><b>4,9<i>/5</i></b><span>sur 380 avis</span></div><div><b>24<i> h</i></b><span>devis sous 24 heures</span></div></div>
-<p style="text-align:center;margin-top:50px"><a class="pill f" href="#/contact"><span>Prendre rendez-vous</span>@@ARR@@</a></p></div></section>
-</div>
+<div class="view on" data-v="home"><section class="hero" id="hero"><div class="bg" id="hbg"></div><div class="glow" id="hgl"></div><div class="ht"><div class="hk"><span>GARAGE</span></div><h1 class="hn">MARCHAND</h1><p class="hs">Entretien · Réparation · Vente de véhicules</p><a class="pill" href="#/prestations"><span>Découvrir nos prestations</span>@@ARR@@</a></div><button class="chev" id="chv" aria-label="Entrer dans le site" onclick="location.hash='#/accueil'">@@CHEV@@</button></section></div>
 
-<div class="view" data-v="prestations"><div class="ph"><div class="w"><span class="eb">Nos prestations</span><h1>Entretien, réparation, vente</h1><p>Des tarifs affichés, des délais annoncés et un devis écrit avant toute intervention.</p></div></div>
-<section class="sec" style="padding-top:20px"><div class="w"><div class="tabs" id="tb"><button class="tab on" data-g="ent">Entretien</button><button class="tab" data-g="rep">Réparation</button><button class="tab" data-g="ven">Vente de véhicules</button></div>
-<div class="sv" data-g="ent">@@ENT@@</div><div class="sv" data-g="rep" hidden>@@REP@@</div><div class="sv" data-g="ven" hidden>@@VEN@@</div>
-<div class="eng"><div>@@SH@@<b>Garantie 12 mois</b><span>Pièces et main d’œuvre, sur toutes nos réparations.</span></div><div>@@CLK@@<b>Délais tenus</b><span>Une heure de restitution annoncée, respectée.</span></div><div>@@CAR@@<b>Véhicule de courtoisie</b><span>Sur réservation, pour les interventions d’une journée.</span></div><div>@@CASH@@<b>Paiement en 3 fois</b><span>Sans frais dès 300 € de facture.</span></div></div>
-<p style="text-align:center;margin-top:54px"><a class="pill f" href="#/contact"><span>Demander un devis</span>@@ARR@@</a></p></div></section></div>
+<div class="view" data-v="accueil"><section class="h2" id="h2"><div class="car" id="hcar"></div><div class="w"><div class="k">GARAGE MARCHAND</div><h1>Entretien, réparation et vente de <em>véhicules</em></h1><p class="lead">Un garage de proximité, réactif et à votre écoute depuis 1998 à Mérignac.</p><div class="bt">@@RDV@@<a class="pill o" href="#/prestations"><span>Découvrir nos prestations</span>@@ARR@@</a></div>
+<div class="fx"><div>@@I1@@<b>Entretien</b><span>Toutes marques</span></div><div>@@I2@@<b>Réparation</b><span>Mécanique &amp; électronique</span></div><div>@@I3@@<b>Vente</b><span>Véhicules d’occasion</span></div><div>@@I4@@<b>Garantie</b><span>Pièces &amp; main-d’œuvre</span></div></div></div></section>
+<section class="sec"><div class="w"><span class="eb">Nos prestations</span><h2 class="t">Des services complets pour votre véhicule</h2><p class="sub">Entretien, diagnostic, réparation et bien plus encore. Un devis clair avant chaque intervention.</p><div class="pg" style="margin-top:44px">@@CARDS3@@</div><p style="margin-top:40px"><a class="pill o" href="#/prestations"><span>Toutes nos prestations</span>@@ARR@@</a></p></div></section>
+<section class="sec" style="padding-top:0"><div class="w"><span class="eb">Ils nous font confiance</span><h2 class="t">4,9/5 sur 380 avis clients</h2><div class="rev"><figure><div class="st">★★★★★</div><blockquote>« Diagnostic clair, devis respecté et voiture rendue à l’heure. Je ne vais plus ailleurs. »</blockquote><figcaption>Sophie R. · révision</figcaption></figure><figure><div class="st">★★★★★</div><blockquote>« Ils m’ont montré la plaquette usée avant de la changer. Ça change tout. »</blockquote><figcaption>Nicolas B. · freinage</figcaption></figure><figure><div class="st">★★★★★</div><blockquote>« Acheté ma voiture ici, historique complet et garantie respectée. Aucun souci. »</blockquote><figcaption>Camille D. · achat</figcaption></figure></div>
+<div class="band"><h2>Une question, un devis ?</h2><p>Écrivez-nous, nous répondons sous 24 heures.</p><a class="rdv" href="#/contact">@@CAL@@<span>Prendre rendez-vous</span></a></div></div></section></div>
 
-<div class="view" data-v="vehicules"><div class="ph"><div class="w"><span class="eb">Véhicules à vendre</span><h1>Occasions contrôlées</h1><p>120 points de contrôle, historique complet, garantie 12 mois incluse. Reprise de votre ancien véhicule possible.</p></div></div>
-<section class="sec" style="padding-top:20px"><div class="w"><div class="tabs" id="vt"><button class="tab on" data-t="all">Tous</button><button class="tab" data-t="citadine">Citadines</button><button class="tab" data-t="berline">Berlines</button><button class="tab" data-t="suv">SUV</button><button class="tab" data-t="electrique">Électriques</button></div>
-<div class="vg" id="vg">@@VEH@@</div></div></section></div>
+<div class="view" data-v="prestations"><section class="ph hall"><div class="bgi"></div><div class="w"><span class="eb">Nos prestations</span><h1>Des services complets pour votre véhicule</h1><p>Entretien, diagnostic, réparation et bien plus encore.<br>Nous prenons en charge votre véhicule avec sérieux et transparence.</p></div></section>
+<section class="sec" style="padding-top:20px"><div class="w"><div class="pg">@@CARDS@@</div>
+<div class="eng"><div>@@SH@@<b>Garantie 12 mois</b><span>Pièces et main d’œuvre, sur toutes nos réparations.</span></div><div>@@CLK@@<b>Délais tenus</b><span>Une heure de restitution annoncée, respectée.</span></div><div>@@CAR@@<b>Véhicule de courtoisie</b><span>Sur réservation, pour les interventions d’une journée.</span></div><div>@@PNC@@<b>Devis écrit gratuit</b><span>Avant toute intervention, sans engagement.</span></div></div></div></section></div>
 
-<div class="view" data-v="apropos"><div class="ph"><div class="w"><span class="eb">Qui sommes-nous</span><h1>Un garage de famille, depuis 1998</h1><p>Trois mécaniciens, un carrossier, une hôtesse d’accueil. Et une idée simple : expliquer avant de facturer.</p></div></div>
-<section class="sec"><div class="w"><div class="dual"><div><span class="eb">Notre histoire</span><h2 class="t">Ouvert par Alain, repris par Julien.</h2><p>Alain Marchand ouvre l’atelier en 1998, à Mérignac, avec un pont et un tableau noir. Son fils Julien prend la suite en 2018 et agrandit : quatre ponts, une valise de diagnostic multimarque, un espace d’exposition pour les véhicules d’occasion.</p><p>Nous gardons la même règle : vous montrer la pièce usée, expliquer la panne, annoncer le prix avant de toucher à quoi que ce soit.</p><p style="margin-top:28px"><a class="pill sm" href="#/contact"><span>Nous rencontrer</span>@@ARR@@</a></p></div><img src="/assets/ex/gar-car.jpg" alt=""></div>
-<div class="team"><div class="tm"><i>JM</i><b>Julien Marchand</b><em>Gérant, mécanicien</em><span>Dix-sept ans d’atelier. Il reçoit chaque client et valide chaque devis.</span></div><div class="tm"><i>KB</i><b>Karim Benali</b><em>Chef d’atelier</em><span>Spécialiste diagnostic et électronique embarquée, formé hybride et électrique.</span></div><div class="tm"><i>ML</i><b>Marion Leroy</b><em>Accueil et ventes</em><span>Elle vous conseille sur les véhicules, la reprise et le financement.</span></div></div>
-<div class="val"><div><b>Transparence</b><span>Devis écrit, pièces montrées, facture détaillée ligne par ligne.</span></div><div><b>Qualité</b><span>Pièces d’origine ou équivalentes de première monte, garanties 12 mois.</span></div><div><b>Proximité</b><span>Une heure de restitution tenue, et un appel si le planning change.</span></div></div>
-<div class="rev"><figure><div class="st">★★★★★</div><blockquote>« Diagnostic clair, devis respecté et voiture rendue à l’heure. Je ne vais plus ailleurs. »</blockquote><figcaption>Sophie R. · révision</figcaption></figure><figure><div class="st">★★★★★</div><blockquote>« Ils m’ont montré la plaquette usée avant de la changer. Ça change tout. »</blockquote><figcaption>Nicolas B. · freinage</figcaption></figure><figure><div class="st">★★★★★</div><blockquote>« Acheté ma Golf ici, historique complet et garantie respectée. Aucun souci. »</blockquote><figcaption>Camille D. · achat</figcaption></figure></div></div></section></div>
+<div class="view" data-v="vehicules"><section class="ph veh"><div class="w"><span class="eb">Véhicules</span><h1>Nos véhicules d’occasion</h1><p>Des véhicules sélectionnés, révisés et garantis.</p></div></section>
+<section class="sec" style="padding-top:0"><div class="w"><div class="chips" id="vt"><button class="chip on" data-t="all">Tous les véhicules</button><button class="chip" data-t="citadine">Citadine</button><button class="chip" data-t="berline">Berline</button><button class="chip" data-t="suv">SUV / 4x4</button><button class="chip" data-t="utilitaire">Utilitaire</button></div>
+<div class="vg" id="vg">@@VEH@@<div class="empty" id="em">Aucun véhicule dans cette catégorie pour le moment.<br>Nous recevons de nouveaux véhicules chaque semaine : <a href="#/contact" style="color:var(--red2)">écrivez-nous</a> pour être prévenu.</div></div>
+<p style="text-align:center;margin-top:46px"><button class="pill o" id="vall" type="button"><span>Voir tous nos véhicules</span>@@ARR@@</button></p></div></section></div>
 
-<div class="view" data-v="contact"><div class="ph"><div class="w"><span class="eb">Contact</span><h1>Prendre rendez-vous</h1><p>Choisissez votre créneau, nous vous confirmons par SMS. Pour une panne urgente, appelez-nous.</p></div></div>
-<section class="sec" style="padding-top:40px"><div class="w"><div class="cg"><div class="rv"><div id="rvf"><h2>Votre rendez-vous</h2><div class="lab">1 · Jour</div><div class="days" id="days"></div><div class="lab">2 · Heure</div><div class="slots" id="slots"></div>
-<div class="lab">3 · Votre véhicule</div><div class="rec" id="rec"><b>Aucun créneau choisi</b><span>Sélectionnez un jour puis une heure.</span></div>
-<form id="bf"><label>Prestation<select id="mot"><option>Entretien / révision</option><option>Vidange et filtres</option><option>Pneumatiques</option><option>Freinage</option><option>Climatisation</option><option>Diagnostic électronique</option><option>Embrayage / distribution</option><option>Carrosserie légère</option><option>Essayer un véhicule</option><option>Reprise de mon véhicule</option><option>Autre demande</option></select></label><label>Immatriculation<input placeholder="AB-123-CD"></label><label>Nom et prénom<input required placeholder="Marie Durand"></label><label>Téléphone<input required inputmode="tel" placeholder="06 00 00 00 00"></label><label class="w2">Message (facultatif)<textarea id="msg" placeholder="Voyant allumé, bruit au freinage, véhicule qui vous intéresse…"></textarea></label><button class="go" type="submit" id="bgo" disabled>Confirmer le rendez-vous</button></form></div>
-<div class="done" id="done"><div class="ok">✓</div><b>C’est noté.</b><span id="dt"></span></div></div>
-<div class="inf"><div class="bx"><span class="t">Horaires</span><ul class="hrs" id="hr">@@HRS@@</ul><div class="live" id="lv"><i></i><span id="lvt"></span></div></div><div class="bx"><span class="t">Adresse</span><h3>14 avenue de la Libération</h3><p>33700 Mérignac<br>Parking gratuit devant l’atelier.</p></div><div class="bx"><span class="t">Nous joindre</span><h3>05 56 00 00 00</h3><p>contact@garage-marchand.fr<br>Urgence panne : nous rappelons en moins de 30 minutes.</p></div><div class="map">@@MAP@@</div></div></div></div></section></div>
+<div class="view" data-v="apropos"><section class="ph bld"><div class="bgi"></div><div class="w"><span class="eb">Qui sommes-nous</span><h1>Un garage familial depuis 1998</h1><p>Implanté à Mérignac, le <b>Garage Marchand</b> met son expertise et sa passion de l’automobile au service de ses clients depuis plus de 25 ans.</p></div></section>
+<section class="sec" style="padding-top:20px"><div class="w"><div class="sts"><div>@@CAL@@<b>1998</b><span>Année de création</span></div><div>@@I5@@<b>+5 000</b><span>Clients satisfaits</span></div><div>@@I6@@<b>100 %</b><span>Engagement qualité</span></div></div>
+<div class="dual"><img src="/assets/ex/gar-a-mech.jpg" alt=""><div><h2>Notre engagement</h2><ul><li>@@CHK@@<span>Un accueil personnalisé</span></li><li>@@CHK@@<span>Des conseils transparents</span></li><li>@@CHK@@<span>Des délais respectés</span></li><li>@@CHK@@<span>Un travail de qualité, garanti</span></li></ul></div></div>
+<div class="team"><div class="tm"><i>JM</i><b>Julien Marchand</b><em>Gérant, mécanicien</em><span>Dix-sept ans d’atelier. Il reçoit chaque client et valide chaque devis.</span></div><div class="tm"><i>KB</i><b>Karim Benali</b><em>Chef d’atelier</em><span>Spécialiste diagnostic et électronique embarquée, formé hybride et électrique.</span></div><div class="tm"><i>ML</i><b>Marion Leroy</b><em>Accueil et ventes</em><span>Elle vous conseille sur les véhicules, la reprise et le financement.</span></div></div></div></section></div>
+
+<div class="view" data-v="contact"><section class="sec" style="padding-top:0"><div class="w"><div class="cg"><div><span class="eb">Contact</span><h1>Prenez contact avec notre équipe</h1><p class="lede">Une question, un devis ou une prise de rendez-vous ?<br>Nous sommes à votre écoute.</p>
+<div class="ci"><a href="tel:+33556000000"><i>@@PH@@</i><span>05 56 00 00 00</span></a><a href="mailto:contact@garage-marchand.fr"><i>@@ML@@</i><span>contact@garage-marchand.fr</span></a><div><i>@@PN@@</i><span>123 Avenue de l’Aéroport<br>33700 Mérignac</span></div></div></div>
+<div class="fc" id="cf"><form id="cfm" novalidate><label>Nom *<input id="fn" autocomplete="name" placeholder="Marie Durand"></label><label>Email *<input id="fe" type="email" autocomplete="email" placeholder="marie@exemple.fr"></label><label>Votre message *<textarea id="fm" placeholder="Votre demande : entretien, devis, rendez-vous, véhicule qui vous intéresse…"></textarea></label><div class="er" id="fr" role="alert"></div><button class="rdv" type="submit"><span>Envoyer ma demande</span>@@ARR@@</button></form><div class="ok" id="fok"><div class="c">@@CHK2@@</div><b>Message envoyé</b><span>Merci, nous vous répondons sous 24 heures, du lundi au samedi.</span></div></div></div>
+<div class="cb"><div class="bx"><h3>Horaires d’ouverture</h3><ul class="hrs" id="hr">@@HRS@@</ul><div class="live" id="lv"><i></i><span id="lvt"></span></div></div><div class="bx map">@@MAP@@</div></div></div></section></div>
 </main>
-<footer class="ft"><div class="w"><div><a class="lg" href="#/"><span>GARAGE</span><b>MARCHAND</b></a><p style="margin-top:16px;max-width:24em">Entretien, réparation et vente de véhicules, à Mérignac depuis 1998.</p></div><div><h4>Pages</h4><ul><li><a href="#/prestations">Prestations</a></li><li><a href="#/vehicules">Véhicules</a></li><li><a href="#/apropos">Qui sommes-nous</a></li><li><a href="#/contact">Contact</a></li></ul></div><div><h4>Contact</h4><ul><li>05 56 00 00 00</li><li>contact@garage-marchand.fr</li></ul></div><div><h4>Infos</h4><ul><li>Mentions légales</li><li>Confidentialité</li><li>Conditions de vente</li></ul></div>
+<div class="mdl" id="md" hidden><div class="box" id="mb"></div></div>
+<footer class="ft"><div class="w"><div><a class="lg" href="#/accueil"><span>GARAGE</span><b>MARCHAND</b></a><p style="margin-top:16px;max-width:24em">Entretien, réparation et vente de véhicules, à Mérignac depuis 1998.</p></div><div><h4>Pages</h4><ul><li><a href="#/accueil">Accueil</a></li><li><a href="#/prestations">Prestations</a></li><li><a href="#/vehicules">Véhicules</a></li><li><a href="#/apropos">Qui sommes-nous</a></li><li><a href="#/contact">Contact</a></li></ul></div><div><h4>Contact</h4><ul><li>05 56 00 00 00</li><li>contact@garage-marchand.fr</li><li>123 Avenue de l’Aéroport, 33700 Mérignac</li></ul></div><div><h4>Infos</h4><ul><li>Mentions légales</li><li>Confidentialité</li><li>Conditions de vente</li></ul></div>
 <div class="legal">© 2026 Garage Marchand · SARL au capital de 10 000 € (exemple) · SIRET 000 000 000 00000 (exemple) · Hébergeur : Cloudflare, Inc.</div></div></footer>
 '''
-    body = (body.replace("@@NAV@@", nav).replace("@@ARR@@", arr).replace("@@CHEV@@", chev).replace("@@ENT@@", ent).replace("@@REP@@", rep).replace("@@VEN@@", ven)
-            .replace("@@VEH@@", veh).replace("@@HRS@@", hrs).replace("@@MAP@@", mapsvg).replace("@@SH@@", sh).replace("@@CLK@@", clk).replace("@@CAR@@", car).replace("@@CASH@@", cash))
+    cards3 = "".join('<button type="button" class="pc" data-p="%s"><div class="imw"><div class="im" style="background-image:url(/assets/ex/%s)"></div></div><span class="ib">%s</span><div class="bd"><div><h3>%s</h3><p>%s</p></div><span class="go">%s</span></div></button>'
+                     % (p[0], p[4], ic(p[1], 24, 1.6), p[2], p[3], ic("arrow", 18)) for p in PRES[:3])
+    for k, v in (("@@NAV@@", nav), ("@@RDV@@", rdv), ("@@MENU@@", ic("menu", 22)), ("@@ARR@@", ic("arrow", 22)), ("@@CHEV@@", chev), ("@@CARDS3@@", cards3), ("@@CARDS@@", cards), ("@@VEH@@", vehs),
+                 ("@@HRS@@", hrs), ("@@MAP@@", mapsvg), ("@@I1@@", ic("wrench", 38, 1.4)), ("@@I2@@", ic("gear", 38, 1.4)), ("@@I3@@", ic("car", 38, 1.4)), ("@@I4@@", ic("shield", 38, 1.4)),
+                 ("@@I5@@", ic("users", 38, 1.4)), ("@@I6@@", ic("award", 38, 1.4)), ("@@CAL@@", ic("cal", 38, 1.4)), ("@@CLK@@", ic("clock", 28, 1.5)), ("@@SH@@", ic("shield", 28, 1.5)), ("@@PNC@@", ic("check", 28, 1.5)), ("@@CAR@@", ic("car", 28, 1.5)),
+                 ("@@CHK2@@", ic("check", 32, 2)), ("@@CHK@@", ic("check", 26, 2.4)), ("@@PH@@", ic("phone", 20)), ("@@ML@@", ic("mail", 20)), ("@@PN@@", ic("pin", 20))):
+        body = body.replace(k, v)
     js = r"""<script>(function(){
+var PD=@@PD@@,VD=@@VD@@;
 var D=document,$=function(i){return D.getElementById(i)},views=[].slice.call(D.querySelectorAll('.view')),links=[].slice.call(D.querySelectorAll('nav.mn a'));
-function tab(g){[].forEach.call(D.querySelectorAll('#tb .tab'),function(b){b.classList.toggle('on',b.dataset.g===g)});[].forEach.call(D.querySelectorAll('.sv'),function(s){s.hidden=s.dataset.g!==g})}
+var CK='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"/></svg>';
 function route(){var p=(location.hash||'#/').replace(/^#\/?/,'').split('/'),v=p[0]||'home';if(!D.querySelector('.view[data-v="'+v+'"]'))v='home';
- views.forEach(function(x){x.classList.toggle('on',x.dataset.v===v)});links.forEach(function(a){a.classList.toggle('on',a.dataset.n===v)});D.body.classList.toggle('home',v==='home');$('nv').classList.remove('on');
- if(v==='prestations'&&p[1])tab(p[1]);window.scrollTo(0,0);rise()}
-function rise(){[].forEach.call(D.querySelectorAll('.view.on .tc,.view.on .vc,.view.on .tm,.view.on .rev figure,.view.on .val div,.view.on .stats,.view.on .eng div'),function(e){e.classList.add('rise');requestAnimationFrame(function(){setTimeout(function(){e.classList.add('in')},40)})})}
+ views.forEach(function(x){x.classList.toggle('on',x.dataset.v===v)});links.forEach(function(a){a.classList.toggle('on',a.dataset.n===v)});D.body.classList.toggle('home',v==='home');$('nv').classList.remove('on');close();
+ window.scrollTo(0,0);rise();
+ if(v==='contact'){setTimeout(function(){var f=$('cf');if(f){f.classList.remove('pulse');void f.offsetWidth;f.classList.add('pulse');if(window.innerWidth<1000)f.scrollIntoView({behavior:'smooth',block:'start'})}},350)}}
+function rise(){[].forEach.call(D.querySelectorAll('.view.on .pc,.view.on .vc,.view.on .tm,.view.on .rev figure,.view.on .eng div,.view.on .fx div'),function(e,i){e.classList.add('rise');setTimeout(function(){e.classList.add('in')},40+i*45)})}
 window.addEventListener('hashchange',route);
 $('bu').onclick=function(){$('nv').classList.toggle('on')};
-D.querySelectorAll('[data-tab]').forEach(function(a){a.addEventListener('click',function(){var g=a.dataset.tab;setTimeout(function(){tab(g)},0)})});
-$('tb').onclick=function(e){var b=e.target.closest('.tab');if(b)tab(b.dataset.g)};
-$('vt').onclick=function(e){var b=e.target.closest('.tab');if(!b)return;[].forEach.call($('vt').children,function(x){x.classList.toggle('on',x===b)});[].forEach.call(D.querySelectorAll('#vg .vc'),function(c){c.hidden=!(b.dataset.t==='all'||c.dataset.t===b.dataset.t)})};
-$('vg').onclick=function(e){var a=e.target.closest('a[data-v]');if(!a)return;$('mot').value='Essayer un véhicule';$('msg').value='Je suis intéressé(e) par : '+a.dataset.v;location.hash='#/contact'};
-$('chv').onclick=function(){$('suite').scrollIntoView({behavior:'smooth'})};
-/* effets 3D : parallaxe du fond, lueur qui suit le curseur, inclinaison des cartes */
+$('chv').onclick=function(){location.hash='#/accueil'};
+/* fenêtre de détail */
+function open(h){$('mb').innerHTML=h;$('md').hidden=false;D.body.style.overflow='hidden'}
+function close(){$('md').hidden=true;D.body.style.overflow=''}
+function msg(t){$('fm').value=t}
+$('md').addEventListener('click',function(e){if(e.target===$('md')||e.target.closest('[data-x]'))close();var q=e.target.closest('[data-q]');if(q){msg(q.dataset.q);location.hash='#/contact'}});
+D.addEventListener('keydown',function(e){if(e.key==='Escape')close()});
+D.addEventListener('click',function(e){var c=e.target.closest('.pc');if(c){var d=PD[c.dataset.p];open('<div class="mi" style="background-image:url(/assets/ex/'+d.i+')"><button class="x" data-x aria-label="Fermer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="mb"><h3>'+d.t+'</h3><p class="d">'+d.d+'</p><ul>'+d.l.map(function(x){return'<li>'+CK+'<span>'+x+'</span></li>'}).join('')+'</ul><div class="row"><div><small>Tarif</small><b>'+d.pr+'</b></div><div><small>Durée</small><b>'+d.du+'</b></div></div><div class="acts"><button class="rdv" data-q="Bonjour, je souhaite un devis pour : '+d.t+'.">Demander un devis</button><button class="pill o" data-x type="button"><span>Fermer</span></button></div></div>');return}
+ var g=e.target.closest('.vc .go');if(g){var v=VD[g.dataset.v];open('<div class="mi" style="background-image:url(/assets/ex/'+v.i+')"><button class="x" data-x aria-label="Fermer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="mb"><h3>'+v.t+'</h3><p class="d">'+v.s+' · '+v.y+'</p><ul>'+v.l.map(function(x){return'<li>'+CK+'<span>'+x+'</span></li>'}).join('')+'</ul><div class="row"><div><small>Prix</small><b>'+v.p+'</b></div></div><div class="acts"><button class="rdv" data-q="Bonjour, je suis intéressé(e) par : '+v.t+' ('+v.s+', '+v.y+', '+v.p+'). Pouvez-vous me rappeler ?">Je suis intéressé</button><button class="pill o" data-x type="button"><span>Fermer</span></button></div></div>');return}
+ var h=e.target.closest('.hb');if(h)h.classList.toggle('on')});
+/* filtres véhicules */
+function filt(t){[].forEach.call($('vt').children,function(x){x.classList.toggle('on',x.dataset.t===t)});var n=0;[].forEach.call(D.querySelectorAll('#vg .vc'),function(c){var ok=t==='all'||c.dataset.t===t;c.hidden=!ok;if(ok)n++});$('em').classList.toggle('on',n===0)}
+$('vt').onclick=function(e){var b=e.target.closest('.chip');if(b)filt(b.dataset.t)};
+$('vall').onclick=function(){filt('all');$('vg').scrollIntoView({behavior:'smooth',block:'start'})};
+/* formulaire de contact */
+$('cfm').onsubmit=function(e){e.preventDefault();var n=$('fn').value.trim(),m=$('fe').value.trim(),t=$('fm').value.trim(),r=$('fr');
+ if(n.length<2){r.textContent='Indiquez votre nom.';return}if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(m)){r.textContent='Indiquez une adresse e-mail valide.';return}if(t.length<5){r.textContent='Écrivez votre message.';return}
+ r.textContent='';$('cfm').style.display='none';$('fok').classList.add('on')};
+/* effets 3D */
 var reduce=window.matchMedia('(prefers-reduced-motion:reduce)').matches,hero=$('hero'),bg=$('hbg'),gl=$('hgl');
 if(!reduce&&window.matchMedia('(hover:hover)').matches){
  hero.addEventListener('mousemove',function(e){var r=hero.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;bg.style.transform='translate('+(-x*26)+'px,'+(-y*16)+'px) scale(1.03)';gl.style.setProperty('--mx',(e.clientX-r.left)+'px');gl.style.setProperty('--my',(e.clientY-r.top)+'px')});
  hero.addEventListener('mouseleave',function(){bg.style.transform=''});
- D.addEventListener('mousemove',function(e){var c=e.target.closest&&e.target.closest('.tc,.vc');if(!c)return;var r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;c.style.transform='perspective(900px) rotateY('+((x-.5)*8)+'deg) rotateX('+((.5-y)*8)+'deg) translateY(-4px)';c.style.setProperty('--px',x*100+'%');c.style.setProperty('--py',y*100+'%')});
- D.addEventListener('mouseout',function(e){var c=e.target.closest&&e.target.closest('.tc,.vc');if(c&&!c.contains(e.relatedTarget))c.style.transform=''})}
-/* rendez-vous */
-var days=$('days'),slots=$('slots'),rec=$('rec'),go=$('bgo'),sel={d:null,t:null};
-var M={1:[8,9,10,11,14,15,16,17,18],2:[8,9,10,11,14,15,16,17,18],3:[8,9,10,11,14,15,16,17,18],4:[8,9,10,11,14,15,16,17,18],5:[8,9,10,11,14,15,16,17],6:[9,10,11],0:[]};
-function hash(s){var h=0;for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;return Math.abs(h)}
-function fmt(d){return d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}
-var out=[],n=new Date();n.setHours(12);for(var i=1;out.length<9&&i<30;i++){var d=new Date(n);d.setDate(n.getDate()+i);if(d.getDay()!==0)out.push(d)}
-function avail(d){var key=d.toISOString().slice(0,10);return(M[d.getDay()]||[]).filter(function(h){return hash(key+h)%100<64})}
-out.forEach(function(d){var b=D.createElement('button');b.type='button';b.className='dy'+(avail(d).length?'':' full');b.innerHTML=d.toLocaleDateString('fr-FR',{weekday:'short'}).replace('.','')+'<b>'+d.getDate()+'</b>'+d.toLocaleDateString('fr-FR',{month:'short'}).replace('.','');
- b.onclick=function(){sel.d=d;sel.t=null;[].forEach.call(days.children,function(x){x.classList.remove('on')});b.classList.add('on');draw();upd()};days.appendChild(b)});
-function draw(){slots.innerHTML='';var a=avail(sel.d);(M[sel.d.getDay()]||[]).forEach(function(h){var b=D.createElement('button');b.type='button';var ok=a.indexOf(h)>-1;b.className='sl2'+(ok?'':' x');b.textContent=h+' h 00';b.onclick=function(){sel.t=h;[].forEach.call(slots.children,function(x){x.classList.remove('on')});b.classList.add('on');upd()};slots.appendChild(b)})}
-function upd(){if(sel.d&&sel.t){rec.innerHTML='<b>'+fmt(sel.d)+'</b><span>à '+sel.t+' h 00</span>';go.disabled=false}else{rec.innerHTML='<b>'+(sel.d?fmt(sel.d):'Aucun créneau choisi')+'</b><span>'+(sel.d?'Choisissez maintenant une heure.':'Sélectionnez un jour puis une heure.')+'</span>';go.disabled=true}}
-for(var k=0;k<days.children.length;k++){if(days.children[k].className.indexOf('full')<0){days.children[k].click();break}}
-$('bf').onsubmit=function(e){e.preventDefault();if(!sel.t)return;$('rvf').style.display='none';$('done').classList.add('on');$('dt').textContent=fmt(sel.d)+' à '+sel.t+' h 00. Un SMS de confirmation vous est envoyé, avec un rappel la veille.'};
+ var h2=$('h2'),car=$('hcar');h2.addEventListener('mousemove',function(e){var r=h2.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5;car.style.transform='translateX('+(x*-22)+'px) scale(1.03)'});h2.addEventListener('mouseleave',function(){car.style.transform=''});
+ D.addEventListener('mousemove',function(e){var c=e.target.closest&&e.target.closest('.pc,.vc');if(!c)return;var r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;c.style.transform='perspective(900px) rotateY('+((x-.5)*7)+'deg) rotateX('+((.5-y)*7)+'deg) translateY(-4px)'});
+ D.addEventListener('mouseout',function(e){var c=e.target.closest&&e.target.closest('.pc,.vc');if(c&&!c.contains(e.relatedTarget))c.style.transform=''})}
 var li=D.querySelector('#hr li[data-d="'+new Date().getDay()+'"]');if(li)li.classList.add('today');
 (function(){var now=new Date(),dd=now.getDay(),m=now.getHours()*60+now.getMinutes(),op=false,t='Fermé actuellement';
- if(dd>=1&&dd<=5){op=(m>=480&&m<720)||(m>=840&&m<(dd===5?1050:1110))}else if(dd===6){op=m>=540&&m<720}
+ if(dd>=1&&dd<=5){op=(m>=480&&m<720)||(m>=840&&m<(dd===5?1050:1110))}else if(dd===6){op=m>=480&&m<720}
  if(op)t='Ouvert actuellement';$('lvt').textContent=t;if(!op)$('lv').classList.add('off')})();
 route()})()</script>"""
-    return page("Garage Marchand · Entretien, réparation, vente à Mérignac", "Garage à Mérignac : entretien, réparation et vente de véhicules d’occasion contrôlés. Rendez-vous en ligne.",
-                "family=Montserrat:wght@300;400;500;600", css, body, js)
+    js = js.replace("@@PD@@", _json.dumps(pdata, ensure_ascii=False)).replace("@@VD@@", _json.dumps(vdata, ensure_ascii=False))
+    return page("Garage Marchand · Entretien, réparation, vente à Mérignac", "Garage à Mérignac : entretien, réparation et vente de véhicules d’occasion contrôlés. Contact et devis en ligne.",
+                "family=Montserrat:wght@300;400;500;600;700", css, body, js)
 
 
 

@@ -5,7 +5,7 @@
 <link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&amp;family=DM+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
 <style>*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0}img,svg{max-width:100%}a{color:inherit;text-decoration:none}h1,h2,h3,h4,p,ul,figure{margin:0;padding:0}ul{list-style:none}
-.back{position:fixed;right:0;top:50%;z-index:100;transform:translateY(-50%);writing-mode:vertical-rl;background:#111;color:#fff;font:600 13px/1 system-ui,sans-serif;letter-spacing:.04em;padding:18px 11px;border-radius:12px 0 0 12px;box-shadow:-4px 0 16px #0004;transition:padding .2s}.back:hover{padding-right:16px;background:#000}.back b{display:inline-block;margin-top:8px;font-weight:700}@media(max-width:600px){.back{font-size:12px;padding:14px 9px;top:auto;bottom:90px;transform:none}}
+.resa-tab{position:fixed;left:0;top:50%;z-index:100;transform:translateY(-50%) rotate(180deg);writing-mode:vertical-rl;background:#f2efe8;color:#161616;font:600 13px/1 system-ui,sans-serif;letter-spacing:.04em;padding:18px 11px;border-radius:0 12px 12px 0;box-shadow:4px 0 16px #0004;border:1px solid #0002;border-left:0}.resa-tab:hover{background:#fff}@media(max-width:600px){.resa-tab{top:auto;bottom:96px;transform:rotate(180deg);padding:13px 8px;font-size:11.5px}}.back{position:fixed;right:0;top:50%;z-index:100;transform:translateY(-50%);writing-mode:vertical-rl;background:#111;color:#fff;font:600 13px/1 system-ui,sans-serif;letter-spacing:.04em;padding:18px 11px;border-radius:12px 0 0 12px;box-shadow:-4px 0 16px #0004;transition:padding .2s}.back:hover{padding-right:16px;background:#000}.back b{display:inline-block;margin-top:8px;font-weight:700}@media(max-width:600px){.back{font-size:12px;padding:14px 9px;top:auto;bottom:90px;transform:none}}
 
 :root{--g:#1b2d25;--g2:#12201a;--cr:#f6f1ed;--cr2:#efe7e0;--pk:#bb4565;--pk2:#e9bbc6;--ink:#1d211f;--mut:#6c6a65;--ln:#e5dcd3}
 body{background:var(--cr);color:var(--ink);font:400 16.5px/1.6 'DM Sans',system-ui,sans-serif}
@@ -147,7 +147,7 @@ document.querySelectorAll('form.quote').forEach(function(f){f.onsubmit=function(
 })();
 </script>
 <a class="back" href="/" id="back" target="_top">Découvrez-nous en cliquant ici <b>→</b></a>
-<script>(function(){var b=document.getElementById('back');if(window.self!==window.top){b.remove();return}})()</script>
+<script>(function(){var b=document.getElementById('back');if(window.self!==window.top){b.remove();[].forEach.call(document.querySelectorAll('.resa-tab'),function(t){t.remove()});return}})()</script>
 <script>(function(){
 var V=[["pi", "Pivoine Sarah Bernhardt", 4.5], ["ps", "Pivoine Shirley Temple", 4.2], ["ro", "Rose ancienne Eden", 3.2], ["ly", "Lys oriental blanc", 3.8], ["st", "Limonium rose", 2.1], ["eu", "Eucalyptus cinerea", 1.5]],B=[["Bouquet Passion", 39.9], ["Pivoines de saison", 45.0], ["Élégance Blanche", 42.0], ["Bouquet Vitaminé", 38.0], ["Le Grand Atelier", 68.0], ["Roses poudrées", 36.0]],D=document,cart={},ab=null,$=function(i){return D.getElementById(i)},fav={};
 function eur(n){return n.toFixed(2).replace('.',',')+' €'}
