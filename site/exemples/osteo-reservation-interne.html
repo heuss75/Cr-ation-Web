@@ -4,6 +4,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Inter:wght@400;500;600&display=swap">
 <style>
+.pm{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:12px 0}.pm div{background:#f4f1e8;border-radius:14px;padding:14px 16px}.pm small{display:block;color:var(--mut);font-size:12.5px}.pm b{display:block;font:500 1.8rem/1.2 'Newsreader',serif;color:var(--g)}
+.sconn{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;border:1.5px solid #e4ddc9;border-radius:14px;padding:14px 16px}.sconn small{display:block;color:var(--mut)}.tgw{display:flex;gap:10px;align-items:center}.pill.x{background:#e8f0ee;color:var(--g)}
+.tgl{position:relative;width:46px;height:26px;border-radius:99px;background:#cfd6d3;border:0;transition:.2s;flex:none;cursor:pointer}.tgl:after{content:"";position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s}.tgl.on{background:var(--g)}.tgl.on:after{left:23px}
+@media(max-width:700px){.pm{grid-template-columns:1fr 1fr}}
 *{box-sizing:border-box}:root{--g:#032a2a;--g2:#0a3d3b;--gold:#b99c64;--gold2:#e8dcc2;--bg:#f6f4ef;--card:#fff;--ink:#0f2a29;--mut:#5f6b69;--ln:#e4ded2}
 body{margin:0;font:400 15px/1.5 'Inter',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
 h1,h2,h3,p,ul,dl,dd{margin:0;padding:0}ul{list-style:none}button{font:inherit;color:inherit;cursor:pointer}a{color:inherit;text-decoration:none}
@@ -52,6 +56,7 @@ h1,h2,h3,.serif{font-family:'Newsreader',Georgia,serif;font-weight:500;color:var
 
 <section class="view on" id="v-dash"><div class="head"><div><h1>Tableau de bord</h1><p>Vos réservations en un coup d’œil</p></div><div class="sp"></div><div class="seg" id="per"><button data-p="7">7 jours</button><button data-p="30" class="on">30 jours</button><button data-p="90">90 jours</button></div></div>
 <div class="kpis" id="kp"></div>
+<div class="card" style="margin-bottom:18px"><h2>Acomptes en ligne (Stripe)</h2><p class="sub">Encaissés directement sur votre compte, sans commission de notre part</p><div class="pm" id="pm"></div></div>
 <div class="cards"><div class="card c8"><h2>Rendez-vous par semaine</h2><p class="sub">Les 8 dernières semaines, la semaine en cours et la suivante · en doré, les rendez-vous pris en ligne</p><div class="bars" id="wk"></div></div>
 <div class="card c4"><h2>Prochain rendez-vous</h2><p class="sub" id="nxs"></p><div id="nx"></div></div>
 <div class="card c6"><h2>Motifs de consultation</h2><p class="sub">Ce qui amène vos patients</p><div class="hz" id="mt"></div></div>
@@ -69,6 +74,7 @@ h1,h2,h3,.serif{font-family:'Newsreader',Georgia,serif;font-weight:500;color:var
 <section class="view" id="v-regl"><div class="head"><div><h1>Réglages</h1><p>Comment fonctionne la réservation en ligne</p></div></div>
 <div class="cards"><div class="card c6"><h2>Réservation en ligne</h2><p class="sub">Ce que vos patients voient sur le site</p><div class="set" id="st1"></div></div>
 <div class="card c6"><h2>Horaires d’ouverture</h2><p class="sub">Les créneaux proposés suivent ces horaires</p><ul class="hz" style="gap:0" id="hh"></ul></div>
+<div class="card c12"><h2>Paiement en ligne · Stripe</h2><p class="sub">Acompte demandé à la réservation pour limiter les rendez-vous non honorés. Aucune commission : seuls les frais de Stripe s’appliquent.</p><div class="sconn"><span><b id="sct">Compte Stripe connecté</b><small id="scs"></small></span><span class="tgw"><small>Acompte à la réservation</small><button class="tgl on" id="tgs" aria-label="Activer l’acompte"></button></span></div></div>
 <div class="card c12"><h2>Durées et tarifs</h2><p class="sub">Les types de consultation proposés à la réservation</p><table class="tbl"><thead><tr><th>Type</th><th>Durée</th><th>Tarif</th><th>Patients</th></tr></thead><tbody id="tt"></tbody></table></div></div></section>
 
 </main></div>
@@ -98,6 +104,9 @@ function hhmm(m){return pad(Math.floor(m/60))+':'+pad(m%60)}
 function dur(m){var h=Math.floor(m/60),r=m%60;return h?(h+' h'+(r?' '+pad(r):'')):(r+' min')}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function byT(id){for(var i=0;i<TYPES.length;i++)if(TYPES[i].id===id)return TYPES[i]}
+function dep(t){return Math.min(t.p,Math.max(10,Math.ceil(t.p*.3/5)*5))}
+function stripeOn(){try{return localStorage.getItem('osteo-set-stripe')!=='0'}catch(e){return true}}
+function payOf(r){if(r.pay)return r.pay.a;if(r.chan==='web')return dep(byT(r.type));return 0}
 var TODAY=iso(new Date());
 function daysBetween(a,b){return Math.round((parse(b)-parse(a))/864e5)}
 function addDays(s,n){var d=parse(s);d.setDate(d.getDate()+n);return iso(d)}
@@ -131,7 +140,7 @@ function seeded(s){
   }
   return out;
 }
-function store(){try{var o=JSON.parse(localStorage.getItem(KEY));if(o&&o.res)return o}catch(e){}return{res:[],del:[],st:{}}}
+function store(){try{var o=JSON.parse(localStorage.getItem(KEY));if(o&&o.res)return o}catch(e){}return{res:[],del:[],st:{},ref:[]}}
 function save(o){try{localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}}
 function all(s){var st=store(),L=seeded(s).concat(st.res.filter(function(r){return r.iso===s}));
   return L.filter(function(r){return st.del.indexOf(r.id)<0}).map(function(r){var o=st.st&&st.st[r.id];if(o){r=JSON.parse(JSON.stringify(r));r.statut=o}return r}).sort(function(a,b){return a.t-b.t})}
@@ -148,6 +157,26 @@ function slotsFor(s,ty,pref){
   return startTimes(s,ty.min).map(function(t){return{t:t,w:(s<TODAY||t<=lim)?-1:freePra(s,t,ty.min,list,pref)}});
 }
 function eur(p){return p+' €'}
+
+
+function luhn(n){var s=0,d=false;for(var i=n.length-1;i>=0;i--){var x=+n.charAt(i);if(d){x*=2;if(x>9)x-=9}s+=x;d=!d}return n.length>=13&&s%10===0}
+function spInit(){var c=document.getElementById('spc'),e=document.getElementById('spe');if(!c)return;
+ c.addEventListener('input',function(){var v=c.value.replace(/\D/g,'').slice(0,19);c.value=v.replace(/(.{4})/g,'$1 ').trim()});
+ e.addEventListener('input',function(){var v=e.value.replace(/\D/g,'').slice(0,4);e.value=v.length>2?v.slice(0,2)+' / '+v.slice(2):v})}
+function stripePay(amount){
+  return new Promise(function(ok,ko){
+    var n=document.getElementById('spc').value.replace(/\D/g,''),ex=document.getElementById('spe').value.replace(/\D/g,''),cv=document.getElementById('spv').value.replace(/\D/g,''),box=document.getElementById('pay');
+    if(!luhn(n)){ko('Numéro de carte invalide.');return}
+    var mm=+ex.slice(0,2),yy=2000+(+ex.slice(2,4)),now=new Date();
+    if(ex.length<4||mm<1||mm>12||yy<now.getFullYear()||(yy===now.getFullYear()&&mm<now.getMonth()+1)){ko('Date d’expiration invalide ou dépassée.');return}
+    if(cv.length<3){ko('Code de sécurité invalide.');return}
+    box.classList.add('busy');
+    setTimeout(function(){box.classList.remove('busy');
+      if(n==='4000000000000002'){ko('Votre carte a été refusée. Essayez une autre carte.');return}
+      if(n==='4000000000009995'){ko('Fonds insuffisants. Essayez une autre carte.');return}
+      ok({id:'pi_3'+Math.random().toString(36).slice(2,12).toUpperCase(),last4:n.slice(-4),brand:n.charAt(0)==='4'?'Visa':(n.charAt(0)==='5'?'Mastercard':(n.charAt(0)==='3'?'American Express':'Carte')),a:amount,t:Date.now()})},1500)})}
+function feeOf(a){return Math.round((a*0.015+0.25)*100)/100}
+function money(n){return (Math.round(n*100)/100).toLocaleString('fr-FR',{minimumFractionDigits:(n%1?2:0),maximumFractionDigits:2})+' €'}
 
 
 var $=function(s){return document.querySelector(s)},PX=1.1,T0=540,T1=1140;
@@ -246,7 +275,7 @@ function setStatut(id,s){var st=store();st.st=st.st||{};st.st[id]=s;save(st)}
 document.addEventListener('click',function(e){
   var b=e.target.closest('[data-id]');
   if(b&&!b.closest('#md')&&b.dataset.d){var r=find(b.dataset.id,b.dataset.d);if(!r)return;var ty=byT(r.type),fut=r.iso>=TODAY;
-    modal('<h3>'+esc(r.nom)+'</h3><p>'+pill(r.statut)+(r.nouveau?' <span class="pill w">Nouveau patient</span>':'')+'</p><dl><dt>Quand</dt><dd>'+label(r.iso)+' à '+hm(r.t)+'</dd><dt>Consultation</dt><dd>'+ty.n+' · '+dur(r.dur)+' · '+eur(ty.p)+'</dd><dt>Motif</dt><dd>'+esc(r.motif)+'</dd><dt>Praticien</dt><dd>'+PRA[r.who].n+'</dd><dt>Réservé via</dt><dd>'+({web:'le site internet',tel:'le téléphone',place:'sur place'})[r.chan]+'</dd>'+(r.tel?'<dt>Téléphone</dt><dd>'+esc(r.tel)+'</dd>':'')+(r.mail?'<dt>E-mail</dt><dd>'+esc(r.mail)+'</dd>':'')+(r.msg?'<dt>Message</dt><dd>'+esc(r.msg)+'</dd>':'')+(r.ref?'<dt>Référence</dt><dd>'+esc(r.ref)+'</dd>':'')+'</dl><div class="acts">'+(r.statut==='confirmé'&&!fut?'<button class="btn" data-act="fait" data-id="'+r.id+'" data-d="'+r.iso+'">Marquer présent</button><button class="btn o" data-act="absent" data-id="'+r.id+'" data-d="'+r.iso+'">Absent</button>':'')+(r.statut==='confirmé'&&fut?'<button class="btn d" data-act="annulé" data-id="'+r.id+'" data-d="'+r.iso+'">Annuler le rendez-vous</button>':'')+'<button class="btn o" data-x>Fermer</button></div>');return}
+    modal('<h3>'+esc(r.nom)+'</h3><p>'+pill(r.statut)+(r.nouveau?' <span class="pill w">Nouveau patient</span>':'')+'</p><dl><dt>Quand</dt><dd>'+label(r.iso)+' à '+hm(r.t)+'</dd><dt>Consultation</dt><dd>'+ty.n+' · '+dur(r.dur)+' · '+eur(ty.p)+'</dd><dt>Motif</dt><dd>'+esc(r.motif)+'</dd><dt>Praticien</dt><dd>'+PRA[r.who].n+'</dd><dt>Réservé via</dt><dd>'+({web:'le site internet',tel:'le téléphone',place:'sur place'})[r.chan]+'</dd>'+(r.tel?'<dt>Téléphone</dt><dd>'+esc(r.tel)+'</dd>':'')+(r.mail?'<dt>E-mail</dt><dd>'+esc(r.mail)+'</dd>':'')+(r.msg?'<dt>Message</dt><dd>'+esc(r.msg)+'</dd>':'')+(r.ref?'<dt>Référence</dt><dd>'+esc(r.ref)+'</dd>':'')+(payOf(r)?'<dt>Acompte</dt><dd>'+money(payOf(r))+' payé en ligne (Stripe) · '+(r.statut==='annulé'?'remboursé':(r.statut==='absent'?'conservé':'solde '+money(byT(r.type).p-payOf(r))+' au cabinet'))+'</dd>':'')+'</dl><div class="acts">'+(r.statut==='confirmé'&&!fut?'<button class="btn" data-act="fait" data-id="'+r.id+'" data-d="'+r.iso+'">Marquer présent</button><button class="btn o" data-act="absent" data-id="'+r.id+'" data-d="'+r.iso+'">Absent</button>':'')+(r.statut==='confirmé'&&fut?'<button class="btn d" data-act="annulé" data-id="'+r.id+'" data-d="'+r.iso+'">Annuler le rendez-vous</button>':'')+'<button class="btn o" data-x>Fermer</button></div>');return}
   var a=e.target.closest('[data-act]');if(a){var id=a.dataset.id;if(id.charAt(0)==='u'||id.charAt(0)==='m'){var st=store();st.st=st.st||{};}setStatut(id,a.dataset.act);close();refresh();toast(a.dataset.act==='annulé'?'Rendez-vous annulé : le créneau est libre.':'Statut mis à jour.');return}
   if(e.target.closest('[data-x]')||e.target===$('#md')){close();return}
 });
@@ -259,11 +288,20 @@ $('#nw').onclick=function(){
     var w=freePra(cur,m,t.min,busyList(cur),-1);if(w<0){$('#ne').textContent='Ce créneau vient d’être pris.';return}
     var st=store();st.res.push({id:'m'+Date.now(),iso:cur,t:m,dur:t.min,type:t.id,motif:'Autre',who:w,nom:n,tel:$('#ntl').value.trim(),nouveau:false,statut:'confirmé',chan:'place',lead:0,web:0});save(st);close();refresh();toast('Rendez-vous ajouté à l’agenda.')}};
 /* ---------- navigation ---------- */
-function refresh(){drawDash();drawAg();drawList()}
+function drawPay(){
+  var on=stripeOn(),i,st=store(),inn=0,fut=0,fees=0,refs=0,keep=0,dd=0;
+  all(cur).forEach(function(r){if(r.statut!=='annulé')dd+=payOf(r)});
+  $('#kp').insertAdjacentHTML('beforeend','<div class="kpi"><small>Acomptes du jour</small><b>'+money(dd)+'</b><i>payés en ligne via Stripe</i></div>');
+  for(i=-30;i<=14;i++){var d=parse(TODAY);d.setDate(d.getDate()+i);var s=iso(d);all(s).forEach(function(r){var a=payOf(r);if(!a||r.statut==='annulé')return;if(i<=0){inn+=a;fees+=feeOf(a);if(r.statut==='absent')keep+=a}else fut+=a})}
+  (st.ref||[]).forEach(function(x){refs+=x.a});
+  $('#pm').innerHTML='<div><small>Acomptes encaissés (30 jours)</small><b>'+money(inn)+'</b></div><div><small>Acomptes à venir (14 jours)</small><b>'+money(fut)+'</b></div><div><small>Gardés (patients absents)</small><b>'+money(keep)+'</b></div><div><small>Frais Stripe estimés · remboursés '+money(refs)+'</small><b>'+money(fees)+'</b></div>';
+  $('#tgs').classList.toggle('on',on);$('#sct').textContent=on?'Compte Stripe connecté':'Acompte désactivé';$('#scs').textContent=on?'Virements automatiques vers votre compte bancaire · IBAN FR76 •••• •••• 4821':'Vos patients réservent sans payer. Réactivez l’acompte pour limiter les absences.'}
+$('#tgs').onclick=function(){try{localStorage.setItem('osteo-set-stripe',stripeOn()?'0':'1')}catch(e){}refresh();toast(stripeOn()?'Acompte activé sur le site.':'Acompte désactivé sur le site.')};
+function refresh(){drawDash();drawPay();drawAg();drawList()}
 function shift(n){var d=cur;do{d=addDays(d,n)}while(!isOpenDay(d));cur=d;drawAg()}
 $('#pv').onclick=function(){shift(-1)};$('#nxd').onclick=function(){shift(1)};
 $('#td').onclick=function(){var d=TODAY;while(!isOpenDay(d))d=addDays(d,1);cur=d;drawAg()};
-$('#per').onclick=function(e){var b=e.target.closest('button');if(!b)return;per=+b.dataset.p;[].forEach.call($('#per').children,function(x){x.classList.toggle('on',x===b)});drawDash()};
+$('#per').onclick=function(e){var b=e.target.closest('button');if(!b)return;per=+b.dataset.p;[].forEach.call($('#per').children,function(x){x.classList.toggle('on',x===b)});drawDash();drawPay()};
 var tabs=[].slice.call(document.querySelectorAll('.sb button.t'));
 function go(v){tabs.forEach(function(t){t.classList.toggle('on',t.dataset.v===v)});[].forEach.call(document.querySelectorAll('.view'),function(x){x.classList.toggle('on',x.id==='v-'+v)});try{history.replaceState(null,'','#'+v)}catch(e){}window.scrollTo(0,0)}
 tabs.forEach(function(t){t.onclick=function(){go(t.dataset.v)}});
