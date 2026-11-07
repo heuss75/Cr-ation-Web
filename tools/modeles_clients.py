@@ -14,10 +14,20 @@ Points à vérifier avec le commerçant avant la mise en ligne :
 - médiateur de la consommation : OBLIGATOIRE dès qu'il vend à des particuliers (art. L612-1 Code conso) ;
 - droit de rétractation de ses clients : voir la clause « retractation » ci-dessous (dépend de l'activité) ;
 - ATTENTION : si le droit de rétractation s'applique (cas général des prestations hors restauration/loisirs à date
-  déterminée), un client qui annule avant sa prestation doit être remboursé intégralement, même tardivement :
-  pas de frais d'annulation tardive ni d'acompte conservé dans ce cas (à faire confirmer par un juriste) ;
-- dans le module de réservation avec paiement : case à cocher « J'accepte les conditions » + lien, et, si le
-  rendez-vous tombe dans les 14 jours, demande expresse d'exécution avant la fin du délai de rétractation.
+  déterminée), un client qui annule PENDANT les 14 jours suivant sa réservation, et avant la prestation, doit être
+  remboursé intégralement : pas de frais d'annulation tardive dans ce cas. Au-delà des 14 jours, des frais
+  d'annulation tardive raisonnables peuvent s'appliquer (à faire valider par un juriste) ;
+- module de réservation avec paiement :
+  * case obligatoire « J'accepte les conditions de vente et d'annulation » (lien vers la page) ;
+  * case obligatoire si le rendez-vous a lieu dans les 14 jours : « Je demande que la prestation soit réalisée avant
+    la fin du délai de rétractation et je reconnais perdre mon droit de rétractation une fois la prestation
+    entièrement réalisée » (L221-25 et L221-28 1°) ;
+  * bouton « Réserver et payer X € » (L221-14) ;
+  * e-mail de confirmation (support durable, L221-13) : récapitulatif, prix payé, conditions de vente, formulaire
+    de rétractation et rappel de l'accord exprès ;
+- note (facture) obligatoire pour toute prestation de service de 25 € TTC ou plus (arrêté n° 83-50/A) ;
+- professions de santé et de soins : PAS de réservation ni de paiement en ligne (pas d'hébergement HDS, CGV art. 11) ;
+- le commerçant exporte ses réservations avant la fin de son abonnement (suppression 30 jours après, CGV art. 18).
 """
 
 CLOUDFLARE = "Cloudflare, Inc., 101 Townsend Street, San Francisco, CA 94107, États-Unis, téléphone : +1 888 993 5273"
@@ -38,6 +48,7 @@ def pages(c, paiement=False, rdv=True, editeur="Devanture Web", editeur_contact=
     mail = v("email", "e-mail")
     tva = v("tva", "numéro de TVA intracommunautaire, ou « TVA non applicable, art. 293 B du CGI »")
     dirp = v("directeur", "directeur de la publication")
+    # profession réglementée (art. 19 LCEN) : c["reglementee"] = "titre professionnel, État où il a été obtenu, ordre ou organisme d'inscription, règles professionnelles (lien)"
     regl = ("<li>Profession réglementée : %s</li>" % c["reglementee"]) if c.get("reglementee") else ""
     med = v("mediateur", "nom, adresse et site du médiateur de la consommation (obligatoire)")
     annul = v("annulation_h", "délai d’annulation gratuite, en heures (par exemple 24)")
@@ -50,7 +61,7 @@ def pages(c, paiement=False, rdv=True, editeur="Devanture Web", editeur_contact=
 <li>Téléphone : {tel}</li><li>E-mail : {mail}</li><li>TVA : {tva}</li>{regl}</ul>
 <p>Directeur de la publication : {dirp}.</p>
 <h2>Réalisation et hébergement</h2>
-<p>Site réalisé et maintenu par {editeur} ({editeur_contact}). Hébergeur : {CLOUDFLARE}.</p>
+<p>Site réalisé et hébergé par {editeur} ({editeur_contact}), sur l’infrastructure de {CLOUDFLARE}.</p>
 {"<h2>Paiement en ligne</h2><p>Les paiements sont traités par " + STRIPE + ". Les numéros de carte sont saisis chez Stripe et ne sont jamais transmis à " + commerce + " ni à " + editeur + ".</p>" if paiement else ""}
 <h2>Propriété intellectuelle</h2>
 <p>Les textes, photos et logos de ce site appartiennent à {commerce} ou à leurs auteurs. Toute reproduction sans autorisation est interdite.</p>
@@ -60,8 +71,9 @@ def pages(c, paiement=False, rdv=True, editeur="Devanture Web", editeur_contact=
 
     lignes = ["<tr><td>Formulaire de contact</td><td>Nom, e-mail ou téléphone, message</td><td>Vous répondre</td><td>Mesures précontractuelles / intérêt légitime</td><td>3 ans après le dernier contact</td></tr>"]
     if rdv:
-        lignes.append("<tr><td>Réservation</td><td>Nom, prénom, téléphone, e-mail, prestation, date et heure, message éventuel</td><td>Gérer votre rendez-vous, vous envoyer la confirmation</td><td>Exécution du contrat</td><td>3 ans après le dernier rendez-vous</td></tr>")
+        lignes.append("<tr><td>Réservation</td><td>Nom, prénom, téléphone, e-mail, prestation, date et heure, message éventuel</td><td>Gérer votre rendez-vous, vous envoyer la confirmation</td><td>Exécution du contrat</td><td>3 ans après le dernier rendez-vous (sur le site : jusqu’à la fin de notre contrat avec notre prestataire, puis dans nos propres archives)</td></tr>")
     if paiement:
+        lignes.append("<tr><td>Statistiques de visite</td><td>Nombre de visites par page et par jour, sans cookie ni identifiant</td><td>Connaître la fréquentation du site</td><td>Intérêt légitime</td><td>13 mois</td></tr>")
         lignes.append("<tr><td>Paiement en ligne</td><td>Référence, montant, date et statut du paiement (jamais le numéro de carte)</td><td>Encaisser, rembourser, tenir la comptabilité</td><td>Exécution du contrat ; obligation légale</td><td>10 ans (pièces comptables)</td></tr>")
     P["confidentialite"] = f"""
 <h2>Responsable du traitement</h2>
@@ -86,8 +98,8 @@ def pages(c, paiement=False, rdv=True, editeur="Devanture Web", editeur_contact=
         else:
             rt = ("<p>Pour une réservation faite à distance, vous disposez d’un délai de rétractation de 14 jours à compter de la réservation. "
                   "Si votre rendez-vous a lieu avant la fin de ce délai, vous demandez expressément, en cochant la case prévue lors de la réservation, que la prestation soit réalisée avant la fin du délai. "
-                  "Vous pouvez vous rétracter jusqu’au rendez-vous en nous l’indiquant (e-mail, téléphone ou formulaire ci-dessous) : vous êtes alors remboursé intégralement sous 14 jours, par le même moyen de paiement. "
-                  "Une fois la prestation entièrement réalisée, la rétractation n’est plus possible (article L221-28 1°).</p>"
+                  "Vous pouvez vous rétracter dans les 14 jours suivant la réservation, et au plus tard avant le début de la prestation, en nous l’indiquant (e-mail, téléphone ou formulaire ci-dessous) : vous êtes alors remboursé intégralement sous 14 jours, par le même moyen de paiement. "
+                  "Une fois la prestation entièrement réalisée, vous perdez votre droit de rétractation (article L221-28 1°).</p>"
                   "<p><strong>Formulaire de rétractation</strong> — À l’attention de " + nom + ", " + adr + ", " + mail + " : je vous notifie ma rétractation du contrat portant sur la prestation suivante : … ; réservée le : … ; nom : … ; adresse : … ; date : … ; signature (sur papier).</p>")
         P["conditions"] = f"""
 <h2>Vendeur</h2>
@@ -96,7 +108,7 @@ def pages(c, paiement=False, rdv=True, editeur="Devanture Web", editeur_contact=
 <p>Les prestations, leur durée et leur prix sont indiqués sur le site. Les prix sont en euros, toutes taxes comprises (TTC).</p>
 <h2>Réservation</h2>
 <p>Vous choisissez une prestation et un créneau, puis vous confirmez{" et payez en ligne" if paiement else ""}. Un e-mail de confirmation récapitule votre rendez-vous{", le prix payé et la référence du paiement" if paiement else ""}.</p>
-{"<h2>Paiement</h2><p>Le prix de la prestation est payé en ligne au moment de la réservation, par carte bancaire, via notre prestataire de paiement sécurisé Stripe. Vos données bancaires sont saisies chez Stripe et ne nous sont jamais communiquées. Un justificatif vous est remis ; une facture vous est délivrée sur demande.</p>" if paiement else ""}
+{"<h2>Paiement</h2><p>Le prix de la prestation est payé en ligne au moment de la réservation, par carte bancaire, via notre prestataire de paiement sécurisé Stripe. Vos données bancaires sont saisies chez Stripe et ne nous sont jamais communiquées. Un justificatif de paiement vous est envoyé par e-mail ; une note (facture) vous est remise pour toute prestation de 25 € TTC ou plus, et sur demande en dessous.</p>" if paiement else ""}
 <h2>Annulation et modification</h2>
 <p>Vous pouvez annuler ou déplacer gratuitement votre rendez-vous jusqu’à {annul} heures avant l’heure prévue, depuis le lien de votre e-mail de confirmation ou par téléphone{" ; vous êtes alors remboursé intégralement, sous 5 à 10 jours" if paiement else ""}. {(v("regle_tardive", "règle en cas d’annulation tardive ou d’absence (par exemple : le montant reste acquis, sauf cas de force majeure justifié)") + ".") if c.get("retractation_exclue") else "Ces conditions s’appliquent sans préjudice de votre droit de rétractation ci-dessous."} Si nous devons annuler, vous êtes prévenu au plus vite et {"remboursé intégralement" if paiement else "un autre créneau vous est proposé"}.</p>
 <h2>Droit de rétractation</h2>

@@ -166,7 +166,7 @@ FOOTER = """
     <label class="switch"><input type="checkbox" id="ck-utm"><span><b>Suivi des campagnes (UTM)</b><small>Garde 30 jours l’origine de votre visite et la joint à votre demande.</small></span></label>
   </div>
   <div class="row">
-    <button type="button" class="btn ghost" id="ck-no">Tout refuser</button>
+    <button type="button" class="btn" id="ck-no">Tout refuser</button>
     <button type="button" class="btn ghost" id="ck-cfg">Personnaliser</button>
     <button type="button" class="btn" id="ck-yes">Tout accepter</button>
   </div>
@@ -335,8 +335,8 @@ offre_body = phead("Offre et prix", "Deux formules, tout compris",
     <li><span class="when">Validation</span><div><b>Vous acceptez les conditions et réglez le premier mois</b><span class="d">Le contrat est formé à ce moment-là.</span></div></li>
     <li><span class="when">Création</span><div><b>Votre aperçu est prêt</b><span class="d">Dès que nous avons tous vos contenus, nous créons votre site rapidement. Vous demandez vos ajustements, puis vous validez.</span></div></li>
     <li><span class="when">Mise en ligne</span><div><b>Votre site est en ligne</b><span class="d">Nous branchons votre nom de domaine. Les 12 mois d’engagement démarrent. Vous recevez le guide pub.</span></div></li>
-    <li><span class="when">Chaque mois</span><div><b>Vous modifiez ce que vous voulez</b><span class="d">Un texte, une photo ou un bloc, depuis votre espace client, avec retour en arrière possible.</span></div></li>
-    <li><span class="when">Mois 10</span><div><b>Vous recevez un rappel</b><span class="d">60 jours avant l’échéance, pour décider : continuer, ou résilier avec 30 jours de préavis.</span></div></li>
+    <li><span class="when">Chaque mois</span><div><b>Votre site évolue</b><span class="d">Vous demandez une modification par mois (trois en Pro), réalisée par nous. En Pro, vous changez aussi vous-même textes, prix, horaires et photos.</span></div></li>
+    <li><span class="when">Mois 9</span><div><b>Vous recevez un rappel</b><span class="d">Environ 3 mois avant l’échéance, pour décider : continuer, ou résilier avec 30 jours de préavis.</span></div></li>
     <li><span class="when">Mois 12</span><div><b>Reconduction ou fin</b><span class="d">Sans résiliation, l’abonnement continue pour 12 mois au même prix. Sinon le site est mis hors ligne et vous pouvez récupérer vos contenus et votre nom de domaine.</span></div></li>
   </ol>
 </section>
@@ -447,7 +447,7 @@ cmd_body = phead("Demande", "Demandez votre site", "Quelques informations suffis
     <textarea id="f-message" name="message" maxlength="1000" aria-describedby="message-e message-h" placeholder="Votre activité, ce que vous attendez du site, vos échéances…"></textarea>
     <small class="h" id="message-h">Merci de ne pas saisir d’informations sensibles (santé, banque).</small><p class="errmsg" id="message-e" role="alert"></p></div>
   <div class="hp" aria-hidden="true"><label>Ne pas remplir<input type="text" name="site_web_url" tabindex="-1" autocomplete="off"></label></div>
-  <div class="field"><label class="check" for="f-cgv"><input type="checkbox" id="f-cgv" name="cgv" data-req aria-required="true" aria-describedby="cgv-e"><span>J’agis pour mon activité professionnelle ou pour une association (pas en tant que consommateur), et j’ai lu les <a href="/cgv" target="_blank" rel="noopener">conditions générales de vente</a> et la <a href="/confidentialite" target="_blank" rel="noopener">politique de confidentialité</a>.</span></label><p class="errmsg" id="cgv-e" role="alert"></p></div>
+  <div class="field"><label class="check" for="f-cgv"><input type="checkbox" id="f-cgv" name="cgv" data-req aria-required="true" aria-describedby="cgv-e"><span>J’agis pour mon activité professionnelle ou pour une association (pas en tant que consommateur), et j’ai pris connaissance des <a href="/cgv" target="_blank" rel="noopener">conditions générales de vente</a> et la <a href="/confidentialite" target="_blank" rel="noopener">politique de confidentialité</a>.</span></label><p class="errmsg" id="cgv-e" role="alert"></p></div>
   <p class="sub">Vos informations servent uniquement à répondre à votre demande. Aucun paiement n’est demandé à cette étape.</p>
   <div><button class="btn" id="d-send" type="submit"><span class="lbl">Envoyer ma demande</span>""" + icon("loader", "ic spin") + """</button></div>
 </form>
@@ -496,7 +496,7 @@ signup_body = phead("Inscription", "Créez votre compte", "Un compte est nécess
     <p class="errmsg" id="code-e" role="alert"></p>
     <p class="sub"><button type="button" class="linkbtn" id="code-resend">Renvoyer le code</button> · <button type="button" class="linkbtn" id="code-change">Changer d’e-mail</button></p>
   </div>
-  <div class="field"><label class="check" for="f-cgv"><input type="checkbox" id="f-cgv" name="cgv" data-req aria-required="true" aria-describedby="cgv-e"><span>J’agis pour mon activité professionnelle ou pour une association (pas en tant que consommateur), et j’ai lu les <a href="/cgv" target="_blank" rel="noopener">conditions générales de vente</a> et la <a href="/confidentialite" target="_blank" rel="noopener">politique de confidentialité</a>.</span></label><p class="errmsg" id="cgv-e" role="alert"></p></div>
+  <div class="field"><label class="check" for="f-cgv"><input type="checkbox" id="f-cgv" name="cgv" data-req aria-required="true" aria-describedby="cgv-e"><span>J’agis pour mon activité professionnelle ou pour une association (pas en tant que consommateur), et j’ai pris connaissance des <a href="/cgv" target="_blank" rel="noopener">conditions générales de vente</a> et la <a href="/confidentialite" target="_blank" rel="noopener">politique de confidentialité</a>.</span></label><p class="errmsg" id="cgv-e" role="alert"></p></div>
   <div><button class="btn" type="submit"><span class="lbl">Créer mon compte</span></button></div>
   <p class="sub">Déjà un compte ? <a href="/connexion">Se connecter</a>. Créer un compte est gratuit et sans engagement.</p>
 </form>

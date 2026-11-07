@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
+"""NON UTILISÉ depuis le 7/11/2026 : pas de réservation en ligne pour les professions de santé sans hébergement certifié HDS
+(CGV art. 11). Conservé pour le jour où l'hébergement sera certifié.
+
 Réservation du site d'exemple « Cabinet Lemaire » (ostéopathe) :
  - prise de rendez-vous EXTERNE, détaillée (type de patient, motif, praticien, jour, heure, coordonnées, consentement)
  - espace INTERNE (site/exemples/osteo-reservation-interne.html) : tableau de bord et statistiques, agenda, liste des rendez-vous, réglages

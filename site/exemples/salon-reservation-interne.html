@@ -128,6 +128,7 @@ function spInit(){var c=document.getElementById('spc'),e=document.getElementById
 function stripePay(amount){
   return new Promise(function(ok,ko){
     var n=document.getElementById('spc').value.replace(/\D/g,''),ex=document.getElementById('spe').value.replace(/\D/g,''),cv=document.getElementById('spv').value.replace(/\D/g,''),box=document.getElementById('pay');
+    var ck=document.getElementById('spk');if(ck&&!ck.checked){ko('Cochez la case pour accepter les conditions de vente et d’annulation.');return}
     if(!luhn(n)){ko('Numéro de carte invalide.');return}
     var mm=+ex.slice(0,2),yy=2000+(+ex.slice(2,4)),now=new Date();
     if(ex.length<4||mm<1||mm>12||yy<now.getFullYear()||(yy===now.getFullYear()&&mm<now.getMonth()+1)){ko('Date d’expiration invalide ou dépassée.');return}

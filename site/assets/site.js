@@ -145,7 +145,7 @@
   function getConsent() {
     try {
       var c = JSON.parse(ls(CK) || 'null');
-      if (c && Date.now() - c.t > 396 * 864e5) return null; /* on redemande au bout de 13 mois */
+      if (c && Date.now() - c.t > 183 * 864e5) return null; /* on redemande au bout de 6 mois */
       return c;
     } catch (e) { return null; }
   }

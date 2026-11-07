@@ -23,7 +23,7 @@
 <link rel="canonical" href="https://accueil.ouvert.workers.dev/confidentialite">
 <script>(function(){try{var t=localStorage.getItem('sv_theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}})()</script>
 <link rel="stylesheet" href="/assets/fonts/fonts.css">
-<link rel="stylesheet" href="/assets/site.css?v=5115ce5c">
+<link rel="stylesheet" href="/assets/site.css?v=d56b0083">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
@@ -123,7 +123,7 @@
 <tr><td>Paiement en ligne de vos clients (formule Pro)</td><td>Identifiant de votre compte Stripe connecté et son statut d’activation ; pour chaque paiement reçu sur votre site : référence, montant, date, statut, remboursement éventuel</td><td>Relier votre site à votre compte Stripe, afficher vos paiements et vos statistiques, déclencher les remboursements que vous demandez</td><td>Exécution du contrat</td></tr>
 <tr><td>Dossier de création de votre site</td><td>Informations sur votre commerce (présentation, horaires, adresse, téléphone, tarifs), logo, photos et documents que vous déposez</td><td>Créer et mettre à jour votre site</td><td>Exécution du contrat</td></tr>
 <tr><td>Messages et e-mails de service</td><td>Adresse e-mail, contenu des e-mails transactionnels (code de connexion, suivi de commande, rappels)</td><td>Vous envoyer les messages liés à votre compte et à votre abonnement</td><td>Exécution du contrat</td></tr>
-<tr><td>Actualités par e-mail</td><td>Nom, adresse e-mail, choix de désinscription</td><td>Informer nos clients et les personnes ayant fait une demande de nos nouveautés et offres liées à leur activité</td><td>Intérêt légitime ; désinscription possible à tout moment, en un clic dans chaque e-mail ou depuis l’espace client</td></tr>
+<tr><td>Actualités par e-mail</td><td>Nom, adresse e-mail, choix de désinscription</td><td>Informer nos clients et les professionnels ayant fait une demande de nos nouveautés et offres liées à leur activité</td><td>Intérêt légitime (clients et professionnels) ; consentement pour les autres personnes ; désinscription possible à tout moment, en un clic dans chaque e-mail ou depuis l’espace client</td></tr>
 <tr><td>Avis</td><td>Note, commentaire, prénom, initiale du nom, nom du commerce, date</td><td>Recueillir votre retour ; le publier sur ce site, seulement si vous l’acceptez</td><td>Consentement (case à cocher, retirable à tout moment)</td></tr>
 <tr><td>Parrainage</td><td>Code, lien entre parrain et filleul, mois offerts</td><td>Gérer le parrainage et appliquer les mois offerts</td><td>Exécution du contrat</td></tr>
 <tr><td>Demande de résiliation</td><td>Motif, message, date d’effet</td><td>Traiter votre demande</td><td>Exécution du contrat</td></tr>
@@ -133,7 +133,7 @@
 <tr><td>Démonstration de réservation</td><td>Prénom (fictif conseillé), téléphone (facultatif), créneau, empreinte irréversible de l’adresse IP</td><td>Montrer le fonctionnement de la réservation, éviter les abus</td><td>Intérêt légitime</td></tr>
 <tr><td>Suivi de campagne (si accepté)</td><td>Paramètres UTM de l’adresse visitée, site d’origine, page d’arrivée</td><td>Savoir quelle annonce ou quel lien a amené la demande</td><td>Consentement</td></tr>
 </tbody></table></div>
-<p>Les sites d’exemple (salon, cabinet, restaurant…) ne transmettent rien : les réservations et paiements simulés restent dans votre navigateur. Aucune donnée sensible n’est demandée ; merci de ne pas en saisir dans les champs libres.</p>
+<p>Dans nos formulaires, les champs obligatoires sont signalés ; sans eux, nous ne pouvons pas traiter votre demande. Aucune décision automatisée produisant des effets juridiques n’est prise à votre sujet. Les sites d’exemple (salon, cabinet, restaurant…) ne transmettent rien : les réservations et paiements simulés restent dans votre navigateur. Aucune donnée sensible n’est demandée ; merci de ne pas en saisir dans les champs libres.</p>
 
 <h2 id="durees">3. Durées de conservation</h2>
 <ul>
@@ -142,7 +142,7 @@
 <li>Factures et pièces comptables : 10 ans (obligation légale).</li>
 <li>Dossier de création et données des réservations : pendant le contrat, puis supprimés au plus tard 30 jours après la fin de l’abonnement, sauf demande de récupération.</li>
 <li>Informations sur les paiements reçus via Stripe : pendant le contrat, puis 30 jours ; l’historique complet reste dans votre compte Stripe.</li>
-<li>Avis publiés : jusqu’au retrait de votre consentement.</li>
+<li>Avis publiés : 3 ans au plus, ou jusqu’au retrait de votre consentement.</li>
 <li>Envoi d’actualités : jusqu’à votre désinscription, et au plus 3 ans après notre dernier échange si vous n’êtes pas client.</li>
 <li>Journaux techniques : selon la politique de l’hébergeur, en principe quelques semaines.</li>
 <li>Compteurs de visites : 13 mois au plus. Paramètres UTM : 30 jours dans votre navigateur.</li>
@@ -210,7 +210,7 @@
     <label class="switch"><input type="checkbox" id="ck-utm"><span><b>Suivi des campagnes (UTM)</b><small>Garde 30 jours l’origine de votre visite et la joint à votre demande.</small></span></label>
   </div>
   <div class="row">
-    <button type="button" class="btn ghost" id="ck-no">Tout refuser</button>
+    <button type="button" class="btn" id="ck-no">Tout refuser</button>
     <button type="button" class="btn ghost" id="ck-cfg">Personnaliser</button>
     <button type="button" class="btn" id="ck-yes">Tout accepter</button>
   </div>
@@ -225,7 +225,7 @@
   </form>
 </dialog>
 
-<script>window.SITE={v:"5115ce5c",email:""};</script>
-<script src="/assets/site.js?v=5115ce5c" defer></script>
+<script>window.SITE={v:"d56b0083",email:""};</script>
+<script src="/assets/site.js?v=d56b0083" defer></script>
 </body>
 </html>

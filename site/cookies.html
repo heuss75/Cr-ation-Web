@@ -23,7 +23,7 @@
 <link rel="canonical" href="https://accueil.ouvert.workers.dev/cookies">
 <script>(function(){try{var t=localStorage.getItem('sv_theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}})()</script>
 <link rel="stylesheet" href="/assets/fonts/fonts.css">
-<link rel="stylesheet" href="/assets/site.css?v=5115ce5c">
+<link rel="stylesheet" href="/assets/site.css?v=d56b0083">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
@@ -115,7 +115,7 @@
 <thead><tr><th>Nom</th><th>Type</th><th>Rôle</th><th>Durée</th><th>Accord requis ?</th></tr></thead>
 <tbody>
 <tr><td><code>sv_session</code></td><td>Cookie</td><td>Vous garde connecté à votre compte</td><td>30 jours au plus</td><td>Non (nécessaire)</td></tr>
-<tr><td><code>sv_consent</code></td><td>Stockage local</td><td>Mémorise vos choix sur les cookies</td><td>13 mois au plus</td><td>Non (nécessaire)</td></tr>
+<tr><td><code>sv_consent</code></td><td>Stockage local</td><td>Mémorise vos choix sur les cookies</td><td>6 mois</td><td>Non (nécessaire)</td></tr>
 <tr><td><code>sv_theme</code></td><td>Stockage local</td><td>Mémorise le thème clair ou sombre que vous avez choisi</td><td>Jusqu’à effacement</td><td>Non (préférence demandée par vous)</td></tr>
 <tr><td>Données des sites d’exemple</td><td>Stockage local</td><td>Gardent les réservations et paiements simulés que vous faites dans les démonstrations, pour les afficher dans l’espace d’exemple</td><td>Jusqu’à effacement</td><td>Non (fonction demandée par vous)</td></tr>
 <tr><td><code>sv_utm</code></td><td>Stockage local</td><td>Garde l’origine de votre visite (paramètres UTM) pour la joindre à votre demande</td><td>30 jours</td><td><strong>Oui</strong></td></tr>
@@ -129,7 +129,7 @@
 <p>Aucun. Les polices de caractères et tous les fichiers du site sont servis depuis notre propre domaine. Sur le site d’un commerçant qui propose le paiement en ligne, la page de paiement de Stripe peut déposer ses propres cookies, nécessaires à la sécurité du paiement et à la lutte contre la fraude ; ils sont décrits par Stripe et par le commerçant.</p>
 
 <h2 id="gerer">4. Changer d’avis</h2>
-<p>Vous pouvez modifier vos choix à tout moment avec le lien « Gérer les cookies » en bas de chaque page, ou effacer les données du site dans les réglages de votre navigateur. Nous vous redemandons votre choix au plus tard au bout de 13 mois.</p>
+<p>Vous pouvez modifier vos choix à tout moment avec le lien « Gérer les cookies » en bas de chaque page, ou effacer les données du site dans les réglages de votre navigateur. Nous vous redemandons votre choix au bout de 6 mois.</p>
 
 <h2 id="plus">5. En savoir plus</h2>
 <p>Voir la <a href="/confidentialite">politique de confidentialité</a>. Informations de la CNIL sur les cookies : <a href="https://www.cnil.fr/fr/cookies-et-autres-traceurs" rel="noopener" target="_blank">cnil.fr</a>.</p>
@@ -166,7 +166,7 @@
     <label class="switch"><input type="checkbox" id="ck-utm"><span><b>Suivi des campagnes (UTM)</b><small>Garde 30 jours l’origine de votre visite et la joint à votre demande.</small></span></label>
   </div>
   <div class="row">
-    <button type="button" class="btn ghost" id="ck-no">Tout refuser</button>
+    <button type="button" class="btn" id="ck-no">Tout refuser</button>
     <button type="button" class="btn ghost" id="ck-cfg">Personnaliser</button>
     <button type="button" class="btn" id="ck-yes">Tout accepter</button>
   </div>
@@ -181,7 +181,7 @@
   </form>
 </dialog>
 
-<script>window.SITE={v:"5115ce5c",email:""};</script>
-<script src="/assets/site.js?v=5115ce5c" defer></script>
+<script>window.SITE={v:"d56b0083",email:""};</script>
+<script src="/assets/site.js?v=d56b0083" defer></script>
 </body>
 </html>
