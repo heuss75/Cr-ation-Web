@@ -780,11 +780,7 @@ footer{padding-block:22px 30px;font-size:13.5px}
 .exls .fi,.exls .bw{pointer-events:none}.exls .exl .exc{transition:opacity .25s}.exls .exl:not(.front) .exc{opacity:0;pointer-events:none}.exls .exl:not(.front) .btn{pointer-events:none}
 .exar{position:absolute;top:34%;z-index:200;width:46px;height:46px;border-radius:50%;border:1.5px solid var(--ink);background:var(--surface);font:400 26px/1 var(--display);cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.18)}
 .exar.prev{left:8px}.exar.next{right:8px}
-@media(max-width:699px){.exar{display:none}
-.exwrap{overflow:visible;padding:0}
-.exls{perspective:none;display:flex;gap:14px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;height:auto!important;touch-action:pan-x pan-y;cursor:auto;padding:4px 0 10px;scrollbar-width:none}.exls::-webkit-scrollbar{display:none}
-.exls .exl{position:relative;left:auto;top:auto;flex:0 0 84%;width:auto;transform:none!important;opacity:1!important;visibility:visible!important;filter:none!important;z-index:auto!important;scroll-snap-align:center;will-change:auto;transform-style:flat;backface-visibility:visible}
-.exls .exl .exc,.exls .exl:not(.front) .exc{opacity:1!important;pointer-events:auto}.exls .exl:not(.front) .btn{pointer-events:auto}}
+@media(max-width:699px){.exar{display:none}.exwrap{padding:6px 0 0}}
 .exdots{display:flex;gap:7px;justify-content:center;margin-top:6px}.exdots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:.2s}.exdots i.on{width:22px;border-radius:4px;background:var(--ink)}
 .exl{display:grid;gap:12px;align-content:start}
 .bw{border:1.5px solid var(--ink);border-radius:14px;overflow:hidden;background:var(--surface);box-shadow:0 16px 36px rgba(0,0,0,.12)}
