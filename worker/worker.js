@@ -741,7 +741,7 @@ async function adminApi(req, env, url, p) {
         if (ex.formule !== b.formule) await log(env, cid, me.id, 'changement_formule', ex.formule + ' → ' + b.formule);
       }
       await syncStripeAbo(env, cid);
-      if (b.statut === 'impaye') await ouvrirLitige(env, cid, 'impaye', { montant: Math.round((PRIX[b.formule] + PRIX_MAIL * mails) * 1.2 * 100) / 100, periode: parisToday().slice(0, 7), note: 'Abonnement passé en impayé.', source: 'auto' });
+      if (b.statut === 'impaye') await ouvrirLitige(env, cid, 'impaye', { montant: Math.round((PRIX[b.formule] + PRIX_MAIL * mails) * (1 + TVA_TAUX) * 100) / 100, periode: parisToday().slice(0, 7), note: 'Abonnement passé en impayé.', source: 'auto' });
       return json({ ok: true });
     }
     if (p === '/api/admin/plainte') {
@@ -895,7 +895,7 @@ const htmlMail = (t) => '<div style="font-family:Arial,sans-serif;font-size:15px
 const euro = (n) => (Math.round(n * 100) / 100).toFixed(2).replace('.', ',') + ' €';
 const dateFr = (iso) => String(iso || '').slice(0, 10).split('-').reverse().join('/');
 async function cgvPJ() {
-  try { const r = await fetch(REPO + '/cgv.html', { cf: { cacheTtl: 60 } }); if (r.ok) return [{ filename: 'CGV-Devanture-Web-' + CGV_VERSION + '.html', content: b64utf8(await r.text()) }]; } catch (_) {}
+  try { let r = await fetch(REPO + '/cgv-' + CGV_VERSION + '.html', { cf: { cacheTtl: 300 } }); if (!r.ok) r = await fetch(REPO + '/cgv.html', { cf: { cacheTtl: 60 } }); if (r.ok) return [{ filename: 'CGV-Devanture-Web-' + CGV_VERSION + '.html', content: b64utf8(await r.text()) }]; } catch (_) {}
   return [];
 }
 const FORMULAIRE_RETRACTATION = () => 'FORMULAIRE DE RÉTRACTATION (à renvoyer uniquement si vous souhaitez vous rétracter)\nÀ l’attention de ' + (EMETTEUR.nom || '[éditeur]') + ', ' + [EMETTEUR.adresse, EMETTEUR.cp, EMETTEUR.ville].filter(Boolean).join(' ') + ', ' + (EMETTEUR.email || '') + ' :\nJe vous notifie par la présente ma rétractation du contrat portant sur la prestation de services ci-dessous :\n— Abonnement Devanture Web, formule : …\n— Conclu le : …\n— Nom du client et de son entreprise : …\n— Adresse : …\n— Signature (si envoi papier) : …\n— Date : …';
@@ -908,9 +908,11 @@ async function tache(env, cid, titre, detail) {
 async function emettreFacture(env, o) {
   const today = parisToday();
   const em = { ...EMETTEUR, tva_franchise: TVA_FRANCHISE };
-  await env.DB.prepare("INSERT INTO factures (seq, numero, cle, compte_id, commande_id, date_emission, periode, lignes, total_ht, tva, total_ttc, taux_tva, statut, paiement, paiement_ref, paye_le, client, emetteur) SELECT COALESCE(MAX(seq), 0) + 1, 'F" + today.slice(0, 4) + "-' || printf('%06d', COALESCE(MAX(seq), 0) + 1), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? FROM factures WHERE 1 ON CONFLICT(cle) DO NOTHING")
+  const ins = await env.DB.prepare("INSERT INTO factures (seq, numero, cle, compte_id, commande_id, date_emission, periode, lignes, total_ht, tva, total_ttc, taux_tva, statut, paiement, paiement_ref, paye_le, client, emetteur) SELECT COALESCE(MAX(seq), 0) + 1, 'F" + today.slice(0, 4) + "-' || printf('%06d', COALESCE(MAX(seq), 0) + 1), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? FROM factures WHERE 1 ON CONFLICT(cle) DO NOTHING")
     .bind(o.cle, o.compte_id, o.commande_id || null, today, o.periode, JSON.stringify(o.lignes), o.ht, o.tva, o.ttc, TVA_TAUX, o.statut || 'payee', o.paiement || '', o.ref || '', o.paye_le || today, JSON.stringify(o.client), JSON.stringify(em)).run();
-  return env.DB.prepare('SELECT * FROM factures WHERE cle = ?').bind(o.cle).first();
+  const f = await env.DB.prepare('SELECT * FROM factures WHERE cle = ?').bind(o.cle).first();
+  if (f) f.cree = !!(ins.meta && ins.meta.changes);
+  return f;
 }
 function clientDeCommande(c, email) { return { raison_sociale: c.raison_sociale, siren: c.siren || '', tva_intra: c.tva_intra || '', adresse: c.adresse, cp: c.cp, ville: c.ville, email }; }
 
@@ -922,17 +924,24 @@ async function produitStripe(env) {
 // Paiement du 1er mois confirmé par Stripe : commande payée, facture, e-mail.
 async function commandePayee(env, cmdId, o) {
   const c = await env.DB.prepare('SELECT * FROM commandes WHERE id = ?').bind(cmdId).first();
-  if (!c || c.statut === 'payee') return;
-  await env.DB.prepare("UPDATE commandes SET statut = 'payee', paye_at = datetime('now'), stripe_customer = COALESCE(?, stripe_customer), stripe_pm = COALESCE(?, stripe_pm), paiement = ? WHERE id = ?").bind(o.customer || null, o.pm || null, o.mode || '', cmdId).run();
+  if (!c) return;
+  if (c.statut === 'annulee') { await tache(env, c.compte_id, 'Paiement reçu sur une commande annulée : rembourser', 'Commande ' + c.id + ' · référence ' + (o.ref || '?')); return; }
+  if (o.montant != null && Math.abs(o.montant - Math.round(c.ttc * 100)) > 1) { await tache(env, c.compte_id, 'Montant payé différent de la commande', 'Commande ' + c.id + ' : ' + euro(o.montant / 100) + ' payé, ' + euro(c.ttc) + ' attendu. Aucune facture émise : vérifier.'); return; }
+  const up = await env.DB.prepare("UPDATE commandes SET statut = 'payee', paye_at = datetime('now'), stripe_customer = COALESCE(?, stripe_customer), stripe_pm = COALESCE(?, stripe_pm), paiement = ? WHERE id = ? AND statut = 'acceptee'").bind(o.customer || null, o.pm || null, o.mode || '', cmdId).run();
+  const premier = !!(up.meta && up.meta.changes);
+  if (!premier && c.statut !== 'payee') return;
+  if (!premier && o.ref && c.stripe_session && o.session && o.session !== c.stripe_session) { await tache(env, c.compte_id, 'Second paiement reçu pour une commande déjà payée : rembourser', 'Commande ' + c.id + ' · référence ' + o.ref); return; }
   const cpt = await env.DB.prepare('SELECT nom, email FROM comptes WHERE id = ?').bind(c.compte_id).first();
   const m = montants(c.formule, c.mails_payants);
-  const f = await emettreFacture(env, { cle: 'cmd-' + c.id, compte_id: c.compte_id, commande_id: c.id, periode: 'Premier mois d’abonnement (à compter de la mise en ligne du site)', lignes: m.lignes, ht: m.ht, tva: m.tva, ttc: m.ttc, paiement: o.mode || 'Carte bancaire', ref: o.ref || '', client: clientDeCommande(c, cpt && cpt.email) });
-  await log(env, c.compte_id, null, 'commande_payee', 'Commande ' + c.id + ' · ' + euro(m.ttc) + ' · facture ' + (f && f.numero));
+  const lignes = Math.abs(m.ht - c.ht) < 0.005 ? m.lignes : [[c.formule === 'pro' ? 'Abonnement Pro' : 'Abonnement Essentiel', 'Premier mois, au prix accepté à la commande', 1, c.ht]]; // prix figés à l'acceptation
+  const f = await emettreFacture(env, { cle: 'cmd-' + c.id, compte_id: c.compte_id, commande_id: c.id, periode: 'Premier mois d’abonnement (à compter de la mise en ligne du site)', lignes, ht: c.ht, tva: c.tva, ttc: c.ttc, paiement: o.mode || 'Carte bancaire', ref: o.ref || '', client: clientDeCommande(c, cpt && cpt.email) });
+  if (!premier) return; // rejeu : la facture est garantie, le reste a déjà été fait
+  await log(env, c.compte_id, null, 'commande_payee', 'Commande ' + c.id + ' · ' + euro(c.ttc) + ' · facture ' + (f && f.numero));
   await syncStripeAbo(env, c.compte_id);
   await notifier(env, c.compte_id, 'Paiement reçu, merci !', 'Votre premier mois est réglé. Votre facture ' + (f && f.numero) + ' est disponible dans l’onglet Factures. Nous lançons la création de votre site.');
-  await tache(env, c.compte_id, 'Commande payée : lancer la création', c.lieu === 'hors_etablissement' && !c.execution_anticipee ? 'Contrat hors établissement SANS demande d’exécution anticipée : ne pas commencer la création avant le ' + dateFr(plusJours(c.accepte_at, 14)) + '.' : 'Premier mois payé (' + euro(m.ttc) + ').');
+  await tache(env, c.compte_id, 'Commande payée : lancer la création', (c.lieu === 'hors_etablissement' && !c.execution_anticipee ? 'Contrat hors établissement SANS demande d’exécution anticipée : ne pas commencer la création avant le ' + dateFr(plusJours(c.accepte_at, 14)) + '. ' : '') + 'Premier mois payé (' + euro(c.ttc) + ')' + (o.customer ? '.' : ' hors Stripe : les mois suivants seront à facturer et encaisser manuellement (aucun prélèvement automatique).'));
   if (cpt && cpt.email) {
-    const t = 'Bonjour ' + ((cpt.nom || '').split(/\s+/)[0] || '') + ',\n\nNous avons bien reçu le paiement de votre premier mois d’abonnement (' + euro(m.ttc) + ').\nVotre facture ' + (f && f.numero) + ' est disponible dans votre espace client, onglet « Factures ».\n\nNous lançons la création de votre site. Votre abonnement de 12 mois démarrera à sa mise en ligne.\n\nMerci de votre confiance.';
+    const t = 'Bonjour ' + ((cpt.nom || '').split(/\s+/)[0] || '') + ',\n\nNous avons bien reçu le paiement de votre premier mois d’abonnement (' + euro(c.ttc) + ').\nVotre facture ' + (f && f.numero) + ' est disponible dans votre espace client, onglet « Factures ».\n\nNous lançons la création de votre site. Votre abonnement de 12 mois démarrera à sa mise en ligne.\n\nMerci de votre confiance.';
     await envoyerMail(env, cpt.email, 'Paiement reçu · facture ' + (f && f.numero), t, htmlMail(t));
   }
 }
@@ -947,22 +956,28 @@ async function syncStripeAbo(env, cid) {
   try {
     const m = montants(abo.formule, abo.mails_sup || 0), cents = Math.round(m.ttc * 100);
     if (abo.statut === 'resilie') {
-      if (c.stripe_sub) { await stripeApi(env, 'DELETE', '/subscriptions/' + c.stripe_sub); await env.DB.prepare('UPDATE commandes SET stripe_sub = NULL, stripe_item = NULL WHERE id = ?').bind(c.id).run(); await log(env, cid, null, 'stripe_abonnement_arrete', c.stripe_sub); }
+      if (c.stripe_sub) { await stripeApi(env, 'DELETE', '/subscriptions/' + c.stripe_sub); await env.DB.prepare("UPDATE commandes SET stripe_sub = NULL, stripe_item = NULL, sub_fin = datetime('now') WHERE id = ?").bind(c.id).run(); await log(env, cid, null, 'stripe_abonnement_arrete', c.stripe_sub); }
+      return;
+    }
+    if (abo.statut === 'suspendu' || abo.statut === 'impaye') {
+      if (c.stripe_sub && abo.statut === 'suspendu') { await stripeApi(env, 'POST', '/subscriptions/' + c.stripe_sub, { pause_collection: { behavior: 'void' } }); await log(env, cid, null, 'stripe_abonnement_pause', c.stripe_sub); }
       return;
     }
     if (abo.statut !== 'actif') return;
+    if (!c.stripe_sub && c.sub_fin) { await tache(env, cid, 'Réactivation : nouvelle commande nécessaire', 'L’abonnement Stripe de ce client a été arrêté le ' + dateFr(c.sub_fin) + '. Pour reprendre les prélèvements, le client doit valider et payer une nouvelle commande (sinon le premier mois serait offert).'); return; }
     const produit = await produitStripe(env);
     const price_data = { currency: 'eur', product: produit, unit_amount: cents, recurring: { interval: 'month' } };
     if (!c.stripe_sub) {
       const debut = String(abo.debut || parisToday()).slice(0, 10);
       let trialEnd = Math.floor(new Date(plusMois(debut, 1) + 'T09:00:00Z').getTime() / 1000);
       if (trialEnd < Date.now() / 1000 + 3600) trialEnd = Math.floor(Date.now() / 1000) + 3600;
-      const s = await stripeApi(env, 'POST', '/subscriptions', { customer: c.stripe_customer, default_payment_method: c.stripe_pm || undefined, items: [{ price_data }], trial_end: trialEnd, proration_behavior: 'none', collection_method: 'charge_automatically', description: 'Abonnement Devanture Web · formule ' + abo.formule, metadata: { compte_id: cid, commande_id: c.id } }, 'dw-sub-' + c.id);
+      const s = await stripeApi(env, 'POST', '/subscriptions', { customer: c.stripe_customer, default_payment_method: c.stripe_pm || undefined, items: [{ price_data }], trial_end: trialEnd, proration_behavior: 'none', collection_method: 'charge_automatically', description: 'Abonnement Devanture Web · formule ' + abo.formule, metadata: { compte_id: cid, commande_id: c.id } }, 'dw-sub-' + c.id + '-' + debut);
       await env.DB.prepare('UPDATE commandes SET stripe_sub = ?, stripe_item = ? WHERE id = ?').bind(s.id, s.items && s.items.data[0] ? s.items.data[0].id : null, c.id).run();
       await log(env, cid, null, 'stripe_abonnement_cree', s.id + ' · ' + euro(m.ttc) + '/mois, premier prélèvement le ' + dateFr(new Date(trialEnd * 1000).toISOString()));
       return;
     }
     const s = await stripeApi(env, 'GET', '/subscriptions/' + c.stripe_sub);
+    if (s.pause_collection) { await stripeApi(env, 'POST', '/subscriptions/' + c.stripe_sub, { pause_collection: '' }); await log(env, cid, null, 'stripe_abonnement_reprise', c.stripe_sub); }
     const it = s.items && s.items.data[0];
     if (it && it.price && it.price.unit_amount !== cents) {
       await stripeApi(env, 'POST', '/subscriptions/' + c.stripe_sub, { items: [{ id: it.id, price_data }], proration_behavior: 'none' });
@@ -987,7 +1002,8 @@ async function stripeWebhook(req, env) {
       if (cmdId) {
         let pm = null, mode = 'Carte bancaire';
         if (o.payment_intent) { const pi = await stripeApi(env, 'GET', '/payment_intents/' + o.payment_intent); pm = pi.payment_method || null; if (pi.payment_method_types && pi.payment_method_types.length === 1 && pi.payment_method_types[0] === 'sepa_debit') mode = 'Prélèvement SEPA'; if (pm) { try { const pmo = await stripeApi(env, 'GET', '/payment_methods/' + pm); mode = pmo.type === 'sepa_debit' ? 'Prélèvement SEPA' : 'Carte bancaire'; } catch (_) {} } }
-        await commandePayee(env, cmdId, { customer: o.customer, pm, mode, ref: o.payment_intent || o.id });
+        if (o.currency && o.currency !== 'eur') await tache(env, null, 'Paiement Stripe dans une devise inattendue', o.id);
+        else await commandePayee(env, cmdId, { customer: o.customer, pm, mode, ref: o.payment_intent || o.id, session: o.id, montant: o.amount_total });
       }
     } else if (ev.type === 'checkout.session.async_payment_failed') {
       const cmdId = parseInt(o.metadata && o.metadata.commande_id, 10), c = cmdId && await env.DB.prepare('SELECT compte_id FROM commandes WHERE id = ?').bind(cmdId).first();
@@ -999,7 +1015,11 @@ async function stripeWebhook(req, env) {
       const line = o.lines && o.lines.data && o.lines.data[0], start = line && line.period ? new Date(line.period.start * 1000).toISOString().slice(0, 7) : null;
       if (cid && start && o.subtotal > 0) {
         const cr = await env.DB.prepare('SELECT id FROM credits WHERE compte_id = ? AND mois_offert = ?').bind(cid, start).first();
-        if (cr) await stripeApi(env, 'POST', '/invoiceitems', { customer: o.customer, invoice: o.id, amount: -o.subtotal, currency: 'eur', description: 'Mois offert', metadata: { mois_offert: start } }, 'dw-offert-' + o.id);
+        if (cr) {
+          const inv = await stripeApi(env, 'GET', '/invoices/' + o.id);
+          const deja = (inv.lines && inv.lines.data || []).some((l) => l.metadata && l.metadata.mois_offert);
+          if (inv.status === 'draft' && !deja && inv.subtotal > 0) await stripeApi(env, 'POST', '/invoiceitems', { customer: inv.customer, invoice: inv.id, amount: -inv.subtotal, currency: 'eur', description: 'Mois offert', metadata: { mois_offert: start } }, 'dw-offert-' + inv.id);
+        }
       }
     } else if (ev.type === 'invoice.paid' && subDe(o)) {
       const c = await env.DB.prepare('SELECT * FROM commandes WHERE stripe_sub = ?').bind(subDe(o)).first();
@@ -1010,13 +1030,13 @@ async function stripeWebhook(req, env) {
         const ps = line && line.period ? new Date(line.period.start * 1000).toISOString().slice(0, 10) : parisToday();
         const pe = line && line.period ? new Date(line.period.end * 1000 - 86400000).toISOString().slice(0, 10) : '';
         const m = montants(abo ? abo.formule : c.formule, abo ? (abo.mails_sup || 0) : c.mails_payants);
-        const offert = (o.lines && o.lines.data || []).some((l) => l.amount < 0);
+        const offert = (o.lines && o.lines.data || []).some((l) => l.metadata && l.metadata.mois_offert);
         const lignes = m.lignes.slice(); let ht = m.ht, tva = m.tva, ttc = m.ttc;
         if (offert) { lignes.push(['Mois offert', 'Remise de 100 % sur ce mois', -1, m.ht]); ht = 0; tva = 0; ttc = 0; }
-        if (Math.abs(ttc * 100 - o.amount_paid) > 1) await tache(env, c.compte_id, 'Écart de montant Stripe / facture', 'Facture Stripe ' + o.id + ' : ' + euro(o.amount_paid / 100) + ' payé, ' + euro(ttc) + ' attendu. Vérifier avant d’envoyer la facture au comptable.');
+        if (Math.abs(ttc * 100 - o.amount_paid) > 1) { await tache(env, c.compte_id, 'Écart de montant Stripe / facture : facture à émettre à la main', 'Facture Stripe ' + o.id + ' : ' + euro(o.amount_paid / 100) + ' payé, ' + euro(ttc) + ' attendu. Aucune facture émise automatiquement.'); return json({ ok: true }); }
         const f = await emettreFacture(env, { cle: 'stripe-' + o.id, compte_id: c.compte_id, commande_id: c.id, periode: 'Du ' + dateFr(ps) + (pe ? ' au ' + dateFr(pe) : ''), lignes, ht, tva, ttc, paiement: offert ? 'Aucun paiement (mois offert)' : (c.paiement || 'Paiement automatique'), ref: o.id, client: clientDeCommande(c, cpt && cpt.email) });
         if (abo && abo.statut === 'impaye') await env.DB.prepare("UPDATE abonnements SET statut = 'actif', updated_at = datetime('now') WHERE compte_id = ?").bind(c.compte_id).run();
-        await notifier(env, c.compte_id, 'Nouvelle facture disponible', 'Votre facture ' + (f && f.numero) + ' (' + euro(ttc) + ') est disponible dans l’onglet Factures.');
+        if (f && f.cree) await notifier(env, c.compte_id, 'Nouvelle facture disponible', 'Votre facture ' + f.numero + ' (' + euro(ttc) + ') est disponible dans l’onglet Factures.');
       }
     } else if (ev.type === 'invoice.payment_failed' && subDe(o)) {
       const c = await env.DB.prepare('SELECT compte_id, formule FROM commandes WHERE stripe_sub = ?').bind(subDe(o)).first();
@@ -1047,7 +1067,7 @@ function factureXml(f) {
     '<cac:PartyLegalEntity><cbc:RegistrationName>' + x(isSeller ? p.nom : p.raison_sociale) + '</cbc:RegistrationName>' + (p.siren ? '<cbc:CompanyID schemeID="0002">' + x(p.siren) + '</cbc:CompanyID>' : '') + '</cac:PartyLegalEntity>' +
     (p.email ? '<cac:Contact><cbc:ElectronicMail>' + x(p.email) + '</cbc:ElectronicMail></cac:Contact>' : '') + '</cac:Party>';
   const lines = lignes.map((l, i) => '<cac:InvoiceLine><cbc:ID>' + (i + 1) + '</cbc:ID><cbc:InvoicedQuantity unitCode="MON">' + l[2] + '</cbc:InvoicedQuantity><cbc:LineExtensionAmount currencyID="EUR">' + a(l[2] * l[3]) + '</cbc:LineExtensionAmount><cac:Item><cbc:Description>' + x(l[1]) + '</cbc:Description><cbc:Name>' + x(l[0]) + '</cbc:Name>' + taxCat + '</cac:Item><cac:Price><cbc:PriceAmount currencyID="EUR">' + a(l[3]) + '</cbc:PriceAmount></cac:Price></cac:InvoiceLine>').join('');
-  const notes = ['Prestation de services. Période : ' + f.periode, franchise ? 'TVA non applicable, art. 293 B du CGI' : '', 'Pénalités de retard : trois fois le taux d’intérêt légal. Indemnité forfaitaire pour frais de recouvrement (client professionnel) : 40 €. Pas d’escompte pour paiement anticipé.'].filter(Boolean);
+  const notes = ['Prestation de services. Période : ' + f.periode, franchise ? 'TVA non applicable, art. 293 B du CGI' : '', '#PMD#Pénalités de retard : trois fois le taux d’intérêt légal.', '#PMT#Indemnité forfaitaire pour frais de recouvrement (client professionnel) : 40 €.', '#AAB#Pas d’escompte pour paiement anticipé.'].filter(Boolean);
   return '<?xml version="1.0" encoding="UTF-8"?>\n<Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2">' +
     '<cbc:CustomizationID>urn:cen.eu:en16931:2017</cbc:CustomizationID><cbc:ID>' + x(f.numero) + '</cbc:ID><cbc:IssueDate>' + x(f.date_emission) + '</cbc:IssueDate><cbc:DueDate>' + x(f.date_emission) + '</cbc:DueDate><cbc:InvoiceTypeCode>380</cbc:InvoiceTypeCode>' +
     notes.map((n) => '<cbc:Note>' + x(n) + '</cbc:Note>').join('') + '<cbc:DocumentCurrencyCode>EUR</cbc:DocumentCurrencyCode>' +
@@ -1107,7 +1127,10 @@ async function espaceFacturation(req, env, url, p) {
     if (b.pro !== true) e.pro = 'Cette offre est réservée aux professionnels et associations.';
     if (Object.keys(e).length) return json({ ok: false, errors: e }, 422);
     const pay = mailsPayants(d.formule === 'pro' ? 'pro' : 'essentiel', d.mails), mm = montants(d.formule === 'pro' ? 'pro' : 'essentiel', pay);
-    if (cmd) await env.DB.prepare("UPDATE commandes SET statut = 'annulee' WHERE id = ?").bind(cmd.id).run();
+    if (cmd) {
+      if (cmd.stripe_session && stripeOk(env)) { try { await stripeApi(env, 'POST', '/checkout/sessions/' + cmd.stripe_session + '/expire'); } catch (e) { const st = await stripeApi(env, 'GET', '/checkout/sessions/' + cmd.stripe_session).catch(() => null); if (st && st.status === 'complete') return json({ ok: false, error: 'deja-payee' }, 409); } }
+      await env.DB.prepare("UPDATE commandes SET statut = 'annulee' WHERE id = ? AND statut = 'acceptee'").bind(cmd.id).run();
+    }
     const ip = await sha((req.headers.get('cf-connecting-ip') || '') + '|cmd');
     const r = await env.DB.prepare("INSERT INTO commandes (compte_id, demande_id, formule, mails_payants, ht, tva, ttc, raison_sociale, siren, tva_intra, adresse, cp, ville, lieu, execution_anticipee, cgv_version, accepte_at, ip_hash, ua, statut) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,datetime('now'),?,?,'acceptee')")
       .bind(u.id, d.id, d.formule === 'pro' ? 'pro' : 'essentiel', pay, mm.ht, mm.tva, mm.ttc, rs, siren.slice(0, 9), tvai, adresse, cp, ville, b.lieu, b.execution_anticipee === true ? 1 : 0, CGV_VERSION, ip.slice(0, 32), (req.headers.get('user-agent') || '').slice(0, 200)).run();
@@ -1125,11 +1148,11 @@ async function espaceFacturation(req, env, url, p) {
     if (!cmd || cmd.statut !== 'acceptee') return json({ ok: false, error: 'pas-de-commande' }, 409);
     if (!stripeOk(env) || !emetteurOk()) return json({ ok: false, error: 'paiement-indisponible' }, 409);
     if (payableLe && parisToday() < payableLe) return json({ ok: false, error: 'delai-7-jours', le: payableLe }, 409);
-    const mm = montants(cmd.formule, cmd.mails_payants);
+    if (cmd.stripe_session) { try { const old = await stripeApi(env, 'GET', '/checkout/sessions/' + cmd.stripe_session); if (old && old.status === 'open' && old.url) return json({ ok: true, url: old.url }); if (old && old.status === 'complete') return json({ ok: false, error: 'deja-payee' }, 409); } catch (_) {} }
     let s;
     try { s = await stripeApi(env, 'POST', '/checkout/sessions', {
       mode: 'payment', locale: 'fr', client_reference_id: String(cmd.id), customer_email: u.email, customer_creation: 'always',
-      line_items: [{ quantity: 1, price_data: { currency: 'eur', unit_amount: Math.round(mm.ttc * 100), product_data: { name: 'Abonnement Devanture Web · formule ' + (cmd.formule === 'pro' ? 'Pro' : 'Essentiel') + ' · premier mois' } } }],
+      line_items: [{ quantity: 1, price_data: { currency: 'eur', unit_amount: Math.round(cmd.ttc * 100), product_data: { name: 'Abonnement Devanture Web · formule ' + (cmd.formule === 'pro' ? 'Pro' : 'Essentiel') + ' · premier mois' } } }],
       payment_intent_data: { setup_future_usage: 'off_session', description: 'Devanture Web · commande ' + cmd.id + ' · premier mois', metadata: { commande_id: cmd.id, compte_id: u.id } },
       metadata: { commande_id: cmd.id, compte_id: u.id },
       success_url: url.origin + '/espace?paiement=ok#abo', cancel_url: url.origin + '/espace?paiement=annule#abo',
@@ -1149,8 +1172,8 @@ async function adminFacturation(req, env, url, p) {
   if (p === '/api/admin/factures' && req.method === 'GET') {
     const cid = parseInt(url.searchParams.get('compte_id'), 10);
     return json({ ok: true, emetteur_ok: emetteurOk(), stripe_ok: stripeOk(env), franchise: TVA_FRANCHISE,
-      factures: await all('SELECT f.id, f.numero, f.compte_id, f.date_emission, f.periode, f.total_ht, f.tva, f.total_ttc, f.statut, f.paiement, c.nom FROM factures f JOIN comptes c ON c.id = f.compte_id' + (cid ? ' WHERE f.compte_id = ' + cid : '') + ' ORDER BY f.seq DESC LIMIT 1000'),
-      commandes: await all("SELECT id, compte_id, formule, ttc, raison_sociale, siren, lieu, execution_anticipee, cgv_version, accepte_at, statut, paye_at, stripe_sub FROM commandes" + (cid ? ' WHERE compte_id = ' + cid : '') + ' ORDER BY id DESC LIMIT 500') });
+      factures: cid ? await all('SELECT f.id, f.numero, f.compte_id, f.date_emission, f.periode, f.total_ht, f.tva, f.total_ttc, f.statut, f.paiement, c.nom FROM factures f JOIN comptes c ON c.id = f.compte_id WHERE f.compte_id = ? ORDER BY f.seq DESC', cid) : await all('SELECT f.id, f.numero, f.compte_id, f.date_emission, f.periode, f.total_ht, f.tva, f.total_ttc, f.statut, f.paiement, c.nom FROM factures f JOIN comptes c ON c.id = f.compte_id ORDER BY f.seq DESC LIMIT 1000'),
+      commandes: cid ? await all('SELECT id, compte_id, formule, ttc, raison_sociale, siren, lieu, execution_anticipee, cgv_version, accepte_at, statut, paye_at, stripe_sub FROM commandes WHERE compte_id = ? ORDER BY id DESC', cid) : await all('SELECT id, compte_id, formule, ttc, raison_sociale, siren, lieu, execution_anticipee, cgv_version, accepte_at, statut, paye_at, stripe_sub FROM commandes ORDER BY id DESC LIMIT 500') });
   }
   if (p === '/api/admin/facture-xml' && req.method === 'GET') {
     const f = await one('SELECT * FROM factures WHERE id = ?', parseInt(url.searchParams.get('id'), 10) || 0);
@@ -1173,7 +1196,7 @@ let SCHEMA_OK = false;
 async function ensureSchema(env) {
   if (SCHEMA_OK) return;
   const S = [
-    "CREATE TABLE IF NOT EXISTS commandes (id INTEGER PRIMARY KEY AUTOINCREMENT, compte_id INTEGER NOT NULL, demande_id INTEGER, formule TEXT NOT NULL, mails_payants INTEGER NOT NULL DEFAULT 0, ht REAL, tva REAL, ttc REAL, raison_sociale TEXT, siren TEXT, tva_intra TEXT, adresse TEXT, cp TEXT, ville TEXT, lieu TEXT, execution_anticipee INTEGER NOT NULL DEFAULT 0, cgv_version TEXT, accepte_at TEXT, ip_hash TEXT, ua TEXT, statut TEXT NOT NULL DEFAULT 'acceptee', paiement TEXT, stripe_session TEXT, stripe_customer TEXT, stripe_pm TEXT, stripe_sub TEXT, stripe_item TEXT, paye_at TEXT, created_at TEXT NOT NULL DEFAULT (datetime('now')))",
+    "CREATE TABLE IF NOT EXISTS commandes (id INTEGER PRIMARY KEY AUTOINCREMENT, compte_id INTEGER NOT NULL, demande_id INTEGER, formule TEXT NOT NULL, mails_payants INTEGER NOT NULL DEFAULT 0, ht REAL, tva REAL, ttc REAL, raison_sociale TEXT, siren TEXT, tva_intra TEXT, adresse TEXT, cp TEXT, ville TEXT, lieu TEXT, execution_anticipee INTEGER NOT NULL DEFAULT 0, cgv_version TEXT, accepte_at TEXT, ip_hash TEXT, ua TEXT, statut TEXT NOT NULL DEFAULT 'acceptee', paiement TEXT, stripe_session TEXT, stripe_customer TEXT, stripe_pm TEXT, stripe_sub TEXT, stripe_item TEXT, sub_fin TEXT, paye_at TEXT, created_at TEXT NOT NULL DEFAULT (datetime('now')))",
     "CREATE TABLE IF NOT EXISTS factures (id INTEGER PRIMARY KEY AUTOINCREMENT, seq INTEGER NOT NULL UNIQUE, numero TEXT NOT NULL UNIQUE, cle TEXT NOT NULL UNIQUE, compte_id INTEGER NOT NULL, commande_id INTEGER, date_emission TEXT NOT NULL, periode TEXT, lignes TEXT NOT NULL, total_ht REAL NOT NULL, tva REAL NOT NULL, total_ttc REAL NOT NULL, taux_tva REAL NOT NULL, statut TEXT NOT NULL, paiement TEXT, paiement_ref TEXT, paye_le TEXT, client TEXT NOT NULL, emetteur TEXT NOT NULL, created_at TEXT NOT NULL DEFAULT (datetime('now')))",
     "CREATE TRIGGER IF NOT EXISTS factures_sans_modif BEFORE UPDATE ON factures BEGIN SELECT RAISE(ABORT, 'Une facture émise ne peut pas être modifiée : faites un avoir.'); END",
     "CREATE TRIGGER IF NOT EXISTS factures_sans_suppr BEFORE DELETE ON factures BEGIN SELECT RAISE(ABORT, 'Une facture émise ne peut pas être supprimée (conservation 10 ans).'); END",

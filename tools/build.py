@@ -761,4 +761,9 @@ if INDEXABLE:
     wr("sitemap.xml", '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">%s</urlset>' % urls)
 import fonts_local
 fonts_local.rewrite(OUT)
+# copie datée des CGV, jointe aux e-mails de confirmation de commande (worker.js : CGV_VERSION)
+_cv = re.search(r"const CGV_VERSION = '([0-9-]+)'", rd(os.path.join(ROOT, "worker", "worker.js")))
+if _cv:
+    import shutil
+    shutil.copyfile(os.path.join(OUT, "cgv.html"), os.path.join(OUT, "cgv-%s.html" % _cv.group(1)))
 print("OK  version=%s  pages=%d  recherche=%d entrées  css=%dko" % (VER, len(PAGES) + 1, len(entries), len(css) // 1024))
